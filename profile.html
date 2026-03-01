@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Profile</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    /* ── Profile hero ── */
+    .profile-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+      padding: 32px 20px 28px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .profile-hero::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:180px; height:180px; border-radius:50%;
+      background:rgba(99,102,241,0.12); pointer-events:none;
+    }
+    .profile-hero::after {
+      content:''; position:absolute; bottom:-40px; left:-40px;
+      width:120px; height:120px; border-radius:50%;
+      background:rgba(16,185,129,0.08); pointer-events:none;
+    }
+
+    .p-avatar-wrap {
+      position: relative; display: inline-block; margin-bottom: 14px;
+      cursor: pointer;
+    }
+    .p-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--c-brand), #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 2rem; color: white;
+      border: 3px solid rgba(255,255,255,0.15);
+      box-shadow: 0 8px 24px rgba(99,102,241,0.45);
+      position: relative; z-index: 1;
+      overflow: hidden; transition: filter 0.2s ease;
+    }
+    .p-avatar img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    }
+    .p-avatar-wrap:hover .p-avatar { filter: brightness(0.75); }
+    .p-avatar-edit-btn {
+      position: absolute; bottom: 0; right: -2px; z-index: 3;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c-brand); border: 2px solid #0f172a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.5);
+      transition: transform 0.2s ease;
+    }
+    .p-avatar-wrap:active .p-avatar-edit-btn { transform: scale(0.9); }
+    .p-avatar-ring {
+      position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px dashed rgba(99,102,241,0.4);
+      animation: spin 12s linear infinite;
+    }
+    .p-avatar-uploading::after {
+      content: ''; position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Cover banner ── */
+    .p-cover {
+      width: 100%; height: 80px; object-fit: cover;
+      position: absolute; top: 0; left: 0; right: 0;
+      opacity: 0.35; pointer-events: none;
+    }
+    .p-cover-btn {
+      position: absolute; top: 12px; right: 16px; z-index: 2;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px; padding: 5px 12px; cursor: pointer;
+      font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.7);
+      transition: all 0.18s ease; backdrop-filter: blur(4px);
+    }
+    .p-cover-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+
+    /* ── Crop modal ── */
+    .crop-modal {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .crop-modal.show { display: flex; animation: fadeIn 0.2s ease; }
+    .crop-box {
+      background: var(--bg-card); border-radius: 20px;
+      padding: 20px; width: 100%; max-width: 380px;
+      animation: fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .crop-title {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.95rem; color: var(--text); margin-bottom: 14px;
+      text-align: center;
+    }
+    .crop-canvas-wrap {
+      width: 240px; height: 240px; border-radius: 50%;
+      overflow: hidden; margin: 0 auto 14px;
+      border: 3px solid var(--c-brand);
+      position: relative; background: #000; cursor: move;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);
+    }
+    #cropCanvas {
+      position: absolute; top: 0; left: 0;
+      transform-origin: center; touch-action: none;
+    }
+    .crop-hint {
+      text-align: center; font-size: 0.72rem; color: var(--text-3);
+      margin-bottom: 14px;
+    }
+    .crop-zoom {
+      width: 100%; margin-bottom: 16px; accent-color: var(--c-brand);
+    }
+    .crop-actions { display: flex; gap: 8px; }
+    .upload-progress-ring {
+      display: none; position: absolute; inset: 0; border-radius: 50%;
+      align-items: center; justify-content: center; z-index: 4;
+      background: rgba(15,23,42,0.7);
+    }
+    .upload-progress-ring.show { display: flex; }
+    .upr-text {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.75rem; color: white;
+    }
+    .p-premium-crown {
+      position: absolute; bottom: -2px; right: -2px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; z-index: 2;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.5);
+      border: 2px solid #0f172a;
+    }
+
+    .p-name {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 1.4rem; color: white; letter-spacing: -0.5px;
+      margin-bottom: 3px; position: relative; z-index: 1;
+    }
+    .p-email {
+      font-size: 0.74rem; color: rgba(255,255,255,0.4);
+      margin-bottom: 12px; position: relative; z-index: 1;
+    }
+    .p-badges-row {
+      display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
+      position: relative; z-index: 1;
+    }
+    .p-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 100px;
+      font-size: 0.67rem; font-weight: 700; letter-spacing: 0.3px;
+    }
+    .p-tag-exam   { background: rgba(99,102,241,0.2);  color: #818cf8; border: 1px solid rgba(99,102,241,0.25); }
+    .p-tag-state  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+    .p-tag-school { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+    .p-tag-prem   { background: linear-gradient(135deg,rgba(245,158,11,0.3),rgba(249,115,22,0.3)); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+
+    /* ── Stats strip ── */
+    .p-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-bottom: 16px;
+    }
+    .p-stat {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 8px; text-align: center;
+      box-shadow: var(--shadow-xs);
+    }
+    .p-stat-n {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 1.2rem; display: block; margin-bottom: 3px; line-height: 1;
+    }
+    .p-stat-l {
+      font-size: 0.58rem; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ── Target progress ── */
+    .target-strip {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border-radius: 16px; padding: 16px;
+      margin-bottom: 14px; border: 1px solid rgba(99,102,241,0.2);
+    }
+    .ts-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .ts-title {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.82rem; color: white;
+    }
+    .ts-value {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.8rem; color: #818cf8;
+    }
+    .ts-bar-bg {
+      height: 8px; background: rgba(255,255,255,0.08);
+      border-radius: 100px; overflow: hidden; margin-bottom: 6px;
+    }
+    .ts-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, var(--c-brand), var(--c-green));
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ts-foot {
+      display: flex; justify-content: space-between;
+      font-size: 0.65rem; color: rgba(255,255,255,0.35); font-weight: 600;
+    }
+
+    /* ── Badges grid ── */
+    .badges-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-bottom: 4px;
+    }
+    .badge-tile {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 8px; text-align: center;
+      box-shadow: var(--shadow-xs); transition: all 0.2s ease;
+      position: relative; overflow: hidden;
+    }
+    .badge-tile:active { transform: scale(0.95); }
+    .badge-tile.earned {
+      border-color: rgba(245,158,11,0.3);
+      background: linear-gradient(135deg, rgba(245,158,11,0.06), var(--bg-card));
+    }
+    .badge-tile.locked { opacity: 0.4; }
+    .badge-tile .bt-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+    .badge-tile .bt-name {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.6rem; color: var(--text-2); line-height: 1.3;
+    }
+    .badge-tile.earned .bt-name { color: var(--c-gold); }
+
+    /* ── Settings list ── */
+    .settings-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; }
+    .setting-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 14px; border-radius: 12px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.18s ease;
+      box-shadow: var(--shadow-xs);
+    }
+    .setting-row:active { transform: scale(0.99); background: var(--bg-input); }
+    .setting-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+    }
+    .setting-label {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.84rem; color: var(--text); flex: 1;
+    }
+    .setting-value {
+      font-size: 0.72rem; color: var(--text-3); font-weight: 600;
+    }
+    .setting-arrow { color: var(--text-3); font-size: 0.8rem; }
+    .setting-row.danger .setting-label { color: var(--c-red); }
+    .setting-row.danger .setting-icon  { background: var(--c-red-pale); }
+
+    /* ── Edit overlay ── */
+    .overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+      align-items: flex-end; justify-content: center;
+    }
+    .overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+    .edit-sheet {
+      background: var(--bg-card); border-radius: 24px 24px 0 0;
+      padding: 24px 20px 40px; width: 100%; max-width: var(--max-width);
+      animation: fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sheet-handle {
+      width: 36px; height: 4px; border-radius: 100px;
+      background: var(--border); margin: 0 auto 20px;
+    }
+    .sheet-title {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 1rem; color: var(--text); margin-bottom: 18px;
+    }
+
+    /* ── Toggle setting ── */
+    .toggle-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 12px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .toggle-row .setting-icon { flex-shrink: 0; }
+    .toggle-label {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.84rem; color: var(--text); flex: 1;
+    }
+    .toggle-sub { font-size: 0.68rem; color: var(--text-3); margin-top: 1px; }
+
+    /* ── Danger zone ── */
+    .danger-zone {
+      border: 1.5px solid rgba(244,63,94,0.2); border-radius: 16px;
+      padding: 16px; margin-bottom: 20px;
+      background: rgba(244,63,94,0.03);
+    }
+    .danger-zone h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.78rem; color: var(--c-red); margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<div class="profile-hero animate-in" id="profileHero">
+  <!-- Cover photo (subtle) -->
+  <img id="pCover" class="p-cover" src="" alt="" style="display:none;"/>
+  <button class="p-cover-btn" onclick="document.getElementById('coverInput').click()">📷 Cover</button>
+  <input type="file" id="coverInput" accept="image/*" style="display:none;" onchange="handleCoverPick(event)"/>
+
+  <div class="p-avatar-wrap" onclick="document.getElementById('avatarInput').click()" title="Change photo">
+    <div class="p-avatar" id="pAvatar">?
+      <!-- Upload progress ring overlay -->
+      <div class="upload-progress-ring" id="avatarProgressRing">
+        <span class="upr-text" id="avatarProgressPct">0%</span>
+      </div>
+    </div>
+    <div class="p-avatar-ring"></div>
+    <div class="p-avatar-edit-btn">📷</div>
+    <div class="p-premium-crown" id="pCrown" style="display:none;">👑</div>
+  </div>
+
+  <!-- Hidden file input for avatar -->
+  <input type="file" id="avatarInput" accept="image/*" capture="user" style="display:none;" onchange="handleAvatarPick(event)"/>
+
+  <div class="p-name" id="pName">Loading...</div>
+  <div class="p-email" id="pEmail"></div>
+  <div class="p-badges-row" id="pTagsRow"></div>
+</div>
+
+<!-- ── Crop Modal ── -->
+<div class="crop-modal" id="cropModal">
+  <div class="crop-box">
+    <div class="crop-title">✂️ Crop Photo</div>
+    <div class="crop-canvas-wrap" id="cropWrap"
+      onmousedown="startDrag(event)" ontouchstart="startDrag(event)"
+      onmousemove="onDrag(event)"   ontouchmove="onDrag(event)"
+      onmouseup="endDrag()"         ontouchend="endDrag()">
+      <canvas id="cropCanvas"></canvas>
+    </div>
+    <div class="crop-hint">Drag to reposition · Pinch or slide to zoom</div>
+    <input type="range" class="crop-zoom" id="cropZoom"
+      min="0.5" max="3" step="0.05" value="1"
+      oninput="onZoom(this.value)"/>
+    <div class="crop-actions">
+      <button class="btn btn-ghost" onclick="closeCrop()" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCrop()" style="flex:2;" id="saveCropBtn">✅ Use Photo</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Stats -->
+  <div class="p-stats animate-in animate-in-delay-1">
+    <div class="p-stat">
+      <span class="p-stat-n" id="psExams" style="color:var(--c-brand);">—</span>
+      <span class="p-stat-l">Exams</span>
+    </div>
+    <div class="p-stat">
+      <span class="p-stat-n" id="psAvg" style="color:var(--c-green);">—</span>
+      <span class="p-stat-l">Average</span>
+    </div>
+    <div class="p-stat">
+      <span class="p-stat-n" id="psStreak" style="color:var(--c-gold);">—</span>
+      <span class="p-stat-l">Streak</span>
+    </div>
+    <div class="p-stat">
+      <span class="p-stat-n" id="psXP" style="color:#a855f7;">—</span>
+      <span class="p-stat-l">XP</span>
+    </div>
+  </div>
+
+  <!-- Target progress -->
+  <div class="target-strip animate-in animate-in-delay-1" id="targetStrip" style="display:none;">
+    <div class="ts-header">
+      <div class="ts-title">🎯 Target Score Progress</div>
+      <div class="ts-value" id="tsValue">— / 400</div>
+    </div>
+    <div class="ts-bar-bg">
+      <div class="ts-bar-fill" id="tsBarFill" style="width:0%;"></div>
+    </div>
+    <div class="ts-foot">
+      <span>Current: <span id="tsCurrent">—</span></span>
+      <span id="tsPct">—% of goal</span>
+    </div>
+  </div>
+
+  <!-- Achievements / Badges -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">🏅</div>
+    <h3>Achievements</h3>
+  </div>
+  <div class="badges-grid animate-in animate-in-delay-2" id="badgesGrid">
+    <!-- Injected by JS -->
+  </div>
+
+  <!-- Settings -->
+  <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
+    <div class="section-icon">⚙️</div>
+    <h3>Settings</h3>
+  </div>
+
+  <div class="settings-list animate-in animate-in-delay-3">
+    <div class="setting-row" onclick="openEditProfile()">
+      <div class="setting-icon" style="background:var(--c-brand-pale);">✏️</div>
+      <div class="flex-1">
+        <div class="setting-label">Edit Profile</div>
+      </div>
+      <span class="setting-arrow">›</span>
+    </div>
+    <div class="setting-row" onclick="openTargetSheet()">
+      <div class="setting-icon" style="background:rgba(16,185,129,0.1);">🎯</div>
+      <div class="flex-1">
+        <div class="setting-label">Target Score</div>
+        <div class="setting-value" id="targetVal">Not set</div>
+      </div>
+      <span class="setting-arrow">›</span>
+    </div>
+    <div class="setting-row" onclick="openSubjectsSheet()">
+      <div class="setting-icon" style="background:rgba(245,158,11,0.1);">📚</div>
+      <div class="flex-1">
+        <div class="setting-label">My Subjects</div>
+        <div class="setting-value" id="subjectsVal">Not set</div>
+      </div>
+      <span class="setting-arrow">›</span>
+    </div>
+    <!-- Admin link — shown only for admin users by JS -->
+    <div class="setting-row" id="adminLink" style="display:none;" onclick="window.location.href='admin.html'">
+      <div class="setting-icon" style="background:rgba(168,85,247,0.1);">🛡️</div>
+      <div class="flex-1">
+        <div class="setting-label" style="color:#c084fc;">Admin Panel</div>
+      </div>
+      <span class="setting-arrow">›</span>
+    </div>
+    <div class="setting-row" onclick="toggleTheme()">
+      <div class="setting-icon" style="background:rgba(148,163,184,0.1);" id="themeIcon">🌙</div>
+      <div class="flex-1">
+        <div class="setting-label">Dark Mode</div>
+      </div>
+      <div id="themeToggleWrap">
+        <label class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="themeCheckbox"/>
+          <div class="toggle-slider"></div>
+          <div class="toggle-knob"></div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upgrade -->
+  <div id="upgradeStrip" style="display:none;" class="animate-in animate-in-delay-3">
+    <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:16px;
+      padding:16px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.2);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:2rem;flex-shrink:0;">👑</div>
+        <div style="flex:1;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+            font-size:0.88rem;color:white;margin-bottom:3px;">Go Premium</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);">
+            AI explanations · Deep analytics · Unlimited bookmarks
+          </div>
+        </div>
+        <a href="upgrade.html" style="background:linear-gradient(135deg,#f59e0b,#f97316);
+          color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+          font-size:0.7rem;padding:8px 14px;border-radius:100px;text-decoration:none;
+          white-space:nowrap;box-shadow:0 3px 10px rgba(245,158,11,0.4);">
+          From ₦2k
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone animate-in animate-in-delay-4">
+    <h4>⚠️ Danger Zone</h4>
+    <div class="settings-list" style="margin-bottom:0;">
+      <div class="setting-row danger" onclick="confirmSignOut()">
+        <div class="setting-icon">🚪</div>
+        <div class="setting-label">Sign Out</div>
+        <span class="setting-arrow">›</span>
+      </div>
+      <div class="setting-row danger" onclick="confirmDeleteAccount()">
+        <div class="setting-icon">🗑️</div>
+        <div class="setting-label">Delete Account</div>
+        <span class="setting-arrow">›</span>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:0.68rem;color:var(--text-3);margin-bottom:20px;">
+    EXAMORA v2.0 · Made with ❤️ in Nigeria
+  </p>
+
+</div>
+
+<!-- ── Edit Profile Sheet ── -->
+<div class="overlay" id="editOverlay" onclick="closeSheet('editOverlay',event)">
+  <div class="edit-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">✏️ Edit Profile</div>
+    <div class="form-group">
+      <label class="form-label">Display Name</label>
+      <input type="text" class="form-input" id="editName" placeholder="Your full name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">School / University</label>
+      <input type="text" class="form-input" id="editSchool" placeholder="e.g. University of Lagos"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">State</label>
+      <select class="form-select" id="editState">
+        <option value="">Select state</option>
+        ${["Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+           "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT Abuja","Gombe",
+           "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara",
+           "Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau",
+           "Rivers","Sokoto","Taraba","Yobe","Zamfara"].map(s=>`<option value="${s}">${s}</option>`).join("")}
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="saveProfile()">Save Changes ✓</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeSheet('editOverlay')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Target Score Sheet ── -->
+<div class="overlay" id="targetOverlay" onclick="closeSheet('targetOverlay',event)">
+  <div class="edit-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🎯 Set Target Score</div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+        font-size:3rem;letter-spacing:-2px;background:linear-gradient(135deg,var(--c-brand),var(--c-green));
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"
+        id="targetSliderNum">250</div>
+      <div style="font-size:0.74rem;color:var(--text-3);">out of 400</div>
+    </div>
+    <input type="range" min="140" max="400" step="5" value="250" id="targetSlider"
+      oninput="document.getElementById('targetSliderNum').textContent=this.value"
+      style="margin-bottom:16px;"/>
+    <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-3);margin-bottom:20px;">
+      <span>140</span><span>200</span><span>250</span><span>300</span><span>400</span>
+    </div>
+    <button class="btn btn-primary" onclick="saveTarget()">Save Target ✓</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeSheet('targetOverlay')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Subjects Sheet ── -->
+<div class="overlay" id="subjOverlay" onclick="closeSheet('subjOverlay',event)">
+  <div class="edit-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">📚 My Subjects</div>
+    <div id="subjChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"></div>
+    <button class="btn btn-primary" onclick="saveSubjects()">Save ✓</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeSheet('subjOverlay')">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item active"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+  // Theme
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  const isDark=()=>document.documentElement.getAttribute("data-theme")==="dark";
+  document.getElementById("themeBtn").textContent=isDark()?"☀️":"🌙";
+  document.getElementById("themeCheckbox").checked=isDark();
+  document.getElementById("themeIcon").textContent=isDark()?"☀️":"🌙";
+
+  function toggleTheme(){
+    const n=isDark()?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    document.getElementById("themeCheckbox").checked=n==="dark";
+    document.getElementById("themeIcon").textContent=n==="dark"?"☀️":"🌙";
+  }
+  document.getElementById("themeCheckbox").addEventListener("change", toggleTheme);
+
+  function toast(msg,dur=2800){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
+
+  function closeSheet(id,e){
+    if(!e||e.target===document.getElementById(id))
+      document.getElementById(id).classList.remove("show");
+  }
+
+  // All badges catalogue
+  const ALL_BADGES=[
+    {id:"first_exam",    icon:"🎓", name:"First Exam",     desc:"Completed your first exam"},
+    {id:"streak_3",      icon:"🔥", name:"3-Day Streak",   desc:"3 consecutive days of practice"},
+    {id:"streak_7",      icon:"💫", name:"Week Warrior",   desc:"7-day study streak"},
+    {id:"streak_30",     icon:"⚡", name:"Iron Will",      desc:"30 consecutive days"},
+    {id:"perfect",       icon:"💯", name:"Perfect Score",  desc:"Scored 100% on an exam"},
+    {id:"top_10",        icon:"🏆", name:"Top 10",         desc:"Reached top 10 on leaderboard"},
+    {id:"100_exams",     icon:"📝", name:"Century",        desc:"100 exams completed"},
+    {id:"dc_7",          icon:"⚡", name:"Daily Devotee",  desc:"7 daily challenges completed"},
+    {id:"high_scorer",   icon:"🌟", name:"High Scorer",    desc:"Averaged above 80%"},
+    {id:"bookworm",      icon:"🔖", name:"Bookworm",       desc:"Saved 20+ questions"},
+    {id:"speed_demon",   icon:"⏩", name:"Speed Demon",    desc:"Finished exam in under 5 mins"},
+    {id:"premium",       icon:"👑", name:"Premium",        desc:"Upgraded to Premium"},
+  ];
+
+  let userData={}, currentSubjects=[];
+
+  function renderBadges(earnedBadges){
+    const grid=document.getElementById("badgesGrid");
+    grid.innerHTML=ALL_BADGES.map(b=>{
+      const earned=earnedBadges.includes(b.id);
+      return `<div class="badge-tile ${earned?"earned":"locked"}" title="${b.desc}">
+        <span class="bt-icon">${b.icon}</span>
+        <div class="bt-name">${b.name}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function openEditProfile(){
+    document.getElementById("editName").value=userData.displayName||"";
+    document.getElementById("editSchool").value=userData.school||"";
+    document.getElementById("editState").value=userData.state||"";
+    document.getElementById("editOverlay").classList.add("show");
+  }
+
+  function openTargetSheet(){
+    const v=userData.targetScore||250;
+    document.getElementById("targetSlider").value=v;
+    document.getElementById("targetSliderNum").textContent=v;
+    document.getElementById("targetOverlay").classList.add("show");
+  }
+
+  function openSubjectsSheet(){
+    const ALL_SUBJ=["Mathematics","English Language","Physics","Chemistry","Biology",
+      "Economics","Government","Literature in English","Geography","Commerce",
+      "Agricultural Science","Accounting","Further Mathematics","Civic Education",
+      "Use of English","General Studies","Financial Accounting"];
+    document.getElementById("subjChips").innerHTML=ALL_SUBJ.map(s=>`
+      <div class="subj-chip ${currentSubjects.includes(s)?"selected":""}"
+        onclick="this.classList.toggle('selected');"
+        style="padding:8px 14px;border-radius:100px;border:1.5px solid var(--border);
+          background:var(--bg-card);font-family:'Plus Jakarta Sans',sans-serif;
+          font-weight:700;font-size:0.72rem;color:var(--text-2);cursor:pointer;
+          transition:all 0.18s ease;">
+        ${s}
+      </div>`).join("");
+    // Add click style
+    document.querySelectorAll("#subjChips .subj-chip").forEach(c=>{
+      c.addEventListener("click",function(){
+        const sel=this.classList.contains("selected");
+        this.style.background=sel?"var(--bg-card)":"var(--c-brand)";
+        this.style.borderColor=sel?"var(--border)":"var(--c-brand)";
+        this.style.color=sel?"var(--text-2)":"white";
+      });
+      // Init style for already selected
+      if(c.classList.contains("selected")){
+        c.style.background="var(--c-brand)";
+        c.style.borderColor="var(--c-brand)";
+        c.style.color="white";
+      }
+    });
+    document.getElementById("subjOverlay").classList.add("show");
+  }
+
+  function confirmSignOut(){
+    if(confirm("Sign out of EXAMORA?")) window._signOut();
+  }
+
+  function confirmDeleteAccount(){
+    if(confirm("Delete your account? This cannot be undone.")){
+      if(confirm("Are you absolutely sure? All your data will be lost.")){
+        window._deleteAccount();
+      }
+    }
+  }
+</script>
+
+<!-- ── Avatar crop & upload logic ── -->
+<script>
+  // ── Crop state ──
+  let cropImg=null, cropX=0, cropY=0, cropZoom=1;
+  let dragStart=null, imgStartX=0, imgStartY=0;
+  let cropMode="avatar"; // or "cover"
+  let croppedBlob=null;
+
+  function handleAvatarPick(e){
+    const file=e.target.files[0]; if(!file) return;
+    cropMode="avatar";
+    openCropModal(file);
+    e.target.value=""; // reset so same file can be re-picked
+  }
+
+  function handleCoverPick(e){
+    const file=e.target.files[0]; if(!file) return;
+    cropMode="cover";
+    openCropModal(file);
+    e.target.value="";
+  }
+
+  function openCropModal(file){
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      cropImg=new Image();
+      cropImg.onload=()=>{
+        cropX=0; cropY=0; cropZoom=1;
+        document.getElementById("cropZoom").value=1;
+        drawCrop();
+        document.getElementById("cropModal").classList.add("show");
+      };
+      cropImg.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function closeCrop(){
+    document.getElementById("cropModal").classList.remove("show");
+    cropImg=null;
+  }
+
+  function drawCrop(){
+    if(!cropImg) return;
+    const wrap=document.getElementById("cropWrap");
+    const size=wrap.offsetWidth||240;
+    const canvas=document.getElementById("cropCanvas");
+    canvas.width=size; canvas.height=size;
+    const ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,size,size);
+    const sw=cropImg.naturalWidth*cropZoom;
+    const sh=cropImg.naturalHeight*cropZoom;
+    ctx.drawImage(cropImg, cropX, cropY, sw, sh);
+  }
+
+  function onZoom(val){
+    cropZoom=parseFloat(val);
+    drawCrop();
+  }
+
+  function startDrag(e){
+    e.preventDefault();
+    const pt=e.touches?e.touches[0]:e;
+    dragStart={x:pt.clientX,y:pt.clientY};
+    imgStartX=cropX; imgStartY=cropY;
+  }
+  function onDrag(e){
+    if(!dragStart) return;
+    e.preventDefault();
+    const pt=e.touches?e.touches[0]:e;
+    cropX=imgStartX+(pt.clientX-dragStart.x);
+    cropY=imgStartY+(pt.clientY-dragStart.y);
+    drawCrop();
+  }
+  function endDrag(){ dragStart=null; }
+
+  async function saveCrop(){
+    const btn=document.getElementById("saveCropBtn");
+    btn.disabled=true; btn.textContent="Processing...";
+
+    const wrap=document.getElementById("cropWrap");
+    const size=wrap.offsetWidth||240;
+    const outCanvas=document.createElement("canvas");
+    // Avatar: 400×400 circle, Cover: 1200×400 banner
+    const outSize=cropMode==="avatar"?400:1200;
+    const outH=cropMode==="avatar"?400:400;
+    outCanvas.width=outSize; outCanvas.height=outH;
+    const ctx=outCanvas.getContext("2d");
+
+    // Scale from preview canvas to output
+    const scaleX=outSize/size, scaleY=outH/size;
+    ctx.drawImage(
+      cropImg,
+      cropX*scaleX, cropY*scaleY,
+      cropImg.naturalWidth*cropZoom*scaleX,
+      cropImg.naturalHeight*cropZoom*scaleY
+    );
+
+    // Convert to blob (JPEG 85%)
+    outCanvas.toBlob(blob=>{
+      croppedBlob=blob;
+      const url=URL.createObjectURL(blob);
+
+      if(cropMode==="avatar"){
+        // Preview immediately
+        const av=document.getElementById("pAvatar");
+        av.innerHTML=`<img src="${url}" alt="avatar"/><div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>`;
+      } else {
+        // Show cover preview
+        const cover=document.getElementById("pCover");
+        cover.src=url; cover.style.display="block";
+      }
+      closeCrop();
+      btn.disabled=false; btn.textContent="✅ Use Photo";
+      // Upload to Firebase Storage
+      window._uploadPhoto&&window._uploadPhoto(blob, cropMode);
+    },"image/jpeg",0.85);
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, deleteUser }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, deleteDoc,
+           collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app), storage=getStorage(app);
+  let uid=null;
+
+  // ── Photo upload to Firebase Storage ──
+  window._uploadPhoto=function(blob, mode){
+    if(!uid) return;
+    const path=mode==="avatar"
+      ? `avatars/${uid}.jpg`
+      : `covers/${uid}.jpg`;
+    const storageRef=ref(storage, path);
+    const task=uploadBytesResumable(storageRef, blob, {contentType:"image/jpeg"});
+
+    // Show progress on avatar
+    const ring=document.getElementById("avatarProgressRing");
+    const pctEl=document.getElementById("avatarProgressPct");
+    if(ring) ring.classList.add("show");
+
+    task.on("state_changed",
+      snap=>{
+        const pct=Math.round((snap.bytesTransferred/snap.totalBytes)*100);
+        if(pctEl) pctEl.textContent=pct+"%";
+      },
+      err=>{
+        toast("Upload failed: "+err.message);
+        if(ring) ring.classList.remove("show");
+      },
+      async ()=>{
+        const url=await getDownloadURL(task.snapshot.ref);
+        if(ring) ring.classList.remove("show");
+        // Save URL to Firestore
+        const field=mode==="avatar"?"photoURL":"coverURL";
+        try{
+          await updateDoc(doc(db,"users",uid),{[field]:url});
+          toast(mode==="avatar"?"✅ Profile photo updated!":"✅ Cover updated!");
+          // Also update auth profile display name photo if avatar
+          if(mode==="avatar"){
+            // Update img tag directly
+            const av=document.getElementById("pAvatar");
+            av.innerHTML=`<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+              <div class="upload-progress-ring" id="avatarProgressRing">
+                <span class="upr-text" id="avatarProgressPct">0%</span>
+              </div>`;
+          }
+        }catch(e){ toast("Could not save photo URL"); }
+      }
+    );
+  };
+
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    uid=user.uid;
+
+    // Load user data
+    try{
+      const snap=await getDoc(doc(db,"users",uid));
+      if(!snap.exists()){window.location.href="login.html";return;}
+      userData=snap.data();
+    }catch(e){toast("Could not load profile");return;}
+
+    // Load results for stats
+    let results=[];
+    try{
+      const rSnap=await getDocs(query(collection(db,"results"),where("userId","==",uid)));
+      rSnap.forEach(d=>results.push(d.data()));
+    }catch(_){}
+
+    const total=userData.totalExams||0;
+    const tq=userData.totalQuestions||0;
+    const tc=userData.totalCorrect||0;
+    const avg=tq>0?Math.round((tc/tq)*100):0;
+    const streak=userData.streak||0;
+    const xp=userData.xp||0;
+    const plan=userData.plan||"free";
+    const name=userData.displayName||user.email.split("@")[0];
+    currentSubjects=userData.subjects||[];
+
+    // Hero — load photo or fallback to initial letter
+    const av=document.getElementById("pAvatar");
+    if(userData.photoURL){
+      av.innerHTML=`<img src="${userData.photoURL}" alt="${name}"
+        style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+        onerror="this.parentElement.textContent='${name[0].toUpperCase()}'"/>
+        <div class="upload-progress-ring" id="avatarProgressRing">
+          <span class="upr-text" id="avatarProgressPct">0%</span>
+        </div>`;
+    } else {
+      av.textContent=name[0].toUpperCase();
+    }
+    // Cover photo
+    if(userData.coverURL){
+      const cover=document.getElementById("pCover");
+      cover.src=userData.coverURL; cover.style.display="block";
+    }
+    document.getElementById("pName").textContent=name;
+    document.getElementById("pEmail").textContent=user.email;
+    if(plan==="premium") document.getElementById("pCrown").style.display="flex";
+
+    // Tags
+    const tags=[];
+    if(userData.examType) tags.push(`<span class="p-tag p-tag-exam">🎓 ${userData.examType}</span>`);
+    if(userData.state)    tags.push(`<span class="p-tag p-tag-state">📍 ${userData.state}</span>`);
+    if(userData.school)   tags.push(`<span class="p-tag p-tag-school">🏫 ${userData.school}</span>`);
+    if(plan==="premium")  tags.push(`<span class="p-tag p-tag-prem">👑 Premium</span>`);
+    document.getElementById("pTagsRow").innerHTML=tags.join("");
+
+    // Stats
+    document.getElementById("psExams").textContent=total;
+    document.getElementById("psAvg").textContent=avg+"%";
+    document.getElementById("psStreak").textContent=streak;
+    document.getElementById("psXP").textContent=xp;
+
+    // Target progress
+    if(userData.targetScore){
+      const ts=document.getElementById("targetStrip");
+      ts.style.display="block";
+      const target=userData.targetScore;
+      const pct=Math.min(Math.round((avg/target)*100),100);
+      document.getElementById("tsValue").textContent=`${target}/400`;
+      document.getElementById("tsCurrent").textContent=avg+"%";
+      document.getElementById("tsPct").textContent=pct+"% of goal";
+      document.getElementById("targetVal").textContent=target+"/400";
+      setTimeout(()=>document.getElementById("tsBarFill").style.width=pct+"%",300);
+    }
+
+    // Subjects
+    if(currentSubjects.length>0){
+      document.getElementById("subjectsVal").textContent=currentSubjects.slice(0,2).join(", ")+(currentSubjects.length>2?` +${currentSubjects.length-2}`:"");
+    }
+
+    // Auto-badges
+    const badges=userData.badges||[];
+    const newBadges=[...badges];
+    const passedResults=results.filter(r=>r.passed);
+    if(plan==="premium"&&!newBadges.includes("premium")) newBadges.push("premium");
+    if(results.some(r=>r.percent===100)&&!newBadges.includes("perfect")) newBadges.push("perfect");
+    if(total>=100&&!newBadges.includes("100_exams")) newBadges.push("100_exams");
+    if(avg>=80&&total>=5&&!newBadges.includes("high_scorer")) newBadges.push("high_scorer");
+    if(newBadges.length!==badges.length){
+      try{ await updateDoc(doc(db,"users",uid),{badges:newBadges}); }catch(_){}
+    }
+    renderBadges(newBadges);
+
+    // Upgrade strip
+    if(plan!=="premium") document.getElementById("upgradeStrip").style.display="block";
+    if(userData.role==="admin") document.getElementById("adminLink").style.display="flex";
+
+    // Sign out / delete
+    window._signOut=async()=>{
+      await signOut(auth);
+      window.location.href="login.html";
+    };
+    window._deleteAccount=async()=>{
+      try{
+        await deleteDoc(doc(db,"users",uid));
+        await deleteUser(auth.currentUser);
+        window.location.href="login.html";
+      }catch(e){
+        toast("Could not delete account. Please sign in again first.");
+      }
+    };
+  });
+
+  window.saveProfile=async()=>{
+    if(!uid) return;
+    const name=document.getElementById("editName").value.trim();
+    const school=document.getElementById("editSchool").value.trim();
+    const state=document.getElementById("editState").value;
+    if(!name){toast("Name cannot be empty");return;}
+    try{
+      await updateDoc(doc(db,"users",uid),{
+        displayName:name, school, state,
+        updatedAt:new Date().toISOString()
+      });
+      userData.displayName=name; userData.school=school; userData.state=state;
+      document.getElementById("pName").textContent=name;
+      document.getElementById("pAvatar").textContent=name[0].toUpperCase();
+      closeSheet("editOverlay");
+      toast("✅ Profile updated!");
+    }catch(e){toast("Save failed. Try again.");}
+  };
+
+  window.saveTarget=async()=>{
+    if(!uid) return;
+    const val=parseInt(document.getElementById("targetSlider").value);
+    try{
+      await updateDoc(doc(db,"users",uid),{targetScore:val});
+      userData.targetScore=val;
+      document.getElementById("targetVal").textContent=val+"/400";
+      document.getElementById("targetStrip").style.display="block";
+      document.getElementById("tsValue").textContent=val+"/400";
+      closeSheet("targetOverlay");
+      toast("🎯 Target set to "+val+"!");
+    }catch(e){toast("Save failed.");}
+  };
+
+  window.saveSubjects=async()=>{
+    if(!uid) return;
+    const selected=[...document.querySelectorAll("#subjChips div")]
+      .filter(c=>c.classList.contains("selected"))
+      .map(c=>c.textContent.trim());
+    if(selected.length===0){toast("Select at least one subject");return;}
+    try{
+      await updateDoc(doc(db,"users",uid),{subjects:selected});
+      currentSubjects=selected;
+      document.getElementById("subjectsVal").textContent=
+        selected.slice(0,2).join(", ")+(selected.length>2?` +${selected.length-2}`:"");
+      closeSheet("subjOverlay");
+      toast("📚 Subjects saved!");
+    }catch(e){toast("Save failed.");}
+  };
+</script>
+</body>
+</html>

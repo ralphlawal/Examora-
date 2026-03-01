@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Admin Panel</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    /* ── Admin hero ── */
+    .admin-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1a0a1a 60%, #0f172a 100%);
+      padding: 28px 20px 24px; position: relative; overflow: hidden;
+    }
+    .admin-hero::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:180px; height:180px; border-radius:50%;
+      background:rgba(168,85,247,0.12); pointer-events:none;
+    }
+    .admin-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3);
+      color:#c084fc; padding:4px 12px; border-radius:100px;
+      font-size:0.68rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.8px; margin-bottom:10px; position:relative; z-index:1;
+    }
+    .admin-hero-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.4rem; color:white; letter-spacing:-0.5px;
+      margin-bottom:4px; position:relative; z-index:1;
+    }
+    .admin-hero-sub {
+      font-size:0.74rem; color:rgba(255,255,255,0.4);
+      position:relative; z-index:1;
+    }
+
+    /* ── Stat cards ── */
+    .admin-stats {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:8px; margin-bottom:14px;
+    }
+    .admin-stat {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:14px; padding:14px 12px; box-shadow:var(--shadow-sm);
+      position:relative; overflow:hidden;
+    }
+    .admin-stat::after {
+      content:''; position:absolute; right:-8px; top:-8px;
+      width:50px; height:50px; border-radius:50%;
+      background:var(--as-color,rgba(99,102,241,0.08));
+    }
+    .as-icon { font-size:1.3rem; display:block; margin-bottom:6px; }
+    .as-num {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.5rem; color:var(--text); letter-spacing:-0.5px;
+      display:block; line-height:1; margin-bottom:3px;
+    }
+    .as-label {
+      font-size:0.62rem; font-weight:700; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+
+    /* ── Tab bar ── */
+    .admin-tabs {
+      display:flex; gap:0; background:var(--bg-input);
+      border:1px solid var(--border); border-radius:12px;
+      padding:4px; margin-bottom:16px; overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .admin-tabs::-webkit-scrollbar { display:none; }
+    .admin-tab {
+      flex:1; min-width:fit-content; padding:9px 12px;
+      border-radius:9px; font-family:'Plus Jakarta Sans',sans-serif;
+      font-weight:700; font-size:0.72rem; color:var(--text-3);
+      cursor:pointer; transition:all 0.2s ease; text-align:center;
+      white-space:nowrap;
+    }
+    .admin-tab.active {
+      background:var(--bg-card); color:var(--text);
+      box-shadow:0 2px 8px rgba(15,23,42,0.1);
+    }
+
+    /* ── Tab panel ── */
+    .admin-panel { display:none; }
+    .admin-panel.active { display:block; animation:fadeInUp 0.2s ease; }
+
+    /* ── Table ── */
+    .admin-table-wrap {
+      overflow-x:auto; border-radius:14px;
+      border:1px solid var(--border); margin-bottom:14px;
+    }
+    .admin-table {
+      width:100%; border-collapse:collapse; font-size:0.76rem;
+      min-width:520px;
+    }
+    .admin-table thead th {
+      background:var(--bg-input); padding:10px 12px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.65rem; color:var(--text-3); text-align:left;
+      text-transform:uppercase; letter-spacing:0.5px;
+      border-bottom:1px solid var(--border);
+    }
+    .admin-table tbody td {
+      padding:11px 12px; border-bottom:1px solid var(--border);
+      color:var(--text-2); vertical-align:middle;
+    }
+    .admin-table tbody tr:last-child td { border-bottom:none; }
+    .admin-table tbody tr:hover { background:var(--bg-input); }
+    .admin-table .td-name {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      color:var(--text); max-width:120px;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+
+    /* ── Action chips in table ── */
+    .tbl-btn {
+      padding:4px 10px; border-radius:7px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.65rem; cursor:pointer; transition:all 0.15s ease;
+      border:none; display:inline-flex; align-items:center; gap:4px;
+      margin-right:4px;
+    }
+    .tbl-btn:active { transform:scale(0.94); }
+    .tbl-btn-edit   { background:var(--c-brand-pale); color:var(--c-brand); }
+    .tbl-btn-delete { background:var(--c-red-pale);   color:var(--c-red); }
+    .tbl-btn-resolve{ background:var(--c-green-pale); color:var(--c-green); }
+    .tbl-btn-prem   { background:var(--c-gold-pale);  color:var(--c-gold); }
+
+    /* ── Form card ── */
+    .admin-form-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:16px; padding:18px; margin-bottom:14px;
+      box-shadow:var(--shadow-sm);
+    }
+    .admin-form-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.9rem; color:var(--text); margin-bottom:14px;
+      display:flex; align-items:center; gap:7px;
+    }
+
+    /* ── CSV upload zone ── */
+    .upload-zone {
+      border:2px dashed var(--border); border-radius:14px;
+      padding:28px 20px; text-align:center; cursor:pointer;
+      transition:all 0.2s ease; margin-bottom:14px;
+      background:var(--bg-input);
+    }
+    .upload-zone:hover, .upload-zone.drag { 
+      border-color:var(--c-brand); background:var(--c-brand-pale);
+    }
+    .upload-zone .uz-icon { font-size:2rem; margin-bottom:8px; display:block; }
+    .upload-zone h4 {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.88rem; color:var(--text); margin-bottom:4px;
+    }
+    .upload-zone p { font-size:0.72rem; color:var(--text-3); }
+    #csvFileInput { display:none; }
+
+    /* ── Progress bar for upload ── */
+    .upload-progress {
+      display:none; margin-bottom:14px;
+    }
+    .up-label {
+      display:flex; justify-content:space-between;
+      font-size:0.72rem; font-weight:600; color:var(--text-2);
+      margin-bottom:6px;
+    }
+    .up-bar-bg {
+      height:8px; background:var(--bg-input);
+      border-radius:100px; overflow:hidden;
+    }
+    .up-bar-fill {
+      height:100%; border-radius:100px;
+      background:linear-gradient(90deg,var(--c-brand),var(--c-green));
+      transition:width 0.3s ease; width:0%;
+    }
+
+    /* ── Flag row ── */
+    .flag-row {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:12px; padding:12px 14px; margin-bottom:8px;
+      box-shadow:var(--shadow-xs);
+    }
+    .flag-q {
+      font-size:0.8rem; font-weight:600; color:var(--text);
+      margin-bottom:5px; line-height:1.5;
+    }
+    .flag-meta {
+      font-size:0.68rem; color:var(--text-3); margin-bottom:8px;
+    }
+
+    /* ── Announcement form ── */
+    .ann-type-row {
+      display:flex; gap:8px; margin-bottom:12px;
+    }
+    .ann-type-btn {
+      flex:1; padding:8px; border-radius:9px;
+      border:1.5px solid var(--border); background:var(--bg-input);
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.72rem; color:var(--text-3); cursor:pointer;
+      text-align:center; transition:all 0.15s ease;
+    }
+    .ann-type-btn.active {
+      border-color:var(--c-brand); background:var(--c-brand-pale);
+      color:var(--c-brand);
+    }
+
+    /* ── Q preview card ── */
+    .q-preview {
+      background:var(--bg-input); border:1px solid var(--border);
+      border-radius:12px; padding:12px 14px; margin-top:10px;
+      font-size:0.78rem; color:var(--text-2); line-height:1.6;
+      display:none;
+    }
+
+    /* ── Overlay / sheet ── */
+    .overlay {
+      display:none; position:fixed; inset:0; z-index:200;
+      background:rgba(0,0,0,0.6); backdrop-filter:blur(6px);
+      align-items:flex-end; justify-content:center;
+    }
+    .overlay.show { display:flex; animation:fadeIn 0.2s ease; }
+    .edit-sheet {
+      background:var(--bg-card); border-radius:24px 24px 0 0;
+      padding:24px 20px 40px; width:100%; max-width:var(--max-width);
+      animation:fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
+      max-height:90vh; overflow-y:auto;
+    }
+    .sheet-handle {
+      width:36px; height:4px; background:var(--border);
+      border-radius:100px; margin:0 auto 20px;
+    }
+    .sheet-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1rem; color:var(--text); margin-bottom:18px;
+    }
+
+    /* ── Empty state ── */
+    .admin-empty {
+      text-align:center; padding:32px 16px;
+      color:var(--text-3); font-size:0.78rem;
+    }
+    .admin-empty .ae-icon { font-size:2rem; margin-bottom:8px; }
+
+    /* Timer settings */
+    .timer-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; margin-bottom:14px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="admin-hero animate-in">
+  <div class="admin-badge">🛡️ Admin Panel</div>
+  <div class="admin-hero-title">Control Centre</div>
+  <div class="admin-hero-sub" id="adminSub">Loading dashboard...</div>
+</div>
+
+<div class="page-wrapper" style="padding-top:16px;">
+
+  <!-- Stats -->
+  <div class="admin-stats animate-in animate-in-delay-1">
+    <div class="admin-stat" style="--as-color:rgba(99,102,241,0.08);">
+      <span class="as-icon">👥</span>
+      <span class="as-num" id="statUsers">—</span>
+      <span class="as-label">Total Users</span>
+    </div>
+    <div class="admin-stat" style="--as-color:rgba(16,185,129,0.08);">
+      <span class="as-icon">📝</span>
+      <span class="as-num" id="statQuestions">—</span>
+      <span class="as-label">Questions</span>
+    </div>
+    <div class="admin-stat" style="--as-color:rgba(245,158,11,0.08);">
+      <span class="as-icon">🏆</span>
+      <span class="as-num" id="statResults">—</span>
+      <span class="as-label">Exams Taken</span>
+    </div>
+    <div class="admin-stat" style="--as-color:rgba(168,85,247,0.08);">
+      <span class="as-icon">👑</span>
+      <span class="as-num" id="statPremium">—</span>
+      <span class="as-label">Premium</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs animate-in animate-in-delay-1">
+    <div class="admin-tab active" onclick="showTab('questions',this)">📚 Questions</div>
+    <div class="admin-tab" onclick="showTab('upload',this)">📤 Upload CSV</div>
+    <div class="admin-tab" onclick="showTab('users',this)">👥 Users</div>
+    <div class="admin-tab" onclick="showTab('flags',this)">⚑ Flags</div>
+    <div class="admin-tab" onclick="showTab('settings',this)">⚙️ Settings</div>
+  </div>
+
+  <!-- ════ QUESTIONS TAB ════ -->
+  <div class="admin-panel active" id="tab-questions">
+    <div class="admin-form-card">
+      <div class="admin-form-title">➕ Add New Question</div>
+      <div class="filter-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label class="form-label">Category</label>
+          <select class="form-select" id="qCat">
+            <option value="JAMB">JAMB</option>
+            <option value="WAEC">WAEC</option>
+            <option value="NECO">NECO</option>
+            <option value="Post-UTME">Post-UTME</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Subject</label>
+          <select class="form-select" id="qSubj">
+            <option value="Mathematics">Mathematics</option>
+            <option value="English Language">English Language</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Economics">Economics</option>
+            <option value="Government">Government</option>
+            <option value="Literature in English">Literature in English</option>
+            <option value="Geography">Geography</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Agricultural Science">Agricultural Science</option>
+            <option value="Accounting">Accounting</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label class="form-label">Year</label>
+          <input type="number" class="form-input" id="qYear" placeholder="e.g. 2019" min="1980" max="2024"/>
+        </div>
+        <div>
+          <label class="form-label">Correct Answer</label>
+          <select class="form-select" id="qAnswer">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Question Text</label>
+        <textarea class="form-input" id="qText" rows="3" placeholder="Enter question text..." style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div><label class="form-label">Option A</label><input type="text" class="form-input" id="qOptA" placeholder="Option A"/></div>
+        <div><label class="form-label">Option B</label><input type="text" class="form-input" id="qOptB" placeholder="Option B"/></div>
+        <div><label class="form-label">Option C</label><input type="text" class="form-input" id="qOptC" placeholder="Option C"/></div>
+        <div><label class="form-label">Option D</label><input type="text" class="form-input" id="qOptD" placeholder="Option D"/></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Explanation (optional)</label>
+        <textarea class="form-input" id="qExp" rows="2" placeholder="Explain why the answer is correct..." style="resize:vertical;"></textarea>
+      </div>
+      <!-- Preview -->
+      <div class="q-preview" id="qPreview"></div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="btn btn-ghost" onclick="previewQuestion()" style="flex:1;">👁 Preview</button>
+        <button class="btn btn-primary" id="addQBtn" onclick="addQuestion()" style="flex:2;">➕ Add Question</button>
+      </div>
+    </div>
+
+    <!-- Questions list -->
+    <div class="section-header">
+      <div class="section-icon">📚</div>
+      <h3>All Questions</h3>
+      <span style="font-size:0.72rem;color:var(--text-3);" id="qCount">Loading...</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <select class="form-select" id="filterQCat" onchange="loadQuestions()">
+        <option value="">All Categories</option>
+        <option value="JAMB">JAMB</option>
+        <option value="WAEC">WAEC</option>
+        <option value="NECO">NECO</option>
+        <option value="Post-UTME">Post-UTME</option>
+      </select>
+      <select class="form-select" id="filterQSubj" onchange="loadQuestions()">
+        <option value="">All Subjects</option>
+        <option value="Mathematics">Mathematics</option>
+        <option value="English Language">English Language</option>
+        <option value="Physics">Physics</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Biology">Biology</option>
+        <option value="Economics">Economics</option>
+        <option value="Government">Government</option>
+      </select>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Cat</th>
+            <th>Subj</th>
+            <th>Ans</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="questionsBody">
+          <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.72rem;color:var(--text-3);text-align:center;margin-top:-6px;" id="qTableNote"></div>
+  </div>
+
+  <!-- ════ UPLOAD TAB ════ -->
+  <div class="admin-panel" id="tab-upload">
+    <div class="upload-zone" id="uploadZone"
+      onclick="document.getElementById('csvFileInput').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <span class="uz-icon">📤</span>
+      <h4>Drop CSV file here or tap to browse</h4>
+      <p>Accepts .csv with columns:<br/>
+        <code style="font-size:0.65rem;background:var(--bg-input);padding:2px 6px;border-radius:4px;">
+          text, A, B, C, D, answer, category, subject, year, explanation
+        </code>
+      </p>
+    </div>
+    <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSV(event)"/>
+
+    <div class="upload-progress" id="uploadProgress">
+      <div class="up-label">
+        <span id="upLabel">Uploading...</span>
+        <span id="upPct">0%</span>
+      </div>
+      <div class="up-bar-bg"><div class="up-bar-fill" id="upBar"></div></div>
+    </div>
+
+    <div id="csvPreviewWrap" style="display:none;" class="admin-form-card">
+      <div class="admin-form-title">📋 Preview (first 5 rows)</div>
+      <div class="admin-table-wrap" style="margin-bottom:12px;">
+        <table class="admin-table" id="csvPreviewTable">
+          <thead><tr id="csvPreviewHead"></tr></thead>
+          <tbody id="csvPreviewBody"></tbody>
+        </table>
+      </div>
+      <div id="csvStats" style="font-size:0.78rem;color:var(--text-3);margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="cancelCSV()" style="flex:1;">Cancel</button>
+        <button class="btn btn-primary" id="confirmUploadBtn" onclick="uploadCSV()" style="flex:2;">
+          📤 Upload All Questions
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-form-card" style="margin-top:14px;">
+      <div class="admin-form-title">📥 Download Template</div>
+      <p style="font-size:0.78rem;color:var(--text-2);line-height:1.6;margin-bottom:12px;">
+        Download a CSV template with the correct column format and 3 sample rows.
+      </p>
+      <button class="btn btn-ghost" onclick="downloadTemplate()">⬇️ Download Template CSV</button>
+    </div>
+  </div>
+
+  <!-- ════ USERS TAB ════ -->
+  <div class="admin-panel" id="tab-users">
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Plan</th>
+            <th>Exams</th>
+            <th>Avg</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ FLAGS TAB ════ -->
+  <div class="admin-panel" id="tab-flags">
+    <div id="flagsList">
+      <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:8px;"></div>
+      <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SETTINGS TAB ════ -->
+  <div class="admin-panel" id="tab-settings">
+    <!-- Announcement -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">📢 Announcement Banner</div>
+      <div class="ann-type-row">
+        <div class="ann-type-btn active" onclick="setAnnType('info',this)">ℹ️ Info</div>
+        <div class="ann-type-btn" onclick="setAnnType('success',this)">✅ Success</div>
+        <div class="ann-type-btn" onclick="setAnnType('warning',this)">⚠️ Warning</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message (leave blank to hide)</label>
+        <textarea class="form-input" id="annMessage" rows="2"
+          placeholder="e.g. New WAEC 2024 questions added!"
+          style="resize:vertical;"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveAnnouncement()">📢 Save Announcement</button>
+    </div>
+
+    <!-- Timer settings -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">⏱️ Exam Timer (minutes per question)</div>
+      <div class="timer-grid">
+        <div>
+          <label class="form-label">JAMB</label>
+          <input type="number" class="form-input" id="timerJAMB" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+        <div>
+          <label class="form-label">WAEC</label>
+          <input type="number" class="form-input" id="timerWAEC" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+        <div>
+          <label class="form-label">NECO</label>
+          <input type="number" class="form-input" id="timerNECO" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+        <div>
+          <label class="form-label">Post-UTME</label>
+          <input type="number" class="form-input" id="timerPostUTME" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveTimers()">⏱️ Save Timer Settings</button>
+    </div>
+
+    <!-- Maintenance mode -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">🔧 App Settings</div>
+      <div class="toggle-row" style="margin-bottom:10px;">
+        <div class="setting-icon" style="background:rgba(244,63,94,0.1);">🔧</div>
+        <div style="flex:1;">
+          <div class="toggle-label">Maintenance Mode</div>
+          <div class="toggle-sub">Disable app for regular users</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="maintenanceToggle"/>
+          <div class="toggle-slider"></div>
+          <div class="toggle-knob"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="setting-icon" style="background:rgba(99,102,241,0.1);">📝</div>
+        <div style="flex:1;">
+          <div class="toggle-label">Allow New Registrations</div>
+          <div class="toggle-sub">Let new users sign up</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="regToggle" checked/>
+          <div class="toggle-slider"></div>
+          <div class="toggle-knob"></div>
+        </label>
+      </div>
+      <button class="btn btn-primary" onclick="saveAppSettings()" style="margin-top:12px;">💾 Save Settings</button>
+    </div>
+
+    <!-- Danger zone -->
+    <div style="border:1.5px solid rgba(244,63,94,0.2);border-radius:16px;padding:16px;background:rgba(244,63,94,0.03);">
+      <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;
+        color:var(--c-red);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">
+        ⚠️ Danger Zone
+      </h4>
+      <button class="btn btn-ghost" onclick="confirmDeleteAllQuestions()"
+        style="width:100%;color:var(--c-red);border-color:rgba(244,63,94,0.3);">
+        🗑️ Delete All Questions
+      </button>
+    </div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<!-- Edit question overlay -->
+<div class="overlay" id="editOverlay" onclick="closeOverlay('editOverlay',event)">
+  <div class="edit-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">✏️ Edit Question</div>
+    <input type="hidden" id="editQId"/>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div>
+        <label class="form-label">Category</label>
+        <select class="form-select" id="editCat">
+          <option value="JAMB">JAMB</option><option value="WAEC">WAEC</option>
+          <option value="NECO">NECO</option><option value="Post-UTME">Post-UTME</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Subject</label>
+        <input type="text" class="form-input" id="editSubj"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div><label class="form-label">Year</label><input type="number" class="form-input" id="editYear"/></div>
+      <div>
+        <label class="form-label">Answer</label>
+        <select class="form-select" id="editAnswer">
+          <option value="A">A</option><option value="B">B</option>
+          <option value="C">C</option><option value="D">D</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Question Text</label>
+      <textarea class="form-input" id="editText" rows="3" style="resize:vertical;"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div><label class="form-label">Option A</label><input type="text" class="form-input" id="editA"/></div>
+      <div><label class="form-label">Option B</label><input type="text" class="form-input" id="editB"/></div>
+      <div><label class="form-label">Option C</label><input type="text" class="form-input" id="editC"/></div>
+      <div><label class="form-label">Option D</label><input type="text" class="form-input" id="editD"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Explanation</label>
+      <textarea class="form-input" id="editExp" rows="2" style="resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeOverlay('editOverlay')" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditQuestion()" style="flex:2;">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+  });
+  function toast(msg,dur=2800){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
+
+  function showTab(name,btn){
+    document.querySelectorAll(".admin-panel").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".admin-tab").forEach(t=>t.classList.remove("active"));
+    document.getElementById("tab-"+name).classList.add("active");
+    btn.classList.add("active");
+    // Lazy load data for each tab
+    if(name==="questions") window._loadQuestions&&window._loadQuestions();
+    if(name==="users")     window._loadUsers&&window._loadUsers();
+    if(name==="flags")     window._loadFlags&&window._loadFlags();
+    if(name==="settings")  window._loadSettings&&window._loadSettings();
+  }
+
+  function closeOverlay(id,e){
+    if(!e||e.target===document.getElementById(id))
+      document.getElementById(id).classList.remove("show");
+  }
+
+  let annType="info";
+  function setAnnType(t,btn){
+    annType=t;
+    document.querySelectorAll(".ann-type-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  }
+
+  // CSV handling
+  let parsedCSV=[];
+
+  function handleDrop(e){
+    e.preventDefault();
+    document.getElementById("uploadZone").classList.remove("drag");
+    const file=e.dataTransfer.files[0];
+    if(file) processCSVFile(file);
+  }
+
+  function handleCSV(e){
+    const file=e.target.files[0];
+    if(file) processCSVFile(file);
+  }
+
+  function processCSVFile(file){
+    if(!file.name.endsWith(".csv")){toast("Please upload a .csv file");return;}
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const text=e.target.result;
+      const lines=text.trim().split("\n");
+      const headers=parseCSVLine(lines[0]);
+      parsedCSV=lines.slice(1).filter(l=>l.trim()).map(l=>{
+        const vals=parseCSVLine(l);
+        const obj={};
+        headers.forEach((h,i)=>obj[h.trim()]=vals[i]?.trim()||"");
+        return obj;
+      });
+
+      // Preview
+      const prevHead=document.getElementById("csvPreviewHead");
+      const prevBody=document.getElementById("csvPreviewBody");
+      prevHead.innerHTML=headers.map(h=>`<th>${h}</th>`).join("");
+      prevBody.innerHTML=parsedCSV.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td>${r[h]||""}</td>`).join("")}</tr>`).join("");
+      document.getElementById("csvStats").textContent=`✅ ${parsedCSV.length} questions parsed, ready to upload`;
+      document.getElementById("csvPreviewWrap").style.display="block";
+      document.getElementById("confirmUploadBtn").textContent=`📤 Upload ${parsedCSV.length} Questions`;
+    };
+    reader.readAsText(file);
+  }
+
+  function parseCSVLine(line){
+    const result=[]; let cur=""; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){ inQ=!inQ; }
+      else if(c===","&&!inQ){ result.push(cur); cur=""; }
+      else { cur+=c; }
+    }
+    result.push(cur);
+    return result;
+  }
+
+  function cancelCSV(){
+    parsedCSV=[];
+    document.getElementById("csvPreviewWrap").style.display="none";
+    document.getElementById("csvFileInput").value="";
+  }
+
+  function downloadTemplate(){
+    const headers="text,A,B,C,D,answer,category,subject,year,explanation\n";
+    const row1='"What is the value of x in 2x + 3 = 7?","1","2","3","4","B","JAMB","Mathematics",2020,"2x = 4, so x = 2"\n';
+    const row2='"Which organ produces insulin?","Liver","Pancreas","Kidney","Spleen","B","JAMB","Biology",2019,"The pancreas produces insulin to regulate blood sugar"\n';
+    const row3='"What is Newton\'s first law also called?","Law of motion","Law of inertia","Law of gravity","Law of action","B","JAMB","Physics",2021,"Newton\'s first law is the law of inertia"\n';
+    const blob=new Blob([headers+row1+row2+row3],{type:"text/csv"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url;
+    a.download="examora_template.csv"; a.click();
+    URL.revokeObjectURL(url);
+    toast("📥 Template downloaded!");
+  }
+
+  function previewQuestion(){
+    const text=document.getElementById("qText").value;
+    const a=document.getElementById("qOptA").value;
+    const b=document.getElementById("qOptB").value;
+    const c=document.getElementById("qOptC").value;
+    const d=document.getElementById("qOptD").value;
+    const ans=document.getElementById("qAnswer").value;
+    if(!text){toast("Enter question text first");return;}
+    const p=document.getElementById("qPreview");
+    p.style.display="block";
+    p.innerHTML=`<strong>${text}</strong><br/><br/>
+      ${["A","B","C","D"].map((l,i)=>{
+        const opt=[a,b,c,d][i];
+        if(!opt) return "";
+        const cor=l===ans;
+        return `<span style="display:block;padding:5px 8px;margin-bottom:4px;border-radius:7px;
+          background:${cor?"var(--c-green-pale)":"var(--bg-card)"};
+          color:${cor?"var(--c-green)":"var(--text-2)"};font-size:0.8rem;">
+          ${l}: ${opt}${cor?" ✓":""}
+        </span>`;
+      }).join("")}`;
+  }
+
+  function confirmDeleteAllQuestions(){
+    if(confirm("Delete ALL questions? This cannot be undone.")){
+      if(confirm("Are you absolutely sure?")){
+        window._deleteAllQuestions&&window._deleteAllQuestions();
+      }
+    }
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc,
+           updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+  let uid=null;
+
+  // ── Auth guard ──
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    uid=user.uid;
+    const s=await getDoc(doc(db,"users",uid)).catch(()=>null);
+    if(!s||s.data()?.role!=="admin"){
+      alert("Access denied. Admin only.");
+      window.location.href="index.html"; return;
+    }
+    document.getElementById("adminSub").textContent=`Signed in as ${user.email}`;
+    loadDashboardStats();
+    window._loadQuestions();
+  });
+
+  // ── Dashboard stats ──
+  async function loadDashboardStats(){
+    try{
+      const [uSnap,qSnap,rSnap]=await Promise.all([
+        getDocs(collection(db,"users")),
+        getDocs(collection(db,"questions")),
+        getDocs(collection(db,"results"))
+      ]);
+      let users=[],prem=0;
+      uSnap.forEach(d=>{users.push(d.data());if(d.data().plan==="premium")prem++;});
+      document.getElementById("statUsers").textContent=uSnap.size;
+      document.getElementById("statQuestions").textContent=qSnap.size;
+      document.getElementById("statResults").textContent=rSnap.size;
+      document.getElementById("statPremium").textContent=prem;
+    }catch(e){console.error(e);}
+  }
+
+  // ── Questions ──
+  let allQuestionsCache=[];
+
+  window._loadQuestions=async function(){
+    try{
+      const cat=document.getElementById("filterQCat").value;
+      const subj=document.getElementById("filterQSubj").value;
+      const snap=await getDocs(collection(db,"questions"));
+      let qs=[]; snap.forEach(d=>qs.push({id:d.id,...d.data()}));
+      allQuestionsCache=qs;
+      if(cat) qs=qs.filter(q=>q.category===cat);
+      if(subj) qs=qs.filter(q=>q.subject===subj);
+      document.getElementById("qCount").textContent=`${qs.length} of ${allQuestionsCache.length}`;
+      const tbody=document.getElementById("questionsBody");
+      if(qs.length===0){
+        tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">No questions found</td></tr>`;
+        return;
+      }
+      const display=qs.slice(0,50);
+      tbody.innerHTML=display.map(q=>`
+        <tr>
+          <td class="td-name" style="max-width:160px;">${(q.text||q.question||"").slice(0,60)}...</td>
+          <td><span style="font-size:0.65rem;font-weight:700;color:var(--c-brand);">${q.category||""}</span></td>
+          <td style="font-size:0.7rem;color:var(--text-3);">${(q.subject||"").split(" ")[0]}</td>
+          <td><span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.8rem;
+            color:var(--c-green);">${q.answer||"?"}</span></td>
+          <td>
+            <button class="tbl-btn tbl-btn-edit" onclick="openEditQ('${q.id}')">✏️</button>
+            <button class="tbl-btn tbl-btn-delete" onclick="deleteQ('${q.id}')">🗑</button>
+          </td>
+        </tr>`).join("");
+      if(qs.length>50) document.getElementById("qTableNote").textContent=`Showing first 50 of ${qs.length}`;
+    }catch(e){toast("Could not load questions: "+e.message);}
+  };
+  window.loadQuestions=window._loadQuestions;
+
+  window.addQuestion=async function(){
+    const text=document.getElementById("qText").value.trim();
+    const a=document.getElementById("qOptA").value.trim();
+    const b=document.getElementById("qOptB").value.trim();
+    const c=document.getElementById("qOptC").value.trim();
+    const d=document.getElementById("qOptD").value.trim();
+    const ans=document.getElementById("qAnswer").value;
+    const cat=document.getElementById("qCat").value;
+    const subj=document.getElementById("qSubj").value;
+    const year=parseInt(document.getElementById("qYear").value)||new Date().getFullYear();
+    const exp=document.getElementById("qExp").value.trim();
+    if(!text||!a||!b||!c||!d){toast("Fill in question text and all 4 options");return;}
+    const btn=document.getElementById("addQBtn");
+    btn.disabled=true; btn.textContent="Adding...";
+    try{
+      await addDoc(collection(db,"questions"),{
+        text,question:text,options:{A:a,B:b,C:c,D:d},answer:ans,
+        category:cat,subject:subj,year,explanation:exp,
+        createdAt:new Date().toISOString()
+      });
+      toast("✅ Question added!");
+      ["qText","qOptA","qOptB","qOptC","qOptD","qExp"].forEach(id=>document.getElementById(id).value="");
+      document.getElementById("qPreview").style.display="none";
+      window._loadQuestions();
+      loadDashboardStats();
+    }catch(e){toast("Error: "+e.message);}
+    btn.disabled=false; btn.textContent="➕ Add Question";
+  };
+
+  window.openEditQ=function(id){
+    const q=allQuestionsCache.find(q=>q.id===id);
+    if(!q) return;
+    document.getElementById("editQId").value=id;
+    document.getElementById("editText").value=q.text||q.question||"";
+    document.getElementById("editCat").value=q.category||"JAMB";
+    document.getElementById("editSubj").value=q.subject||"";
+    document.getElementById("editYear").value=q.year||"";
+    document.getElementById("editAnswer").value=q.answer||"A";
+    document.getElementById("editA").value=q.options?.A||"";
+    document.getElementById("editB").value=q.options?.B||"";
+    document.getElementById("editC").value=q.options?.C||"";
+    document.getElementById("editD").value=q.options?.D||"";
+    document.getElementById("editExp").value=q.explanation||"";
+    document.getElementById("editOverlay").classList.add("show");
+  };
+
+  window.saveEditQuestion=async function(){
+    const id=document.getElementById("editQId").value;
+    if(!id) return;
+    const data={
+      text:document.getElementById("editText").value.trim(),
+      question:document.getElementById("editText").value.trim(),
+      category:document.getElementById("editCat").value,
+      subject:document.getElementById("editSubj").value.trim(),
+      year:parseInt(document.getElementById("editYear").value)||0,
+      answer:document.getElementById("editAnswer").value,
+      options:{
+        A:document.getElementById("editA").value.trim(),
+        B:document.getElementById("editB").value.trim(),
+        C:document.getElementById("editC").value.trim(),
+        D:document.getElementById("editD").value.trim(),
+      },
+      explanation:document.getElementById("editExp").value.trim(),
+      updatedAt:new Date().toISOString()
+    };
+    try{
+      await updateDoc(doc(db,"questions",id),data);
+      toast("✅ Question updated!");
+      document.getElementById("editOverlay").classList.remove("show");
+      window._loadQuestions();
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  window.deleteQ=async function(id){
+    if(!confirm("Delete this question?")) return;
+    try{
+      await deleteDoc(doc(db,"questions",id));
+      toast("🗑 Question deleted");
+      window._loadQuestions();
+      loadDashboardStats();
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  // ── CSV Upload ──
+  window.uploadCSV=async function(){
+    if(!parsedCSV||parsedCSV.length===0){toast("No CSV parsed yet");return;}
+    const btn=document.getElementById("confirmUploadBtn");
+    btn.disabled=true;
+    document.getElementById("uploadProgress").style.display="block";
+
+    let done=0;
+    const total=parsedCSV.length;
+    const BATCH_SIZE=400;
+
+    for(let i=0;i<total;i+=BATCH_SIZE){
+      const batch=writeBatch(db);
+      const chunk=parsedCSV.slice(i,i+BATCH_SIZE);
+      chunk.forEach(row=>{
+        const ref=doc(collection(db,"questions"));
+        const text=row.text||row.question||"";
+        batch.set(ref,{
+          text, question:text,
+          options:{A:row.A||"",B:row.B||"",C:row.C||"",D:row.D||""},
+          answer:(row.answer||"A").toUpperCase(),
+          category:row.category||"JAMB",
+          subject:row.subject||"",
+          year:parseInt(row.year)||2020,
+          explanation:row.explanation||"",
+          createdAt:new Date().toISOString()
+        });
+      });
+      try{await batch.commit();}catch(e){toast("Batch error at row "+i+": "+e.message);break;}
+      done+=chunk.length;
+      const pct=Math.round((done/total)*100);
+      document.getElementById("upBar").style.width=pct+"%";
+      document.getElementById("upPct").textContent=pct+"%";
+      document.getElementById("upLabel").textContent=`Uploading... ${done}/${total}`;
+    }
+    toast(`✅ ${done} questions uploaded!`);
+    cancelCSV();
+    document.getElementById("uploadProgress").style.display="none";
+    btn.disabled=false;
+    loadDashboardStats();
+    window._loadQuestions();
+  };
+
+  // ── Users ──
+  window._loadUsers=async function(){
+    try{
+      const snap=await getDocs(collection(db,"users"));
+      let users=[]; snap.forEach(d=>users.push({id:d.id,...d.data()}));
+      users.sort((a,b)=>(b.totalExams||0)-(a.totalExams||0));
+      const tbody=document.getElementById("usersBody");
+      if(users.length===0){
+        tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">No users yet</td></tr>`;
+        return;
+      }
+      tbody.innerHTML=users.map(u=>{
+        const name=u.displayName||u.email?.split("@")[0]||"User";
+        const avg=u.totalQuestions>0?Math.round((u.totalCorrect/u.totalQuestions)*100):0;
+        const isPrem=u.plan==="premium";
+        return `<tr>
+          <td>
+            <div class="td-name">${name}</div>
+            <div style="font-size:0.62rem;color:var(--text-3);">${u.email||""}</div>
+          </td>
+          <td>
+            <span style="font-size:0.68rem;font-weight:700;
+              color:${isPrem?"var(--c-gold)":"var(--text-3)"};">
+              ${isPrem?"👑 Premium":"Free"}
+            </span>
+          </td>
+          <td style="font-weight:700;color:var(--text);">${u.totalExams||0}</td>
+          <td style="font-weight:700;color:${avg>=50?"var(--c-green)":"var(--c-red)"};">${avg}%</td>
+          <td>
+            ${!isPrem?`<button class="tbl-btn tbl-btn-prem" onclick="grantPremium('${u.id}')">👑</button>`:""}
+            <button class="tbl-btn tbl-btn-delete" onclick="deleteUser('${u.id}','${name}')">🗑</button>
+          </td>
+        </tr>`;
+      }).join("");
+    }catch(e){toast("Could not load users");}
+  };
+
+  window.grantPremium=async function(id){
+    if(!confirm("Grant Premium to this user?")) return;
+    try{
+      await updateDoc(doc(db,"users",id),{plan:"premium",premiumGrantedBy:"admin",premiumSince:new Date().toISOString()});
+      toast("👑 Premium granted!");
+      window._loadUsers();
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  window.deleteUser=async function(id,name){
+    if(!confirm(`Delete user "${name}"? This only removes their Firestore data.`)) return;
+    try{
+      await deleteDoc(doc(db,"users",id));
+      toast("🗑 User removed");
+      window._loadUsers();
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  // ── Flags ──
+  window._loadFlags=async function(){
+    try{
+      const snap=await getDocs(collection(db,"flags"));
+      let flags=[]; snap.forEach(d=>flags.push({id:d.id,...d.data()}));
+      flags.sort((a,b)=>(b.reportedAt||"").localeCompare(a.reportedAt||""));
+      const el=document.getElementById("flagsList");
+      if(flags.length===0){
+        el.innerHTML=`<div class="admin-empty"><div class="ae-icon">✅</div><p>No flagged questions!</p></div>`;
+        return;
+      }
+      el.innerHTML=flags.map(f=>`
+        <div class="flag-row">
+          <div class="flag-q">${f.questionId||"Unknown question"}</div>
+          <div class="flag-meta">
+            Reason: <strong>${f.reason||"—"}</strong> ·
+            Status: <span style="color:${f.status==="resolved"?"var(--c-green)":"var(--c-red)"};">
+              ${f.status||"pending"}
+            </span> ·
+            ${new Date(f.reportedAt||Date.now()).toLocaleDateString()}
+          </div>
+          <div>
+            <button class="tbl-btn tbl-btn-resolve" onclick="resolveFlag('${f.id}')">✅ Resolve</button>
+            <button class="tbl-btn tbl-btn-edit"    onclick="window.openEditQ&&openEditQ('${f.questionId}')">✏️ Edit Q</button>
+            <button class="tbl-btn tbl-btn-delete"  onclick="deleteFlag('${f.id}')">🗑 Delete</button>
+          </div>
+        </div>`).join("");
+    }catch(e){toast("Could not load flags");}
+  };
+
+  window.resolveFlag=async function(id){
+    try{await updateDoc(doc(db,"flags",id),{status:"resolved"});toast("✅ Flag resolved");window._loadFlags();}
+    catch(e){toast("Error");}
+  };
+  window.deleteFlag=async function(id){
+    if(!confirm("Delete this flag report?")) return;
+    try{await deleteDoc(doc(db,"flags",id));toast("🗑 Flag deleted");window._loadFlags();}
+    catch(e){toast("Error");}
+  };
+
+  // ── Settings ──
+  window._loadSettings=async function(){
+    try{
+      const [annSnap,timerSnap,appSnap]=await Promise.all([
+        getDoc(doc(db,"settings","announcement")),
+        getDoc(doc(db,"settings","timers")),
+        getDoc(doc(db,"settings","app"))
+      ]);
+      if(annSnap.exists()){
+        document.getElementById("annMessage").value=annSnap.data().message||"";
+      }
+      if(timerSnap.exists()){
+        const t=timerSnap.data();
+        document.getElementById("timerJAMB").value=t.JAMB||1.5;
+        document.getElementById("timerWAEC").value=t.WAEC||1.5;
+        document.getElementById("timerNECO").value=t.NECO||1.5;
+        document.getElementById("timerPostUTME").value=t["Post-UTME"]||1.5;
+      }
+      if(appSnap.exists()){
+        const a=appSnap.data();
+        document.getElementById("maintenanceToggle").checked=a.maintenance||false;
+        document.getElementById("regToggle").checked=a.allowRegistrations!==false;
+      }
+    }catch(_){}
+  };
+
+  window.saveAnnouncement=async function(){
+    const msg=document.getElementById("annMessage").value.trim();
+    try{
+      await setDoc(doc(db,"settings","announcement"),{message:msg,type:annType,updatedAt:new Date().toISOString()});
+      toast(msg?"📢 Announcement saved!":"Announcement cleared");
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  window.saveTimers=async function(){
+    try{
+      await setDoc(doc(db,"settings","timers"),{
+        JAMB:parseFloat(document.getElementById("timerJAMB").value)||1.5,
+        WAEC:parseFloat(document.getElementById("timerWAEC").value)||1.5,
+        NECO:parseFloat(document.getElementById("timerNECO").value)||1.5,
+        "Post-UTME":parseFloat(document.getElementById("timerPostUTME").value)||1.5
+      });
+      toast("⏱️ Timer settings saved!");
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  window.saveAppSettings=async function(){
+    try{
+      await setDoc(doc(db,"settings","app"),{
+        maintenance:document.getElementById("maintenanceToggle").checked,
+        allowRegistrations:document.getElementById("regToggle").checked,
+        updatedAt:new Date().toISOString()
+      });
+      toast("✅ App settings saved!");
+    }catch(e){toast("Error: "+e.message);}
+  };
+
+  window._deleteAllQuestions=async function(){
+    try{
+      const snap=await getDocs(collection(db,"questions"));
+      const BATCH=400; let arr=[];
+      snap.forEach(d=>arr.push(d.ref));
+      for(let i=0;i<arr.length;i+=BATCH){
+        const b=writeBatch(db);
+        arr.slice(i,i+BATCH).forEach(ref=>b.delete(ref));
+        await b.commit();
+      }
+      toast("🗑 All questions deleted");
+      loadDashboardStats();
+      window._loadQuestions();
+    }catch(e){toast("Error: "+e.message);}
+  };
+</script>
+
+</body>
+</html>

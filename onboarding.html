@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Let's Set You Up</title>
+  <link rel="stylesheet" href="style.css"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    body { padding-bottom: 0; min-height: 100vh; background: var(--bg); }
+
+    .ob-page {
+      max-width: var(--max-width); margin: 0 auto;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+
+    /* ── Hero banner ── */
+    .ob-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+      padding: 36px 24px 32px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .ob-hero::before {
+      content: ''; position: absolute;
+      top: -50px; right: -50px; width: 160px; height: 160px;
+      border-radius: 50%; background: rgba(99,102,241,0.12);
+    }
+    .ob-hero::after {
+      content: ''; position: absolute;
+      bottom: -30px; left: -30px; width: 100px; height: 100px;
+      border-radius: 50%; background: rgba(16,185,129,0.1);
+    }
+    .ob-emoji {
+      font-size: 2.8rem; margin-bottom: 12px; display: block;
+      position: relative; z-index: 1;
+      animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .ob-hero h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 1.4rem; color: white;
+      letter-spacing: -0.5px; margin-bottom: 6px;
+      position: relative; z-index: 1;
+    }
+    .ob-hero p {
+      font-size: 0.8rem; color: rgba(255,255,255,0.5);
+      line-height: 1.6; position: relative; z-index: 1;
+    }
+
+    /* ── Step dots ── */
+    .ob-dots {
+      display: flex; justify-content: center; gap: 6px;
+      padding: 18px 0 0;
+    }
+    .ob-dot {
+      height: 5px; border-radius: 100px;
+      background: var(--border); transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ob-dot.active  { width: 24px; background: var(--c-brand); }
+    .ob-dot.done    { width: 8px;  background: var(--c-green); }
+    .ob-dot.pending { width: 8px;  }
+
+    /* ── Step body ── */
+    .ob-body { flex: 1; padding: 20px 18px 28px; }
+
+    /* ── Option cards (exam type selector) ── */
+    .ob-option {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: 14px;
+      border: 2px solid var(--border); background: var(--bg-card);
+      cursor: pointer; margin-bottom: 10px;
+      transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: var(--shadow-xs);
+    }
+    .ob-option:active { transform: scale(0.98); }
+    .ob-option.selected {
+      border-color: var(--c-brand);
+      background: var(--c-brand-pale);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+    .ob-option-icon {
+      width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; background: var(--bg-input);
+      transition: all 0.18s ease;
+    }
+    .ob-option.selected .ob-option-icon {
+      background: linear-gradient(135deg, var(--c-brand), #8b5cf6);
+    }
+    .ob-option-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 0.9rem; color: var(--text);
+      margin-bottom: 2px;
+    }
+    .ob-option-sub { font-size: 0.72rem; color: var(--text-3); }
+    .ob-check {
+      margin-left: auto; width: 22px; height: 22px;
+      border-radius: 50%; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; flex-shrink: 0;
+      transition: all 0.18s ease;
+    }
+    .ob-option.selected .ob-check {
+      background: var(--c-brand); border-color: var(--c-brand); color: white;
+    }
+
+    /* ── Subject chips ── */
+    .subject-grid {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+    }
+    .subj-chip {
+      padding: 8px 14px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 0.72rem; color: var(--text-2);
+      cursor: pointer; transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+    }
+    .subj-chip:active { transform: scale(0.93); }
+    .subj-chip.selected {
+      background: var(--c-brand); border-color: var(--c-brand);
+      color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+    }
+
+    /* ── Target score slider ── */
+    .score-display {
+      text-align: center; margin-bottom: 16px;
+    }
+    .score-big {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 3rem; letter-spacing: -2px;
+      line-height: 1; margin-bottom: 4px;
+      background: linear-gradient(135deg, var(--c-brand), var(--c-green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .score-label { font-size: 0.75rem; color: var(--text-3); font-weight: 600; }
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 6px;
+      border-radius: 100px; background: var(--bg-input);
+      outline: none; margin-bottom: 8px; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px;
+      border-radius: 50%; background: var(--c-brand);
+      box-shadow: 0 2px 8px rgba(99,102,241,0.45);
+      cursor: pointer; transition: transform 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
+    .score-ticks {
+      display: flex; justify-content: space-between;
+      font-size: 0.68rem; color: var(--text-3); font-weight: 600;
+    }
+    .score-tier {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 700; margin-top: 8px;
+      transition: all 0.25s ease;
+    }
+
+    /* ── Nav buttons ── */
+    .ob-nav {
+      display: flex; gap: 10px; padding: 0 18px 32px;
+      position: sticky; bottom: 0;
+      background: linear-gradient(to top, var(--bg) 80%, transparent);
+      padding-top: 16px;
+    }
+
+    /* ── Step transition ── */
+    .ob-step { animation: fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1) both; }
+
+    /* State selector */
+    .state-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 6px; max-height: 220px; overflow-y: auto;
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 8px; margin-bottom: 14px;
+      scrollbar-width: thin;
+    }
+    .state-chip {
+      padding: 8px 10px; border-radius: 9px;
+      font-size: 0.76rem; font-weight: 600; color: var(--text-2);
+      cursor: pointer; transition: all 0.15s ease; text-align: center;
+      background: var(--bg-input); border: 1px solid transparent;
+    }
+    .state-chip:active { transform: scale(0.96); }
+    .state-chip.selected {
+      background: var(--c-brand-pale); color: var(--c-brand);
+      border-color: rgba(99,102,241,0.3);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ob-page">
+
+  <!-- Hero -->
+  <div class="ob-hero animate-in" id="obHero">
+    <span class="ob-emoji" id="obEmoji">👋</span>
+    <h2 id="obTitle">Welcome to EXAMORA!</h2>
+    <p id="obSubtitle">Let's personalise your experience.<br/>It takes just 30 seconds.</p>
+  </div>
+
+  <!-- Step dots -->
+  <div class="ob-dots" id="obDots">
+    <div class="ob-dot active"   id="dot0"></div>
+    <div class="ob-dot pending"  id="dot1"></div>
+    <div class="ob-dot pending"  id="dot2"></div>
+  </div>
+
+  <!-- Step body -->
+  <div class="ob-body" id="obBody">
+    <!-- Rendered by JS -->
+  </div>
+
+  <!-- Nav -->
+  <div class="ob-nav">
+    <button class="btn btn-ghost" id="backBtn" onclick="prevStep()" style="display:none;flex:1;">← Back</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()" style="flex:2;">
+      <span id="nextBtnText">Continue →</span>
+    </button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const _t = localStorage.getItem("examora_theme") || "light";
+  document.documentElement.setAttribute("data-theme", _t);
+
+  function toast(msg){
+    const el=document.getElementById("toast");
+    el.textContent=msg; el.classList.add("show");
+    setTimeout(()=>el.classList.remove("show"),2800);
+  }
+
+  const EXAM_TYPES = [
+    { id:"JAMB",      label:"JAMB / UTME",   sub:"University entrance exam",    icon:"🎓" },
+    { id:"WAEC",      label:"WAEC / SSCE",   sub:"West African senior school",  icon:"📘" },
+    { id:"NECO",      label:"NECO",           sub:"National examinations",       icon:"📗" },
+    { id:"Post-UTME", label:"Post-UTME",      sub:"University screening exams",  icon:"🏫" },
+    { id:"Mixed",     label:"All of the above",sub:"Practise multiple at once", icon:"🔀" },
+  ];
+
+  const SUBJECTS_BY_EXAM = {
+    "JAMB":      ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
+    "WAEC":      ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Further Mathematics","Agricultural Science","Technical Drawing","Food & Nutrition"],
+    "NECO":      ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Civic Education","Agricultural Science","Literature in English","Financial Accounting","Commerce"],
+    "Post-UTME": ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Use of English","General Studies"],
+    "Mixed":     ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
+  };
+
+  const NIGERIAN_STATES = [
+    "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+    "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT Abuja","Gombe",
+    "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara",
+    "Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau",
+    "Rivers","Sokoto","Taraba","Yobe","Zamfara"
+  ];
+
+  const STEP_META = [
+    { emoji:"🎓", title:"Which exam are you preparing for?",   sub:"Choose your primary target" },
+    { emoji:"📚", title:"Select your subjects",                 sub:"Pick what you'll be tested on" },
+    { emoji:"🎯", title:"Set your target & profile",           sub:"We'll customise your plan" },
+  ];
+
+  let currentStep = 0;
+  let data = { examType:"", subjects:[], targetScore:250, school:"", state:"" };
+
+  function updateDots() {
+    for (let i=0; i<3; i++) {
+      const d = document.getElementById("dot"+i);
+      d.className = "ob-dot " + (i < currentStep ? "done" : i === currentStep ? "active" : "pending");
+    }
+  }
+
+  function updateHero() {
+    const m = STEP_META[currentStep];
+    document.getElementById("obEmoji").textContent   = m.emoji;
+    document.getElementById("obTitle").textContent   = m.title;
+    document.getElementById("obSubtitle").textContent = m.sub;
+    document.getElementById("obEmoji").style.animation = "none";
+    setTimeout(() => document.getElementById("obEmoji").style.animation = "pop 0.4s cubic-bezier(0.34,1.56,0.64,1)", 10);
+  }
+
+  function renderStep() {
+    updateDots();
+    updateHero();
+    const body = document.getElementById("obBody");
+    body.innerHTML = "";
+    document.getElementById("backBtn").style.display = currentStep > 0 ? "flex" : "none";
+    document.getElementById("nextBtnText").textContent = currentStep === 2 ? "Let's Go! 🚀" : "Continue →";
+
+    const wrap = document.createElement("div");
+    wrap.className = "ob-step";
+
+    if (currentStep === 0) {
+      wrap.innerHTML = EXAM_TYPES.map(e => `
+        <div class="ob-option ${data.examType===e.id?"selected":""}" onclick="selectExam('${e.id}')">
+          <div class="ob-option-icon">${e.icon}</div>
+          <div style="flex:1;">
+            <div class="ob-option-label">${e.label}</div>
+            <div class="ob-option-sub">${e.sub}</div>
+          </div>
+          <div class="ob-check">${data.examType===e.id?"✓":""}</div>
+        </div>`).join("");
+
+    } else if (currentStep === 1) {
+      const subjects = SUBJECTS_BY_EXAM[data.examType] || SUBJECTS_BY_EXAM["JAMB"];
+      wrap.innerHTML = `
+        <p style="font-size:0.78rem;color:var(--text-3);margin-bottom:14px;font-weight:600;">
+          Select all subjects you'll sit for:
+        </p>
+        <div class="subject-grid" id="subjectGrid">
+          ${subjects.map(s => `
+            <div class="subj-chip ${data.subjects.includes(s)?"selected":""}" onclick="toggleSubject('${s}')">
+              ${s}
+            </div>`).join("")}
+        </div>
+        <p style="font-size:0.72rem;color:var(--text-3);" id="subjHint">
+          ${data.subjects.length === 0 ? "Tap subjects to select them" : `${data.subjects.length} selected`}
+        </p>`;
+
+    } else if (currentStep === 2) {
+      const tier = data.targetScore >= 300 ? {label:"Outstanding 🏆",col:"#f59e0b"}
+                 : data.targetScore >= 250 ? {label:"Excellent 🌟",col:"#10b981"}
+                 : data.targetScore >= 200 ? {label:"Good 👍",col:"#6366f1"}
+                 : {label:"Building 💪",col:"#94a3b8"};
+      wrap.innerHTML = `
+        <!-- Target Score -->
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;
+            color:var(--text);margin-bottom:14px;">🎯 Target Score (out of 400)</div>
+          <div class="score-display">
+            <div class="score-big" id="scoreNum">${data.targetScore}</div>
+            <div class="score-label">out of 400</div>
+            <div class="score-tier" id="scoreTier" style="background:${tier.col}22;color:${tier.col};margin:8px auto 0;width:fit-content;">
+              ${tier.label}
+            </div>
+          </div>
+          <input type="range" min="140" max="400" step="5" value="${data.targetScore}"
+            id="scoreSlider" oninput="updateScore(this.value)"/>
+          <div class="score-ticks"><span>140</span><span>200</span><span>250</span><span>300</span><span>400</span></div>
+        </div>
+
+        <!-- School -->
+        <div class="form-group">
+          <label class="form-label">🏫 Dream school / university (optional)</label>
+          <input type="text" class="form-input" id="schoolInput"
+            placeholder="e.g. University of Lagos"
+            value="${data.school}"
+            oninput="data.school=this.value"/>
+        </div>
+
+        <!-- State -->
+        <div class="form-group">
+          <label class="form-label">📍 Your state</label>
+          <div class="state-grid" id="stateGrid">
+            ${NIGERIAN_STATES.map(s => `
+              <div class="state-chip ${data.state===s?"selected":""}" onclick="selectState('${s}')">
+                ${s}
+              </div>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    body.appendChild(wrap);
+  }
+
+  function selectExam(id) {
+    data.examType = id;
+    data.subjects = []; // reset subjects when exam changes
+    renderStep();
+  }
+
+  function toggleSubject(s) {
+    if (data.subjects.includes(s)) {
+      data.subjects = data.subjects.filter(x => x !== s);
+    } else {
+      data.subjects.push(s);
+    }
+    // Update chips and hint without full re-render
+    document.querySelectorAll(".subj-chip").forEach(el => {
+      el.classList.toggle("selected", data.subjects.includes(el.textContent.trim()));
+    });
+    const hint = document.getElementById("subjHint");
+    if (hint) hint.textContent = data.subjects.length === 0
+      ? "Tap subjects to select them"
+      : `${data.subjects.length} selected`;
+  }
+
+  function updateScore(val) {
+    data.targetScore = parseInt(val);
+    document.getElementById("scoreNum").textContent = val;
+    const tier = val >= 300 ? {label:"Outstanding 🏆",col:"#f59e0b"}
+               : val >= 250 ? {label:"Excellent 🌟",col:"#10b981"}
+               : val >= 200 ? {label:"Good 👍",col:"#6366f1"}
+               : {label:"Building 💪",col:"#94a3b8"};
+    const el = document.getElementById("scoreTier");
+    el.textContent = tier.label;
+    el.style.background = tier.col + "22";
+    el.style.color = tier.col;
+  }
+
+  function selectState(s) {
+    data.state = s;
+    document.querySelectorAll(".state-chip").forEach(el => {
+      el.classList.toggle("selected", el.textContent.trim() === s);
+    });
+  }
+
+  function prevStep() {
+    if (currentStep > 0) { currentStep--; renderStep(); }
+  }
+
+  function nextStep() {
+    if (currentStep === 0 && !data.examType) {
+      toast("Please select your exam type"); return;
+    }
+    if (currentStep === 1 && data.subjects.length === 0) {
+      toast("Please select at least one subject"); return;
+    }
+    if (currentStep === 2) {
+      saveAndFinish(); return;
+    }
+    currentStep++;
+    renderStep();
+  }
+
+  // Init
+  renderStep();
+</script>
+
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, updateDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain: "cbt-app-5907f.firebaseapp.com",
+    projectId: "cbt-app-5907f",
+    storageBucket: "cbt-app-5907f.firebasestorage.app",
+    messagingSenderId: "705323924101",
+    appId: "1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+  onAuthStateChanged(auth, user => {
+    if (!user) { window.location.href = "login.html"; return; }
+    currentUser = user;
+  });
+
+  window.saveAndFinish = async () => {
+    if (!currentUser) { toast("Not logged in. Redirecting..."); window.location.href = "login.html"; return; }
+
+    const btn = document.getElementById("nextBtn");
+    btn.disabled = true;
+    btn.innerHTML = `<span style="font-size:0.9rem;">Saving...</span>`;
+
+    // Read school from input if on step 2
+    const schoolEl = document.getElementById("schoolInput");
+    if (schoolEl) data.school = schoolEl.value.trim();
+
+    try {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        examType:    data.examType,
+        subjects:    data.subjects,
+        targetScore: data.targetScore,
+        school:      data.school,
+        state:       data.state,
+        onboarded:   true,
+        updatedAt:   new Date().toISOString()
+      });
+      toast("Profile saved! 🎉 Let's get started");
+      setTimeout(() => window.location.href = "index.html", 900);
+    } catch(e) {
+      btn.disabled = false;
+      btn.innerHTML = `<span id="nextBtnText">Let's Go! 🚀</span>`;
+      toast("Error saving profile. Please try again");
+      console.error(e);
+    }
+  };
+</script>
+
+</body>
+</html>

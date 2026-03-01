@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Go Premium</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    body { padding-bottom: 0; }
+
+    /* ── Hero ── */
+    .ug-hero {
+      background: linear-gradient(160deg, #1a0e00 0%, #2d1a00 50%, #1a0e00 100%);
+      padding: 40px 20px 36px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .ug-hero::before {
+      content:''; position:absolute; top:-80px; right:-80px;
+      width:240px; height:240px; border-radius:50%;
+      background:rgba(245,158,11,0.12); pointer-events:none;
+    }
+    .ug-hero::after {
+      content:''; position:absolute; bottom:-50px; left:-50px;
+      width:180px; height:180px; border-radius:50%;
+      background:rgba(249,115,22,0.08); pointer-events:none;
+    }
+    .ug-crown {
+      font-size:3.2rem; display:block; margin-bottom:14px;
+      position:relative; z-index:1;
+      animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      filter: drop-shadow(0 4px 16px rgba(245,158,11,0.5));
+    }
+    .ug-hero-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.8rem; color:white; letter-spacing:-0.8px;
+      margin-bottom:8px; position:relative; z-index:1;
+    }
+    .ug-hero-sub {
+      font-size:0.82rem; color:rgba(255,255,255,0.5);
+      line-height:1.6; position:relative; z-index:1; max-width:300px; margin:0 auto;
+    }
+
+    /* ── Plan toggle ── */
+    .plan-toggle {
+      display:flex; background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.1); border-radius:100px;
+      padding:4px; margin:20px auto 0; width:fit-content;
+      position:relative; z-index:1;
+    }
+    .plan-toggle-btn {
+      padding:7px 20px; border-radius:100px; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.78rem; color:rgba(255,255,255,0.5);
+      transition:all 0.2s ease; white-space:nowrap;
+    }
+    .plan-toggle-btn.active {
+      background:linear-gradient(135deg,#f59e0b,#f97316);
+      color:white; box-shadow:0 2px 10px rgba(245,158,11,0.45);
+    }
+    .save-badge {
+      display:inline-flex; align-items:center;
+      background:rgba(16,185,129,0.2); color:#34d399;
+      border:1px solid rgba(16,185,129,0.3);
+      font-size:0.6rem; font-weight:700; padding:2px 7px;
+      border-radius:100px; margin-left:5px; vertical-align:middle;
+    }
+
+    /* ── Price card ── */
+    .price-card {
+      background:linear-gradient(135deg, #1a0e00, #2d1a00);
+      border:1.5px solid rgba(245,158,11,0.3);
+      border-radius:20px; padding:24px 20px;
+      margin:16px 0; text-align:center;
+      box-shadow:0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.1) inset;
+      position:relative; overflow:hidden;
+    }
+    .price-card::before {
+      content:'MOST POPULAR'; position:absolute;
+      top:14px; right:-24px; background:linear-gradient(135deg,#f59e0b,#f97316);
+      color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.55rem; letter-spacing:1px; padding:4px 32px;
+      transform:rotate(45deg); box-shadow:0 2px 8px rgba(245,158,11,0.4);
+    }
+    .price-amount {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:3rem; color:white; letter-spacing:-2px;
+      line-height:1; margin-bottom:4px;
+    }
+    .price-amount span {
+      font-size:1.2rem; vertical-align:top; margin-top:10px;
+      display:inline-block; letter-spacing:0; font-weight:700;
+      color:rgba(255,255,255,0.6);
+    }
+    .price-period { font-size:0.78rem; color:rgba(255,255,255,0.4); margin-bottom:4px; }
+    .price-save {
+      display:inline-flex; align-items:center; gap:4px;
+      background:rgba(16,185,129,0.15); color:#34d399;
+      border:1px solid rgba(16,185,129,0.25);
+      padding:3px 10px; border-radius:100px;
+      font-size:0.68rem; font-weight:700; margin-bottom:18px;
+    }
+
+    /* ── Features list ── */
+    .features-list { margin-bottom:20px; }
+    .feat-item {
+      display:flex; align-items:flex-start; gap:10px;
+      padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .feat-item:last-child { border-bottom:none; }
+    .feat-check {
+      width:22px; height:22px; border-radius:7px; flex-shrink:0;
+      background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.25);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.7rem; color:#34d399; margin-top:1px;
+    }
+    .feat-text { font-size:0.82rem; color:rgba(255,255,255,0.8); line-height:1.5; }
+    .feat-text strong { color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; }
+    .feat-badge {
+      display:inline-flex; align-items:center;
+      background:rgba(245,158,11,0.15); color:#fbbf24;
+      font-size:0.58rem; font-weight:700; padding:2px 6px;
+      border-radius:100px; margin-left:5px; vertical-align:middle;
+    }
+
+    /* ── CTA button ── */
+    .btn-gold-big {
+      width:100%; padding:16px; border-radius:var(--radius-sm);
+      background:linear-gradient(135deg,#f59e0b,#f97316);
+      color:white; font-family:'Plus Jakarta Sans',sans-serif;
+      font-weight:800; font-size:1rem; letter-spacing:-0.3px;
+      border:none; cursor:pointer; transition:all 0.2s ease;
+      box-shadow:0 8px 24px rgba(245,158,11,0.45);
+      margin-bottom:10px;
+    }
+    .btn-gold-big:active { transform:scale(0.98); }
+
+    /* ── Compare table ── */
+    .compare-table {
+      width:100%; border-collapse:collapse; margin-bottom:20px;
+      font-size:0.78rem;
+    }
+    .compare-table th {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      padding:10px 8px; border-bottom:2px solid var(--border);
+      color:var(--text-3); text-align:left; font-size:0.7rem;
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .compare-table th:not(:first-child) { text-align:center; }
+    .compare-table td {
+      padding:10px 8px; border-bottom:1px solid var(--border);
+      color:var(--text-2); vertical-align:middle;
+    }
+    .compare-table td:not(:first-child) { text-align:center; }
+    .compare-table tr:last-child td { border-bottom:none; }
+    .compare-table .ct-free  { color:var(--text-3); }
+    .compare-table .ct-prem  { color:var(--c-gold); font-weight:700; }
+    .compare-table .ct-feat  { color:var(--text); font-weight:600; }
+
+    /* ── Testimonials ── */
+    .testimonial-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:16px; padding:16px; margin-bottom:10px;
+      box-shadow:var(--shadow-xs);
+    }
+    .test-stars { color:#f59e0b; font-size:0.85rem; margin-bottom:8px; }
+    .test-text {
+      font-size:0.82rem; color:var(--text-2); line-height:1.6;
+      margin-bottom:10px; font-style:italic;
+    }
+    .test-author {
+      display:flex; align-items:center; gap:8px;
+    }
+    .test-av {
+      width:30px; height:30px; border-radius:50%;
+      background:linear-gradient(135deg,var(--c-brand),#8b5cf6);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.75rem; color:white; flex-shrink:0;
+    }
+    .test-name {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.78rem; color:var(--text);
+    }
+    .test-score { font-size:0.67rem; color:var(--c-green); font-weight:600; }
+
+    /* ── FAQ ── */
+    .faq-item {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:12px; margin-bottom:8px; overflow:hidden;
+    }
+    .faq-q {
+      padding:13px 14px; font-family:'Plus Jakarta Sans',sans-serif;
+      font-weight:700; font-size:0.84rem; color:var(--text);
+      cursor:pointer; display:flex; align-items:center; gap:10px;
+      transition:background 0.15s ease;
+    }
+    .faq-q:active { background:var(--bg-input); }
+    .faq-q .fa-icon { flex-shrink:0; transition:transform 0.2s ease; }
+    .faq-q.open .fa-icon { transform:rotate(45deg); }
+    .faq-a {
+      max-height:0; overflow:hidden;
+      transition:max-height 0.3s ease;
+      font-size:0.78rem; color:var(--text-2); line-height:1.6;
+    }
+    .faq-a.open {
+      max-height:200px;
+      padding:0 14px 14px;
+    }
+
+    /* ── Already premium ── */
+    .premium-active {
+      display:none; background:linear-gradient(135deg,rgba(16,185,129,0.1),var(--bg-card));
+      border:1.5px solid rgba(16,185,129,0.25);
+      border-radius:20px; padding:28px 20px; text-align:center; margin-bottom:16px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="ug-hero animate-in">
+  <span class="ug-crown">👑</span>
+  <div class="ug-hero-title">Go Premium</div>
+  <div class="ug-hero-sub">Everything you need to score higher and get admitted</div>
+
+  <div class="plan-toggle">
+    <div class="plan-toggle-btn active" id="planMonthly" onclick="setPlan('monthly')">Monthly</div>
+    <div class="plan-toggle-btn" id="planYearly" onclick="setPlan('yearly')">
+      Yearly <span class="save-badge">Save 40%</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper" style="padding-top:16px;">
+
+  <!-- Already premium card -->
+  <div class="premium-active animate-in" id="premiumActive">
+    <div style="font-size:2.5rem;margin-bottom:12px;">✨</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:var(--c-green);margin-bottom:6px;">
+      You're already Premium!
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-3);line-height:1.6;margin-bottom:16px;">
+      Enjoy all premium features. Thank you for supporting EXAMORA!
+    </p>
+    <a href="index.html" class="btn btn-green">🏠 Back to Dashboard</a>
+  </div>
+
+  <!-- Price card -->
+  <div class="price-card animate-in animate-in-delay-1" id="priceCard">
+    <div class="price-amount"><span>₦</span><span id="priceNum">2,000</span></div>
+    <div class="price-period" id="pricePeriod">per month · cancel anytime</div>
+    <div class="price-save" id="priceSave" style="display:none;">
+      🎉 Save ₦9,600 compared to monthly
+    </div>
+
+    <!-- Features -->
+    <div class="features-list">
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>Unlimited Practice Exams</strong> — no daily caps</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text">
+          <strong>AI-Powered Explanations</strong>
+          <span class="feat-badge">⚡ NEW</span>
+          — every wrong answer explained in detail
+        </div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>Deep Analytics</strong> — subject-by-subject breakdown, score trends, weak area detection</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>Unlimited Bookmarks</strong> — save as many questions as you want</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>Offline Mode</strong> — practise without internet</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>All Past Questions</strong> — JAMB 1980–2024, WAEC, NECO, Post-UTME</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>Priority Support</strong> — get help within 2 hours</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-check">✓</div>
+        <div class="feat-text"><strong>👑 Premium Badge</strong> on the leaderboard</div>
+      </div>
+    </div>
+
+    <button class="btn-gold-big" id="upgradeBtn" onclick="initiatePayment()">
+      ⚡ Upgrade Now — ₦<span id="ctaPrice">2,000</span>/mo
+    </button>
+    <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);text-align:center;">
+      Secure payment · Cancel anytime · Instant activation
+    </div>
+  </div>
+
+  <!-- Compare table -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">📊</div>
+    <h3>Free vs Premium</h3>
+  </div>
+  <div class="card animate-in animate-in-delay-2" style="padding:0;overflow:hidden;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="padding-left:14px;">Feature</th>
+          <th>Free</th>
+          <th style="color:var(--c-gold);">👑 Premium</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="ct-feat" style="padding-left:14px;">Daily Exams</td><td class="ct-free">5/day</td><td class="ct-prem">Unlimited</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">Bookmarks</td><td class="ct-free">10</td><td class="ct-prem">Unlimited</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">AI Explanations</td><td class="ct-free">❌</td><td class="ct-prem">✅</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">Deep Analytics</td><td class="ct-free">Basic</td><td class="ct-prem">Full</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">Past Questions</td><td class="ct-free">2010–2024</td><td class="ct-prem">1980–2024</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">Offline Mode</td><td class="ct-free">❌</td><td class="ct-prem">✅</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">Leaderboard Badge</td><td class="ct-free">❌</td><td class="ct-prem">👑</td></tr>
+        <tr><td class="ct-feat" style="padding-left:14px;">Support</td><td class="ct-free">Email</td><td class="ct-prem">Priority</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="section-header animate-in animate-in-delay-2" style="margin-top:20px;">
+    <div class="section-icon">💬</div>
+    <h3>Student Stories</h3>
+  </div>
+
+  <div class="testimonial-card animate-in animate-in-delay-2">
+    <div class="test-stars">⭐⭐⭐⭐⭐</div>
+    <div class="test-text">"I scored 312 in JAMB after just 6 weeks using EXAMORA Premium. The AI explanations helped me understand exactly why I was getting questions wrong."</div>
+    <div class="test-author">
+      <div class="test-av">C</div>
+      <div>
+        <div class="test-name">Chioma Eze</div>
+        <div class="test-score">JAMB Score: 312 · University of Lagos</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonial-card animate-in animate-in-delay-3">
+    <div class="test-stars">⭐⭐⭐⭐⭐</div>
+    <div class="test-text">"The deep analytics showed me I was weak in Organic Chemistry. I focused there and went from 55% to 82% in 3 weeks."</div>
+    <div class="test-author">
+      <div class="test-av">A</div>
+      <div>
+        <div class="test-name">Adebayo Okafor</div>
+        <div class="test-score">WAEC B3 Chemistry · OAU</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
+    <div class="section-icon">❓</div>
+    <h3>Common Questions</h3>
+  </div>
+
+  <div id="faqList" class="animate-in animate-in-delay-3">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span class="fa-icon">+</span> How do I pay?
+      </div>
+      <div class="faq-a">
+        We accept all Nigerian bank cards, transfers, USSD, and Opay/PalmPay via Paystack. Payment is secure and instant.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span class="fa-icon">+</span> Can I cancel anytime?
+      </div>
+      <div class="faq-a">
+        Yes. You can cancel from your profile page at any time. You'll keep access until the end of your billing period.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span class="fa-icon">+</span> Is there a student discount?
+      </div>
+      <div class="faq-a">
+        Yes! Students with a valid school email get 20% off. Contact us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1d6e686d6d726f695d78657c70726f7c337c6d6d">[email&#160;protected]</a> with your school email to claim it.
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        <span class="fa-icon">+</span> What if I'm not satisfied?
+      </div>
+      <div class="faq-a">
+        We offer a 7-day money-back guarantee. If you're not happy, just email us and we'll refund you — no questions asked.
+      </div>
+    </div>
+  </div>
+
+  <!-- Final CTA -->
+  <div style="margin-top:20px;margin-bottom:32px;" class="animate-in animate-in-delay-4" id="finalCta">
+    <button class="btn-gold-big" onclick="initiatePayment()">
+      👑 Start Premium — ₦<span id="ctaPrice2">2,000</span>/mo
+    </button>
+    <p style="text-align:center;font-size:0.68rem;color:var(--text-3);margin-top:8px;">
+      Join 12,000+ students already using EXAMORA Premium
+    </p>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+  });
+  function toast(msg,dur=2800){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
+
+  let currentPlan="monthly";
+
+  function setPlan(plan){
+    currentPlan=plan;
+    document.getElementById("planMonthly").classList.toggle("active",plan==="monthly");
+    document.getElementById("planYearly").classList.toggle("active",plan==="yearly");
+    if(plan==="monthly"){
+      document.getElementById("priceNum").textContent="2,000";
+      document.getElementById("pricePeriod").textContent="per month · cancel anytime";
+      document.getElementById("priceSave").style.display="none";
+      document.getElementById("ctaPrice").textContent="2,000";
+      document.getElementById("ctaPrice2").textContent="2,000";
+      document.getElementById("upgradeBtn").innerHTML=`⚡ Upgrade Now — ₦2,000/mo`;
+    } else {
+      document.getElementById("priceNum").textContent="14,400";
+      document.getElementById("pricePeriod").textContent="per year · ₦1,200/month equivalent";
+      document.getElementById("priceSave").style.display="inline-flex";
+      document.getElementById("ctaPrice").textContent="14,400";
+      document.getElementById("ctaPrice2").textContent="14,400";
+      document.getElementById("upgradeBtn").innerHTML=`⚡ Upgrade Now — ₦14,400/yr`;
+    }
+  }
+
+  function toggleFaq(el){
+    const a=el.nextElementSibling;
+    const open=a.classList.toggle("open");
+    el.classList.toggle("open",open);
+  }
+
+  function initiatePayment(){
+    if(!window._userEmail){toast("Please sign in to upgrade");return;}
+    const amount=currentPlan==="monthly"?200000:1440000; // kobo
+    // Paystack inline integration
+    const handler=PaystackPop.setup({
+      key:"pk_live_bb2f18f11e25ef95390f85d4b30bdfb421ae4a4d", // Replace with real key
+      email:window._userEmail,
+      amount,
+      currency:"NGN",
+      ref:"examora_"+Date.now(),
+      metadata:{plan:currentPlan},
+      callback:function(response){
+        toast("Payment successful! Activating Premium... ✨");
+        window._activatePremium(response.reference);
+      },
+      onClose:function(){toast("Payment cancelled");}
+    });
+    handler.openIframe();
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    window._userEmail=user.email;
+
+    try{
+      const snap=await getDoc(doc(db,"users",user.uid));
+      const ud=snap.data()||{};
+      if(ud.plan==="premium"){
+        document.getElementById("premiumActive").style.display="block";
+        document.getElementById("priceCard").style.display="none";
+        document.getElementById("finalCta").style.display="none";
+      }
+    }catch(_){}
+
+    window._activatePremium=async(ref)=>{
+      try{
+        await updateDoc(doc(db,"users",user.uid),{
+          plan:"premium",
+          premiumSince:new Date()

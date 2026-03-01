@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Result</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    /* ── Score hero ── */
+    .result-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 65%, #0f172a 100%);
+      padding: 36px 20px 32px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .result-hero::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:180px; height:180px; border-radius:50%;
+      background:rgba(99,102,241,0.12); pointer-events:none;
+    }
+    .result-hero::after {
+      content:''; position:absolute; bottom:-40px; left:-40px;
+      width:120px; height:120px; border-radius:50%;
+      background:rgba(16,185,129,0.1); pointer-events:none;
+    }
+
+    /* Score ring */
+    .score-ring-wrap {
+      position: relative; width: 140px; height: 140px;
+      margin: 0 auto 18px; z-index: 1;
+    }
+    .score-ring-svg { transform: rotate(-90deg); }
+    .score-ring-bg  { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
+    .score-ring-fill {
+      fill: none; stroke-width: 10; stroke-linecap: round;
+      stroke-dasharray: 339.3; stroke-dashoffset: 339.3;
+      transition: stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .score-ring-inner {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .score-pct {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 2rem; color: white;
+      line-height: 1; letter-spacing: -1px;
+    }
+    .score-frac {
+      font-size: 0.7rem; color: rgba(255,255,255,0.5);
+      font-weight: 600; margin-top: 2px;
+    }
+    .result-verdict {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 1.5rem; color: white;
+      letter-spacing: -0.5px; margin-bottom: 5px; position: relative; z-index: 1;
+    }
+    .result-sub {
+      font-size: 0.78rem; color: rgba(255,255,255,0.45);
+      line-height: 1.5; position: relative; z-index: 1;
+    }
+
+    /* ── Stats strip ── */
+    .result-stats {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 8px; margin: 14px 0;
+    }
+    .result-stat {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 8px; text-align: center;
+      box-shadow: var(--shadow-xs);
+    }
+    .rs-num {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 1.2rem; display: block; margin-bottom: 3px;
+    }
+    .rs-lbl {
+      font-size: 0.6rem; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ── Answer review ── */
+    .review-item {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; margin-bottom: 10px;
+      box-shadow: var(--shadow-xs); position: relative;
+      overflow: hidden;
+    }
+    .review-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px; border-radius: 0 2px 2px 0;
+    }
+    .review-item.correct::before { background: var(--c-green); }
+    .review-item.wrong::before   { background: var(--c-red); }
+    .review-item.skipped::before { background: var(--c-gold); }
+
+    .review-q-num {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 8px;
+    }
+    .review-badge {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800;
+    }
+    .review-item.correct .review-badge { background: var(--c-green-pale); color: var(--c-green); }
+    .review-item.wrong   .review-badge { background: var(--c-red-pale);   color: var(--c-red); }
+    .review-item.skipped .review-badge { background: var(--c-gold-pale);  color: var(--c-gold); }
+
+    .review-q-text {
+      font-size: 0.84rem; font-weight: 600; color: var(--text);
+      line-height: 1.55; margin-bottom: 10px;
+    }
+    .review-options {
+      display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px;
+    }
+    .review-opt {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 7px 10px; border-radius: 9px; font-size: 0.78rem;
+      border: 1.5px solid var(--border); background: var(--bg-input);
+      color: var(--text-2); line-height: 1.4;
+    }
+    .review-opt.correct-ans {
+      background: var(--c-green-pale); border-color: rgba(16,185,129,0.35);
+      color: var(--c-green); font-weight: 700;
+    }
+    .review-opt.user-wrong {
+      background: var(--c-red-pale); border-color: rgba(244,63,94,0.3);
+      color: var(--c-red); font-weight: 700;
+    }
+    .review-opt-letter {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.7rem; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .exp-toggle {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.74rem; font-weight: 700; color: var(--c-brand);
+      cursor: pointer; padding: 0; background: none; border: none;
+      margin-top: 4px;
+    }
+    .exp-toggle:active { opacity: 0.7; }
+
+    .exp-box {
+      display: none; margin-top: 8px; padding: 10px 12px;
+      background: var(--c-brand-pale);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-left: 3px solid var(--c-brand);
+      border-radius: 9px; font-size: 0.78rem;
+      color: var(--text-2); line-height: 1.6;
+    }
+    .exp-box.show { display: block; animation: fadeIn 0.2s ease; }
+
+    /* ── Action buttons strip ── */
+    .action-strip {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 20px;
+    }
+
+    /* ── Share card ── */
+    .share-card {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border-radius: 18px; padding: 20px;
+      margin-bottom: 16px; text-align: center;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+    .share-card h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.9rem; color: white; margin-bottom: 5px;
+    }
+    .share-card p { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-bottom: 14px; }
+
+    /* Confetti canvas */
+    #confettiCanvas {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none; z-index: 999;
+    }
+
+    /* Filter tabs for review */
+    .review-filter {
+      display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto;
+      padding-bottom: 2px; scrollbar-width: none;
+    }
+    .review-filter::-webkit-scrollbar { display: none; }
+    .rf-tab {
+      flex-shrink: 0; padding: 6px 14px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--bg-card);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 0.7rem; color: var(--text-3);
+      cursor: pointer; transition: all 0.18s ease; white-space: nowrap;
+    }
+    .rf-tab.active {
+      background: var(--c-brand); border-color: var(--c-brand);
+      color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+  </style>
+</head>
+<body>
+<canvas id="confettiCanvas"></canvas>
+
+<!-- ── Header ── -->
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img class="app-logo-img" src="logo.png" alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- ── Score Hero ── -->
+<div class="result-hero animate-in" id="resultHero">
+  <div class="score-ring-wrap">
+    <svg class="score-ring-svg" width="140" height="140" viewBox="0 0 140 140">
+      <circle class="score-ring-bg" cx="70" cy="70" r="54"/>
+      <circle class="score-ring-fill" id="scoreRingFill" cx="70" cy="70" r="54"/>
+    </svg>
+    <div class="score-ring-inner">
+      <span class="score-pct" id="scorePct">0%</span>
+      <span class="score-frac" id="scoreFrac">0/0</span>
+    </div>
+  </div>
+  <div class="result-verdict" id="resultVerdict">Loading...</div>
+  <div class="result-sub" id="resultSub"></div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Stats strip -->
+  <div class="result-stats animate-in animate-in-delay-1">
+    <div class="result-stat">
+      <span class="rs-num" id="statCorrect" style="color:var(--c-green);">—</span>
+      <span class="rs-lbl">Correct</span>
+    </div>
+    <div class="result-stat">
+      <span class="rs-num" id="statWrong" style="color:var(--c-red);">—</span>
+      <span class="rs-lbl">Wrong</span>
+    </div>
+    <div class="result-stat">
+      <span class="rs-num" id="statSkipped" style="color:var(--c-gold);">—</span>
+      <span class="rs-lbl">Skipped</span>
+    </div>
+    <div class="result-stat">
+      <span class="rs-num" id="statMode" style="color:var(--c-brand);">—</span>
+      <span class="rs-lbl">Mode</span>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-strip animate-in animate-in-delay-1">
+    <a href="exam.html" class="btn btn-primary">📝 Try Again</a>
+    <a href="index.html" class="btn btn-ghost">🏠 Dashboard</a>
+  </div>
+
+  <!-- Share card -->
+  <div class="share-card animate-in animate-in-delay-2" id="shareCard" style="display:none;">
+    <h4>🎉 Share your score!</h4>
+    <p>Let your friends know how you did</p>
+    <button class="btn btn-primary" onclick="shareResult()" style="max-width:200px;margin:0 auto;">
+      📤 Share Result
+    </button>
+  </div>
+
+  <!-- Review -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">📋</div>
+    <h3>Answer Review</h3>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="review-filter animate-in animate-in-delay-2">
+    <div class="rf-tab active" onclick="filterReview('all',this)">All</div>
+    <div class="rf-tab" onclick="filterReview('wrong',this)">❌ Wrong</div>
+    <div class="rf-tab" onclick="filterReview('correct',this)">✅ Correct</div>
+    <div class="rf-tab" onclick="filterReview('skipped',this)">⏭ Skipped</div>
+  </div>
+
+  <div id="reviewList" class="animate-in animate-in-delay-3"></div>
+
+  <a href="exam.html" class="btn btn-primary animate-in animate-in-delay-4" style="margin-top:8px;">
+    🔄 Practice Again
+  </a>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+  });
+  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+
+  // ── Confetti ──────────────────────────────────────────────
+  function launchConfetti(){
+    const canvas=document.getElementById("confettiCanvas");
+    const ctx=canvas.getContext("2d");
+    canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+    const colors=["#6366f1","#10b981","#f59e0b","#f43f5e","#8b5cf6","#34d399"];
+    const pieces=Array.from({length:120},()=>({
+      x:Math.random()*canvas.width, y:-10,
+      r:Math.random()*6+3, c:colors[Math.floor(Math.random()*colors.length)],
+      vx:(Math.random()-0.5)*4, vy:Math.random()*4+2,
+      rot:Math.random()*360, rotV:(Math.random()-0.5)*8,
+      shape:Math.random()>0.5?"circle":"rect"
+    }));
+    let frame=0;
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      pieces.forEach(p=>{
+        ctx.save(); ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle=p.c; ctx.globalAlpha=Math.max(0,1-frame/160);
+        if(p.shape==="circle"){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
+        else{ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);}
+        ctx.restore();
+        p.x+=p.vx; p.y+=p.vy; p.rot+=p.rotV; p.vy+=0.06;
+      });
+      frame++;
+      if(frame<180) requestAnimationFrame(draw);
+      else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    draw();
+  }
+
+  // ── Load result ───────────────────────────────────────────
+  let resultData={}, allItems=[];
+
+  function filterReview(type, btn){
+    document.querySelectorAll(".rf-tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    const list=document.getElementById("reviewList");
+    const items=type==="all"?allItems
+      :type==="correct"?allItems.filter(i=>i.status==="correct")
+      :type==="wrong"?allItems.filter(i=>i.status==="wrong")
+      :allItems.filter(i=>i.status==="skipped");
+    if(items.length===0){
+      list.innerHTML=`<div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">
+        No questions in this category</div>`;
+      return;
+    }
+    list.innerHTML=items.map(i=>buildReviewCard(i)).join("");
+  }
+
+  function buildReviewCard(item){
+    const {q, userAns, status, idx} = item;
+    const opts=["A","B","C","D"].filter(l=>q.options&&q.options[l]);
+    const statusIcon=status==="correct"?"✓":status==="wrong"?"✗":"—";
+    return `<div class="review-item ${status} animate-in" id="ri_${idx}">
+      <div class="review-q-num">
+        <div class="review-badge">${statusIcon}</div>
+        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.72rem;color:var(--text-3);">
+          Q${idx+1} · ${q.category||""} ${q.subject?`· ${q.subject}`:""} ${q.year?`· ${q.year}`:""}
+        </span>
+      </div>
+      <div class="review-q-text">${q.text||q.question||""}</div>
+      <div class="review-options">
+        ${opts.map(l=>{
+          let cls="";
+          if(l===q.answer) cls="correct-ans";
+          else if(l===userAns&&userAns!==q.answer) cls="user-wrong";
+          return `<div class="review-opt ${cls}">
+            <span class="review-opt-letter">${l}</span>
+            <span>${q.options[l]}</span>
+            ${l===q.answer?" ✓":""}${l===userAns&&l!==q.answer?" ← Your answer":""}
+          </div>`;
+        }).join("")}
+      </div>
+      ${q.explanation?`
+        <button class="exp-toggle" onclick="toggleExp(${idx})">
+          💡 Show explanation
+        </button>
+        <div class="exp-box" id="exp_${idx}">
+          ${q.explanation}
+        </div>`:""}
+    </div>`;
+  }
+
+  function toggleExp(idx){
+    const box=document.getElementById("exp_"+idx);
+    const btn=box?.previousElementSibling;
+    if(!box) return;
+    const showing=box.classList.toggle("show");
+    if(btn) btn.textContent=showing?"💡 Hide explanation":"💡 Show explanation";
+  }
+
+  function shareResult(){
+    const pct=resultData.percent||0;
+    const subj=resultData.subject||"General";
+    const text=`I scored ${pct}% on ${subj} on EXAMORA! 🎓\nTest yourself at examora.app`;
+    if(navigator.share){
+      navigator.share({title:"EXAMORA Result",text,url:"https://examora.app"}).catch(()=>{});
+    } else {
+      navigator.clipboard?.writeText(text).then(()=>toast("Result copied to clipboard! 📋")).catch(()=>{});
+    }
+  }
+
+  window.addEventListener("load",()=>{
+    const raw=localStorage.getItem("examora_last_result");
+    if(!raw){window.location.href="exam.html";return;}
+    resultData=JSON.parse(raw);
+
+    const {correct,total,percent,passed,mode,category,subject,answers,questions}=resultData;
+    const wrong=Object.keys(answers||{}).filter(i=>answers[i]!==questions[i]?.answer).length;
+    const answered=Object.keys(answers||{}).length;
+    const skipped=total-answered;
+
+    // Score ring animation
+    const circumference=339.3;
+    const fill=circumference*(1-(percent/100));
+    const ringColor=percent>=70?"#10b981":percent>=50?"#f59e0b":"#f43f5e";
+    const ring=document.getElementById("scoreRingFill");
+    ring.style.stroke=ringColor;
+    setTimeout(()=>{ ring.style.strokeDashoffset=fill; },200);
+
+    // Animated percentage counter
+    let count=0;
+    const interval=setInterval(()=>{
+      count=Math.min(count+2,percent);
+      document.getElementById("scorePct").textContent=count+"%";
+      if(count>=percent) clearInterval(interval);
+    },18);
+
+    document.getElementById("scoreFrac").textContent=`${correct}/${total}`;
+    document.getElementById("statCorrect").textContent=correct;
+    document.getElementById("statWrong").textContent=wrong;
+    document.getElementById("statSkipped").textContent=skipped;
+    document.getElementById("statMode").textContent=mode==="practice"?"📖":"⏱️";
+
+    // Verdict
+    const verdicts=[
+      {min:90,emoji:"🏆",title:"Outstanding!",sub:"World-class performance. You're ready!"},
+      {min:75,emoji:"🌟",title:"Excellent!",sub:"Great score. Just a little more polish needed."},
+      {min:60,emoji:"👍",title:"Good Job!",sub:"Above average. Keep pushing."},
+      {min:50,emoji:"✅",title:"You Passed!",sub:"Just above the pass mark. Aim higher!"},
+      {min:0, emoji:"💪",title:"Keep Going!",sub:"Don't give up. Every attempt makes you stronger."},
+    ];
+    const v=verdicts.find(x=>percent>=x.min)||verdicts[verdicts.length-1];
+    document.getElementById("resultVerdict").textContent=v.emoji+" "+v.title;
+    document.getElementById("resultSub").textContent=v.sub+(category?` · ${category}`:"")+(subject?` · ${subject}`:"");
+
+    // Hero glow colour
+    document.getElementById("resultHero").style.background=
+      passed?"linear-gradient(160deg, #0f172a 0%, #064e3b 65%, #0f172a 100%)"
+            :"linear-gradient(160deg, #0f172a 0%, #1e1b4b 65%, #0f172a 100%)";
+
+    // Confetti on pass
+    if(passed) setTimeout(launchConfetti,400);
+
+    // Share card on good score
+    if(percent>=60) document.getElementById("shareCard").style.display="block";
+
+    // Build review items
+    allItems=(questions||[]).map((q,i)=>({
+      q, idx:i,
+      userAns:answers?.[i]||null,
+      status:!answers?.[i]?"skipped":answers[i]===q.answer?"correct":"wrong"
+    }));
+    filterReview("all",document.querySelector(".rf-tab.active"));
+  });
+</script>
+</body>
+</html>

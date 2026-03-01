@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Exam</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    /* ── Setup screen ── */
+    .setup-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+      padding: 32px 20px 28px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .setup-hero::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:180px; height:180px; border-radius:50%;
+      background:rgba(99,102,241,0.12); pointer-events:none;
+    }
+    .setup-hero::after {
+      content:''; position:absolute; bottom:-40px; left:-40px;
+      width:120px; height:120px; border-radius:50%;
+      background:rgba(16,185,129,0.08); pointer-events:none;
+    }
+    .setup-hero h1 {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.5rem; color:white; letter-spacing:-0.5px;
+      margin-bottom:6px; position:relative; z-index:1;
+    }
+    .setup-hero p { font-size:0.78rem; color:rgba(255,255,255,0.45); position:relative; z-index:1; }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display:flex; background:var(--bg-input); border-radius:12px;
+      padding:4px; margin-bottom:16px; border:1px solid var(--border);
+    }
+    .mode-btn {
+      flex:1; padding:10px 8px; border-radius:9px; text-align:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.8rem; color:var(--text-3); cursor:pointer;
+      transition:all 0.2s ease;
+    }
+    .mode-btn.active {
+      background:var(--bg-card); color:var(--text);
+      box-shadow:0 2px 8px rgba(15,23,42,0.1);
+    }
+    .mode-btn .mode-icon { font-size:1.1rem; display:block; margin-bottom:3px; }
+
+    /* Filter row */
+    .filter-row {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;
+    }
+
+    /* Question count chips */
+    .count-grid {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .count-chip {
+      padding:8px 16px; border-radius:100px;
+      border:1.5px solid var(--border); background:var(--bg-card);
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.8rem; color:var(--text-2); cursor:pointer;
+      transition:all 0.18s cubic-bezier(0.4,0,0.2,1);
+    }
+    .count-chip:active { transform:scale(0.93); }
+    .count-chip.selected {
+      background:var(--c-brand); border-color:var(--c-brand);
+      color:white; box-shadow:0 2px 10px rgba(99,102,241,0.4);
+    }
+
+    /* ── Exam screen ── */
+    #examScreen { display:none; }
+
+    /* Top bar */
+    .exam-topbar {
+      position:sticky; top:0; z-index:50;
+      background:var(--bg-card); border-bottom:1px solid var(--border);
+      padding:10px 16px; display:flex; align-items:center; gap:10px;
+      box-shadow:var(--shadow-xs);
+    }
+    .q-counter {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.9rem; color:var(--text); white-space:nowrap;
+    }
+    .exam-progress {
+      flex:1; height:6px; background:var(--bg-input);
+      border-radius:100px; overflow:hidden;
+    }
+    .exam-progress-fill {
+      height:100%; border-radius:100px;
+      background:linear-gradient(90deg, var(--c-brand), var(--c-green));
+      transition:width 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .timer-badge {
+      display:flex; align-items:center; gap:5px;
+      background:var(--bg-input); border:1px solid var(--border);
+      border-radius:100px; padding:5px 12px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.82rem; color:var(--text); white-space:nowrap;
+      transition:all 0.3s ease;
+    }
+    .timer-badge.warn { background:rgba(245,158,11,0.15); color:var(--c-gold); border-color:rgba(245,158,11,0.3); }
+    .timer-badge.urgent { background:rgba(244,63,94,0.15); color:var(--c-red); border-color:rgba(244,63,94,0.3); animation:pulse 1s infinite; }
+
+    /* Question card */
+    .q-wrap { padding:16px; max-width:var(--max-width); margin:0 auto; }
+    .q-meta {
+      display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;
+    }
+    .q-tag {
+      padding:3px 10px; border-radius:100px;
+      font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .q-tag-cat  { background:var(--c-brand-pale); color:var(--c-brand); }
+    .q-tag-subj { background:var(--bg-input); color:var(--text-3); border:1px solid var(--border); }
+    .q-tag-year { background:var(--bg-input); color:var(--text-3); border:1px solid var(--border); }
+
+    .q-text {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:600;
+      font-size:1rem; color:var(--text); line-height:1.65;
+      margin-bottom:18px; letter-spacing:-0.1px;
+    }
+
+    /* Action row below options */
+    .q-actions {
+      display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;
+    }
+    .q-action-btn {
+      flex:1; min-width:100px; padding:9px 12px; border-radius:10px;
+      border:1.5px solid var(--border); background:var(--bg-card);
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.75rem; color:var(--text-2); cursor:pointer;
+      transition:all 0.18s ease; display:flex; align-items:center;
+      justify-content:center; gap:5px;
+    }
+    .q-action-btn:active { transform:scale(0.96); }
+    .q-action-btn:hover { border-color:var(--c-brand); color:var(--c-brand); background:var(--c-brand-pale); }
+    .q-action-btn.bookmarked { background:var(--c-gold-pale); color:var(--c-gold); border-color:rgba(245,158,11,0.4); }
+    .q-action-btn.flagged { background:var(--c-red-pale); color:var(--c-red); border-color:rgba(244,63,94,0.3); }
+
+    /* Next / Submit */
+    .q-nav {
+      display:flex; gap:10px; padding:14px 16px;
+      position:sticky; bottom:0; background:linear-gradient(to top, var(--bg) 80%, transparent);
+    }
+
+    /* Question nav dots */
+    .q-dots-wrap {
+      overflow-x:auto; display:flex; gap:5px;
+      padding:10px 16px 4px; scrollbar-width:none;
+    }
+    .q-dots-wrap::-webkit-scrollbar { display:none; }
+    .q-dot {
+      width:28px; height:28px; border-radius:8px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.65rem; cursor:pointer; transition:all 0.15s ease;
+      border:1.5px solid var(--border); background:var(--bg-card);
+      color:var(--text-3);
+    }
+    .q-dot.current { background:var(--c-brand); border-color:var(--c-brand); color:white; }
+    .q-dot.answered { background:var(--c-green-pale); border-color:rgba(16,185,129,0.4); color:var(--c-green); }
+    .q-dot.flagged  { background:var(--c-red-pale);   border-color:rgba(244,63,94,0.3);  color:var(--c-red); }
+
+    /* Confirm submit overlay */
+    .overlay {
+      display:none; position:fixed; inset:0; z-index:200;
+      background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+      align-items:flex-end; justify-content:center;
+    }
+    .overlay.show { display:flex; animation:fadeIn 0.2s ease; }
+    .overlay-sheet {
+      background:var(--bg-card); border-radius:24px 24px 0 0;
+      padding:24px 20px 36px; width:100%; max-width:var(--max-width);
+      animation:fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .overlay-handle {
+      width:36px; height:4px; border-radius:100px;
+      background:var(--border); margin:0 auto 20px;
+    }
+    .overlay-sheet h3 {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.1rem; color:var(--text); text-align:center; margin-bottom:8px;
+    }
+    .submit-stats {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0;
+    }
+    .submit-stat {
+      text-align:center; padding:12px 8px; background:var(--bg-input);
+      border-radius:12px;
+    }
+    .submit-stat-n {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.3rem; display:block; margin-bottom:3px;
+    }
+    .submit-stat-l { font-size:0.65rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- ════════════════════════════════
+     SETUP SCREEN
+════════════════════════════════ -->
+<div id="setupScreen">
+  <div class="setup-hero animate-in">
+    <h1>Start Practising 📝</h1>
+    <p>Choose your settings and begin</p>
+  </div>
+
+  <div class="page-wrapper" style="padding-top:20px;">
+
+    <!-- Mode -->
+    <div class="section-header animate-in animate-in-delay-1">
+      <div class="section-icon">⚙️</div>
+      <h3>Mode</h3>
+    </div>
+    <div class="mode-toggle animate-in animate-in-delay-1">
+      <div class="mode-btn active" id="modeExam"     onclick="setMode('exam')">
+        <span class="mode-icon">⏱️</span>Exam Mode
+      </div>
+      <div class="mode-btn"       id="modePractice"  onclick="setMode('practice')">
+        <span class="mode-icon">📖</span>Practice Mode
+      </div>
+    </div>
+    <div id="modeHint" class="card card-sm animate-in animate-in-delay-1"
+      style="background:var(--c-brand-pale);border-color:rgba(99,102,241,0.2);margin-bottom:16px;">
+      <p style="font-size:0.78rem;color:var(--c-brand);font-weight:600;line-height:1.5;">
+        ⏱️ <strong>Exam Mode:</strong> Timed, no instant feedback — just like the real exam.
+      </p>
+    </div>
+
+    <!-- Filters -->
+    <div class="section-header animate-in animate-in-delay-1">
+      <div class="section-icon">🎯</div>
+      <h3>Filter Questions</h3>
+    </div>
+    <div class="filter-row animate-in animate-in-delay-2">
+      <div>
+        <label class="form-label">Category</label>
+        <select class="form-select" id="catSelect" onchange="updateSubjects()">
+          <option value="">All Categories</option>
+          <option value="JAMB">JAMB</option>
+          <option value="WAEC">WAEC</option>
+          <option value="NECO">NECO</option>
+          <option value="Post-UTME">Post-UTME</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Subject</label>
+        <select class="form-select" id="subjSelect">
+          <option value="">All Subjects</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-row animate-in animate-in-delay-2">
+      <div>
+        <label class="form-label">Year</label>
+        <select class="form-select" id="yearSelect">
+          <option value="">All Years</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Difficulty</label>
+        <select class="form-select" id="diffSelect">
+          <option value="">Mixed</option>
+          <option value="easy">Easy first</option>
+          <option value="random">Randomised</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Question count -->
+    <div class="section-header animate-in animate-in-delay-2">
+      <div class="section-icon">🔢</div>
+      <h3>Number of Questions</h3>
+    </div>
+    <div class="count-grid animate-in animate-in-delay-2">
+      <div class="count-chip" onclick="setCount(10)">10</div>
+      <div class="count-chip selected" onclick="setCount(20)">20</div>
+      <div class="count-chip" onclick="setCount(30)">30</div>
+      <div class="count-chip" onclick="setCount(40)">40</div>
+      <div class="count-chip" onclick="setCount(50)">50</div>
+      <div class="count-chip" onclick="setCount(0)">All</div>
+    </div>
+
+    <!-- Available count -->
+    <div class="card card-sm animate-in animate-in-delay-3" id="qAvailCard"
+      style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <span style="font-size:1.4rem;">📚</span>
+      <div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);"
+          id="qAvailNum">Loading questions...</div>
+        <div style="font-size:0.7rem;color:var(--text-3);">available in your selection</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary animate-in animate-in-delay-3" id="startBtn" onclick="startExam()">
+      🚀 Start Exam
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     EXAM SCREEN
+════════════════════════════════ -->
+<div id="examScreen">
+
+  <!-- Top bar -->
+  <div class="exam-topbar">
+    <span class="q-counter"><span id="qCurrent">1</span>/<span id="qTotal">20</span></span>
+    <div class="exam-progress"><div class="exam-progress-fill" id="examProgress" style="width:5%;"></div></div>
+    <div class="timer-badge" id="timerBadge" style="display:none;">⏱ <span id="timerDisplay">--:--</span></div>
+    <button onclick="showSubmitSheet()" style="padding:6px 12px;border-radius:9px;
+      background:var(--c-red-pale);color:var(--c-red);border:1.5px solid rgba(244,63,94,0.3);
+      font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer;white-space:nowrap;">
+      End
+    </button>
+  </div>
+
+  <!-- Question dots nav -->
+  <div class="q-dots-wrap" id="qDotsWrap"></div>
+
+  <!-- Question area -->
+  <div class="q-wrap" id="qWrap"></div>
+
+  <!-- Nav buttons -->
+  <div class="q-nav">
+    <button class="btn btn-ghost" id="prevBtn" onclick="navigate(-1)" style="flex:1;">← Prev</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="navigate(1)" style="flex:2;">Next →</button>
+  </div>
+</div>
+
+<!-- ── Submit overlay ── -->
+<div class="overlay" id="submitOverlay" onclick="hideSubmitSheet(event)">
+  <div class="overlay-sheet" onclick="event.stopPropagation()">
+    <div class="overlay-handle"></div>
+    <h3>Ready to submit?</h3>
+    <p style="text-align:center;font-size:0.8rem;color:var(--text-3);margin-bottom:4px;">
+      Here's your progress so far
+    </p>
+    <div class="submit-stats">
+      <div class="submit-stat">
+        <span class="submit-stat-n" id="ssAnswered" style="color:var(--c-green);">0</span>
+        <span class="submit-stat-l">Answered</span>
+      </div>
+      <div class="submit-stat">
+        <span class="submit-stat-n" id="ssUnanswered" style="color:var(--c-gold);">0</span>
+        <span class="submit-stat-l">Unanswered</span>
+      </div>
+      <div class="submit-stat">
+        <span class="submit-stat-n" id="ssFlagged" style="color:var(--c-red);">0</span>
+        <span class="submit-stat-l">Flagged</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" onclick="hideSubmitSheet()" style="flex:1;">Keep Going</button>
+      <button class="btn btn-primary" onclick="submitExam()" style="flex:2;">Submit Exam ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Flag overlay -->
+<div class="overlay" id="flagOverlay" onclick="hideFlagSheet(event)">
+  <div class="overlay-sheet" onclick="event.stopPropagation()" style="padding-bottom:28px;">
+    <div class="overlay-handle"></div>
+    <h3 style="margin-bottom:12px;">Report this question</h3>
+    <div id="flagOptions" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      <button onclick="submitFlag('Wrong answer key')"      class="btn btn-ghost" style="justify-content:flex-start;">❌ Wrong answer key</button>
+      <button onclick="submitFlag('Typo or error in text')" class="btn btn-ghost" style="justify-content:flex-start;">✏️ Typo or error in text</button>
+      <button onclick="submitFlag('Duplicate question')"    class="btn btn-ghost" style="justify-content:flex-start;">🔁 Duplicate question</button>
+      <button onclick="submitFlag('Other issue')"           class="btn btn-ghost" style="justify-content:flex-start;">💬 Other issue</button>
+    </div>
+    <button class="btn btn-ghost" onclick="hideFlagSheet()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+  const _t = localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  document.getElementById("themeBtn").textContent = _t==="dark"?"☀️":"🌙";
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+  });
+  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+
+  const SUBJECTS={
+    "JAMB":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
+    "WAEC":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Further Mathematics","Agricultural Science"],
+    "NECO":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Civic Education","Agricultural Science","Literature in English","Financial Accounting"],
+    "Post-UTME":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Use of English","General Studies"]
+  };
+
+  let examMode="exam", qCount=20, allQuestions=[], examQuestions=[];
+  let answers={}, flagged=new Set(), bookmarked=new Set();
+  let currentIdx=0, timerInterval=null, timeLeft=0;
+  let currentUser=null;
+
+  // Year dropdown
+  const ySel=document.getElementById("yearSelect");
+  for(let y=2024;y>=1990;y--){const o=document.createElement("option");o.value=y;o.textContent=y;ySel.appendChild(o);}
+
+  function setMode(m){
+    examMode=m;
+    document.getElementById("modeExam").classList.toggle("active",m==="exam");
+    document.getElementById("modePractice").classList.toggle("active",m==="practice");
+    const hint=document.getElementById("modeHint");
+    hint.innerHTML=m==="exam"
+      ? `<p style="font-size:0.78rem;color:var(--c-brand);font-weight:600;line-height:1.5;">⏱️ <strong>Exam Mode:</strong> Timed, no instant feedback — just like the real exam.</p>`
+      : `<p style="font-size:0.78rem;color:var(--c-green);font-weight:600;line-height:1.5;">📖 <strong>Practice Mode:</strong> Instant feedback and explanations after each question.</p>`;
+    hint.style.background=m==="exam"?"rgba(99,102,241,0.08)":"rgba(16,185,129,0.08)";
+    hint.style.borderColor=m==="exam"?"rgba(99,102,241,0.2)":"rgba(16,185,129,0.2)";
+    updateAvailCount();
+  }
+
+  function setCount(n){
+    qCount=n;
+    document.querySelectorAll(".count-chip").forEach(c=>{
+      c.classList.toggle("selected", parseInt(c.textContent)===n || (n===0 && c.textContent==="All"));
+    });
+    updateAvailCount();
+  }
+
+  function updateSubjects(){
+    const cat=document.getElementById("catSelect").value;
+    const sel=document.getElementById("subjSelect");
+    sel.innerHTML="<option value=''>All Subjects</option>";
+    (SUBJECTS[cat]||[]).forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);});
+    updateAvailCount();
+  }
+
+  function updateAvailCount(){
+    const cat=document.getElementById("catSelect").value;
+    const subj=document.getElementById("subjSelect").value;
+    const year=document.getElementById("yearSelect").value;
+    let pool=allQuestions.filter(q=>
+      (!cat||q.category===cat)&&(!subj||q.subject===subj)&&(!year||String(q.year)===year));
+    const avail=pool.length;
+    const showing=qCount===0?avail:Math.min(qCount,avail);
+    document.getElementById("qAvailNum").textContent=
+      avail===0?"No questions match — try different filters":`${avail} questions available · ${showing} will be used`;
+  }
+
+  function showSubmitSheet(){
+    const ans=Object.keys(answers).length;
+    const total=examQuestions.length;
+    document.getElementById("ssAnswered").textContent=ans;
+    document.getElementById("ssUnanswered").textContent=total-ans;
+    document.getElementById("ssFlagged").textContent=flagged.size;
+    document.getElementById("submitOverlay").classList.add("show");
+  }
+  function hideSubmitSheet(e){
+    if(!e||e.target===document.getElementById("submitOverlay"))
+      document.getElementById("submitOverlay").classList.remove("show");
+  }
+  function showFlagSheet(){document.getElementById("flagOverlay").classList.add("show");}
+  function hideFlagSheet(e){
+    if(!e||e.target===document.getElementById("flagOverlay"))
+      document.getElementById("flagOverlay").classList.remove("show");
+  }
+
+  function renderDots(){
+    const wrap=document.getElementById("qDotsWrap");
+    wrap.innerHTML=examQuestions.map((_,i)=>{
+      const cls=i===currentIdx?"current":answers[i]!=null?"answered":flagged.has(i)?"flagged":"";
+      return `<div class="q-dot ${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
+    }).join("");
+    // Scroll active dot into view
+    setTimeout(()=>{
+      const active=wrap.querySelector(".q-dot.current");
+      if(active) active.scrollIntoView({inline:"center",behavior:"smooth"});
+    },50);
+  }
+
+  function jumpTo(i){currentIdx=i;renderQuestion();}
+
+  function renderQuestion(){
+    const q=examQuestions[currentIdx];
+    if(!q) return;
+    const total=examQuestions.length;
+    const progress=((currentIdx+1)/total)*100;
+
+    document.getElementById("qCurrent").textContent=currentIdx+1;
+    document.getElementById("qTotal").textContent=total;
+    document.getElementById("examProgress").style.width=progress+"%";
+
+    const isFlagged=flagged.has(currentIdx);
+    const isBookmarked=bookmarked.has(q.id||currentIdx);
+    const userAns=answers[currentIdx];
+    const showAnswer=examMode==="practice"&&userAns!=null;
+
+    document.getElementById("qWrap").innerHTML=`
+      <div class="q-meta">
+        ${q.category?`<span class="q-tag q-tag-cat">${q.category}</span>`:""}
+        ${q.subject?`<span class="q-tag q-tag-subj">${q.subject}</span>`:""}
+        ${q.year?`<span class="q-tag q-tag-year">${q.year}</span>`:""}
+      </div>
+      <div class="q-text">${currentIdx+1}. ${q.text||q.question||""}</div>
+      <div id="optionsWrap">
+        ${["A","B","C","D"].filter(l=>q.options&&q.options[l]).map(l=>{
+          let cls="";
+          if(showAnswer){
+            if(l===q.answer) cls="correct";
+            else if(l===userAns) cls="wrong";
+          } else if(l===userAns) cls="selected";
+          return `<div class="option ${cls}" onclick="selectAnswer('${l}')" id="opt_${l}">
+            <div class="option-letter">${l}</div>
+            <div class="option-text">${q.options[l]}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${showAnswer&&q.explanation?`
+        <div class="explanation-box show">
+          💡 <strong>Explanation:</strong> ${q.explanation}
+        </div>`:""}
+      <div class="q-actions">
+        <button class="q-action-btn ${isBookmarked?"bookmarked":""}" onclick="toggleBookmark()">
+          ${isBookmarked?"🔖 Saved":"🔖 Save"}
+        </button>
+        <button class="q-action-btn ${isFlagged?"flagged":""}" onclick="showFlagSheet()">
+          ${isFlagged?"⚑ Flagged":"⚑ Flag"}
+        </button>
+      </div>`;
+
+    // Update nav buttons
+    document.getElementById("prevBtn").disabled=currentIdx===0;
+    document.getElementById("nextBtn").textContent=currentIdx===total-1?"Submit ✓":"Next →";
+    document.getElementById("nextBtn").className=currentIdx===total-1?"btn btn-green":"btn btn-primary";
+    if(currentIdx===total-1){
+      document.getElementById("nextBtn").onclick=showSubmitSheet;
+    } else {
+      document.getElementById("nextBtn").onclick=()=>navigate(1);
+    }
+
+    renderDots();
+  }
+
+  function selectAnswer(letter){
+    const q=examQuestions[currentIdx];
+    if(!q) return;
+    // In practice mode, prevent re-answering
+    if(examMode==="practice"&&answers[currentIdx]!=null) return;
+
+    answers[currentIdx]=letter;
+    renderQuestion();
+
+    // Practice mode: auto-advance after 1.2s
+    if(examMode==="practice"&&currentIdx<examQuestions.length-1){
+      setTimeout(()=>navigate(1),1400);
+    }
+  }
+
+  function navigate(dir){
+    const newIdx=currentIdx+dir;
+    if(newIdx>=0&&newIdx<examQuestions.length){currentIdx=newIdx;renderQuestion();}
+  }
+
+  function toggleBookmark(){
+    const q=examQuestions[currentIdx];
+    const key=q.id||currentIdx;
+    if(bookmarked.has(key)){bookmarked.delete(key);toast("Bookmark removed");}
+    else{bookmarked.add(key);toast("🔖 Saved to bookmarks");}
+    renderQuestion();
+    // Persist bookmark to Firestore via module script
+    window._saveBookmark&&window._saveBookmark(q,!bookmarked.has(key));
+  }
+
+  window.submitFlag=function(reason){
+    flagged.add(currentIdx);
+    hideFlagSheet();
+    toast("⚑ Question reported");
+    window._reportFlag&&window._reportFlag(examQuestions[currentIdx],reason);
+    renderQuestion();
+  };
+
+  function startTimer(seconds){
+    timeLeft=seconds;
+    const badge=document.getElementById("timerBadge");
+    badge.style.display="flex";
+    timerInterval=setInterval(()=>{
+      timeLeft--;
+      const m=Math.floor(timeLeft/60), s=timeLeft%60;
+      document.getElementById("timerDisplay").textContent=`${m}:${s.toString().padStart(2,"0")}`;
+      badge.className="timer-badge"+(timeLeft<=300?" warn":"")+(timeLeft<=60?" urgent":"");
+      if(timeLeft<=0){clearInterval(timerInterval);toast("⏰ Time's up! Submitting...");setTimeout(submitExam,1200);}
+    },1000);
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, setDoc, updateDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+  let uid=null, userData={};
+
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    uid=user.uid; window._uid=uid;
+    try{const s=await getDoc(doc(db,"users",uid));userData=s.data()||{};}catch(_){}
+
+    // ── Bookmark practice mode ──
+    const urlParams=new URLSearchParams(window.location.search);
+    if(urlParams.get("mode")==="bookmarks"){
+      const stored=localStorage.getItem("examora_bookmark_exam");
+      if(stored){
+        try{
+          const data=JSON.parse(stored);
+          if(data.questions?.length>0){
+            examQuestions=data.questions;
+            examMode="practice";
+            answers={}; flagged=new Set(); bookmarked=new Set(); currentIdx=0;
+            document.getElementById("setupScreen").style.display="none";
+            document.getElementById("examScreen").style.display="block";
+            document.querySelector(".bottom-nav").style.display="none";
+            renderQuestion();
+            startTimer(examQuestions.length);
+            toast(`📚 Practising ${examQuestions.length} bookmarked questions`);
+            return; // skip normal question loading
+          }
+        }catch(_){ toast("Could not load bookmarks"); }
+      }
+    }
+
+    // Load questions
+    try{
+      const snap=await getDocs(collection(db,"questions"));
+      allQuestions=[];
+      snap.forEach(d=>allQuestions.push({id:d.id,...d.data()}));
+      updateAvailCount();
+    } catch(e){
+      document.getElementById("qAvailNum").textContent="Could not load questions";
+    }
+
+    // Load timer settings
+    try{
+      const ts=await getDoc(doc(db,"settings","timers"));
+      window._timers=ts.exists()?ts.data():{JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5};
+    } catch(_){ window._timers={JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5}; }
+  });
+
+  window.startExam=async()=>{
+    const cat=document.getElementById("catSelect").value;
+    const subj=document.getElementById("subjSelect").value;
+    const year=document.getElementById("yearSelect").value;
+    let pool=allQuestions.filter(q=>
+      (!cat||q.category===cat)&&(!subj||q.subject===subj)&&(!year||String(q.year)===year));
+
+    if(pool.length===0){toast("No questions match. Try different filters.");return;}
+
+    // Shuffle
+    pool=pool.sort(()=>Math.random()-0.5);
+    examQuestions=qCount===0?pool:pool.slice(0,qCount);
+    answers={}; flagged=new Set(); bookmarked=new Set(); currentIdx=0;
+
+    document.getElementById("setupScreen").style.display="none";
+    document.getElementById("examScreen").style.display="block";
+    document.querySelector(".bottom-nav").style.display="none";
+
+    renderQuestion();
+
+    // Timer for exam mode
+    if(examMode==="exam"){
+      const timers=window._timers||{};
+      const minsPerQ=timers[cat||"JAMB"]||1.5;
+      startTimer(Math.round(minsPerQ*60*examQuestions.length));
+    }
+  };
+
+  window.submitExam=async()=>{
+    clearInterval(timerInterval);
+    document.getElementById("submitOverlay").classList.remove("show");
+
+    let correct=0;
+    examQuestions.forEach((q,i)=>{if(answers[i]===q.answer)correct++;});
+    const total=examQuestions.length;
+    const percent=Math.round((correct/total)*100);
+    const passed=percent>=50;
+    const cat=document.getElementById("catSelect").value||"Mixed";
+    const subj=document.getElementById("subjSelect").value||"General";
+    const date=new Date().toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"});
+
+    // Save result
+    try{
+      await addDoc(collection(db,"results"),{
+        userId:uid, score:correct, total, percent, passed,
+        category:cat, subject:subj, mode:examMode,
+        answers:answers, date, createdAt:new Date().toISOString()
+      });
+      // Update user stats
+      const uSnap=await getDoc(doc(db,"users",uid));
+      if(uSnap.exists()){
+        const ud=uSnap.data();
+        await updateDoc(doc(db,"users",uid),{
+          totalExams:(ud.totalExams||0)+1,
+          totalCorrect:(ud.totalCorrect||0)+correct,
+          totalQuestions:(ud.totalQuestions||0)+total
+        });
+      }
+    }catch(e){console.error("Save result error:",e);}
+
+    // Store result for result page
+    localStorage.setItem("examora_last_result",JSON.stringify({
+      correct,total,percent,passed,mode:examMode,
+      category:cat,subject:subj,
+      answers,questions:examQuestions.map(q=>({
+        id:q.id,text:q.text||q.question,
+        options:q.options,answer:q.answer,explanation:q.explanation
+      }))
+    }));
+    window.location.href="result.html";
+  };
+
+  window._saveBookmark=async(q,remove)=>{
+    if(!uid) return;
+    try{
+      // Always check for existing bookmark first (prevents duplicates)
+      const {query,where,getDocs:gd,deleteDoc}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const existing=await gd(query(
+        collection(db,"bookmarks"),
+        where("userId","==",uid),
+        where("questionId","==",q.id)
+      ));
+      if(!existing.empty){
+        // Already exists — delete it (toggle off)
+        for(const d of existing.docs) await deleteDoc(d.ref);
+        return;
+      }
+      if(!remove){
+        // Not found — add it
+        await addDoc(collection(db,"bookmarks"),{
+          userId:uid, questionId:q.id,
+          questionText:q.text||q.question||"",
+          options:q.options||{}, correctAnswer:q.answer||"",
+          explanation:q.explanation||"",
+          category:q.category||"", subject:q.subject||"",
+          year:q.year||"",
+          savedAt:new Date().toISOString()
+        });
+      }
+    }catch(_){}
+  };
+
+  window._reportFlag=async(q,reason)=>{
+    if(!uid||!q) return;
+    try{
+      await addDoc(collection(db,"flags"),{
+        userId:uid, questionId:q.id||"",
+        reason, status:"pending",
+        reportedAt:new Date().toISOString()
+      });
+    }catch(_){}
+  };
+</script>
+
+</body>
+</html>

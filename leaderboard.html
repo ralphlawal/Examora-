@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Leaderboard</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    /* ── Hero ── */
+    .lb-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1c1238 60%, #0f172a 100%);
+      padding: 28px 20px 0;
+      position: relative; overflow: hidden;
+    }
+    .lb-hero::before {
+      content:''; position:absolute; top:-70px; right:-70px;
+      width:200px; height:200px; border-radius:50%;
+      background:rgba(245,158,11,0.1); pointer-events:none;
+    }
+    .lb-hero-label {
+      font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.4);
+      text-transform:uppercase; letter-spacing:1px;
+      margin-bottom:4px; position:relative; z-index:1;
+    }
+    .lb-hero-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.5rem; color:white; letter-spacing:-0.5px;
+      margin-bottom:4px; position:relative; z-index:1;
+    }
+    .lb-hero-sub {
+      font-size:0.74rem; color:rgba(255,255,255,0.4);
+      margin-bottom:20px; position:relative; z-index:1;
+    }
+
+    /* ── Podium (top 3) ── */
+    .podium {
+      display:flex; align-items:flex-end; justify-content:center;
+      gap:8px; padding:0 12px 0;
+      position:relative; z-index:1;
+    }
+    .podium-slot {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; max-width:110px;
+    }
+    .podium-slot.first  { order:2; }
+    .podium-slot.second { order:1; }
+    .podium-slot.third  { order:3; }
+
+    .podium-avatar-wrap { position:relative; margin-bottom:8px; }
+    .podium-avatar {
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; color:white;
+      position:relative; z-index:1;
+    }
+    .podium-slot.first  .podium-avatar { width:64px; height:64px; font-size:1.4rem; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:3px solid #f59e0b; }
+    .podium-slot.second .podium-avatar { width:52px; height:52px; font-size:1.1rem; background:linear-gradient(135deg,#475569,#334155); border:2px solid #94a3b8; }
+    .podium-slot.third  .podium-avatar { width:48px; height:48px; font-size:1rem;   background:linear-gradient(135deg,#78350f,#92400e); border:2px solid #d97706; }
+
+    .podium-medal {
+      position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+      font-size:1.2rem; z-index:2;
+    }
+    .podium-glow {
+      position:absolute; inset:-4px; border-radius:50%;
+      animation:pulse 2s infinite;
+    }
+    .podium-slot.first .podium-glow { background:radial-gradient(circle,rgba(245,158,11,0.3),transparent); }
+
+    .podium-name {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.7rem; color:white; text-align:center;
+      max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      margin-bottom:3px;
+    }
+    .podium-score {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.75rem; color:rgba(255,255,255,0.6); margin-bottom:6px;
+    }
+    .podium-block {
+      width:100%; border-radius:12px 12px 0 0; text-align:center;
+      padding:8px 4px;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1rem;
+    }
+    .podium-slot.first  .podium-block { height:56px; background:linear-gradient(180deg,rgba(245,158,11,0.25),rgba(245,158,11,0.1)); border:1px solid rgba(245,158,11,0.3); }
+    .podium-slot.second .podium-block { height:40px; background:linear-gradient(180deg,rgba(148,163,184,0.15),rgba(148,163,184,0.05)); border:1px solid rgba(148,163,184,0.2); }
+    .podium-slot.third  .podium-block { height:28px; background:linear-gradient(180deg,rgba(180,83,9,0.15),rgba(180,83,9,0.05)); border:1px solid rgba(180,83,9,0.2); }
+
+    /* ── Scope tabs ── */
+    .scope-tabs {
+      display:flex; gap:5px; padding:16px 16px 12px;
+      background:var(--bg);
+    }
+    .scope-tab {
+      flex:1; padding:8px 4px; border-radius:100px;
+      border:1.5px solid var(--border); background:var(--bg-card);
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.72rem; color:var(--text-3); cursor:pointer;
+      text-align:center; transition:all 0.18s ease;
+    }
+    .scope-tab.active {
+      background:var(--c-brand); border-color:var(--c-brand);
+      color:white; box-shadow:0 2px 10px rgba(99,102,241,0.35);
+    }
+
+    /* ── Search ── */
+    .lb-search {
+      padding:0 16px 12px;
+    }
+    .search-wrap {
+      position:relative;
+    }
+    .search-icon {
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      font-size:0.9rem; color:var(--text-3);
+    }
+    .search-input {
+      width:100%; padding:10px 12px 10px 36px;
+      background:var(--bg-input); border:1.5px solid var(--border);
+      border-radius:var(--radius-sm); font-family:var(--font-body);
+      font-size:0.86rem; color:var(--text); outline:none;
+      transition:var(--transition);
+    }
+    .search-input:focus { border-color:var(--c-brand); box-shadow:var(--shadow-glow); background:var(--bg-card); }
+    .search-input::placeholder { color:var(--text-3); }
+
+    /* ── List ── */
+    .lb-list { padding:0 16px 100px; }
+
+    .lb-row {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 14px; border-radius:14px;
+      background:var(--bg-card); border:1px solid var(--border);
+      margin-bottom:8px; transition:all 0.18s ease;
+      box-shadow:var(--shadow-xs); position:relative; overflow:hidden;
+    }
+    .lb-row.me {
+      border-color:rgba(99,102,241,0.35);
+      background:linear-gradient(135deg,rgba(99,102,241,0.05),var(--bg-card));
+      box-shadow:0 0 0 1px rgba(99,102,241,0.15), var(--shadow-sm);
+    }
+    .lb-row.me::before {
+      content:'YOU'; position:absolute; top:6px; right:10px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.55rem; color:var(--c-brand); letter-spacing:1px;
+    }
+    .lb-row.top3 { border-color:rgba(245,158,11,0.2); }
+
+    .lb-rank {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.9rem; width:28px; text-align:center; flex-shrink:0;
+      color:var(--text-3);
+    }
+    .lb-rank.gold   { color:#f59e0b; }
+    .lb-rank.silver { color:#94a3b8; }
+    .lb-rank.bronze { color:#d97706; }
+
+    .lb-avatar {
+      width:40px; height:40px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.9rem; color:white;
+    }
+
+    .lb-info { flex:1; min-width:0; }
+    .lb-name {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.86rem; color:var(--text);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      margin-bottom:2px; display:flex; align-items:center; gap:5px;
+    }
+    .lb-meta { font-size:0.68rem; color:var(--text-3); }
+
+    .lb-stats { text-align:right; flex-shrink:0; }
+    .lb-correct {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1rem; color:var(--c-green); display:block;
+    }
+    .lb-exams { font-size:0.65rem; color:var(--text-3); }
+
+    /* ── My rank sticky strip ── */
+    .my-rank-strip {
+      position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
+      width:calc(100% - 32px); max-width:calc(var(--max-width) - 32px);
+      background:var(--c-brand); border-radius:14px;
+      padding:10px 16px; display:none; align-items:center; gap:10px;
+      box-shadow:0 8px 24px rgba(99,102,241,0.45);
+      z-index:50; animation:fadeInUp 0.3s ease;
+    }
+    .my-rank-strip.visible { display:flex; }
+    .mrs-rank {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.1rem; color:white; flex-shrink:0;
+    }
+    .mrs-name {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.82rem; color:rgba(255,255,255,0.9); flex:1;
+    }
+    .mrs-score {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.82rem; color:rgba(255,255,255,0.8); flex-shrink:0;
+    }
+
+    /* ── Skeleton ── */
+    .lb-skel {
+      height:68px; border-radius:14px; margin-bottom:8px;
+    }
+
+    /* ── Empty ── */
+    .lb-empty {
+      text-align:center; padding:40px 20px;
+    }
+    .lb-empty .ei { font-size:2.5rem; margin-bottom:12px; }
+    .lb-empty h4 {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.9rem; color:var(--text); margin-bottom:6px;
+    }
+    .lb-empty p { font-size:0.78rem; color:var(--text-3); line-height:1.6; }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- ── Hero + Podium ── -->
+<div class="lb-hero animate-in">
+  <div class="lb-hero-label">Live Rankings</div>
+  <div class="lb-hero-title">🏆 Leaderboard</div>
+  <div class="lb-hero-sub" id="lbSub">Loading rankings...</div>
+
+  <!-- Podium (top 3) -->
+  <div class="podium" id="podium" style="display:none;">
+    <!-- Injected by JS -->
+  </div>
+</div>
+
+<!-- ── Scope tabs ── -->
+<div class="scope-tabs animate-in animate-in-delay-1">
+  <div class="scope-tab active" onclick="setScope('overall',this)">🌍 Overall</div>
+  <div class="scope-tab" onclick="setScope('weekly',this)">📅 This Week</div>
+  <div class="scope-tab" onclick="setScope('state',this)">📍 My State</div>
+</div>
+
+<!-- ── Search ── -->
+<div class="lb-search animate-in animate-in-delay-1">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="searchInput"
+      placeholder="Search by name or state..."
+      oninput="filterList()"/>
+  </div>
+</div>
+
+<!-- ── List ── -->
+<div class="lb-list" id="lbList">
+  <div class="skeleton lb-skel"></div>
+  <div class="skeleton lb-skel"></div>
+  <div class="skeleton lb-skel"></div>
+  <div class="skeleton lb-skel"></div>
+  <div class="skeleton lb-skel"></div>
+</div>
+
+<!-- ── My rank sticky strip ── -->
+<div class="my-rank-strip" id="myRankStrip">
+  <div class="mrs-rank" id="mrsRank">#—</div>
+  <div class="mrs-name" id="mrsName">You</div>
+  <div class="mrs-score" id="mrsScore">— correct</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item active"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+  });
+  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+
+  // Avatar colours
+  const AV_COLORS=["#6366f1","#10b981","#f59e0b","#f43f5e","#8b5cf6","#3b82f6","#14b8a6","#ec4899"];
+  function avColor(name){return AV_COLORS[name.charCodeAt(0)%AV_COLORS.length];}
+
+  function renderAvatar(photoURL,name,size,style=''){
+    const initial=(name||'?')[0].toUpperCase();
+    const bg=avColor(name);
+    const base=`width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;${style}`;
+    if(photoURL){
+      return `<div style="${base};overflow:hidden;"><img src="${photoURL}" alt="${name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.background='${bg}';this.parentElement.textContent='${initial}';"/></div>`;
+    }
+    return `<div style="${base};background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:${Math.round(size*0.38)}px;color:white;">${initial}</div>`;
+  }
+
+  let allUsers=[], currentUid=null, myState="", currentScope="overall";
+
+  function setScope(scope, btn){
+    currentScope=scope;
+    document.querySelectorAll(".scope-tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    renderList(getFiltered());
+  }
+
+  function getFiltered(){
+    const now=Date.now();
+    const weekAgo=now-7*86400000;
+    let list=allUsers;
+
+    if(currentScope==="weekly"){
+      list=allUsers.filter(u=>{
+        try{ return new Date(u.lastActive).getTime()>weekAgo; }catch{ return false; }
+      });
+    } else if(currentScope==="state"){
+      list=allUsers.filter(u=>u.state&&u.state===myState);
+    }
+    return list;
+  }
+
+  function filterList(){
+    const q=document.getElementById("searchInput").value.trim().toLowerCase();
+    const base=getFiltered();
+    if(!q){ renderList(base); return; }
+    renderList(base.filter(u=>{
+      const n=(u.displayName||u.email||"").toLowerCase();
+      const s=(u.state||"").toLowerCase();
+      return n.includes(q)||s.includes(q);
+    }));
+  }
+
+  function renderPodium(top3){
+    const slots=["second","first","third"];
+    const medals=["🥈","🥇","🥉"];
+    const reorder=[top3[1],top3[0],top3[2]]; // visual: 2nd | 1st | 3rd
+
+    const podium=document.getElementById("podium");
+    podium.style.display="flex";
+    podium.innerHTML=reorder.map((u,vi)=>{
+      if(!u) return `<div class="podium-slot ${slots[vi]}"></div>`;
+      const name=u.displayName||u.email?.split("@")[0]||"Student";
+      const isMe=u.id===currentUid;
+      const col=avColor(name);
+      const correct=u.totalCorrect||0;
+      const exams=u.totalExams||0;
+
+      return `<div class="podium-slot ${slots[vi]}">
+        <div class="podium-avatar-wrap">
+          ${vi===1?`<div class="podium-glow"></div>`:""}
+          <div class="podium-medal">${medals[vi]}</div>
+          ${renderAvatar(u.photoURL,name,isMe?64:vi===0?52:48,`border:${isMe?"3px solid #f59e0b":vi===0?"2px solid #94a3b8":"2px solid #d97706"}`)}
+        </div>
+        <div class="podium-name">${name.split(" ")[0]}${isMe?" (You)":""}</div>
+        <div class="podium-score">${correct} ✓</div>
+        <div class="podium-block">${["2","1","3"][vi]}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderList(list){
+    const el=document.getElementById("lbList");
+
+    if(list.length===0){
+      el.innerHTML=`<div class="lb-empty">
+        <div class="ei">🏆</div>
+        <h4>${currentScope==="state"?"No users from your state yet":"No users found"}</h4>
+        <p>Be the first on the board!<br/>Take an exam to appear here.</p>
+      </div>`;
+      return;
+    }
+
+    const medals=["🥇","🥈","🥉"];
+
+    el.innerHTML=list.map((u,i)=>{
+      const rank=i+1;
+      const name=u.displayName||u.email?.split("@")[0]||"Student";
+      const isMe=u.id===currentUid;
+      const col=avColor(name);
+      const correct=u.totalCorrect||0;
+      const exams=u.totalExams||0;
+      const avg=u.totalQuestions>0?Math.round((correct/u.totalQuestions)*100):0;
+      const rankCls=rank===1?"gold":rank===2?"silver":rank===3?"bronze":"";
+      const rankDisplay=rank<=3?medals[rank-1]:("#"+rank);
+
+      return `<div class="lb-row ${isMe?"me":""} ${rank<=3?"top3":""}">
+        <div class="lb-rank ${rankCls}">${rankDisplay}</div>
+        ${renderAvatar(u.photoURL,name,40)}
+        <div class="lb-info">
+          <div class="lb-name">
+            ${name.split(" ").slice(0,2).join(" ")}
+            ${u.plan==="premium"?`<span style="font-size:0.7rem;">👑</span>`:""}
+            ${u.role==="admin"?`<span style="font-size:0.65rem;background:var(--c-brand-pale);color:var(--c-brand);padding:1px 6px;border-radius:100px;">Admin</span>`:""}
+          </div>
+          <div class="lb-meta">${u.state||"—"} · ${exams} exam${exams!==1?"s":""} · ${avg}% avg</div>
+        </div>
+        <div class="lb-stats">
+          <span class="lb-correct">${correct}</span>
+          <span class="lb-exams">correct</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // Scroll detection — show sticky "my rank" strip when user scrolls past their row
+  function updateMyRankStrip(myRankIdx){
+    if(myRankIdx<0) return;
+    const strip=document.getElementById("myRankStrip");
+    const me=allUsers.find(u=>u.id===currentUid);
+    if(!me) return;
+    const name=me.displayName||me.email?.split("@")[0]||"You";
+    document.getElementById("mrsRank").textContent="#"+(myRankIdx+1);
+    document.getElementById("mrsName").textContent=name;
+    document.getElementById("mrsScore").textContent=(me.totalCorrect||0)+" correct";
+
+    window.addEventListener("scroll",()=>{
+      const rows=document.querySelectorAll(".lb-row");
+      const myRow=rows[myRankIdx];
+      if(!myRow) return;
+      const rect=myRow.getBoundingClientRect();
+      const visible=rect.top>=0&&rect.bottom<=window.innerHeight;
+      strip.classList.toggle("visible",!visible&&myRankIdx>3);
+    });
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    currentUid=user.uid;
+
+    // Get current user's state for "My State" tab
+    try{
+      const s=await getDoc(doc(db,"users",user.uid));
+      if(s.exists()) myState=s.data().state||"";
+    }catch(_){}
+
+    // Load all users
+    try{
+      const snap=await getDocs(collection(db,"users"));
+      let users=[];
+      snap.forEach(d=>users.push({id:d.id,...d.data()}));
+
+      // Sort by totalCorrect desc
+      users.sort((a,b)=>(b.totalCorrect||0)-(a.totalCorrect||0));
+
+      // Filter out users with 0 exams for cleaner board
+      const active=users.filter(u=>(u.totalExams||0)>0);
+      allUsers=active.length>0?active:users; // fallback to all if none active
+
+      const myIdx=allUsers.findIndex(u=>u.id===currentUid);
+      const total=allUsers.length;
+
+      document.getElementById("lbSub").textContent=
+        `${total} student${total!==1?"s":""} · ${myIdx>=0?"You're #"+(myIdx+1):"Join the board!"}`;
+
+      // Podium
+      if(allUsers.length>=1) renderPodium(allUsers.slice(0,3));
+
+      // List
+      renderList(allUsers);
+
+      // My rank sticky strip
+      if(myIdx>=0) updateMyRankStrip(myIdx);
+
+    }catch(e){
+      console.error("Leaderboard error:",e);
+      document.getElementById("lbList").innerHTML=
+        `<div class="lb-empty">
+          <div class="ei">⚠️</div>
+          <h4>Could not load rankings</h4>
+          <p>Check your connection and try again.</p>
+        </div>`;
+    }
+  });
+</script>
+</body>
+</html>

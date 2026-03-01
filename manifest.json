@@ -1,0 +1,17 @@
+{
+  "name": "EXAMORA",
+  "short_name": "EXAMORA",
+  "description": "Nigeria's #1 CBT Exam Prep App — JAMB, WAEC, NECO, Post-UTME",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "categories": ["education"],
+  "icons": [
+    { "src": "logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "related_applications": []
+}

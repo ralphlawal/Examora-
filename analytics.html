@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Analytics</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    .analytics-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+      padding: 28px 20px 24px; position: relative; overflow: hidden;
+    }
+    .analytics-hero::before {
+      content:''; position:absolute; top:-50px; right:-50px;
+      width:160px; height:160px; border-radius:50%;
+      background:rgba(99,102,241,0.12); pointer-events:none;
+    }
+    .analytics-hero-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.4rem; color:white; letter-spacing:-0.5px;
+      margin-bottom:4px; position:relative; z-index:1;
+    }
+    .analytics-hero-sub {
+      font-size:0.76rem; color:rgba(255,255,255,0.45);
+      position:relative; z-index:1;
+    }
+
+    /* ── Big KPI row ── */
+    .kpi-row {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:10px; margin-bottom:16px;
+    }
+    .kpi-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:16px; padding:16px 14px;
+      box-shadow:var(--shadow-sm); position:relative; overflow:hidden;
+    }
+    .kpi-card::after {
+      content:''; position:absolute; right:-10px; top:-10px;
+      width:60px; height:60px; border-radius:50%;
+      background:var(--kpi-color,rgba(99,102,241,0.08));
+      pointer-events:none;
+    }
+    .kpi-icon {
+      font-size:1.4rem; margin-bottom:8px; display:block;
+    }
+    .kpi-value {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:1.7rem; color:var(--text); letter-spacing:-1px;
+      display:block; line-height:1; margin-bottom:4px;
+    }
+    .kpi-label {
+      font-size:0.65rem; font-weight:700; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:0.6px;
+    }
+    .kpi-delta {
+      display:inline-flex; align-items:center; gap:3px;
+      font-size:0.7rem; font-weight:700; margin-top:5px;
+      padding:2px 7px; border-radius:100px;
+    }
+    .kpi-delta.up   { background:var(--c-green-pale); color:var(--c-green); }
+    .kpi-delta.down { background:var(--c-red-pale);   color:var(--c-red); }
+    .kpi-delta.flat { background:var(--bg-input);     color:var(--text-3); }
+
+    /* ── Chart card ── */
+    .chart-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:16px; padding:16px;
+      box-shadow:var(--shadow-sm); margin-bottom:14px;
+    }
+    .chart-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.84rem; color:var(--text); margin-bottom:4px;
+    }
+    .chart-sub {
+      font-size:0.68rem; color:var(--text-3); margin-bottom:14px;
+    }
+    .chart-wrap { position:relative; height:180px; }
+    .chart-wrap-tall { position:relative; height:220px; }
+    .chart-wrap-sm   { position:relative; height:150px; }
+
+    /* ── Subject breakdown ── */
+    .subj-row {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 0; border-bottom:1px solid var(--border);
+    }
+    .subj-row:last-child { border-bottom:none; }
+    .subj-icon {
+      width:34px; height:34px; border-radius:10px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:0.88rem;
+    }
+    .subj-name {
+      flex:1; font-family:'Plus Jakarta Sans',sans-serif;
+      font-weight:700; font-size:0.82rem; color:var(--text);
+    }
+    .subj-bar-wrap {
+      flex:2; height:6px; background:var(--bg-input);
+      border-radius:100px; overflow:hidden;
+    }
+    .subj-bar-fill {
+      height:100%; border-radius:100px;
+      transition:width 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    .subj-pct {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.8rem; width:38px; text-align:right; flex-shrink:0;
+    }
+
+    /* ── Target progress ── */
+    .target-card {
+      background:linear-gradient(135deg,#0f172a,#1e1b4b);
+      border-radius:16px; padding:18px;
+      margin-bottom:14px; border:1px solid rgba(99,102,241,0.2);
+    }
+    .target-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .target-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.88rem; color:white;
+    }
+    .target-score-badge {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.78rem; padding:4px 12px; border-radius:100px;
+      background:rgba(99,102,241,0.25); color:#818cf8;
+    }
+    .target-bar-wrap {
+      height:10px; background:rgba(255,255,255,0.08);
+      border-radius:100px; overflow:hidden; margin-bottom:10px;
+    }
+    .target-bar-fill {
+      height:100%; border-radius:100px;
+      background:linear-gradient(90deg,var(--c-brand),var(--c-green));
+      transition:width 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .target-labels {
+      display:flex; justify-content:space-between;
+      font-size:0.68rem; color:rgba(255,255,255,0.4); font-weight:600;
+    }
+
+    /* ── Heatmap ── */
+    .heatmap-wrap {
+      display:grid; grid-template-columns:repeat(7,1fr);
+      gap:4px; margin-bottom:8px;
+    }
+    .hm-cell {
+      aspect-ratio:1; border-radius:4px;
+      background:var(--bg-input); transition:background 0.2s;
+    }
+    .hm-day-labels {
+      display:grid; grid-template-columns:repeat(7,1fr);
+      gap:4px; margin-bottom:4px;
+    }
+    .hm-day-lbl {
+      font-size:0.55rem; font-weight:700; color:var(--text-3);
+      text-align:center; text-transform:uppercase;
+    }
+
+    /* ── Period tabs ── */
+    .period-tabs {
+      display:flex; gap:4px; margin-bottom:14px;
+    }
+    .period-tab {
+      padding:5px 12px; border-radius:100px; cursor:pointer;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.7rem; color:var(--text-3); border:1.5px solid var(--border);
+      background:var(--bg-card); transition:all 0.18s ease;
+    }
+    .period-tab.active {
+      background:var(--c-brand); border-color:var(--c-brand);
+      color:white; box-shadow:0 2px 8px rgba(99,102,241,0.3);
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align:center; padding:36px 20px;
+    }
+    .empty-state .es-icon { font-size:2.5rem; margin-bottom:12px; }
+    .empty-state h4 {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.9rem; color:var(--text); margin-bottom:6px;
+    }
+    .empty-state p { font-size:0.78rem; color:var(--text-3); line-height:1.6; }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="analytics-hero animate-in">
+  <div class="analytics-hero-title">📊 Your Analytics</div>
+  <div class="analytics-hero-sub" id="heroSub">Tracking your progress</div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row animate-in animate-in-delay-1">
+    <div class="kpi-card" style="--kpi-color:rgba(16,185,129,0.1);">
+      <span class="kpi-icon">📝</span>
+      <span class="kpi-value" id="kpiExams">—</span>
+      <span class="kpi-label">Exams Taken</span>
+      <div class="kpi-delta flat" id="kpiExamsDelta">All time</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:rgba(99,102,241,0.1);">
+      <span class="kpi-icon">🎯</span>
+      <span class="kpi-value" id="kpiAvg">—</span>
+      <span class="kpi-label">Avg Score</span>
+      <div class="kpi-delta flat" id="kpiAvgDelta">Overall</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:rgba(245,158,11,0.1);">
+      <span class="kpi-icon">🔥</span>
+      <span class="kpi-value" id="kpiStreak">—</span>
+      <span class="kpi-label">Day Streak</span>
+      <div class="kpi-delta flat" id="kpiStreakDelta">Keep going!</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:rgba(244,63,94,0.1);">
+      <span class="kpi-icon">✅</span>
+      <span class="kpi-value" id="kpiPass">—</span>
+      <span class="kpi-label">Pass Rate</span>
+      <div class="kpi-delta flat" id="kpiPassDelta">≥50%</div>
+    </div>
+  </div>
+
+  <!-- Target Progress -->
+  <div class="target-card animate-in animate-in-delay-1" id="targetCard" style="display:none;">
+    <div class="target-header">
+      <div class="target-title">🎯 Target Progress</div>
+      <div class="target-score-badge" id="targetBadge">250 / 400</div>
+    </div>
+    <div class="target-bar-wrap">
+      <div class="target-bar-fill" id="targetBarFill" style="width:0%;"></div>
+    </div>
+    <div class="target-labels">
+      <span>Current avg: <span id="targetCurrent">0%</span></span>
+      <span id="targetPct">0% of goal</span>
+    </div>
+  </div>
+
+  <!-- Score Trend -->
+  <div class="chart-card animate-in animate-in-delay-2">
+    <div class="period-tabs">
+      <div class="period-tab active" onclick="setPeriod(7,this)">7 days</div>
+      <div class="period-tab" onclick="setPeriod(30,this)">30 days</div>
+      <div class="period-tab" onclick="setPeriod(0,this)">All time</div>
+    </div>
+    <div class="chart-title">Score Trend</div>
+    <div class="chart-sub">Your last exam scores over time</div>
+    <div class="chart-wrap" id="trendWrap">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Subject Breakdown -->
+  <div class="chart-card animate-in animate-in-delay-2">
+    <div class="chart-title">Subject Performance</div>
+    <div class="chart-sub">Accuracy per subject across all exams</div>
+    <div id="subjBreakdown"></div>
+  </div>
+
+  <!-- Category Doughnut -->
+  <div class="chart-card animate-in animate-in-delay-3">
+    <div class="chart-title">Exams by Category</div>
+    <div class="chart-sub">Distribution of your practice sessions</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="chart-wrap-sm" style="flex:1;"><canvas id="catChart"></canvas></div>
+      <div id="catLegend" style="flex:1;"></div>
+    </div>
+  </div>
+
+  <!-- Weekly Heatmap -->
+  <div class="chart-card animate-in animate-in-delay-3">
+    <div class="chart-title">Activity Heatmap</div>
+    <div class="chart-sub">Last 4 weeks of study activity</div>
+    <div class="hm-day-labels">
+      <div class="hm-day-lbl">Sun</div><div class="hm-day-lbl">Mon</div>
+      <div class="hm-day-lbl">Tue</div><div class="hm-day-lbl">Wed</div>
+      <div class="hm-day-lbl">Thu</div><div class="hm-day-lbl">Fri</div>
+      <div class="hm-day-lbl">Sat</div>
+    </div>
+    <div class="heatmap-wrap" id="heatmap"></div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:6px;">
+      <span style="font-size:0.62rem;color:var(--text-3);">Less</span>
+      <div style="width:10px;height:10px;border-radius:2px;background:var(--bg-input);"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(99,102,241,0.3);"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(99,102,241,0.6);"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:var(--c-brand);"></div>
+      <span style="font-size:0.62rem;color:var(--text-3);">More</span>
+    </div>
+  </div>
+
+  <!-- Pass/Fail Bar -->
+  <div class="chart-card animate-in animate-in-delay-3">
+    <div class="chart-title">Pass vs Fail</div>
+    <div class="chart-sub">How many exams you passed vs failed</div>
+    <div class="chart-wrap-sm"><canvas id="passChart"></canvas></div>
+  </div>
+
+  <a href="exam.html" class="btn btn-primary animate-in animate-in-delay-4">
+    📝 Start Practising
+  </a>
+</div>
+
+<div class="toast" id="toast"></div>
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html"   class="nav-item active"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    // Rebuild charts so colours update for new theme
+    if(allResults.length>0 && window._userData!==undefined){
+      buildTrendChart(allResults,currentPeriod);
+      buildCatChart(allResults);
+      buildPassChart(allResults);
+    }
+  });
+  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+
+  const isDark=()=>document.documentElement.getAttribute("data-theme")==="dark";
+  const gridColor=()=>isDark()?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)";
+  const textColor=()=>isDark()?"#6b7280":"#94a3b8";
+
+  Chart.defaults.font.family="'DM Sans', sans-serif";
+  Chart.defaults.font.size=11;
+
+  let allResults=[], trendChart=null, catChart=null, passChart=null;
+  let currentPeriod=7;
+
+  const SUBJ_ICONS={
+    "Mathematics":"📐","English Language":"📖","Physics":"⚡",
+    "Chemistry":"🧪","Biology":"🌱","Economics":"💹",
+    "Government":"🏛️","Literature in English":"📚","Geography":"🌍",
+    "Commerce":"🛒","Agricultural Science":"🌾","Accounting":"📊",
+    "Further Mathematics":"🔢","Civic Education":"📜",
+    "Use of English":"✍️","General Studies":"📓"
+  };
+  const CAT_COLORS=["#6366f1","#10b981","#f59e0b","#f43f5e","#8b5cf6","#3b82f6"];
+
+  function setPeriod(days,btn){
+    currentPeriod=days;
+    document.querySelectorAll(".period-tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    buildTrendChart(allResults,days);
+  }
+
+  function buildTrendChart(results,days){
+    const now=Date.now();
+    let filtered=days===0?results
+      :results.filter(r=>{ try{return (now-new Date(r.createdAt).getTime())<days*86400000;}catch{return true;} });
+    filtered=filtered.slice(-20);
+
+    const labels=filtered.map((_,i)=>`#${i+1}`);
+    const data=filtered.map(r=>r.percent||0);
+    const avgLine=data.map(()=>data.reduce((a,b)=>a+b,0)/data.length||0);
+
+    if(trendChart) trendChart.destroy();
+    const ctx=document.getElementById("trendChart").getContext("2d");
+    const grad=ctx.createLinearGradient(0,0,0,180);
+    grad.addColorStop(0,"rgba(99,102,241,0.25)");
+    grad.addColorStop(1,"rgba(99,102,241,0)");
+
+    trendChart=new Chart(ctx,{
+      type:"line",
+      data:{
+        labels,
+        datasets:[{
+          label:"Score %",data,fill:true,
+          backgroundColor:grad,borderColor:"#6366f1",
+          borderWidth:2.5,pointRadius:4,pointBackgroundColor:"#6366f1",
+          pointBorderColor:"white",pointBorderWidth:2,tension:0.4
+        },{
+          label:"Average",data:avgLine,fill:false,
+          borderColor:"rgba(245,158,11,0.6)",borderWidth:1.5,
+          borderDash:[5,4],pointRadius:0,tension:0
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        interaction:{mode:"nearest",intersect:false},
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:isDark()?"#1e293b":"#0f172a",
+            titleColor:"white",bodyColor:"rgba(255,255,255,0.7)",
+            padding:10,cornerRadius:10,
+            callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.parsed.y)}%`}
+          }
+        },
+        scales:{
+          x:{grid:{color:gridColor()},ticks:{color:textColor()}},
+          y:{min:0,max:100,grid:{color:gridColor()},ticks:{color:textColor(),callback:v=>v+"%"}}
+        }
+      }
+    });
+  }
+
+  function buildSubjectBreakdown(results){
+    const map={};
+    results.forEach(r=>{
+      if(!r.subject) return;
+      if(!map[r.subject]) map[r.subject]={correct:0,total:0};
+      map[r.subject].correct+=r.score||0;
+      map[r.subject].total+=r.total||0;
+    });
+    const subjects=Object.keys(map).sort((a,b)=>{
+      const pa=map[a].total>0?map[a].correct/map[a].total:0;
+      const pb=map[b].total>0?map[b].correct/map[b].total:0;
+      return pb-pa;
+    });
+    const el=document.getElementById("subjBreakdown");
+    if(subjects.length===0){
+      el.innerHTML=`<div class="empty-state"><div class="es-icon">📚</div><h4>No subject data yet</h4><p>Take exams with a subject selected to see breakdown.</p></div>`;
+      return;
+    }
+    el.innerHTML=subjects.map(s=>{
+      const d=map[s];
+      const pct=d.total>0?Math.round((d.correct/d.total)*100):0;
+      const col=pct>=70?"#10b981":pct>=50?"#f59e0b":"#f43f5e";
+      const icon=SUBJ_ICONS[s]||"📖";
+      return `<div class="subj-row">
+        <div class="subj-icon" style="background:${col}1a;">${icon}</div>
+        <div class="subj-name">${s}</div>
+        <div class="subj-bar-wrap">
+          <div class="subj-bar-fill" style="width:${pct}%;background:${col};"></div>
+        </div>
+        <div class="subj-pct" style="color:${col};">${pct}%</div>
+      </div>`;
+    }).join("");
+  }
+
+  function buildCatChart(results){
+    const map={};
+    results.forEach(r=>{const c=r.category||"Other";map[c]=(map[c]||0)+1;});
+    const cats=Object.keys(map);
+    if(cats.length===0) return;
+
+    if(catChart) catChart.destroy();
+    const ctx=document.getElementById("catChart").getContext("2d");
+    catChart=new Chart(ctx,{
+      type:"doughnut",
+      data:{
+        labels:cats,
+        datasets:[{data:cats.map(c=>map[c]),backgroundColor:CAT_COLORS,borderWidth:0,hoverOffset:4}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:"72%",
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:"#0f172a",titleColor:"white",bodyColor:"rgba(255,255,255,0.7)",
+            padding:10,cornerRadius:10,
+            callbacks:{label:c=>`${c.label}: ${c.parsed} exams`}
+          }
+        }
+      }
+    });
+
+    const total=results.length;
+    document.getElementById("catLegend").innerHTML=cats.map((c,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="width:10px;height:10px;border-radius:3px;background:${CAT_COLORS[i]};flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.75rem;color:var(--text);">${c}</div>
+          <div style="font-size:0.65rem;color:var(--text-3);">${map[c]} exams · ${Math.round((map[c]/total)*100)}%</div>
+        </div>
+      </div>`).join("");
+  }
+
+  function buildPassChart(results){
+    const passed=results.filter(r=>r.passed).length;
+    const failed=results.length-passed;
+    if(passChart) passChart.destroy();
+    const ctx=document.getElementById("passChart").getContext("2d");
+    passChart=new Chart(ctx,{
+      type:"bar",
+      data:{
+        labels:["Passed","Failed"],
+        datasets:[{
+          data:[passed,failed],
+          backgroundColor:["rgba(16,185,129,0.8)","rgba(244,63,94,0.8)"],
+          borderRadius:8,borderSkipped:false
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{
+          backgroundColor:"#0f172a",titleColor:"white",bodyColor:"rgba(255,255,255,0.7)",
+          padding:10,cornerRadius:10
+        }},
+        scales:{
+          x:{grid:{display:false},ticks:{color:textColor()}},
+          y:{grid:{color:gridColor()},ticks:{color:textColor(),precision:0}}
+        }
+      }
+    });
+  }
+
+  function buildHeatmap(results){
+    const dateMap={};
+    results.forEach(r=>{
+      if(!r.createdAt) return;
+      const d=new Date(r.createdAt).toDateString();
+      dateMap[d]=(dateMap[d]||0)+1;
+    });
+    const wrap=document.getElementById("heatmap");
+    // Last 28 days (4 weeks)
+    const cells=[];
+    for(let i=27;i>=0;i--){
+      const d=new Date(Date.now()-i*86400000);
+      const key=d.toDateString();
+      cells.push({key,count:dateMap[key]||0});
+    }
+    const max=Math.max(...cells.map(c=>c.count),1);
+    wrap.innerHTML=cells.map(c=>{
+      const intensity=c.count/max;
+      const bg=c.count===0?"var(--bg-input)"
+        :intensity<0.33?"rgba(99,102,241,0.25)"
+        :intensity<0.66?"rgba(99,102,241,0.55)"
+        :"var(--c-brand)";
+      const dt=new Date(c.key).toLocaleDateString("en-NG",{day:"numeric",month:"short"});
+      return `<div class="hm-cell" style="background:${bg};" title="${dt}: ${c.count} exam${c.count!==1?"s":""}"></div>`;
+    }).join("");
+  }
+
+  window._buildAnalytics=function(results,userData){
+    allResults=results;
+    const total=results.length;
+    const passed=results.filter(r=>r.passed).length;
+    const totalQ=results.reduce((s,r)=>s+(r.total||0),0);
+    const totalC=results.reduce((s,r)=>s+(r.score||0),0);
+    const avg=totalQ>0?Math.round((totalC/totalQ)*100):0;
+    const passRate=total>0?Math.round((passed/total)*100):0;
+    const streak=userData?.streak||0;
+
+    document.getElementById("kpiExams").textContent=total;
+    document.getElementById("kpiAvg").textContent=avg+"%";
+    document.getElementById("kpiStreak").textContent=streak;
+    document.getElementById("kpiPass").textContent=passRate+"%";
+
+    // Deltas
+    const recentResults=results.slice(-5);
+    const recentAvg=recentResults.length>0
+      ?Math.round(recentResults.reduce((s,r)=>s+(r.percent||0),0)/recentResults.length):0;
+    const delta=recentAvg-avg;
+    const deltaEl=document.getElementById("kpiAvgDelta");
+    deltaEl.textContent=(delta>=0?`▲ +${delta}%`:`▼ ${delta}%`)+" recent";
+    deltaEl.className="kpi-delta "+(delta>0?"up":delta<0?"down":"flat");
+
+    const passEl=document.getElementById("kpiPassDelta");
+    passEl.textContent=passRate>=70?"🌟 Excellent":passRate>=50?"👍 Good":"💪 Keep going";
+    passEl.className="kpi-delta "+(passRate>=70?"up":passRate>=50?"flat":"down");
+
+    document.getElementById("heroSub").textContent=
+      `${total} exam${total!==1?"s":""} taken · ${totalC} correct answers`;
+
+    // Target progress
+    if(userData?.targetScore){
+      const target=userData.targetScore;
+      const current=avg;
+      const pct=Math.min(Math.round((current/target)*100),100);
+      document.getElementById("targetCard").style.display="block";
+      document.getElementById("targetBadge").textContent=`Target: ${target}/400`;
+      document.getElementById("targetCurrent").textContent=avg+"%";
+      document.getElementById("targetPct").textContent=pct+"% of goal";
+      setTimeout(()=>document.getElementById("targetBarFill").style.width=pct+"%",300);
+    }
+
+    if(total===0){
+      document.getElementById("trendWrap").innerHTML=`<div class="empty-state"><div class="es-icon">📈</div><h4>No data yet</h4><p>Take your first exam to see your score trend here.</p></div>`;
+    } else {
+      buildTrendChart(results,7);
+    }
+    buildSubjectBreakdown(results);
+    buildCatChart(results);
+    buildPassChart(results);
+    buildHeatmap(results);
+  };
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    let userData={};
+    try{const s=await getDoc(doc(db,"users",user.uid));userData=s.data()||{}; window._userData=userData;}catch(_){}
+
+    try{
+      const snap=await getDocs(query(collection(db,"results"),where("userId","==",user.uid)));
+      let results=[];
+      snap.forEach(d=>results.push(d.data()));
+      results.sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""));
+      window._buildAnalytics(results,userData);
+    } catch(e){
+      console.error("Analytics load error:",e);
+      toast("Could not load analytics data");
+    }
+  });
+</script>
+</body>
+</html>
