@@ -201,6 +201,71 @@
       background: var(--c-brand); border-color: var(--c-brand);
       color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3);
     }
+
+    /* ── Subject breakdown ── */
+    .subj-breakdown {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;
+    }
+    .subj-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 12px;
+    }
+    .subj-name {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.75rem; color: var(--text); min-width: 90px; flex-shrink: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .subj-bar-wrap {
+      flex: 1; height: 6px; background: var(--border); border-radius: 100px; overflow: hidden;
+    }
+    .subj-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+    .subj-pct {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.72rem; min-width: 36px; text-align: right; flex-shrink: 0;
+    }
+    .subj-score-sm {
+      font-size: 0.62rem; color: var(--text-3); min-width: 32px;
+      text-align: right; flex-shrink: 0;
+    }
+
+    /* ── Share modal ── */
+    .share-modal {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      align-items: flex-end; justify-content: center;
+      background: rgba(15,23,42,0.65); backdrop-filter: blur(4px);
+    }
+    .share-modal.open { display: flex; }
+    .share-sheet {
+      background: var(--bg-card); border-radius: 24px 24px 0 0;
+      padding: 20px 20px 36px; width: 100%; max-width: 480px;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.25);
+      animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .share-sheet h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 1rem; color: var(--text); margin-bottom: 16px; text-align: center;
+    }
+    .share-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .share-opt {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 8px; border-radius: 14px; cursor: pointer;
+      background: var(--bg-input); border: 1.5px solid var(--border);
+      transition: all 0.18s ease;
+    }
+    .share-opt:active { transform: scale(0.95); }
+    .share-opt-icon { font-size: 1.6rem; }
+    .share-opt-label {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.65rem; color: var(--text-2); text-align: center;
+    }
+    .share-cancel {
+      margin-top: 12px; width: 100%; padding: 12px;
+      border-radius: var(--radius-sm); background: var(--bg-input);
+      border: 1.5px solid var(--border); font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 0.85rem; color: var(--text-3); cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -258,6 +323,16 @@
     </div>
   </div>
 
+
+  <!-- Subject Breakdown -->
+  <div id="subjBreakdown" style="display:none;" class="animate-in animate-in-delay-1">
+    <div class="section-header" style="margin-top:4px;">
+      <div class="section-icon">📚</div>
+      <h3>Subject Performance</h3>
+    </div>
+    <div class="subj-breakdown" id="subjBreakdownList"></div>
+  </div>
+
   <!-- Actions -->
   <div class="action-strip animate-in animate-in-delay-1">
     <a href="exam.html" class="btn btn-primary">📝 Try Again</a>
@@ -268,7 +343,7 @@
   <div class="share-card animate-in animate-in-delay-2" id="shareCard" style="display:none;">
     <h4>🎉 Share your score!</h4>
     <p>Let your friends know how you did</p>
-    <button class="btn btn-primary" onclick="shareResult()" style="max-width:200px;margin:0 auto;">
+    <button class="btn btn-primary" onclick="openShare()" style="max-width:200px;margin:0 auto;">
       📤 Share Result
     </button>
   </div>
@@ -295,7 +370,7 @@
 
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -315,7 +390,18 @@
     localStorage.setItem("examora_theme",n);
     document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
   });
-  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
+  }
 
   // ── Confetti ──────────────────────────────────────────────
   function launchConfetti(){
@@ -410,15 +496,64 @@
     if(btn) btn.textContent=showing?"💡 Hide explanation":"💡 Show explanation";
   }
 
-  function shareResult(){
+  function buildShareText(){
     const pct=resultData.percent||0;
     const subj=resultData.subject||"General";
-    const text=`I scored ${pct}% on ${subj} on EXAMORA! 🎓\nTest yourself at examora.app`;
-    if(navigator.share){
-      navigator.share({title:"EXAMORA Result",text,url:"https://examora.app"}).catch(()=>{});
+    const cat=resultData.category||"EXAMORA";
+    const score=resultData.correct||0;
+    const total=resultData.total||0;
+    const bar="█".repeat(Math.round(pct/10))+"░".repeat(10-Math.round(pct/10));
+    return `🎓 EXAMORA Score Alert!\n\nI scored ${pct}% on ${cat} ${subj}\n${bar} (${score}/${total})\n\n${pct>=70?"✅ Passed!":"💪 Keep grinding!"}\n\nTest yourself FREE at examora.app`;
+  }
+
+  function openShare(){ document.getElementById("shareModal").classList.add("open"); }
+  function closeShare(){ document.getElementById("shareModal").classList.remove("open"); }
+
+  function shareVia(channel){
+    const text=buildShareText();
+    const url="https://examora.app";
+    if(channel==="whatsapp"){
+      window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
+    } else if(channel==="twitter"){
+      const short=`I scored ${resultData.percent||0}% on EXAMORA! Test yourself at examora.app 🎓 #JAMB #WAEC #NECO`;
+      window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(short),"_blank");
     } else {
-      navigator.clipboard?.writeText(text).then(()=>toast("Result copied to clipboard! 📋")).catch(()=>{});
+      navigator.clipboard?.writeText(text).then(()=>{toast("📋 Result copied!");closeShare();}).catch(()=>{});
     }
+  }
+
+  // legacy compat
+  function shareResult(){ openShare(); }
+
+  function renderSubjectBreakdown(questions, answers){
+    const subjMap={};
+    questions.forEach((q,i)=>{
+      const s=q.subject||"General";
+      if(!subjMap[s]) subjMap[s]={correct:0,total:0};
+      subjMap[s].total++;
+      if(answers[i]===q.answer) subjMap[s].correct++;
+    });
+    const subjects=Object.keys(subjMap);
+    if(subjects.length<2) return; // only show if multiple subjects
+    document.getElementById("subjBreakdown").style.display="block";
+    const list=document.getElementById("subjBreakdownList");
+    list.innerHTML=subjects.sort((a,b)=>{
+      const pa=subjMap[a].correct/subjMap[a].total;
+      const pb=subjMap[b].correct/subjMap[b].total;
+      return pb-pa; // best first
+    }).map(s=>{
+      const d=subjMap[s];
+      const pct=d.total>0?Math.round((d.correct/d.total)*100):0;
+      const col=pct>=70?"#10b981":pct>=50?"#f59e0b":"#f43f5e";
+      return `<div class="subj-row">
+        <div class="subj-name">${s}</div>
+        <div class="subj-bar-wrap">
+          <div class="subj-bar-fill" style="width:${pct}%;background:${col};"></div>
+        </div>
+        <div class="subj-pct" style="color:${col};">${pct}%</div>
+        <div class="subj-score-sm">${d.correct}/${d.total}</div>
+      </div>`;
+    }).join("");
   }
 
   window.addEventListener("load",()=>{
@@ -482,8 +617,36 @@
       userAns:answers?.[i]||null,
       status:!answers?.[i]?"skipped":answers[i]===q.answer?"correct":"wrong"
     }));
+    // Subject breakdown
+    renderSubjectBreakdown(questions||[], answers||{});
     filterReview("all",document.querySelector(".rf-tab.active"));
   });
+</script>
+
+<!-- ── Share Modal ── -->
+<div class="share-modal" id="shareModal" onclick="if(event.target===this)closeShare()">
+  <div class="share-sheet">
+    <h4>📤 Share your result</h4>
+    <div class="share-options">
+      <div class="share-opt" onclick="shareVia('whatsapp')">
+        <div class="share-opt-icon">💬</div>
+        <div class="share-opt-label">WhatsApp</div>
+      </div>
+      <div class="share-opt" onclick="shareVia('twitter')">
+        <div class="share-opt-icon">🐦</div>
+        <div class="share-opt-label">X / Twitter</div>
+      </div>
+      <div class="share-opt" onclick="shareVia('copy')">
+        <div class="share-opt-icon">📋</div>
+        <div class="share-opt-label">Copy Text</div>
+      </div>
+    </div>
+    <button class="share-cancel" onclick="closeShare()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

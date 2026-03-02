@@ -247,6 +247,9 @@
       <div class="mode-btn"       id="modePractice"  onclick="setMode('practice')">
         <span class="mode-icon">📖</span>Practice Mode
       </div>
+      <div class="mode-btn"       id="modeQuickfire" onclick="setMode('quickfire')">
+        <span class="mode-icon">⚡</span>Quick Fire
+      </div>
     </div>
     <div id="modeHint" class="card card-sm animate-in animate-in-delay-1"
       style="background:var(--c-brand-pale);border-color:rgba(99,102,241,0.2);margin-bottom:16px;">
@@ -400,7 +403,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -420,16 +423,48 @@
     localStorage.setItem("examora_theme",n);
     document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
   });
-  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
+  }
 
-  const SUBJECTS={
-    "JAMB":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
-    "WAEC":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Further Mathematics","Agricultural Science"],
-    "NECO":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Civic Education","Agricultural Science","Literature in English","Financial Accounting"],
-    "Post-UTME":["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Use of English","General Studies"]
-  };
+  // Subjects are built dynamically from loaded questions — no hardcoded list needed
+  let subjectsByCategory = {}; // populated after questions load
+
+  function buildSubjectDropdowns() {
+    subjectsByCategory = {};
+    allQuestions.forEach(q => {
+      const cat = q.category || "";
+      const subj = q.subject || "";
+      if (!subjectsByCategory[cat]) subjectsByCategory[cat] = new Set();
+      if (subj) subjectsByCategory[cat].add(subj);
+    });
+    // Also build "All" across every category
+    subjectsByCategory[""] = new Set();
+    allQuestions.forEach(q => { if (q.subject) subjectsByCategory[""].add(q.subject); });
+
+    updateSubjects(); // refresh the visible dropdown
+  }
 
   let examMode="exam", qCount=20, allQuestions=[], examQuestions=[];
+
+  // Read URL params (for "drill weak subject" from dashboard)
+  (function(){
+    const p=new URLSearchParams(location.search);
+    const cat=p.get("cat"), subj=p.get("subj");
+    if(cat||subj){
+      // Will apply once dropdowns are built — store for later
+      window._urlCat=cat||""; window._urlSubj=subj||"";
+    }
+  })();
   let answers={}, flagged=new Set(), bookmarked=new Set();
   let currentIdx=0, timerInterval=null, timeLeft=0;
   let currentUser=null;
@@ -442,6 +477,14 @@
     examMode=m;
     document.getElementById("modeExam").classList.toggle("active",m==="exam");
     document.getElementById("modePractice").classList.toggle("active",m==="practice");
+    const qfBtn=document.getElementById("modeQuickfire");
+    if(qfBtn) qfBtn.classList.toggle("active",m==="quickfire");
+    // Quick fire: force 10 questions, auto-enable practice feedback
+    if(m==="quickfire"){
+      const qcInput=document.getElementById("qCount");
+      if(qcInput){qcInput.value=10;}
+      qCount=10;
+    }
     const hint=document.getElementById("modeHint");
     hint.innerHTML=m==="exam"
       ? `<p style="font-size:0.78rem;color:var(--c-brand);font-weight:600;line-height:1.5;">⏱️ <strong>Exam Mode:</strong> Timed, no instant feedback — just like the real exam.</p>`
@@ -462,8 +505,15 @@
   function updateSubjects(){
     const cat=document.getElementById("catSelect").value;
     const sel=document.getElementById("subjSelect");
+    const prev=sel.value;
     sel.innerHTML="<option value=''>All Subjects</option>";
-    (SUBJECTS[cat]||[]).forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);});
+    const subjSet=subjectsByCategory[cat]||subjectsByCategory[""]||new Set();
+    [...subjSet].sort().forEach(s=>{
+      const o=document.createElement("option");
+      o.value=s; o.textContent=s;
+      sel.appendChild(o);
+    });
+    if(prev && [...sel.options].some(o=>o.value===prev)) sel.value=prev;
     updateAvailCount();
   }
 
@@ -675,6 +725,19 @@
       const snap=await getDocs(collection(db,"questions"));
       allQuestions=[];
       snap.forEach(d=>allQuestions.push({id:d.id,...d.data()}));
+      buildSubjectDropdowns();
+      // Apply URL params if coming from weak areas card
+      if(window._urlCat||window._urlSubj){
+        const cs=document.getElementById("catSelect");
+        const ss=document.getElementById("subjSelect");
+        if(window._urlCat && cs) cs.value=window._urlCat;
+        updateSubjects();
+        if(window._urlSubj && ss){
+          // Try to select the subject option
+          for(let o of ss.options){ if(o.value===window._urlSubj){ss.value=window._urlSubj;break;} }
+        }
+        window._urlCat=null; window._urlSubj=null;
+      }
       updateAvailCount();
     } catch(e){
       document.getElementById("qAvailNum").textContent="Could not load questions";
@@ -724,6 +787,9 @@
     const total=examQuestions.length;
     const percent=Math.round((correct/total)*100);
     const passed=percent>=50;
+    // Quickfire = practice mode with 10 q, instant feedback
+    if(examMode==="quickfire") qCount=10;
+    const effectiveMode=examMode==="quickfire"?"practice":examMode;
     const cat=document.getElementById("catSelect").value||"Mixed";
     const subj=document.getElementById("subjSelect").value||"General";
     const date=new Date().toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"});
@@ -801,5 +867,11 @@
   };
 </script>
 
+
+<script>
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("/sw.js").catch(()=>{});
+  }
+</script>
 </body>
 </html>

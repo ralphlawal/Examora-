@@ -649,7 +649,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
@@ -1172,5 +1172,8 @@
   };
 </script>
 
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+</script>
 </body>
 </html>

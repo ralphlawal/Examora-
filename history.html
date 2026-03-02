@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Exam History</title>
   <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
     /* ── Hero ── */
@@ -196,14 +203,17 @@
 <body>
 
 <header class="app-header">
-  <div class="app-logo">
-    <!-- Logo image replacing EX -->
-    <div class="app-logo-icon">
-      <img src="logo-placeholder.png" alt="EXAMORA Logo" style="height:40px; width:auto;">
-    </div>
-    <div class="app-logo-name">EXAMORA</div>
-  </div>
-
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
   <div class="header-actions">
     <button class="header-btn" id="themeBtn">🌙</button>
   </div>
@@ -327,7 +337,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -347,10 +357,22 @@
     localStorage.setItem("examora_theme",n);
     document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
   });
-  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
+  }
 
   const CAT_ICONS={JAMB:"🎓",WAEC:"📘",NECO:"📗","Post-UTME":"🏫",Mixed:"📝","":"📝"};
   let allResults=[], modeFilter="";
+  const resultMap={}; // safe data store, avoids JSON-in-onclick injection
 
   function setModeFilter(mode, btn){
     modeFilter=mode;
@@ -417,7 +439,7 @@
     order.forEach(label=>{
       if(!groups[label]) return;
       html+=`<div class="hist-group-label animate-in">${label}</div>`;
-      html+=groups[label].map(r=>{
+      html+=groups[label].map((r,ri)=>{
         const pct=r.percent||0;
         const pass=r.passed;
         const col=pass?"var(--c-green)":"var(--c-red)";
@@ -428,8 +450,9 @@
         const wrong=answered-(r.score||0);
         const modeIcon=r.mode==="practice"?"📖":"⏱️";
         const dateStr=r.date||"";
+        const mapKey=(r.id||label+"_"+ri);resultMap[mapKey]=r;
         return `<div class="hist-row ${pass?"pass":"fail"} animate-in"
-          onclick='openDetail(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+          onclick="openDetail(resultMap[mapKey])">
           <div class="hist-icon" style="background:${bg};">${icon}</div>
           <div class="hist-info">
             <div class="hist-subject">${r.subject||r.category||"General Practice"}</div>
@@ -541,6 +564,9 @@
         </div>`;
     }
   });
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

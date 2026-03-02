@@ -137,6 +137,87 @@
       background: rgba(16,185,129,0.18); border: 1.5px solid rgba(16,185,129,0.35);
       color: #34d399;
     }
+
+    /* ── Weak areas card ── */
+    .weak-card {
+      background: linear-gradient(135deg, #2d1b00, #1a0f00);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 18px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.1);
+      transition: all 0.2s ease;
+    }
+    [data-theme="light"] .weak-card {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border-color: rgba(245,158,11,0.35);
+    }
+    .weak-card:active { transform: scale(0.98); }
+    .weak-icon {
+      width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f59e0b, #dc2626);
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+    }
+    .weak-text { flex: 1; }
+    .weak-title {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.85rem; color: #fbbf24; margin-bottom: 2px;
+    }
+    [data-theme="light"] .weak-title { color: #92400e; }
+    .weak-sub { font-size: 0.7rem; color: rgba(251,191,36,0.6); line-height: 1.4; }
+    [data-theme="light"] .weak-sub { color: #b45309; }
+    .weak-btn {
+      background: linear-gradient(135deg, #f59e0b, #dc2626);
+      color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 0.65rem; padding: 7px 12px;
+      border-radius: 100px; flex-shrink: 0; white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.4);
+    }
+
+    /* ── Email verification banner ── */
+    .verify-banner {
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px; animation: fadeIn 0.4s ease;
+    }
+    .verify-banner-text { flex: 1; font-size: 0.75rem; color: #fbbf24; line-height: 1.5; font-weight: 600; }
+    .verify-banner-btn {
+      background: #f59e0b; color: white;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.65rem; padding: 6px 12px; border-radius: 100px;
+      white-space: nowrap; flex-shrink: 0; border: none; cursor: pointer;
+    }
+
+    /* ── Install banner ── */
+    .install-bar {
+      display:none; align-items:center; gap:12px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.1));
+      border:1.5px solid rgba(99,102,241,0.25);
+      border-radius:16px; padding:13px 15px;
+      margin-bottom:16px; cursor:pointer;
+      box-shadow: 0 2px 12px rgba(99,102,241,0.12);
+      transition: all 0.2s ease;
+    }
+    .install-bar.show { display:flex; animation:fadeIn 0.4s ease; }
+    .install-bar:active { transform:scale(0.99); }
+    .install-bar-text { flex:1; }
+    .install-bar-text strong {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-size:0.82rem; color:var(--text); display:block; margin-bottom:2px;
+    }
+    .install-bar-text span { font-size:0.7rem; color:var(--text-3); }
+    .install-bar-btn {
+      background:var(--c-brand); color:white;
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:0.7rem; padding:7px 14px; border-radius:100px;
+      border:none; cursor:pointer; flex-shrink:0;
+      box-shadow:0 2px 8px rgba(99,102,241,0.35); white-space:nowrap;
+    }
+    .install-bar-close {
+      background:none; border:none; color:var(--text-3);
+      font-size:1rem; cursor:pointer; padding:4px; flex-shrink:0;
+    }
   </style>
 </head>
 <body>
@@ -189,6 +270,36 @@
 
   <!-- Announcement -->
   <div id="announceBanner" style="display:none;" class="announce-strip animate-in"></div>
+
+  <!-- PWA Install Banner -->
+  <div class="install-bar animate-in" id="installBar">
+    <span style="font-size:1.7rem;flex-shrink:0;">📲</span>
+    <div class="install-bar-text">
+      <strong>Install EXAMORA</strong>
+      <span id="installBarHint">Add to home screen · Works offline</span>
+    </div>
+    <button class="install-bar-btn" id="installBarBtn">Install</button>
+    <button class="install-bar-close" onclick="dismissInstall()" title="Dismiss">✕</button>
+  </div>
+
+  <!-- Email verification banner -->
+  <div id="verifyBanner" style="display:none;" class="verify-banner animate-in">
+    <span style="font-size:1.2rem;">⚠️</span>
+    <div class="verify-banner-text">
+      Please verify your email address to secure your account.
+    </div>
+    <button class="verify-banner-btn" onclick="resendVerification()">Resend Email</button>
+  </div>
+
+  <!-- Weak areas card — shown after data loads -->
+  <div id="weakCard" style="display:none;" class="weak-card animate-in" onclick="goToWeakPractice()">
+    <div class="weak-icon">🎯</div>
+    <div class="weak-text">
+      <div class="weak-title" id="weakTitle">Focus Area</div>
+      <div class="weak-sub"  id="weakSub">Practice your weakest subject</div>
+    </div>
+    <div class="weak-btn">DRILL IT</div>
+  </div>
 
   <!-- ── HERO ──────────────────────────────────────────────── -->
   <div class="hero-card animate-in">
@@ -310,7 +421,7 @@
 
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <!-- ── Bottom Nav ─────────────────────────────────────────── -->
 <nav class="bottom-nav">
@@ -336,16 +447,54 @@
   });
 
   // Toast
-  function toast(msg, dur = 2800) {
-    const el = document.getElementById("toast");
-    el.textContent = msg; el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), dur);
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
   }
 
   // Greeting
   const hr = new Date().getHours();
   document.getElementById("heroGreeting").textContent =
     hr < 12 ? "Good morning 👋" : hr < 17 ? "Good afternoon 👋" : "Good evening 👋";
+
+  // PWA Install
+  let _deferredInstall = null;
+  function dismissInstall(){
+    document.getElementById("installBar").classList.remove("show");
+    sessionStorage.setItem("installDismissed","1");
+  }
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    _deferredInstall = e;
+    if(!sessionStorage.getItem("installDismissed"))
+      document.getElementById("installBar").classList.add("show");
+    document.getElementById("installBarBtn").addEventListener("click", async() => {
+      if(!_deferredInstall) return;
+      _deferredInstall.prompt();
+      const {outcome} = await _deferredInstall.userChoice;
+      if(outcome === "accepted"){
+        document.getElementById("installBar").classList.remove("show");
+        toast("EXAMORA installed! 🎉","success");
+        _deferredInstall = null;
+      }
+    });
+  });
+  // iOS
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone;
+  if(isIOS && !sessionStorage.getItem("installDismissed")){
+    document.getElementById("installBar").classList.add("show");
+    document.getElementById("installBarHint").textContent =
+      "Tap Share → 'Add to Home Screen' to install";
+    document.getElementById("installBarBtn").style.display = "none";
+  }
 </script>
 
 <script type="module">
@@ -383,6 +532,11 @@
     } catch(e) {}
 
     if (ud.onboarded === false) { window.location.href = "onboarding.html"; return; }
+
+    // Email verification banner
+    if (!user.emailVerified && user.providerData[0]?.providerId === "password") {
+      document.getElementById("verifyBanner").style.display = "flex";
+    }
 
     // Streak
     try {
@@ -532,6 +686,26 @@
         }).join("");
       }
 
+      // Weak subject card
+      if(subjects.length>0){
+        const worst=subjects.reduce((a,b)=>{
+          const pa=subMap[a].total>0?(subMap[a].correct/subMap[a].total):1;
+          const pb=subMap[b].total>0?(subMap[b].correct/subMap[b].total):1;
+          return pa<pb?a:b;
+        });
+        const wd=subMap[worst];
+        const wpct=wd.total>0?Math.round((wd.correct/wd.total)*100):0;
+        if(wpct<70 && wd.total>=3){
+          const worstCat=results.find(r=>r.subject===worst)?.category||"";
+          localStorage.setItem("examora_weak_subject", worst);
+          localStorage.setItem("examora_weak_cat", worstCat);
+          const wcard=document.getElementById("weakCard");
+          document.getElementById("weakTitle").textContent=`Weak: ${worst}`;
+          document.getElementById("weakSub").textContent=`You're scoring ${wpct}% in ${worst}. Let's fix that!`;
+          wcard.style.display="flex";
+        }
+      }
+
       // Auto-badges
       try {
         const badges = ud.badges || [], nb = [];
@@ -589,5 +763,33 @@
   });
 </script>
 
+<script>
+  // SW registration
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+
+  // Weak card navigation
+  window.goToWeakPractice = function(){
+    const subj = localStorage.getItem("examora_weak_subject")||"";
+    const cat  = localStorage.getItem("examora_weak_cat")||"";
+    const params = new URLSearchParams();
+    if(cat)  params.set("cat",cat);
+    if(subj) params.set("subj",subj);
+    window.location.href = "exam.html?" + params.toString();
+  };
+
+  // Resend email verification
+  window.resendVerification = async function(){
+    try {
+      const { getAuth, sendEmailVerification } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const auth = getAuth();
+      if(auth.currentUser && !auth.currentUser.emailVerified){
+        await sendEmailVerification(auth.currentUser);
+        const btn = document.querySelector(".verify-banner-btn");
+        if(btn){ btn.textContent="Sent ✓"; btn.disabled=true; }
+        toast("📧 Verification email sent — check your inbox!");
+      }
+    } catch(e){ toast("Could not send email. Try again later."); }
+  };
+</script>
 </body>
 </html>

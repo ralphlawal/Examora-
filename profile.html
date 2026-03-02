@@ -311,6 +311,50 @@
       font-size: 0.78rem; color: var(--c-red); margin-bottom: 10px;
       text-transform: uppercase; letter-spacing: 0.5px;
     }
+
+    /* ── Referral card ── */
+    .referral-card {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border-radius: 18px; padding: 18px;
+      margin-bottom: 14px; border: 1px solid rgba(99,102,241,0.25);
+      box-shadow: 0 4px 20px rgba(99,102,241,0.12);
+    }
+    .referral-card h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-size: 0.9rem; color: white; margin-bottom: 4px;
+    }
+    .referral-card p {
+      font-size: 0.72rem; color: rgba(255,255,255,0.4);
+      line-height: 1.5; margin-bottom: 14px;
+    }
+    .referral-link-row {
+      display: flex; gap: 8px; align-items: center;
+      background: rgba(255,255,255,0.06); border-radius: 10px;
+      padding: 10px 12px; margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .referral-link-text {
+      flex: 1; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 0.72rem; color: #818cf8;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .referral-copy-btn {
+      background: var(--c-brand); color: white;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.65rem; padding: 6px 12px; border-radius: 8px;
+      border: none; cursor: pointer; flex-shrink: 0;
+      transition: all 0.18s ease;
+    }
+    .referral-share-row { display: flex; gap: 8px; }
+    .ref-share-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px; border-radius: 10px; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.7rem; border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7);
+      transition: all 0.18s ease;
+    }
+    .ref-share-btn:active { transform: scale(0.96); }
   </style>
 </head>
 <body>
@@ -502,6 +546,49 @@
     </div>
   </div>
 
+
+  <!-- Referral Card -->
+  <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
+    <div class="section-icon">🎁</div>
+    <h3>Refer Friends</h3>
+  </div>
+  <div class="referral-card animate-in animate-in-delay-3" id="referralCard">
+    <h4>📣 Invite friends to EXAMORA</h4>
+    <p>Share your personal link. Every student you bring helps grow the community!</p>
+    <div class="referral-link-row">
+      <div class="referral-link-text" id="referralLinkText">examora.app/join?ref=...</div>
+      <button class="referral-copy-btn" onclick="copyReferralLink()">Copy</button>
+    </div>
+    <div class="referral-share-row">
+      <div class="ref-share-btn" onclick="shareRef('whatsapp')">💬 WhatsApp</div>
+      <div class="ref-share-btn" onclick="shareRef('twitter')">🐦 Twitter</div>
+    </div>
+  </div>
+
+
+  <!-- Support -->
+  <div class="section-header animate-in animate-in-delay-4" style="margin-top:20px;">
+    <div class="section-icon">🆘</div>
+    <h3>Support</h3>
+  </div>
+  <div class="settings-list animate-in animate-in-delay-4">
+    <a href="mailto:support@examora.com.ng" class="setting-row" style="text-decoration:none;">
+      <div class="setting-icon" style="background:rgba(16,185,129,0.1);">📧</div>
+      <div class="flex-1">
+        <div class="setting-label">Email Support</div>
+        <div class="setting-value">support@examora.com.ng</div>
+      </div>
+      <span class="setting-arrow">›</span>
+    </a>
+    <div class="setting-row" onclick="toast('Version 1.0.0 · Build 2025','info')">
+      <div class="setting-icon" style="background:rgba(99,102,241,0.1);">📱</div>
+      <div class="flex-1">
+        <div class="setting-label">App Version</div>
+        <div class="setting-value">v1.0.0</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Danger zone -->
   <div class="danger-zone animate-in animate-in-delay-4">
     <h4>⚠️ Danger Zone</h4>
@@ -520,7 +607,7 @@
   </div>
 
   <p style="text-align:center;font-size:0.68rem;color:var(--text-3);margin-bottom:20px;">
-    EXAMORA v2.0 · Made with ❤️ in Nigeria
+    © 2025 Examora. All Rights Reserved.
   </p>
 
 </div>
@@ -588,7 +675,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -709,6 +796,36 @@
       }
     }
   }
+
+  function buildReferralLink(uid){
+    const short = uid.slice(0,8);
+    const link = `https://examora.app/join?ref=${short}`;
+    document.getElementById("referralLinkText").textContent = link;
+    return link;
+  }
+
+  function copyReferralLink(){
+    const link = document.getElementById("referralLinkText").textContent;
+    navigator.clipboard?.writeText(link).then(()=>{
+      const btn = document.querySelector(".referral-copy-btn");
+      btn.textContent = "Copied ✓";
+      setTimeout(()=>btn.textContent="Copy", 2000);
+      toast("📋 Referral link copied!");
+    }).catch(()=>{ toast("Copy failed — share the link manually"); });
+  }
+
+  function shareRef(channel){
+    const link = document.getElementById("referralLinkText").textContent;
+    const name  = userData?.displayName?.split(" ")[0] || "I";
+    const text  = `${name} invited you to EXAMORA — Nigeria's best JAMB, WAEC & NECO prep app! Practice free: ${link}`;
+    if(channel==="whatsapp"){
+      window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
+    } else {
+      const tweet = `I'm using EXAMORA to prep for JAMB & WAEC! Join me free 🎓 ${link} #JAMB2025 #WAEC2025 #NECO2025`;
+      window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(tweet), "_blank");
+    }
+  }
+
 </script>
 
 <!-- ── Avatar crop & upload logic ── -->
@@ -906,6 +1023,7 @@
       const snap=await getDoc(doc(db,"users",uid));
       if(!snap.exists()){window.location.href="login.html";return;}
       userData=snap.data();
+      buildReferralLink(uid);
     }catch(e){toast("Could not load profile");return;}
 
     // Load results for stats
@@ -1059,6 +1177,9 @@
       toast("📚 Subjects saved!");
     }catch(e){toast("Save failed.");}
   };
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

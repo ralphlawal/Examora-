@@ -296,7 +296,7 @@
   <button class="pb-clear" onclick="clearSelection()">✕</button>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -612,6 +612,9 @@
       toast("All bookmarks cleared");
     }catch(e){toast("Could not clear bookmarks");}
   };
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

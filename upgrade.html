@@ -435,9 +435,18 @@
     </p>
   </div>
 
+
+  <!-- Support row -->
+  <div style="text-align:center;padding:16px 20px 8px;font-size:0.72rem;color:var(--text-3);line-height:2;">
+    Questions about pricing?<br/>
+    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">
+      support@examora.com.ng
+    </a>
+  </div>
+
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -493,7 +502,7 @@
     const amount=currentPlan==="monthly"?200000:1440000; // kobo
     // Paystack inline integration
     const handler=PaystackPop.setup({
-      key:"pk_live_bb2f18f11e25ef95390f85d4b30bdfb421ae4a4d", // Replace with real key
+      key:"pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace with real key
       email:window._userEmail,
       amount,
       currency:"NGN",

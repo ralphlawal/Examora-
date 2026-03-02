@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — You're Offline</title>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0f172a; color: white;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
+    }
+    .logo {
+      width: 72px; height: 72px; border-radius: 22px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 800; color: white;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.45);
+      overflow: hidden;
+    }
+    .logo img { width:100%; height:100%; object-fit:contain; }
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+    p { font-size: 0.84rem; color: rgba(255,255,255,0.45); line-height: 1.7; max-width: 280px; margin-bottom: 28px; }
+    .wifi { font-size: 3rem; margin-bottom: 16px; display: block; opacity: 0.6; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 24px; border-radius: 100px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white; font-family: inherit; font-weight: 800;
+      font-size: 0.88rem; border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+      text-decoration: none; transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .tip {
+      font-size: 0.72rem; color: rgba(255,255,255,0.25);
+      margin-top: 20px; line-height: 1.8;
+    }
+    .tip a { color: rgba(99,102,241,0.7); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <span class="wifi">📡</span>
+  <div class="logo">
+    <img src="logo.png" alt="EX" onerror="this.style.display='none';this.parentElement.textContent='EX'"/>
+  </div>
+  <h1>You're Offline</h1>
+  <p>No internet connection detected. Check your WiFi or data and try again — your progress is saved.</p>
+  <button class="btn" onclick="location.reload()">🔄 Try Again</button>
+  <br/>
+  <a href="index.html" class="btn" style="background:rgba(255,255,255,0.08);box-shadow:none;">🏠 Go to Dashboard</a>
+  <p class="tip">
+    Pages you've visited before will load even offline.<br/>
+    Need help? <a href="mailto:support@examora.com.ng">support@examora.com.ng</a>
+  </p>
+</body>
+</html>

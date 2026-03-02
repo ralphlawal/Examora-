@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Let's Set You Up</title>
   <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
+  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
     body { padding-bottom: 0; min-height: 100vh; background: var(--bg); }
@@ -222,7 +229,7 @@
 
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <script>
   const _t = localStorage.getItem("examora_theme") || "light";
@@ -487,5 +494,8 @@
   };
 </script>
 
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+</script>
 </body>
 </html>

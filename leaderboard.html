@@ -291,7 +291,7 @@
   <div class="mrs-score" id="mrsScore">— correct</div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
   <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
@@ -311,7 +311,18 @@
     localStorage.setItem("examora_theme",n);
     document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
   });
-  function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2800);}
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
+  }
 
   // Avatar colours
   const AV_COLORS=["#6366f1","#10b981","#f59e0b","#f43f5e","#8b5cf6","#3b82f6","#14b8a6","#ec4899"];
@@ -520,6 +531,9 @@
         </div>`;
     }
   });
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>
