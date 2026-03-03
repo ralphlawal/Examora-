@@ -260,7 +260,7 @@
 <div class="page-wrapper" style="padding-top:16px;">
 
   <!-- Already premium card -->
-  <div class="premium-active animate-in" id="premiumActive">
+  <div class="premium-active animate-in" id="premiumActive" style="display:none;">
     <div style="font-size:2.5rem;margin-bottom:12px;">✨</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:var(--c-green);margin-bottom:6px;">
       You're already Premium!
@@ -269,6 +269,26 @@
       Enjoy all premium features. Thank you for supporting EXAMORA!
     </p>
     <a href="index.html" class="btn btn-green">🏠 Back to Dashboard</a>
+  </div>
+
+  <!-- Free trial card -->
+  <div class="animate-in" id="trialCard" style="display:none;background:linear-gradient(135deg,#064e3b,#065f46);border-radius:20px;padding:22px 18px;margin-bottom:14px;text-align:center;border:1.5px solid rgba(16,185,129,0.4);">
+    <div style="font-size:2.2rem;margin-bottom:8px;">🎁</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#6ee7b7;margin-bottom:6px;" id="trialHeading">
+      Try Premium Free for 7 Days
+    </div>
+    <p style="font-size:0.78rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:16px;" id="trialSubtext">
+      Get full access to AI explanations, unlimited exams, deep analytics and more — completely free, no card required.
+    </p>
+    <div id="trialDaysLeftWrap" style="display:none;background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 16px;margin-bottom:14px;">
+      <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#6ee7b7;font-size:1.4rem;" id="trialDaysLeft">7</span>
+      <span style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-left:6px;">days remaining in your free trial</span>
+    </div>
+    <button id="trialStartBtn" onclick="window._startTrial()"
+      style="background:linear-gradient(135deg,#10b981,#059669);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.95rem;padding:14px 28px;border-radius:14px;border:none;cursor:pointer;width:100%;box-shadow:0 4px 20px rgba(16,185,129,0.4);">
+      🚀 Start Free Trial — No Card Needed
+    </button>
+    <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:8px;">One free trial per account · Upgrade anytime</div>
   </div>
 
   <!-- Price card -->
@@ -454,6 +474,280 @@
 </nav>
 
 <script>
+  /* ── Theme ── */
+  const _t = localStorage.getItem("examora_theme") || "light";
+  document.documentElement.setAttribute("data-theme", _t);
+  document.getElementById("themeBtn").textContent = _t === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const c = document.documentElement.getAttribute("data-theme");
+    const n = c === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", n);
+    localStorage.setItem("examora_theme", n);
+    document.getElementById("themeBtn").textContent = n === "dark" ? "☀️" : "🌙";
+  });
+
+  /* ── Toast ── */
+  function toast(msg, type, dur) {
+    type = type || ""; dur = dur || 3200;
+    const el  = document.getElementById("toast");
+    const ico = document.getElementById("toastIcon");
+    const txt = document.getElementById("toastMsg");
+    const icons = { success: "✓", error: "✕", info: "ℹ", warning: "!" };
+    el.className = "toast" + (type ? " toast-" + type : "");
+    if (ico) { ico.textContent = icons[type] || ""; ico.style.display = type ? "flex" : "none"; }
+    if (txt) txt.textContent = msg; else el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid = setTimeout(() => el.classList.remove("show"), dur);
+  }
+
+  /* ── Plan toggle ── */
+  var currentPlan = "monthly";
+
+  function setPlan(plan) {
+    currentPlan = plan;
+    document.getElementById("planMonthly").classList.toggle("active", plan === "monthly");
+    document.getElementById("planYearly").classList.toggle("active",  plan === "yearly");
+    if (plan === "monthly") {
+      document.getElementById("priceNum").textContent    = "2,000";
+      document.getElementById("pricePeriod").textContent = "per month · cancel anytime";
+      document.getElementById("priceSave").style.display = "none";
+      document.getElementById("ctaPrice").textContent    = "2,000";
+      document.getElementById("ctaPrice2").textContent   = "2,000";
+      document.getElementById("upgradeBtn").innerHTML    = "⚡ Upgrade Now — ₦2,000/mo";
+    } else {
+      document.getElementById("priceNum").textContent    = "14,400";
+      document.getElementById("pricePeriod").textContent = "per year · ₦1,200/month equivalent";
+      document.getElementById("priceSave").style.display = "inline-flex";
+      document.getElementById("ctaPrice").textContent    = "14,400";
+      document.getElementById("ctaPrice2").textContent   = "14,400";
+      document.getElementById("upgradeBtn").innerHTML    = "⚡ Upgrade Now — ₦14,400/yr";
+    }
+  }
+
+  /* ── FAQ ── */
+  function toggleFaq(el) {
+    const a    = el.nextElementSibling;
+    const open = a.classList.toggle("open");
+    el.classList.toggle("open", open);
+  }
+
+  /* ── Paystack payment ── */
+  const PAYSTACK_PK = "pk_test_678a1fb31b3820da62161e78720a051b54a34a8b";
+
+  function initiatePayment() {
+    if (!window._userEmail) {
+      toast("Please sign in to upgrade", "error");
+      setTimeout(() => window.location.href = "login.html", 1200);
+      return;
+    }
+    if (!window.PaystackPop) {
+      toast("Payment gateway loading… please wait a moment then try again", "info");
+      return;
+    }
+
+    const isMonthly = currentPlan === "monthly";
+    const amount    = isMonthly ? 200000 : 1440000;
+    const planLabel = isMonthly ? "Monthly" : "Yearly";
+    const ref       = "examora_" + (window._userId || "user") + "_" + Date.now();
+
+    const btn = document.getElementById("upgradeBtn");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<div style="display:flex;align-items:center;gap:8px;justify-content:center;"><div style="width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.3);border-top-color:white;animation:spin 0.7s linear infinite;"></div> Opening payment…</div>';
+    }
+
+    try {
+      const handler = PaystackPop.setup({
+        key:      PAYSTACK_PK,
+        email:    window._userEmail,
+        amount:   amount,
+        currency: "NGN",
+        ref:      ref,
+        label:    "EXAMORA Premium — " + planLabel,
+        metadata: {
+          custom_fields: [
+            { display_name: "Plan",    variable_name: "plan",    value: currentPlan },
+            { display_name: "User ID", variable_name: "user_id", value: window._userId || "" }
+          ]
+        },
+        channels: ["card","bank","ussd","mobile_money","bank_transfer","qr"],
+        callback: function(response) {
+          toast("Payment confirmed! Activating Premium…", "success");
+          if (btn) { btn.disabled = false; btn.innerHTML = "⚡ Upgrade Now"; }
+          window._activatePremium(response.reference, currentPlan);
+        },
+        onClose: function() {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = isMonthly ? "⚡ Upgrade Now — ₦2,000/mo" : "⚡ Upgrade Now — ₦14,400/yr";
+          }
+          toast("Payment cancelled. You can try again anytime.", "info");
+        }
+      });
+      handler.openIframe();
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.innerHTML = "⚡ Upgrade Now"; }
+      toast("Could not open payment window. Please try again.", "error");
+      console.error("Paystack error:", err);
+    }
+  }
+</script>
+
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey:            "AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:        "cbt-app-5907f.firebaseapp.com",
+    projectId:         "cbt-app-5907f",
+    storageBucket:     "cbt-app-5907f.firebasestorage.app",
+    messagingSenderId: "705323924101",
+    appId:             "1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  /* helper: is current time within a trial window? */
+  function isTrialActive(ud) {
+    if (!ud.trialEnd) return false;
+    return new Date(ud.trialEnd) > new Date();
+  }
+
+  /* helper: days remaining in trial */
+  function trialDaysLeft(ud) {
+    if (!ud.trialEnd) return 0;
+    const ms = new Date(ud.trialEnd) - new Date();
+    return Math.max(0, Math.ceil(ms / 86400000));
+  }
+
+  /* ── Show/hide sections based on plan state ── */
+  function applyPlanUI(ud) {
+    const premiumEl  = document.getElementById("premiumActive");
+    const priceCard  = document.getElementById("priceCard");
+    const trialCard  = document.getElementById("trialCard");
+    const finalCta   = document.getElementById("finalCta");
+
+    const isPremium = ud.plan === "premium";
+    const onTrial   = isTrialActive(ud) && (ud.plan === "trial" || ud.plan === "free");
+    const usedTrial = ud.trialUsed === true;
+    const daysLeft  = trialDaysLeft(ud);
+
+    if (isPremium) {
+      premiumEl.style.display = "block";
+      if (priceCard) priceCard.style.display  = "none";
+      if (trialCard) trialCard.style.display  = "none";
+      if (finalCta)  finalCta.style.display   = "none";
+      return;
+    }
+
+    if (onTrial) {
+      if (trialCard) {
+        trialCard.style.display = "block";
+        const daysEl = document.getElementById("trialDaysLeft");
+        if (daysEl) daysEl.textContent = daysLeft + " day" + (daysLeft === 1 ? "" : "s");
+      }
+      if (priceCard) priceCard.style.display = "block";
+      if (finalCta)  finalCta.style.display  = "block";
+      return;
+    }
+
+    /* Free user — show trial banner if unused */
+    if (!usedTrial && trialCard) {
+      trialCard.style.display = "block";
+    }
+    if (priceCard) priceCard.style.display = "block";
+    if (finalCta)  finalCta.style.display  = "block";
+    premiumEl.style.display = "none";
+  }
+
+  /* ── Activate Premium after Paystack callback ── */
+  window._activatePremium = async (ref, plan) => {
+    if (!window._userId) { toast("User not signed in", "error"); return; }
+    try {
+      const now       = new Date();
+      const expiresAt = plan === "yearly"
+        ? new Date(now.getFullYear()+1, now.getMonth(), now.getDate()).toISOString()
+        : new Date(now.getFullYear(), now.getMonth()+1, now.getDate()).toISOString();
+
+      await updateDoc(doc(db, "users", window._userId), {
+        plan:              "premium",
+        premiumSince:      now.toISOString(),
+        premiumExpiresAt:  expiresAt,
+        premiumPlan:       plan,
+        paystackRef:       ref,
+        lastActive:        now.toDateString()
+      });
+
+      toast("🎉 Premium activated! Welcome to EXAMORA Premium.", "success");
+      setTimeout(() => {
+        document.getElementById("premiumActive").style.display = "block";
+        const p = document.getElementById("priceCard");
+        if (p) p.style.display = "none";
+        const t = document.getElementById("trialCard");
+        if (t) t.style.display = "none";
+        const f = document.getElementById("finalCta");
+        if (f) f.style.display = "none";
+      }, 1200);
+    } catch (err) {
+      console.error("activatePremium error:", err);
+      toast("Payment received but activation failed — contact support@examora.com.ng with your reference: " + ref, "error", 10000);
+    }
+  };
+
+  /* ── Start free trial ── */
+  window._startTrial = async () => {
+    if (!window._userId) {
+      toast("Please sign in first", "error");
+      setTimeout(() => window.location.href = "login.html", 1000);
+      return;
+    }
+    const trialBtn = document.getElementById("trialStartBtn");
+    if (trialBtn) { trialBtn.disabled = true; trialBtn.textContent = "Activating…"; }
+    try {
+      const now     = new Date();
+      const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      await updateDoc(doc(db, "users", window._userId), {
+        plan:        "trial",
+        trialUsed:   true,
+        trialStart:  now.toISOString(),
+        trialEnd:    endDate.toISOString(),
+        lastActive:  now.toDateString()
+      });
+      toast("🎉 7-day free trial started! Enjoy Premium features.", "success", 5000);
+      setTimeout(() => window.location.href = "index.html", 2000);
+    } catch (err) {
+      console.error("startTrial error:", err);
+      if (trialBtn) { trialBtn.disabled = false; trialBtn.textContent = "Start Free Trial"; }
+      toast("Could not start trial. Please try again.", "error");
+    }
+  };
+
+  /* ── Auth listener ── */
+  onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = "login.html"; return; }
+    window._userEmail = user.email;
+    window._userId    = user.uid;
+
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const ud   = snap.data() || {};
+      applyPlanUI(ud);
+    } catch (err) {
+      console.error("Plan load error:", err);
+    }
+  });
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+</script>
+</body>
+</html>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
   document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
@@ -576,16 +870,4 @@
 
     try{
       const snap=await getDoc(doc(db,"users",user.uid));
-      const ud=snap.data()||{};
-      if(ud.plan==="premium"){
-        document.getElementById("premiumActive").style.display="block";
-        document.getElementById("priceCard").style.display="none";
-      }
-    }catch(e){ console.error("Plan check error:", e); }
-  });
-</script>
-<script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
-</script>
-</body>
-</html>
+      const ud=snap
