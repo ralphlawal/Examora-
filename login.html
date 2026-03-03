@@ -341,10 +341,10 @@
     b.classList.add("show");
   }
 
-  let mode="signin";
+  window._mode="signin";
 
   function switchTab(tab){
-    mode=tab;
+    window._mode=tab;
     const s=tab==="signup";
     document.getElementById("tabSignIn").classList.toggle("active",!s);
     document.getElementById("tabSignUp").classList.toggle("active",s);
@@ -462,7 +462,7 @@
 
     if(!email){ showErr("Please enter your email address"); return; }
     if(!pw)   { showErr("Please enter your password"); return; }
-    if(mode==="signup"){
+    if(window._mode==="signup"){
       if(!name)          { showErr("Please enter your full name"); return; }
       if(pw.length<6)    { showErr("Password must be at least 6 characters long"); return; }
       if(pw!==confirm)   { showErr("Passwords do not match — please re-enter"); return; }
@@ -473,7 +473,7 @@
     document.getElementById("successBanner").classList.remove("show");
 
     try{
-      if(mode==="signin"){
+      if(window._mode==="signin"){
         const cred=await signInWithEmailAndPassword(auth,email,pw);
         await ensureUserDoc(cred.user,null);
         toast("Welcome back! 👋","success");
@@ -502,8 +502,8 @@
     }catch(e){
       showErr(
         e.code==="auth/user-not-found"
-          ?"No account found with this email. Try creating a new account
-          : "Try again or contact support@examora.com.ng.");
+          ?"No account found with this email. Try creating a new account instead."
+          :"Something went wrong. Contact support@examora.com.ng if this persists.");
     }
   };
 </script>
