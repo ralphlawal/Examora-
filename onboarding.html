@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations, analytics and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -204,7 +204,7 @@
   <div class="ob-hero animate-in" id="obHero">
     <span class="ob-emoji" id="obEmoji">👋</span>
     <h2 id="obTitle">Welcome to EXAMORA!</h2>
-    <p id="obSubtitle">Let's personalise your experience.<br/>It takes just 30 seconds.</p>
+    <p id="obSubtitle">Tell us which exam you're targeting.<br/>We'll customise your study plan.</p>
   </div>
 
   <!-- Step dots -->
@@ -242,37 +242,43 @@
   }
 
   const EXAM_TYPES = [
-    { id:"JAMB",      label:"JAMB / UTME",   sub:"University entrance exam",    icon:"🎓" },
-    { id:"WAEC",      label:"WAEC / SSCE",   sub:"West African senior school",  icon:"📘" },
-    { id:"NECO",      label:"NECO",           sub:"National examinations",       icon:"📗" },
-    { id:"Post-UTME", label:"Post-UTME",      sub:"University screening exams",  icon:"🏫" },
-    { id:"Mixed",     label:"All of the above",sub:"Practise multiple at once", icon:"🔀" },
+    { id:"SAT",          label:"SAT",                   sub:"US university entrance exam",          icon:"🇺🇸" },
+    { id:"ACT",          label:"ACT",                   sub:"US college admissions test",           icon:"🎓" },
+    { id:"JAMB",         label:"JAMB / UTME",           sub:"Nigerian university entrance",         icon:"🇳🇬" },
+    { id:"WAEC",         label:"WAEC / SSCE",           sub:"West African school certificate",      icon:"📘" },
+    { id:"NECO",         label:"NECO",                  sub:"Nigerian national examinations",       icon:"📗" },
+    { id:"A-Levels",     label:"A-Levels / GCSE",       sub:"UK & international high school",      icon:"🇬🇧" },
+    { id:"IB",           label:"IB Diploma",            sub:"International Baccalaureate",          icon:"🌍" },
+    { id:"GRE",          label:"GRE",                   sub:"Graduate school admissions",           icon:"📊" },
+    { id:"GMAT",         label:"GMAT",                  sub:"Business school admissions",           icon:"💼" },
+    { id:"IELTS",        label:"IELTS / TOEFL",         sub:"English language proficiency",         icon:"🌐" },
+    { id:"Professional", label:"Professional Certs",    sub:"ACCA, CPA, PMP, IT certs & more",     icon:"🏅" },
+    { id:"Custom",       label:"Custom / Other",        sub:"Any exam I define myself",             icon:"✏️" },
   ];
 
   const SUBJECTS_BY_EXAM = {
-    "JAMB":      ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
-    "WAEC":      ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Further Mathematics","Agricultural Science","Technical Drawing","Food & Nutrition"],
-    "NECO":      ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Civic Education","Agricultural Science","Literature in English","Financial Accounting","Commerce"],
-    "Post-UTME": ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Use of English","General Studies"],
-    "Mixed":     ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
+    "SAT":          ["Math","Reading & Writing","Essay (optional)"],
+    "ACT":          ["English","Mathematics","Reading","Science","Writing (optional)"],
+    "JAMB":         ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Agricultural Science","Accounting"],
+    "WAEC":         ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Literature in English","Geography","Commerce","Further Mathematics","Agricultural Science","Technical Drawing","Food & Nutrition"],
+    "NECO":         ["Mathematics","English Language","Physics","Chemistry","Biology","Economics","Government","Civic Education","Agricultural Science","Literature in English","Financial Accounting","Commerce"],
+    "A-Levels":     ["Mathematics","Further Mathematics","Physics","Chemistry","Biology","Economics","History","English Literature","Psychology","Computer Science","Geography","Sociology","Business Studies"],
+    "IB":           ["Mathematics","Physics","Chemistry","Biology","Economics","History","English A","English B","Visual Arts","Computer Science","Geography","Philosophy","Psychology"],
+    "GRE":          ["Verbal Reasoning","Quantitative Reasoning","Analytical Writing"],
+    "GMAT":         ["Verbal","Quantitative","Integrated Reasoning","Analytical Writing"],
+    "IELTS":        ["Listening","Reading","Writing","Speaking"],
+    "Professional": ["Financial Accounting","Management Accounting","Auditing","Tax","Business Law","Project Management","IT Fundamentals","Networking","Cybersecurity","Data Analysis"],
+    "Custom":       ["Topic 1","Topic 2","Topic 3","Topic 4","Topic 5"],
   };
-
-  const NIGERIAN_STATES = [
-    "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
-    "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT Abuja","Gombe",
-    "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara",
-    "Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau",
-    "Rivers","Sokoto","Taraba","Yobe","Zamfara"
-  ];
 
   const STEP_META = [
     { emoji:"🎓", title:"Which exam are you preparing for?",   sub:"Choose your primary target" },
     { emoji:"📚", title:"Select your subjects",                 sub:"Pick what you'll be tested on" },
-    { emoji:"🎯", title:"Set your target & profile",           sub:"We'll customise your plan" },
+    { emoji:"🎯", title:"Set your target & profile",           sub:"We'll customise your study plan" },
   ];
 
   let currentStep = 0;
-  let data = { examType:"", subjects:[], targetScore:250, school:"", state:"" };
+  let data = { examType:"", subjects:[], targetScore:75, school:"", state:"" };
 
   function updateDots() {
     for (let i=0; i<3; i++) {
@@ -329,45 +335,40 @@
         </p>`;
 
     } else if (currentStep === 2) {
-      const tier = data.targetScore >= 300 ? {label:"Outstanding 🏆",col:"#f59e0b"}
-                 : data.targetScore >= 250 ? {label:"Excellent 🌟",col:"#10b981"}
-                 : data.targetScore >= 200 ? {label:"Good 👍",col:"#6366f1"}
-                 : {label:"Building 💪",col:"#94a3b8"};
+      const pct = (data.targetScore > 0 && data.targetScore <= 100) ? data.targetScore : 75;
+      data.targetScore = pct;
+      const tier = pct >= 85 ? {label:"Distinction 🏆",col:"#f59e0b"}
+                 : pct >= 70 ? {label:"Merit 🌟",col:"#10b981"}
+                 : pct >= 55 ? {label:"Pass 👍",col:"#6366f1"}
+                 : {label:"Getting Started 💪",col:"#94a3b8"};
       wrap.innerHTML = `
-        <!-- Target Score -->
         <div class="card" style="margin-bottom:14px;">
           <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;
-            color:var(--text);margin-bottom:14px;">🎯 Target Score (out of 400)</div>
+            color:var(--text);margin-bottom:14px;">🎯 Target performance level</div>
           <div class="score-display">
-            <div class="score-big" id="scoreNum">${data.targetScore}</div>
-            <div class="score-label">out of 400</div>
+            <div class="score-big" id="scoreNum">${pct}%</div>
+            <div class="score-label">target score</div>
             <div class="score-tier" id="scoreTier" style="background:${tier.col}22;color:${tier.col};margin:8px auto 0;width:fit-content;">
               ${tier.label}
             </div>
           </div>
-          <input type="range" min="140" max="400" step="5" value="${data.targetScore}"
+          <input type="range" min="40" max="100" step="5" value="${pct}"
             id="scoreSlider" oninput="updateScore(this.value)"/>
-          <div class="score-ticks"><span>140</span><span>200</span><span>250</span><span>300</span><span>400</span></div>
+          <div class="score-ticks"><span>40%</span><span>55%</span><span>70%</span><span>85%</span><span>100%</span></div>
         </div>
-
-        <!-- School -->
         <div class="form-group">
-          <label class="form-label">🏫 Dream school / university (optional)</label>
+          <label class="form-label">🏫 Target school / institution (optional)</label>
           <input type="text" class="form-input" id="schoolInput"
-            placeholder="e.g. University of Lagos"
+            placeholder="e.g. Harvard, University of Lagos, KPMG"
             value="${data.school}"
             oninput="data.school=this.value"/>
         </div>
-
-        <!-- State -->
         <div class="form-group">
-          <label class="form-label">📍 Your state</label>
-          <div class="state-grid" id="stateGrid">
-            ${NIGERIAN_STATES.map(s => `
-              <div class="state-chip ${data.state===s?"selected":""}" onclick="selectState('${s}')">
-                ${s}
-              </div>`).join("")}
-          </div>
+          <label class="form-label">📍 Your country or region (optional)</label>
+          <input type="text" class="form-input" id="regionInput"
+            placeholder="e.g. Nigeria, United Kingdom, United States"
+            value="${data.state}"
+            oninput="data.state=this.value"/>
         </div>`;
     }
 
@@ -398,11 +399,11 @@
 
   function updateScore(val) {
     data.targetScore = parseInt(val);
-    document.getElementById("scoreNum").textContent = val;
-    const tier = val >= 300 ? {label:"Outstanding 🏆",col:"#f59e0b"}
-               : val >= 250 ? {label:"Excellent 🌟",col:"#10b981"}
-               : val >= 200 ? {label:"Good 👍",col:"#6366f1"}
-               : {label:"Building 💪",col:"#94a3b8"};
+    document.getElementById("scoreNum").textContent = val + "%";
+    const tier = val >= 85 ? {label:"Distinction 🏆",col:"#f59e0b"}
+               : val >= 70 ? {label:"Merit 🌟",col:"#10b981"}
+               : val >= 55 ? {label:"Pass 👍",col:"#6366f1"}
+               : {label:"Getting Started 💪",col:"#94a3b8"};
     const el = document.getElementById("scoreTier");
     el.textContent = tier.label;
     el.style.background = tier.col + "22";

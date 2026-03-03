@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EXAMORA — Dashboard</title>
+  <title>EXAMORA — Your Global Exam Prep Platform</title>
   <link rel="stylesheet" href="style.css"/>
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — Prepare Smarter for Any Exam"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -306,7 +306,7 @@
     <div class="hero-text">
       <div class="hero-greeting" id="heroGreeting">Good morning 👋</div>
       <div class="hero-name" id="heroName">Welcome back!</div>
-      <div class="hero-sub" id="heroSub">Ready to conquer today?</div>
+      <div class="hero-sub" id="heroSub">Prepare for any exam, anywhere in the world 🌍</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
         <a href="exam.html" class="hero-pill hero-pill-white"><span class="material-symbols-rounded ms-sm">edit_note</span> Start Exam</a>
         <a href="analytics.html" class="hero-pill hero-pill-green"><span class="material-symbols-rounded ms-sm">bar_chart</span> Analytics</a>
@@ -320,7 +320,7 @@
     <div class="dc-icon-wrap"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.5rem;">bolt</span></div>
     <div class="dc-text">
       <div class="dc-title">Daily Challenge</div>
-      <div class="dc-sub" id="dcSub">5 questions · Refreshes at midnight</div>
+      <div class="dc-sub" id="dcSub">5 questions · Any subject · Refreshes at midnight</div>
     </div>
     <div class="dc-cta" id="dcCta">START</div>
   </div>
@@ -370,6 +370,72 @@
     <a href="upgrade.html"         class="quick-card" id="upgradeCard">
       <div class="quick-icon-wrap"><span class="material-symbols-rounded">workspace_premium</span></div>
       <div class="quick-label">Go<br/>Premium</div>
+    </a>
+  </div>
+
+
+  <!-- ── EXAM CATEGORIES ───────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">category</div>
+    <h3>Exam Categories</h3>
+    <a href="exam.html" class="section-link">Browse →</a>
+  </div>
+  <div class="exam-categories-grid animate-in animate-in-delay-2">
+    <a href="exam.html?cat=SAT" class="exam-cat-card cat-intl">
+      <div class="exam-cat-icon">🇺🇸</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">SAT / ACT</div>
+        <div class="exam-cat-sub">US college admissions</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=IELTS" class="exam-cat-card cat-lang">
+      <div class="exam-cat-icon">🌐</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">IELTS / TOEFL</div>
+        <div class="exam-cat-sub">English proficiency</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=A-Levels" class="exam-cat-card cat-uk">
+      <div class="exam-cat-icon">🇬🇧</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">A-Levels / GCSE</div>
+        <div class="exam-cat-sub">UK & international</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=JAMB" class="exam-cat-card cat-ng">
+      <div class="exam-cat-icon">📘</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">JAMB / WAEC</div>
+        <div class="exam-cat-sub">West African exams</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=GRE" class="exam-cat-card cat-grad">
+      <div class="exam-cat-icon">📊</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">GRE / GMAT</div>
+        <div class="exam-cat-sub">Graduate admissions</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=Professional" class="exam-cat-card cat-prof">
+      <div class="exam-cat-icon">🏅</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">Professional</div>
+        <div class="exam-cat-sub">ACCA, PMP, IT certs</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=IB" class="exam-cat-card cat-stem">
+      <div class="exam-cat-icon">🌍</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">IB Diploma</div>
+        <div class="exam-cat-sub">International Baccalaureate</div>
+      </div>
+    </a>
+    <a href="exam.html" class="exam-cat-card cat-custom">
+      <div class="exam-cat-icon">✏️</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">Custom Exam</div>
+        <div class="exam-cat-sub">Build your own quiz</div>
+      </div>
     </a>
   </div>
 
@@ -630,7 +696,7 @@
           <a href="exam.html" class="btn btn-primary" style="max-width:200px;margin:0 auto;">📝 Start Practising</a>
         </div>`;
       } else {
-        const cats = {JAMB:"🎓",WAEC:"📘",NECO:"📗","Post-UTME":"🏫",Mixed:"📝","":"📝"};
+        const cats = {JAMB:"🎓",WAEC:"📘",SAT:"🇺🇸",IELTS:"🌐",GRE:"📊","A-Levels":"🇬🇧",IB:"🌍",GMAT:"💼",Professional:"🏅",Custom:"✏️","":"📝"};
         rEl.innerHTML = results.slice(0,5).map(r => {
           const pct  = r.percent || 0;
           const pass = r.passed;
