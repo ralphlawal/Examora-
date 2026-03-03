@@ -267,6 +267,7 @@
       font-weight: 700; font-size: 0.85rem; color: var(--text-3); cursor: pointer;
     }
   </style>
+  <script src="ai-engine.js"></script>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
@@ -327,7 +328,7 @@
   <!-- Subject Breakdown -->
   <div id="subjBreakdown" style="display:none;" class="animate-in animate-in-delay-1">
     <div class="section-header" style="margin-top:4px;">
-      <div class="section-icon">📚</div>
+      <div class="section-icon">menu_book</div>
       <h3>Subject Performance</h3>
     </div>
     <div class="subj-breakdown" id="subjBreakdownList"></div>
@@ -350,7 +351,7 @@
 
   <!-- Review -->
   <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">📋</div>
+    <div class="section-icon">assignment</div>
     <h3>Answer Review</h3>
   </div>
 
@@ -372,11 +373,11 @@
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
 <script>
@@ -480,11 +481,18 @@
       </div>
       ${q.explanation?`
         <button class="exp-toggle" onclick="toggleExp(${idx})">
-          💡 Show explanation
+          <span style="font-size:0.85rem;">💡</span> Show explanation
         </button>
         <div class="exp-box" id="exp_${idx}">
           ${q.explanation}
         </div>`:""}
+      ${status==="wrong"||status==="skipped"?`
+        <button class="ai-explain-btn" id="aiBtn_${idx}" onclick="aiExplain(${idx})">
+          <span class="material-symbols-rounded ms-sm ms-fill" style="color:var(--c-brand);">psychology</span>
+          Ask AI to Explain This
+        </button>
+        <div class="ai-explain-box" id="aiBox_${idx}"></div>
+      `:""}
     </div>`;
   }
 
@@ -493,7 +501,61 @@
     const btn=box?.previousElementSibling;
     if(!box) return;
     const showing=box.classList.toggle("show");
-    if(btn) btn.textContent=showing?"💡 Hide explanation":"💡 Show explanation";
+    if(btn) btn.innerHTML=showing?'<span style="font-size:0.85rem;">💡</span> Hide explanation':'<span style="font-size:0.85rem;">💡</span> Show explanation';
+  }
+
+  async function aiExplain(idx) {
+    const item = allItems[idx];
+    if (!item) return;
+    const { q, userAns, status } = item;
+
+    const btn  = document.getElementById("aiBtn_" + idx);
+    const box  = document.getElementById("aiBox_" + idx);
+    if (!btn || !box) return;
+
+    // Prevent double-click
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="ai-explain-loading"><div class="ai-loading-dots"><span></span><span></span><span></span></div> Gemini is explaining...</div>';
+    box.classList.remove("show");
+
+    try {
+      const result = await EXAMORA_AI.explainAnswer({
+        question:      q.text || q.question,
+        options:       q.options,
+        correctAnswer: q.answer,
+        userAnswer:    userAns,
+        subject:       q.subject,
+        category:      q.category,
+        year:          q.year,
+      });
+
+      const formatted = result.text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n\n/g, "</p><p>")
+        .replace(/\n/g, "<br/>");
+      
+      const modelShort = result.model.includes("gemini-2.0") ? "Gemini 2.0 Flash"
+        : result.model.includes("gemini-flash-1.5-8b") ? "Gemini 1.5 Flash 8B"
+        : result.model.includes("gemini-flash-1.5") ? "Gemini 1.5 Flash"
+        : result.model.includes("mistral") ? "Mistral 7B"
+        : result.model.split("/").pop();
+
+      box.innerHTML = '<p>' + formatted + '</p>' +
+        '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(99,102,241,0.15);display:flex;align-items:center;gap:5px;font-size:0.62rem;color:var(--text-3);">' +
+        '<span class="material-symbols-rounded ms-sm ms-fill" style="color:var(--c-brand);">auto_awesome</span> ' + modelShort + '</div>';
+      box.classList.add("show");
+      btn.style.display = "none";
+
+    } catch(e) {
+      const isKeyMissing = e.message === "AI_KEY_MISSING";
+      btn.disabled = false;
+      btn.innerHTML = isKeyMissing
+        ? '<span class="material-symbols-rounded ms-sm">error</span> AI key not configured in ai-engine.js'
+        : '<span class="material-symbols-rounded ms-sm">refresh</span> AI failed — tap to retry';
+      btn.style.color = "var(--c-red)";
+      btn.style.borderColor = "rgba(244,63,94,0.3)";
+    }
   }
 
   function buildShareText(){
@@ -620,6 +682,107 @@
     // Subject breakdown
     renderSubjectBreakdown(questions||[], answers||{});
     filterReview("all",document.querySelector(".rf-tab.active"));
+  });
+</script>
+
+
+<!-- ── AI Study Plan ─────────────────────────────────── -->
+<div class="page-wrapper" style="padding-top:0;" id="studyPlanSection" style="display:none;">
+  <div class="section-header animate-in">
+    <div class="section-icon" style="background:rgba(99,102,241,0.12);">psychology</div>
+    <h3>AI Study Recommendations</h3>
+  </div>
+
+  <div id="studyPlanCard" class="study-plan-card animate-in">
+    <div class="study-plan-header">
+      <div style="width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span class="material-symbols-rounded ms-fill" style="color:white;">psychology</span>
+      </div>
+      <div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.88rem;color:white;">Personalised Study Plan</div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.45);">Based on your exam performance</div>
+      </div>
+      <button onclick="generateAiStudyPlan()" id="genPlanBtn"
+        style="margin-left:auto;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+          border-radius:100px;padding:7px 14px;color:white;font-family:'Plus Jakarta Sans',sans-serif;
+          font-weight:700;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;">
+        <span class="material-symbols-rounded ms-sm">auto_awesome</span> Generate
+      </button>
+    </div>
+    <div class="study-plan-body" id="studyPlanBody">
+      <div style="text-align:center;padding:16px;color:var(--text-3);font-size:0.78rem;line-height:1.7;">
+        Tap <strong>Generate</strong> for a personalised 7-day study plan based on your weak areas and score.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function generateAiStudyPlan() {
+    const btn = document.getElementById("genPlanBtn");
+    const body = document.getElementById("studyPlanBody");
+    if (!btn || !body) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="ai-loading-dots"><span></span><span></span><span></span></div>';
+
+    const rd = resultData || {};
+    const questions = rd.questions || [];
+    const answers   = rd.answers   || {};
+
+    // Build weak subjects from this result
+    const subjMap = {};
+    questions.forEach((q,i) => {
+      const s = q.subject || "General";
+      if (!subjMap[s]) subjMap[s] = { correct:0, total:0 };
+      subjMap[s].total++;
+      if (answers[i] === q.answer) subjMap[s].correct++;
+    });
+    const weakSubjects = Object.entries(subjMap)
+      .map(([s, d]) => ({ subject: s, score: d.total > 0 ? Math.round((d.correct/d.total)*100) : 0 }))
+      .sort((a,b) => a.score - b.score)
+      .slice(0, 4);
+
+    try {
+      const result = await EXAMORA_AI.generateStudyPlan({
+        weakSubjects,
+        avgScore:    rd.percent  || 0,
+        totalExams:  1,
+        targetScore: 280,
+        examType:    rd.category || "JAMB",
+      });
+
+      if (result.plan && Array.isArray(result.plan)) {
+        body.innerHTML = result.plan.map(d => {
+          const tasks = (d.tasks || "").split("|").map(t => t.trim()).filter(Boolean);
+          return '<div class="study-day">' +
+            '<div class="study-day-num">D' + d.day + '</div>' +
+            '<div class="study-day-content">' +
+              '<div class="study-day-title">' + (d.title||"") + ' · ' + (d.duration||"") + '</div>' +
+              '<div class="study-day-sub">' + tasks.join(" · ") + '</div>' +
+            '</div></div>';
+        }).join("") +
+        '<div style="padding-top:10px;font-size:0.62rem;color:var(--text-3);display:flex;align-items:center;gap:4px;">' +
+          '<span class="material-symbols-rounded ms-sm ms-fill" style="color:var(--c-brand);">auto_awesome</span> Generated by ' +
+          (result.model.includes("gemini-2.0") ? "Gemini 2.0 Flash" : result.model.split("/").pop()) +
+        '</div>';
+      } else {
+        body.innerHTML = '<div style="font-size:0.8rem;color:var(--text-2);line-height:1.7;padding:8px 0;">' + (result.rawText || "Could not generate plan") + '</div>';
+      }
+
+      btn.innerHTML = '<span class="material-symbols-rounded ms-sm">refresh</span> Regenerate';
+      btn.disabled = false;
+    } catch(e) {
+      body.innerHTML = '<div style="font-size:0.78rem;color:var(--c-red);padding:8px 0;">' +
+        (e.message === "AI_KEY_MISSING" ? "AI key not configured in ai-engine.js" : "Could not generate plan. Check your connection.") + '</div>';
+      btn.innerHTML = '<span class="material-symbols-rounded ms-sm">refresh</span> Retry';
+      btn.disabled = false;
+    }
+  }
+
+  // Show study plan section after load
+  document.addEventListener("DOMContentLoaded", () => {
+    const sp = document.getElementById("studyPlanSection");
+    if (sp) sp.style.display = "block";
   });
 </script>
 

@@ -261,7 +261,7 @@
     <div><div class="app-logo-name">EXAMORA</div></div>
   </a>
   <div class="header-actions">
-    <div class="streak-badge" id="streakBadge" style="display:none;">🔥 <span id="streakCount">0</span></div>
+    <div class="streak-badge" id="streakBadge" style="display:none;"><span class="material-symbols-rounded ms-fill" style="font-size:0.9rem;color:#fbbf24;">local_fire_department</span> <span id="streakCount">0</span></div>
     <button class="header-btn" id="themeBtn" title="Toggle theme">🌙</button>
   </div>
 </header>
@@ -273,7 +273,7 @@
 
   <!-- PWA Install Banner -->
   <div class="install-bar animate-in" id="installBar">
-    <span style="font-size:1.7rem;flex-shrink:0;">📲</span>
+    <span class="material-symbols-rounded ms-fill" style="font-size:1.8rem;flex-shrink:0;color:var(--c-brand);">install_mobile</span>
     <div class="install-bar-text">
       <strong>Install EXAMORA</strong>
       <span id="installBarHint">Add to home screen · Works offline</span>
@@ -293,7 +293,7 @@
 
   <!-- Weak areas card — shown after data loads -->
   <div id="weakCard" style="display:none;" class="weak-card animate-in" onclick="goToWeakPractice()">
-    <div class="weak-icon">🎯</div>
+    <div class="weak-icon"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.3rem;">track_changes</span></div>
     <div class="weak-text">
       <div class="weak-title" id="weakTitle">Focus Area</div>
       <div class="weak-sub"  id="weakSub">Practice your weakest subject</div>
@@ -308,8 +308,8 @@
       <div class="hero-name" id="heroName">Welcome back!</div>
       <div class="hero-sub" id="heroSub">Ready to conquer today?</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-        <a href="exam.html" class="hero-pill hero-pill-white">📝 Start Exam</a>
-        <a href="analytics.html" class="hero-pill hero-pill-green">📊 Analytics</a>
+        <a href="exam.html" class="hero-pill hero-pill-white"><span class="material-symbols-rounded ms-sm">edit_note</span> Start Exam</a>
+        <a href="analytics.html" class="hero-pill hero-pill-green"><span class="material-symbols-rounded ms-sm">bar_chart</span> Analytics</a>
       </div>
     </div>
     <div class="hero-avatar" id="heroAvatar">?</div>
@@ -317,7 +317,7 @@
 
   <!-- ── DAILY CHALLENGE ────────────────────────────────────── -->
   <div class="daily-card animate-in animate-in-delay-1" id="dailyCard" onclick="window.location.href='daily-challenge.html'">
-    <div class="dc-icon-wrap">⚡</div>
+    <div class="dc-icon-wrap"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.5rem;">bolt</span></div>
     <div class="dc-text">
       <div class="dc-title">Daily Challenge</div>
       <div class="dc-sub" id="dcSub">5 questions · Refreshes at midnight</div>
@@ -343,39 +343,39 @@
 
   <!-- ── QUICK ACTIONS ──────────────────────────────────────── -->
   <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">⚡</div>
+    <div class="section-icon">bolt</div>
     <h3>Quick Actions</h3>
   </div>
   <div class="quick-grid animate-in animate-in-delay-2">
     <a href="exam.html"            class="quick-card">
-      <div class="quick-icon-wrap">📝</div>
+      <div class="quick-icon-wrap"><span class="material-symbols-rounded">edit_note</span></div>
       <div class="quick-label">Practice<br/>Exam</div>
     </a>
     <a href="daily-challenge.html" class="quick-card">
-      <div class="quick-icon-wrap">⚡</div>
+      <div class="quick-icon-wrap"><span class="material-symbols-rounded">bolt</span></div>
       <div class="quick-label">Daily<br/>Challenge</div>
     </a>
     <a href="bookmarks.html"       class="quick-card">
-      <div class="quick-icon-wrap">🔖</div>
+      <div class="quick-icon-wrap"><span class="material-symbols-rounded">bookmark</span></div>
       <div class="quick-label">Saved<br/>Questions</div>
     </a>
     <a href="analytics.html"       class="quick-card">
-      <div class="quick-icon-wrap">📊</div>
+      <div class="quick-icon-wrap"><span class="material-symbols-rounded">bar_chart</span></div>
       <div class="quick-label">My<br/>Analytics</div>
     </a>
     <a href="leaderboard.html"     class="quick-card">
-      <div class="quick-icon-wrap">🏆</div>
+      <div class="quick-icon-wrap"><span class="material-symbols-rounded">emoji_events</span></div>
       <div class="quick-label">Leader<br/>board</div>
     </a>
     <a href="upgrade.html"         class="quick-card" id="upgradeCard">
-      <div class="quick-icon-wrap">👑</div>
+      <div class="quick-icon-wrap"><span class="material-symbols-rounded">workspace_premium</span></div>
       <div class="quick-label">Go<br/>Premium</div>
     </a>
   </div>
 
   <!-- ── SUBJECT PROGRESS ───────────────────────────────────── -->
   <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">📚</div>
+    <div class="section-icon">menu_book</div>
     <h3>Subject Progress</h3>
     <a href="analytics.html" class="section-link">See all →</a>
   </div>
@@ -387,7 +387,7 @@
 
   <!-- ── RECENT RESULTS ─────────────────────────────────────── -->
   <div class="section-header animate-in animate-in-delay-3">
-    <div class="section-icon">📜</div>
+    <div class="section-icon">history</div>
     <h3>Recent Results</h3>
     <a href="history.html" class="section-link">See all →</a>
   </div>
@@ -399,7 +399,7 @@
 
   <!-- ── UPGRADE BANNER ─────────────────────────────────────── -->
   <div id="upgradeBanner" style="display:none;" class="upgrade-strip animate-in animate-in-delay-3">
-    <div style="font-size:2rem;flex-shrink:0;">👑</div>
+    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(245,158,11,0.4);"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.3rem;">workspace_premium</span></div>
     <div class="upgrade-strip-text" style="flex:1;">
       <h4>Unlock Premium</h4>
       <p>AI explanations · Full analytics · Unlimited bookmarks</p>
@@ -409,7 +409,7 @@
 
   <!-- ── TOP STUDENTS ───────────────────────────────────────── -->
   <div class="section-header animate-in animate-in-delay-3">
-    <div class="section-icon">🏆</div>
+    <div class="section-icon">emoji_events</div>
     <h3>Top Students</h3>
     <a href="leaderboard.html" class="section-link">Full board →</a>
   </div>
@@ -425,11 +425,11 @@
 
 <!-- ── Bottom Nav ─────────────────────────────────────────── -->
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+  <a href="index.html" class="nav-item active"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
@@ -437,13 +437,13 @@
   // Theme
   const _t = localStorage.getItem("examora_theme") || "light";
   document.documentElement.setAttribute("data-theme", _t);
-  document.getElementById("themeBtn").textContent = _t === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeBtn").innerHTML = _t==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>';
   document.getElementById("themeBtn").addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     const nxt = cur === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", nxt);
     localStorage.setItem("examora_theme", nxt);
-    document.getElementById("themeBtn").textContent = nxt === "dark" ? "☀️" : "🌙";
+    document.getElementById("themeBtn").innerHTML = nxt==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>';
   });
 
   // Toast

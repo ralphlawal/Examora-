@@ -191,7 +191,21 @@
       font-size:0.9rem; color:var(--text); margin-bottom:6px;
     }
     .empty-state p { font-size:0.78rem; color:var(--text-3); line-height:1.6; }
+
+    /* ── Score Predict Card ── */
+    .ai-insights-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px; padding: 8px 16px; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-size: 0.75rem; color: white; transition: all 0.2s ease;
+      backdrop-filter: blur(4px); margin-top: 14px; width: fit-content;
+    }
+    .ai-insights-btn:active { transform: scale(0.97); }
+    .ai-insights-btn:hover { background: rgba(255,255,255,0.18); }
+    .ai-insights-btn .material-symbols-rounded { font-size: 1rem; color: #818cf8; }
   </style>
+  <script src="ai-engine.js"></script>
 </head>
 <body>
 
@@ -327,13 +341,199 @@
   </a>
 </div>
 
+
+<!-- ── AI Insights Section ──────────────────────────────── -->
+<div id="aiInsightsSection" style="display:none;" class="animate-in">
+<div class="page-wrapper" style="padding-top:0;padding-bottom:8px;">
+
+  <!-- Score Prediction Card -->
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(99,102,241,0.12);">psychology</div>
+    <h3>AI Score Prediction</h3>
+  </div>
+  <div class="predict-card" id="predictCard">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="predict-score" id="predictScore">—</div>
+        <div class="predict-label">Predicted JAMB Score</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;color:rgba(255,255,255,0.7);" id="predictRange">—</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-top:2px;" id="predictConfidence">—</div>
+      </div>
+    </div>
+    <div class="predict-bar"><div class="predict-bar-fill" id="predictBarFill" style="width:0%;"></div></div>
+    <div class="predict-range"><span>0</span><span>200</span><span>400</span></div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:0.77rem;color:rgba(255,255,255,0.55);line-height:1.6;" id="predictTip">Generating prediction...</div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:5px;font-size:0.62rem;color:rgba(255,255,255,0.3);" id="predictModelBadge" style="display:none;">
+      <span class="material-symbols-rounded ms-sm ms-fill" style="color:var(--c-brand);">auto_awesome</span>
+      <span id="predictModelName"></span>
+    </div>
+  </div>
+
+  <!-- Study Plan Card -->
+  <div class="section-header" style="margin-top:6px;">
+    <div class="section-icon" style="background:rgba(16,185,129,0.12);color:var(--c-green);">calendar_month</div>
+    <h3>7-Day Study Plan</h3>
+    <button onclick="generateStudyPlanAnalytics()" id="genAnalyticsPlanBtn"
+      style="margin-left:auto;background:var(--c-brand);color:white;font-family:'Plus Jakarta Sans',sans-serif;
+        font-weight:700;font-size:0.68rem;padding:5px 12px;border-radius:100px;border:none;cursor:pointer;
+        display:flex;align-items:center;gap:4px;">
+      <span class="material-symbols-rounded ms-sm">auto_awesome</span> Generate
+    </button>
+  </div>
+  <div class="study-plan-card">
+    <div class="study-plan-body" id="analyticsPlanBody">
+      <div style="text-align:center;padding:16px;color:var(--text-3);font-size:0.78rem;">
+        Tap <strong>Generate</strong> to get a personalised study plan based on your performance.
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  let _analyticsResults = [];
+  let _analyticsUserData = {};
+
+  function openAiInsights() {
+    const sec = document.getElementById("aiInsightsSection");
+    if (!sec) return;
+    sec.style.display = "block";
+    sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Auto-generate prediction
+    generatePrediction();
+  }
+
+  async function generatePrediction() {
+    const results   = _analyticsResults || [];
+    const userData  = _analyticsUserData || {};
+    const total     = results.length;
+    if (total < 2) {
+      document.getElementById("predictScore").textContent = "N/A";
+      document.getElementById("predictTip").textContent = "Take at least 3 practice exams for a prediction.";
+      return;
+    }
+
+    const totalQ   = results.reduce((s,r) => s + (r.total||0), 0);
+    const totalC   = results.reduce((s,r) => s + (r.score||0), 0);
+    const avg      = totalQ > 0 ? Math.round((totalC/totalQ)*100) : 0;
+    const recent5  = results.slice(-5);
+    const recentAvg= recent5.length > 0 ? Math.round(recent5.reduce((s,r)=>s+(r.percent||0),0)/recent5.length) : avg;
+    const trend    = recentAvg - avg;
+
+    // Build weak subjects
+    const subjMap = {};
+    results.forEach(r => {
+      if (!r.subject) return;
+      if (!subjMap[r.subject]) subjMap[r.subject] = {correct:0,total:0};
+      subjMap[r.subject].correct += r.score  || 0;
+      subjMap[r.subject].total   += r.total  || 0;
+    });
+    const weakSubjects = Object.entries(subjMap)
+      .map(([s,d]) => s + " (" + (d.total>0?Math.round(d.correct/d.total*100):0) + "%)")
+      .sort();
+
+    document.getElementById("predictTip").textContent = "Calculating...";
+
+    try {
+      const res = await EXAMORA_AI.predictScore({
+        avgScore: avg, weakSubjects, totalExams: total,
+        examType: userData.examType || "JAMB", recentTrend: trend,
+      });
+      if (res.data) {
+        const d = res.data;
+        document.getElementById("predictScore").textContent = d.predictedScore || "—";
+        document.getElementById("predictRange").textContent = d.range || "—";
+        document.getElementById("predictConfidence").textContent = (d.confidence||"") + " confidence";
+        document.getElementById("predictTip").textContent = d.tip || "";
+        const pct = Math.min(((d.predictedScore||200)/400)*100, 100);
+        setTimeout(() => { document.getElementById("predictBarFill").style.width = pct + "%"; }, 300);
+        const pb = document.getElementById("predictModelBadge");
+        const modelShort = res.model.includes("gemini-2.0") ? "Gemini 2.0 Flash" : res.model.split("/").pop();
+        document.getElementById("predictModelName").textContent = "Predicted by " + modelShort;
+        if (pb) pb.style.display = "flex";
+      }
+    } catch(e) {
+      document.getElementById("predictTip").textContent =
+        e.message === "AI_KEY_MISSING" ? "Configure AI key in ai-engine.js" : "Could not generate prediction. Check connection.";
+    }
+  }
+
+  async function generateStudyPlanAnalytics() {
+    const btn  = document.getElementById("genAnalyticsPlanBtn");
+    const body = document.getElementById("analyticsPlanBody");
+    if (!btn || !body) return;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="ai-loading-dots" style="display:flex;gap:3px;"><span></span><span></span><span></span></div>';
+
+    const results   = _analyticsResults || [];
+    const userData  = _analyticsUserData || {};
+    const totalQ    = results.reduce((s,r) => s + (r.total||0), 0);
+    const totalC    = results.reduce((s,r) => s + (r.score||0), 0);
+    const avg       = totalQ > 0 ? Math.round((totalC/totalQ)*100) : 0;
+
+    const subjMap = {};
+    results.forEach(r => {
+      if (!r.subject) return;
+      if (!subjMap[r.subject]) subjMap[r.subject] = {correct:0,total:0};
+      subjMap[r.subject].correct += r.score  || 0;
+      subjMap[r.subject].total   += r.total  || 0;
+    });
+    const weakSubjects = Object.entries(subjMap)
+      .map(([s,d]) => ({ subject:s, score: d.total>0?Math.round(d.correct/d.total*100):0 }))
+      .sort((a,b) => a.score - b.score).slice(0,4);
+
+    try {
+      const result = await EXAMORA_AI.generateStudyPlan({
+        weakSubjects, avgScore: avg,
+        totalExams: results.length,
+        targetScore: userData.targetScore || 280,
+        examType: userData.examType || "JAMB",
+      });
+      if (result.plan && Array.isArray(result.plan)) {
+        body.innerHTML = result.plan.map(d => {
+          const tasks = (d.tasks||"").split("|").map(t=>t.trim()).filter(Boolean);
+          return '<div class="study-day">' +
+            '<div class="study-day-num">D' + d.day + '</div>' +
+            '<div class="study-day-content">' +
+              '<div class="study-day-title">' + (d.title||"") + ' · ' + (d.duration||"") + '</div>' +
+              '<div class="study-day-sub">' + tasks.join(" · ") + '</div>' +
+            '</div></div>';
+        }).join("") +
+        '<div style="padding-top:10px;font-size:0.62rem;color:var(--text-3);display:flex;align-items:center;gap:4px;">' +
+          '<span class="material-symbols-rounded ms-sm ms-fill" style="color:var(--c-brand);">auto_awesome</span> ' +
+          (result.model.includes("gemini-2.0") ? "Gemini 2.0 Flash" : result.model.split("/").pop()) + '</div>';
+      } else {
+        body.innerHTML = '<div style="padding:8px;font-size:0.8rem;color:var(--text-2);">' + (result.rawText||"No plan generated") + '</div>';
+      }
+      btn.innerHTML = '<span class="material-symbols-rounded ms-sm">refresh</span> Regenerate';
+      btn.disabled = false;
+    } catch(e) {
+      body.innerHTML = '<div style="padding:8px;font-size:0.78rem;color:var(--c-red);">' +
+        (e.message==="AI_KEY_MISSING" ? "AI key not configured" : "Failed. Check connection.") + '</div>';
+      btn.innerHTML = '<span class="material-symbols-rounded ms-sm">auto_awesome</span> Retry';
+      btn.disabled = false;
+    }
+  }
+
+  // Hook into the existing _buildAnalytics to save data
+  const _origBuildAnalytics = window._buildAnalytics;
+  window._buildAnalytics = function(results, userData) {
+    _analyticsResults  = results;
+    _analyticsUserData = userData;
+    if (_origBuildAnalytics) _origBuildAnalytics(results, userData);
+  };
+</script>
+
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item active"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item active"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
 <script>

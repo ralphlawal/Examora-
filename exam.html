@@ -203,6 +203,7 @@
     }
     .submit-stat-l { font-size:0.65rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
   </style>
+  <script src="ai-engine.js"></script>
 </head>
 <body>
 
@@ -237,7 +238,7 @@
 
     <!-- Mode -->
     <div class="section-header animate-in animate-in-delay-1">
-      <div class="section-icon">⚙️</div>
+      <div class="section-icon">settings</div>
       <h3>Mode</h3>
     </div>
     <div class="mode-toggle animate-in animate-in-delay-1">
@@ -260,7 +261,7 @@
 
     <!-- Filters -->
     <div class="section-header animate-in animate-in-delay-1">
-      <div class="section-icon">🎯</div>
+      <div class="section-icon">track_changes</div>
       <h3>Filter Questions</h3>
     </div>
     <div class="filter-row animate-in animate-in-delay-2">
@@ -300,7 +301,7 @@
 
     <!-- Question count -->
     <div class="section-header animate-in animate-in-delay-2">
-      <div class="section-icon">🔢</div>
+      <div class="section-icon">circle</div>
       <h3>Number of Questions</h3>
     </div>
     <div class="count-grid animate-in animate-in-delay-2">
@@ -405,11 +406,11 @@
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item active"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item active"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
 <script>
@@ -603,10 +604,15 @@
         </div>`:""}
       <div class="q-actions">
         <button class="q-action-btn ${isBookmarked?"bookmarked":""}" onclick="toggleBookmark()">
-          ${isBookmarked?"🔖 Saved":"🔖 Save"}
+          <span class="material-symbols-rounded ms-sm">${isBookmarked?"bookmark":"bookmark_border"}</span>
+          ${isBookmarked?"Saved":"Save"}
+        </button>
+        <button class="q-action-btn" onclick="openAiPanel()" style="color:var(--c-brand);border-color:rgba(99,102,241,0.3);background:var(--c-brand-pale);">
+          <span class="material-symbols-rounded ms-sm">psychology</span> AI Tutor
         </button>
         <button class="q-action-btn ${isFlagged?"flagged":""}" onclick="showFlagSheet()">
-          ${isFlagged?"⚑ Flagged":"⚑ Flag"}
+          <span class="material-symbols-rounded ms-sm">${isFlagged?"flag":"outlined_flag"}</span>
+          ${isFlagged?"Flagged":"Flag"}
         </button>
       </div>`;
 
@@ -873,5 +879,158 @@
     navigator.serviceWorker.register("/sw.js").catch(()=>{});
   }
 </script>
+
+<!-- ── AI Tutor Panel ─────────────────────────────────── -->
+<div class="ai-panel" id="aiTutorPanel" onclick="if(event.target===this)closeAiPanel()">
+  <div class="ai-sheet">
+    <div class="ai-sheet-handle"></div>
+    <div class="ai-sheet-header">
+      <div class="ai-sheet-logo">
+        <span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.2rem;">psychology</span>
+      </div>
+      <div>
+        <div class="ai-sheet-title">AI Tutor</div>
+        <div class="ai-sheet-subtitle" id="aiPanelSubtitle">Ask anything about this question</div>
+      </div>
+      <button class="ai-sheet-close" onclick="closeAiPanel()">
+        <span class="material-symbols-rounded" style="font-size:1rem;">close</span>
+      </button>
+    </div>
+
+    <!-- Quick action chips -->
+    <div class="ai-action-row" style="padding:12px 20px 0;">
+      <button class="ai-chip" onclick="askAiTutor('hint')">
+        <span class="material-symbols-rounded ms-sm">lightbulb</span> Get a Hint
+      </button>
+      <button class="ai-chip" onclick="askAiTutor('explain')">
+        <span class="material-symbols-rounded ms-sm">school</span> Explain Concept
+      </button>
+      <button class="ai-chip" onclick="askAiTutor('similar')">
+        <span class="material-symbols-rounded ms-sm">repeat</span> Similar Questions
+      </button>
+    </div>
+
+    <!-- Context box -->
+    <div class="ai-context-box" id="aiContextBox" style="display:none;">
+      <div class="ai-context-label">Current Question</div>
+      <div id="aiContextText"></div>
+    </div>
+
+    <!-- Response area -->
+    <div id="aiResponseArea">
+      <div style="padding:20px;text-align:center;color:var(--text-3);">
+        <span class="material-symbols-rounded ms-xl ms-fill" style="color:var(--c-brand-pale);display:block;margin-bottom:8px;">psychology</span>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:4px;">EXAMORA AI Tutor</div>
+        <div style="font-size:0.75rem;line-height:1.6;">Powered by Gemini · Select an option above to get help with this question</div>
+      </div>
+    </div>
+
+    <!-- Model badge -->
+    <div class="ai-model-badge" id="aiModelBadge" style="display:none;">
+      <span class="material-symbols-rounded ms-sm ms-fill">auto_awesome</span>
+      <span id="aiModelName">Gemini</span>
+    </div>
+
+    <!-- Try again button -->
+    <div id="aiRetryArea" style="display:none;padding:0 20px;">
+      <button class="btn btn-ghost btn-sm" onclick="askAiTutor(window._lastAiAction)" style="margin-top:8px;">
+        <span class="material-symbols-rounded ms-sm">refresh</span> Try Again
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  window._lastAiAction = "hint";
+
+  function openAiPanel() {
+    const q = examQuestions[currentIdx];
+    if (!q) return;
+    // Set context
+    document.getElementById("aiContextText").textContent = (q.text || q.question || "").substring(0, 120) + "...";
+    document.getElementById("aiContextBox").style.display = "block";
+    document.getElementById("aiPanelSubtitle").textContent = (q.subject || q.category || "General") + " · Q" + (currentIdx+1);
+    document.getElementById("aiTutorPanel").classList.add("open");
+    // Reset response
+    document.getElementById("aiResponseArea").innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3);"><span class="material-symbols-rounded ms-xl ms-fill" style="color:var(--c-brand-pale);display:block;margin-bottom:8px;">psychology</span><div style="font-size:0.75rem;line-height:1.6;">Select an option above to get help</div></div>';
+    document.getElementById("aiModelBadge").style.display = "none";
+    document.getElementById("aiRetryArea").style.display = "none";
+  }
+
+  function closeAiPanel() {
+    document.getElementById("aiTutorPanel").classList.remove("open");
+  }
+
+  async function askAiTutor(action) {
+    const q = examQuestions[currentIdx];
+    if (!q) return;
+    window._lastAiAction = action;
+
+    // Mark chip active
+    document.querySelectorAll(".ai-chip").forEach(c => c.classList.remove("active"));
+    const chipIdx = { hint: 0, explain: 1, similar: 2 };
+    const chips = document.querySelectorAll(".ai-chip");
+    if (chips[chipIdx[action]]) chips[chipIdx[action]].classList.add("active");
+
+    // Show loading
+    document.getElementById("aiResponseArea").innerHTML =
+      '<div class="ai-loading"><div class="ai-loading-dots"><span></span><span></span><span></span></div>Gemini is thinking...</div>';
+    document.getElementById("aiModelBadge").style.display = "none";
+    document.getElementById("aiRetryArea").style.display = "none";
+
+    try {
+      let result;
+      if (action === "hint") {
+        result = await EXAMORA_AI.getHint({
+          question: q.text || q.question,
+          options: q.options,
+          subject: q.subject,
+          category: q.category,
+        });
+      } else if (action === "explain") {
+        result = await EXAMORA_AI.call([{
+          role: "user",
+          content: "Explain the key concept behind this " + (q.category||"JAMB") + " " + (q.subject||"") + " question in simple terms. Don't give the answer directly. Question: " + (q.text||q.question)
+        }], 350);
+      } else {
+        result = await EXAMORA_AI.call([{
+          role: "user",
+          content: "Give me 2 similar practice questions (with answers) for this " + (q.category||"JAMB") + " " + (q.subject||"") + " topic: " + (q.text||q.question).substring(0, 100)
+        }], 400);
+      }
+
+      // Render response
+      const formatted = result.text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/
+
+/g, "</p><p>")
+        .replace(/
+/g, "<br/>");
+      document.getElementById("aiResponseArea").innerHTML =
+        '<div class="ai-response"><p>' + formatted + '</p></div>';
+
+      // Show model badge
+      const modelShort = result.model.includes("gemini-2.0") ? "Gemini 2.0 Flash"
+        : result.model.includes("gemini-flash-1.5-8b") ? "Gemini 1.5 Flash 8B"
+        : result.model.includes("gemini-flash-1.5") ? "Gemini 1.5 Flash"
+        : result.model.includes("mistral") ? "Mistral 7B"
+        : result.model.split("/").pop();
+      document.getElementById("aiModelName").textContent = modelShort;
+      document.getElementById("aiModelBadge").style.display = "inline-flex";
+
+    } catch (e) {
+      const isKeyMissing = e.message === "AI_KEY_MISSING";
+      document.getElementById("aiResponseArea").innerHTML =
+        '<div class="ai-error"><span class="material-symbols-rounded ms-sm">error</span>' +
+        (isKeyMissing
+          ? 'AI key not configured. Add your OpenRouter API key in ai-engine.js'
+          : 'Could not connect to AI. Check your internet and try again.') +
+        '</div>';
+      document.getElementById("aiRetryArea").style.display = !isKeyMissing ? "block" : "none";
+    }
+  }
+</script>
+
 </body>
 </html>

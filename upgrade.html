@@ -245,7 +245,7 @@
 
 <!-- Hero -->
 <div class="ug-hero animate-in">
-  <span class="ug-crown">👑</span>
+  <span class="material-symbols-rounded ms-fill" style="font-size:3rem;color:#f59e0b;display:block;margin-bottom:14px;filter:drop-shadow(0 4px 16px rgba(245,158,11,0.5));position:relative;z-index:1;">workspace_premium</span>
   <div class="ug-hero-title">Go Premium</div>
   <div class="ug-hero-sub">Everything you need to score higher and get admitted</div>
 
@@ -329,7 +329,7 @@
 
   <!-- Compare table -->
   <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">📊</div>
+    <div class="section-icon">bar_chart</div>
     <h3>Free vs Premium</h3>
   </div>
   <div class="card animate-in animate-in-delay-2" style="padding:0;overflow:hidden;">
@@ -356,7 +356,7 @@
 
   <!-- Testimonials -->
   <div class="section-header animate-in animate-in-delay-2" style="margin-top:20px;">
-    <div class="section-icon">💬</div>
+    <div class="section-icon">chat</div>
     <h3>Student Stories</h3>
   </div>
 
@@ -386,7 +386,7 @@
 
   <!-- FAQ -->
   <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
-    <div class="section-icon">❓</div>
+    <div class="section-icon">help</div>
     <h3>Common Questions</h3>
   </div>
 
@@ -412,7 +412,7 @@
         <span class="fa-icon">+</span> Is there a student discount?
       </div>
       <div class="faq-a">
-        Yes! Students with a valid school email get 20% off. Contact us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1d6e686d6d726f695d78657c70726f7c337c6d6d">[email&#160;protected]</a> with your school email to claim it.
+        Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a> with your school email to claim it.
       </div>
     </div>
     <div class="faq-item">
@@ -439,23 +439,21 @@
   <!-- Support row -->
   <div style="text-align:center;padding:16px 20px 8px;font-size:0.72rem;color:var(--text-3);line-height:2;">
     Questions about pricing?<br/>
-    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">
-      support@examora.com.ng
-    </a>
+    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
   </div>
 
 </div>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">🏆</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
   document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
@@ -466,7 +464,18 @@
     localStorage.setItem("examora_theme",n);
     document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
   });
-  function toast(msg,dur=2800){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
+  }
 
   let currentPlan="monthly";
 
@@ -497,24 +506,50 @@
     el.classList.toggle("open",open);
   }
 
+  // Paystack Public Key (safe to expose in frontend)
+  // Secret key sk_test_d9c84eea... must ONLY be used server-side for webhook verification
+  const PAYSTACK_PK = "pk_test_678a1fb31b3820da62161e78720a051b54a34a8b";
+
   function initiatePayment(){
-    if(!window._userEmail){toast("Please sign in to upgrade");return;}
-    const amount=currentPlan==="monthly"?200000:1440000; // kobo
-    // Paystack inline integration
-    const handler=PaystackPop.setup({
-      key:"pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace with real key
-      email:window._userEmail,
-      amount,
-      currency:"NGN",
-      ref:"examora_"+Date.now(),
-      metadata:{plan:currentPlan},
-      callback:function(response){
-        toast("Payment successful! Activating Premium... ✨");
-        window._activatePremium(response.reference);
-      },
-      onClose:function(){toast("Payment cancelled");}
-    });
-    handler.openIframe();
+    if(!window._userEmail){
+      toast("Please sign in to upgrade","error"); 
+      setTimeout(()=>window.location.href="login.html",1200);
+      return;
+    }
+    if(!window.PaystackPop){
+      toast("Payment gateway loading... please wait","info");
+      return;
+    }
+
+    const isMonthly = currentPlan==="monthly";
+    const amount    = isMonthly ? 200000 : 1440000; // kobo (₦2,000 or ₦14,400)
+    const planLabel = isMonthly ? "Monthly" : "Yearly";
+    const ref       = "examora_" + window._userId + "_" + Date.now();
+
+    const btn = document.getElementById("upgradeBtn");
+    if(btn){ btn.disabled = true; btn.innerHTML = '<div style="display:flex;align-items:center;gap:8px;justify-content:center;"><div style="width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.3);border-top-color:white;animation:spin 0.7s linear infinite;"></div> Opening payment...</div>'; }
+
+    try {
+      const handler = PaystackPop.setup({
+        key:      PAYSTACK_PK,
+        email:    window._userEmail,
+        amount:   amount,
+        currency: "NGN",
+        ref:      ref,
+        label:    "EXAMORA Premium - " + planLabel,
+        metadata: {
+          custom_fields: [
+            { display_name: "Plan",    variable_name: "plan",    value: currentPlan },
+            { display_name: "User ID", variable_name: "user_id", value: window._userId || "" }
+          ]
+        },
+        channels: ["card","bank","ussd","mobile_money","bank_transfer","qr"],
+        callback: function(response){
+          // Payment successful - activate premium
+          toast("Payment verified! Activating Premium...","success");
+          window._activatePremium(response.reference, currentPlan);
+          if(btn){ btn.disabled = tn){ btn.disabled = false; btn.innerHTML = "⚡ Upgrade Now"; }
+    }
   }
 </script>
 
@@ -536,7 +571,8 @@
 
   onAuthStateChanged(auth,async user=>{
     if(!user){window.location.href="login.html";return;}
-    window._userEmail=user.email;
+    window._userEmail = user.email;
+    window._userId    = user.uid;
 
     try{
       const snap=await getDoc(doc(db,"users",user.uid));
@@ -544,12 +580,12 @@
       if(ud.plan==="premium"){
         document.getElementById("premiumActive").style.display="block";
         document.getElementById("priceCard").style.display="none";
-        document.getElementById("finalCta").style.display="none";
       }
-    }catch(_){}
-
-    window._activatePremium=async(ref)=>{
-      try{
-        await updateDoc(doc(db,"users",user.uid),{
-          plan:"premium",
-          premiumSince:new Date()
+    }catch(e){ console.error("Plan check error:", e); }
+  });
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+</script>
+</body>
+</html>

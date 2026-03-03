@@ -294,9 +294,9 @@
   <!-- Support footer -->
   <div class="support-footer animate-in animate-in-delay-3">
     Having trouble?
-    <a href="mailto:support@examora.com.ng">support@examora.com.ng</a>
+    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
     <br/>
-    © 2025 EXAMORA &nbsp;·&nbsp; All Rights Reserved.
+    © 2025 EXAMORA &nbsp;·&nbsp; Nigeria's CBT Exam Prep Platform
   </div>
 
 </div>
@@ -502,9 +502,8 @@
     }catch(e){
       showErr(
         e.code==="auth/user-not-found"
-          ?"No account found with this email. Try creating a new account."
-          :(ERRS[e.code]||"Could not send reset email. Contact support@examora.com.ng")
-      );
+          ?"No account found with this email. Try creating a new account
+          : "Try again or contact support@examora.com.ng.");
     }
   };
 </script>
