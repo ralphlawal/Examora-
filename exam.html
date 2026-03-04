@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -231,7 +231,7 @@
 <div id="setupScreen">
   <div class="setup-hero animate-in">
     <h1>Start Practising 📝</h1>
-    <p>Choose your settings and begin</p>
+    <p>Any exam, any subject, anywhere</p>
   </div>
 
   <div class="page-wrapper" style="padding-top:20px;">
@@ -251,10 +251,13 @@
       <div class="mode-btn"       id="modeQuickfire" onclick="setMode('quickfire')">
         <span class="mode-icon">⚡</span>Quick Fire
       </div>
+      <div class="mode-btn"       id="modeSR"        onclick="setMode('spaced')">
+        <span class="mode-icon">🧠</span>Smart Review
+      </div>
     </div>
     <div id="modeHint" class="card card-sm animate-in animate-in-delay-1"
       style="background:var(--c-brand-pale);border-color:rgba(99,102,241,0.2);margin-bottom:16px;">
-      <p style="font-size:0.78rem;color:var(--c-brand);font-weight:600;line-height:1.5;">
+      <p style="font-size:0.78rem;color:var(--c-brand);font-weight:600;line-height:1.5;" id="modeHintText">
         ⏱️ <strong>Exam Mode:</strong> Timed, no instant feedback — just like the real exam.
       </p>
     </div>
@@ -269,10 +272,31 @@
         <label class="form-label">Category</label>
         <select class="form-select" id="catSelect" onchange="updateSubjects()">
           <option value="">All Categories</option>
-          <option value="JAMB">JAMB</option>
-          <option value="WAEC">WAEC</option>
-          <option value="NECO">NECO</option>
-          <option value="Post-UTME">Post-UTME</option>
+          <optgroup label="International">
+            <option value="SAT">SAT</option>
+            <option value="ACT">ACT</option>
+            <option value="GRE">GRE</option>
+            <option value="GMAT">GMAT</option>
+            <option value="IELTS">IELTS / TOEFL</option>
+            <option value="IB">IB Diploma</option>
+          </optgroup>
+          <optgroup label="UK &amp; Commonwealth">
+            <option value="A-Levels">A-Levels</option>
+            <option value="GCSE">GCSE</option>
+          </optgroup>
+          <optgroup label="West Africa">
+            <option value="JAMB">JAMB / UTME</option>
+            <option value="WAEC">WAEC / SSCE</option>
+            <option value="NECO">NECO</option>
+            <option value="Post-UTME">Post-UTME</option>
+          </optgroup>
+          <optgroup label="Professional">
+            <option value="Professional">Professional Certs</option>
+            <option value="Certification">IT Certifications</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option value="Custom">Custom / Other</option>
+          </optgroup>
         </select>
       </div>
       <div>
@@ -324,6 +348,34 @@
       </div>
     </div>
 
+    <!-- ── AI Question Generator ─────────────────────────── -->
+    <div class="section-header animate-in animate-in-delay-3">
+      <div class="section-icon">psychology</div>
+      <h3>AI Question Generator</h3>
+    </div>
+    <div class="qgen-panel animate-in animate-in-delay-3">
+      <div class="form-group" style="margin-bottom:10px;">
+        <label class="form-label">Generate questions on any topic</label>
+        <input type="text" class="form-input" id="qgenTopic" placeholder="e.g. Photosynthesis, Algebra, IELTS Reading..."/>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select class="form-select" id="qgenCount" style="width:90px;">
+          <option value="3">3 Qs</option>
+          <option value="5" selected>5 Qs</option>
+          <option value="10">10 Qs</option>
+        </select>
+        <select class="form-select" id="qgenDiff" style="flex:1;">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button class="btn btn-primary" id="qgenBtn" onclick="generateAIQuestions()" style="flex:1.5;">
+          ✨ Generate
+        </button>
+      </div>
+      <div id="qgenResult" style="display:none;"></div>
+    </div>
+
     <button class="btn btn-primary animate-in animate-in-delay-3" id="startBtn" onclick="startExam()">
       🚀 Start Exam
     </button>
@@ -340,6 +392,7 @@
     <span class="q-counter"><span id="qCurrent">1</span>/<span id="qTotal">20</span></span>
     <div class="exam-progress"><div class="exam-progress-fill" id="examProgress" style="width:5%;"></div></div>
     <div class="timer-badge" id="timerBadge" style="display:none;">⏱ <span id="timerDisplay">--:--</span></div>
+    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Read question aloud">🔊</button>
     <button onclick="showSubmitSheet()" style="padding:6px 12px;border-radius:9px;
       background:var(--c-red-pale);color:var(--c-red);border:1.5px solid rgba(244,63,94,0.3);
       font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer;white-space:nowrap;">
@@ -679,6 +732,127 @@
       if(timeLeft<=0){clearInterval(timerInterval);toast("⏰ Time's up! Submitting...");setTimeout(submitExam,1200);}
     },1000);
   }
+
+  // ── Voice Mode ──
+  var _speechSynth = window.speechSynthesis;
+  var _isSpeaking = false;
+  function toggleVoice() {
+    if (!_speechSynth) { toast('Voice not supported in this browser','warning'); return; }
+    var btn = document.getElementById('voiceBtn');
+    if (_isSpeaking) {
+      _speechSynth.cancel();
+      _isSpeaking = false;
+      if (btn) { btn.textContent = '🔊'; btn.classList.remove('listening'); }
+      return;
+    }
+    var q = examQuestions[currentIdx];
+    if (!q) return;
+    var text = (q.text || q.question || '');
+    if (q.options) {
+      Object.entries(q.options).forEach(function(e){ text += '. Option ' + e[0] + ': ' + e[1]; });
+    }
+    var utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.9; utt.pitch = 1;
+    utt.onstart = function(){ _isSpeaking = true; if(btn){btn.textContent='🔇';btn.classList.add('listening');} };
+    utt.onend = utt.onerror = function(){ _isSpeaking = false; if(btn){btn.textContent='🔊';btn.classList.remove('listening');} };
+    _speechSynth.speak(utt);
+  }
+
+  // ── AI Question Generator ──
+  async function generateAIQuestions() {
+    var topic = document.getElementById('qgenTopic').value.trim();
+    if (!topic) { toast('Enter a topic first', 'warning'); return; }
+    var count = parseInt(document.getElementById('qgenCount').value) || 5;
+    var diff  = document.getElementById('qgenDiff').value || 'medium';
+    var cat   = document.getElementById('catSelect').value || 'General';
+    var subj  = document.getElementById('subjSelect').value || '';
+    var btn   = document.getElementById('qgenBtn');
+    var resultDiv = document.getElementById('qgenResult');
+
+    btn.disabled = true;
+    btn.innerHTML = '<div style="display:flex;align-items:center;gap:6px;justify-content:center;"><div class="inline-spinner"></div> Generating...</div>';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--text-3);">AI is creating your questions...</div>';
+
+    try {
+      var result = await EXAMORA_AI.generateQuestions({ topic:topic, subject:subj, category:cat, count:count, difficulty:diff });
+      if (result.questions && result.questions.length > 0) {
+        // Add generated questions to allQuestions pool
+        var generated = result.questions.map(function(q, i) {
+          return {
+            id: 'ai_gen_' + Date.now() + '_' + i,
+            text: q.question, question: q.question,
+            options: q.options, answer: q.answer,
+            explanation: q.explanation,
+            category: cat || 'AI Generated', subject: topic,
+            isGenerated: true
+          };
+        });
+        allQuestions = generated.concat(allQuestions);
+        buildSubjectDropdowns();
+        updateAvailCount();
+        resultDiv.innerHTML = '<div class="qgen-result"><div style="font-family:var(--font-display);font-weight:700;font-size:0.8rem;color:var(--c-green);margin-bottom:8px;">✓ ' + generated.length + ' questions generated by ' + (result.model||'AI') + '</div>' + generated.map(function(q,i){ return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;color:var(--text);"><strong>' + (i+1) + '.</strong> ' + q.text + '</div>'; }).join('') + '<button class="btn btn-primary" style="margin-top:12px;" onclick="startWithGenerated()">▶ Practice These Questions</button></div>';
+        window._generatedQs = generated;
+      } else {
+        resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Could not generate questions. Try a different topic.</div>';
+      }
+    } catch(e) {
+      var msg = e.message === 'AI_KEY_MISSING' ? 'Add your OpenRouter API key in ai-engine.js' : e.message;
+      resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Error: ' + msg + '</div>';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate';
+  }
+
+  function startWithGenerated() {
+    if (!window._generatedQs || !window._generatedQs.length) return;
+    examQuestions = window._generatedQs;
+    answers = {}; flagged = new Set(); bookmarked = new Set(); currentIdx = 0;
+    examMode = 'practice';
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('examScreen').style.display = 'block';
+    document.querySelector('.bottom-nav').style.display = 'none';
+    renderQuestion();
+    toast('Practising ' + examQuestions.length + ' AI-generated questions', 'success');
+  }
+
+  // ── Smart Review (Spaced Repetition) ──
+  var _srHistory = {};
+  function loadSRHistory() {
+    try { _srHistory = JSON.parse(localStorage.getItem('examora_sr_history') || '{}'); }
+    catch(_) { _srHistory = {}; }
+  }
+  function saveSRHistory() {
+    localStorage.setItem('examora_sr_history', JSON.stringify(_srHistory));
+  }
+  function recordAnswer(qId, isCorrect) {
+    if (!_srHistory[qId]) _srHistory[qId] = {correct:0, wrong:0, lastSeen:0};
+    if (isCorrect) _srHistory[qId].correct++;
+    else            _srHistory[qId].wrong++;
+    _srHistory[qId].lastSeen = Date.now();
+    saveSRHistory();
+  }
+  loadSRHistory();
+
+  // ── Trial gate — check before starting exam (called from module script) ──
+  window._checkTrialGate = function(userData) {
+    if (!userData) return true; // no data, allow
+    var plan = userData.plan || 'free';
+    if (plan === 'premium') return true;
+    if (plan === 'trial') {
+      var allowed = userData.trialExamsAllowed || 3;
+      var used    = userData.trialExamsUsed    || 0;
+      if (used >= allowed) {
+        // Show paywall
+        toast('Free trial used up! Upgrade to keep practising.', 'warning', 4000);
+        setTimeout(function(){ window.location.href = 'upgrade.html'; }, 2000);
+        return false;
+      }
+    }
+    return true;
+  };
+
 </script>
 
 <script type="module">
@@ -701,10 +875,16 @@
   onAuthStateChanged(auth,async user=>{
     if(!user){window.location.href="login.html";return;}
     uid=user.uid; window._uid=uid;
-    try{const s=await getDoc(doc(db,"users",uid));userData=s.data()||{};}catch(_){}
+    try{const s=await getDoc(doc(db,"users",uid));userData=s.data()||{};window._userData=userData;}catch(_){}
 
-    // ── Bookmark practice mode ──
+    // ── Read URL params — pre-select category if ?cat= is set ──
     const urlParams=new URLSearchParams(window.location.search);
+    const urlCatParam = urlParams.get("cat");
+    if(urlCatParam){
+      const cs=document.getElementById("catSelect");
+      if(cs){ cs.value=urlCatParam; }
+    }
+    // ── Bookmark practice mode ──
     if(urlParams.get("mode")==="bookmarks"){
       const stored=localStorage.getItem("examora_bookmark_exam");
       if(stored){
@@ -752,11 +932,14 @@
     // Load timer settings
     try{
       const ts=await getDoc(doc(db,"settings","timers"));
-      window._timers=ts.exists()?ts.data():{JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5};
-    } catch(_){ window._timers={JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5}; }
+      window._timers=ts.exists()?ts.data():{JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5,SAT:2,ACT:2,GRE:2,GMAT:2,IELTS:2,"A-Levels":2,GCSE:2,IB:2,Professional:2,Certification:1.5,"Custom":1.5};
+    } catch(_){ window._timers={JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5,SAT:2,ACT:2,GRE:2,GMAT:2,IELTS:2,"A-Levels":2,GCSE:2,IB:2,Professional:2,Certification:1.5,"Custom":1.5}; }
   });
 
   window.startExam=async()=>{
+    // Trial gate check
+    if (window._checkTrialGate && !window._checkTrialGate(window._userData||{})) return;
+
     const cat=document.getElementById("catSelect").value;
     const subj=document.getElementById("subjSelect").value;
     const year=document.getElementById("yearSelect").value;
@@ -765,8 +948,12 @@
 
     if(pool.length===0){toast("No questions match. Try different filters.");return;}
 
-    // Shuffle
-    pool=pool.sort(()=>Math.random()-0.5);
+    // Spaced repetition mode — sort by priority
+    if(examMode==="spaced") {
+      pool = EXAMORA_AI.getSpacedRepetitionQueue(pool, window._srHistory||{});
+    } else {
+      pool=pool.sort(()=>Math.random()-0.5);
+    }
     examQuestions=qCount===0?pool:pool.slice(0,qCount);
     answers={}; flagged=new Set(); bookmarked=new Set(); currentIdx=0;
 
@@ -798,7 +985,7 @@
     const effectiveMode=examMode==="quickfire"?"practice":examMode;
     const cat=document.getElementById("catSelect").value||"Mixed";
     const subj=document.getElementById("subjSelect").value||"General";
-    const date=new Date().toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"});
+    const date=new Date().toLocaleDateString("undefined",{day:"numeric",month:"short",year:"numeric"});
 
     // Save result
     try{
@@ -811,11 +998,17 @@
       const uSnap=await getDoc(doc(db,"users",uid));
       if(uSnap.exists()){
         const ud=uSnap.data();
-        await updateDoc(doc(db,"users",uid),{
+        var updateData = {
           totalExams:(ud.totalExams||0)+1,
           totalCorrect:(ud.totalCorrect||0)+correct,
           totalQuestions:(ud.totalQuestions||0)+total
-        });
+        };
+        // Track trial exam usage
+        if (ud.plan === 'trial') {
+          updateData.trialExamsUsed = (ud.trialExamsUsed||0)+1;
+        }
+        await updateDoc(doc(db,"users",uid), updateData);
+        window._userData = Object.assign({}, ud, updateData);
       }
     }catch(e){console.error("Save result error:",e);}
 
@@ -990,12 +1183,12 @@
       } else if (action === "explain") {
         result = await EXAMORA_AI.call([{
           role: "user",
-          content: "Explain the key concept behind this " + (q.category||"JAMB") + " " + (q.subject||"") + " question in simple terms. Don't give the answer directly. Question: " + (q.text||q.question)
+          content: "Explain the key concept behind this " + (q.category||"General") + " " + (q.subject||"") + " question in simple terms. Don't give the answer directly. Question: " + (q.text||q.question)
         }], 350);
       } else {
         result = await EXAMORA_AI.call([{
           role: "user",
-          content: "Give me 2 similar practice questions (with answers) for this " + (q.category||"JAMB") + " " + (q.subject||"") + " topic: " + (q.text||q.question).substring(0, 100)
+          content: "Give me 2 similar practice questions (with answers) for this " + (q.category||"General") + " " + (q.subject||"") + " topic: " + (q.text||q.question).substring(0, 100)
         }], 400);
       }
 

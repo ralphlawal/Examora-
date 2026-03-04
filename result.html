@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -267,7 +267,35 @@
       font-weight: 700; font-size: 0.85rem; color: var(--text-3); cursor: pointer;
     }
   </style>
-  <script src="ai-engine.js"></script>
+  <script src="ai-engine.js">
+  // ── Certificate ──
+  function showCertificate(percent, subject, category, name) {
+    if (percent < 70) return; // Only show for 70%+
+    var certSec = document.getElementById('certSection');
+    if (!certSec) return;
+    certSec.style.display = 'block';
+    document.getElementById('certScore').textContent = percent + '%';
+    document.getElementById('certName').textContent = name || 'EXAMORA Student';
+    var examLabel = (category||'Exam') + (subject && subject !== 'General' ? ' — ' + subject : '');
+    document.getElementById('certMeta').innerHTML = examLabel + '<br/>' + new Date().toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}) + '<br/>Powered by EXAMORA';
+  }
+
+  function shareCertificate() {
+    var score   = document.getElementById('certScore').textContent;
+    var name    = document.getElementById('certName').textContent;
+    var subject = document.getElementById('certMeta').textContent.split("
+")[0] || 'exam';
+    var text    = name + ' scored ' + score + ' on ' + subject + ' — practised with EXAMORA! 🎓 examora.app';
+    if (navigator.share) {
+      navigator.share({ title:'My EXAMORA Score', text:text }).catch(function(){});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function(){ toast('Score copied to clipboard!','success'); });
+    } else {
+      toast('Share: ' + text, 'info', 6000);
+    }
+  }
+
+</script>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
@@ -338,6 +366,20 @@
   <div class="action-strip animate-in animate-in-delay-1">
     <a href="exam.html" class="btn btn-primary">📝 Try Again</a>
     <a href="index.html" class="btn btn-ghost">🏠 Dashboard</a>
+  </div>
+
+
+  <!-- ── Certificate (70%+ only) ─────────────────────────── -->
+  <div id="certSection" style="display:none;" class="animate-in">
+    <div class="cert-card" id="certCard">
+      <span class="cert-seal">🏆</span>
+      <div class="cert-title">Certificate of Achievement</div>
+      <div class="cert-name" id="certName">EXAMORA Student</div>
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin:6px 0;">scored</div>
+      <div class="cert-score" id="certScore">0%</div>
+      <div class="cert-meta" id="certMeta"></div>
+      <button class="cert-share-btn" onclick="shareCertificate()">📤 Share Achievement</button>
+    </div>
   </div>
 
   <!-- Share card -->
@@ -628,6 +670,11 @@
     const answered=Object.keys(answers||{}).length;
     const skipped=total-answered;
 
+    // Certificate for 70%+
+    if (percent >= 70) {
+      var _uname = localStorage.getItem('examora_user_display') || '';
+      setTimeout(function(){ showCertificate(percent, subject, category, _uname); }, 1200);
+    }
     // Score ring animation
     const circumference=339.3;
     const fill=circumference*(1-(percent/100));

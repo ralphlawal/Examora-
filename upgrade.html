@@ -304,7 +304,7 @@
 
 <!-- Urgency strip (shown when <=2 trial days left) -->
 <div class="urgency-strip" id="urgencyStrip" onclick="document.getElementById('paywallOverlay').classList.add('show')">
-  ⏰ Your free trial ends in <span id="urgencyDays">2</span> day(s) — tap to upgrade and keep access
+  ⏰ Only <span id="urgencyDays">1</span> free exam left — upgrade to keep full access
 </div>
 
 <header class="app-header">
@@ -324,9 +324,9 @@
 <div class="paywall-overlay" id="paywallOverlay">
   <div class="paywall-sheet">
     <div class="paywall-icon">⏰</div>
-    <div class="paywall-title" id="paywallTitle">Your Free Trial Has Ended</div>
+    <div class="paywall-title" id="paywallTitle">Free Trial Used Up</div>
     <div class="paywall-sub" id="paywallSub">
-      You used every minute of your 7-day Premium trial. To keep AI explanations, unlimited exams and all premium features, upgrade now.
+      You've used all 3 free trial exams. Upgrade to keep practicing with AI explanations, analytics and unlimited exams.
     </div>
     <button class="paywall-btn-primary" onclick="initiatePayment();document.getElementById('paywallOverlay').classList.remove('show')">
       👑 Upgrade Now — ₦2,000/mo
@@ -376,13 +376,13 @@
   <div class="trial-active-banner" id="trialActiveBanner">
     <div class="trial-countdown">
       <div class="trial-days-big" id="trialDaysNum">7</div>
-      <div class="trial-days-label">days<br/>remaining<br/>in trial</div>
+      <div class="trial-days-label">free exams<br/>remaining</div>
     </div>
     <div class="trial-progress-wrap">
       <div class="trial-progress-bar" id="trialProgressBar" style="width:100%;"></div>
     </div>
     <p style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-bottom:14px;line-height:1.5;">
-      You're enjoying Premium features free. Upgrade before your trial ends to keep access — no interruptions.
+      You have free trial exams remaining. Upgrade now to keep unlimited access after they're used.
     </p>
     <button class="trial-upgrade-btn" onclick="initiatePayment()">
       ⚡ Upgrade Now to Keep Access
@@ -396,16 +396,16 @@
   <div class="trial-offer-card" id="trialOfferCard">
     <div style="font-size:2.2rem;margin-bottom:8px;">🎁</div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#6ee7b7;margin-bottom:6px;">
-      Try Premium Free for 7 Days
+      Try 3 Exams Free — No Card
     </div>
     <p style="font-size:0.78rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:16px;">
-      Get full access to AI explanations, unlimited exams, deep analytics and more — completely free, no card required.
+      Take 3 full practice exams with AI explanations and analytics — completely free. No card, no commitment.
     </p>
     <button class="trial-offer-btn" id="trialStartBtn" onclick="window._startTrial()">
       🚀 Start Free Trial — No Card Needed
     </button>
     <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:8px;">
-      One free trial per account · Upgrade anytime
+      One trial per account · 3 exams included
     </div>
   </div>
 
@@ -443,7 +443,7 @@
       </div>
       <div class="feat-item">
         <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>All Past Questions</strong> — JAMB 1980–2024, WAEC, NECO, Post-UTME</div>
+        <div class="feat-text"><strong>All Past Questions</strong> — JAMB, WAEC, SAT, A-Levels, IELTS and more</div>
       </div>
       <div class="feat-item">
         <div class="feat-check">✓</div>
@@ -525,7 +525,7 @@
   <div id="faqList" class="animate-in animate-in-delay-3">
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> How do I pay?</div>
-      <div class="faq-a">We accept all Nigerian bank cards, transfers, USSD, and Opay/PalmPay via Paystack. Payment is secure and instant.</div>
+      <div class="faq-a">We accept all bank cards, transfers, and mobile money via Paystack. Payment is secure and instant.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> Can I cancel anytime?</div>
@@ -533,7 +533,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> Is there a student discount?</div>
-      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;">support@examora.com.ng</a> with your school email to claim it.</div>
+      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a> with your school email to claim it.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> What if I'm not satisfied?</div>
@@ -551,7 +551,7 @@
       👑 Start Premium — ₦<span id="ctaPrice2">2,000</span>/mo
     </button>
     <p style="text-align:center;font-size:0.68rem;color:var(--text-3);margin-top:8px;">
-      Join 12,000+ students already using EXAMORA Premium
+      Join thousands of students worldwide using EXAMORA Premium
     </p>
   </div>
 
@@ -715,15 +715,21 @@
 
   /* helpers */
   function trialDaysLeft(ud) {
-    if (!ud.trialEnd) return 0;
-    const ms = new Date(ud.trialEnd) - new Date();
-    return Math.max(0, Math.ceil(ms / 86400000));
+    var allowed = ud.trialExamsAllowed || 3;
+    var used    = ud.trialExamsUsed    || 0;
+    return Math.max(0, allowed - used);
   }
   function isTrialActive(ud) {
-    return ud.plan === "trial" && new Date(ud.trialEnd) > new Date();
+    if (ud.plan !== "trial") return false;
+    var allowed = ud.trialExamsAllowed || 3;
+    var used    = ud.trialExamsUsed    || 0;
+    return used < allowed;
   }
   function isTrialExpired(ud) {
-    return ud.plan === "trial" && new Date(ud.trialEnd) <= new Date();
+    if (ud.plan !== "trial") return false;
+    var allowed = ud.trialExamsAllowed || 3;
+    var used    = ud.trialExamsUsed    || 0;
+    return used >= allowed;
   }
 
   /* apply plan UI state */
@@ -755,7 +761,7 @@
     /* CASE 2: Active trial */
     if (isTrialActive(ud)) {
       const days = trialDaysLeft(ud);
-      const totalDays = 7;
+      const totalDays = ud.trialExamsAllowed || 3;
 
       // Show countdown banner
       trialBanner.classList.add("show");
@@ -768,7 +774,7 @@
         days <= 2 ? "linear-gradient(90deg,#ef4444,#f97316)" : "linear-gradient(90deg,#10b981,#34d399)";
 
       // Urgency strip for last 2 days
-      if (days <= 2) {
+      if (days <= 1) {
         urgencyStrip.classList.add("show");
         document.getElementById("urgencyDays").textContent = days;
       }
@@ -842,18 +848,17 @@
       const now     = new Date();
       const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
       await updateDoc(doc(db, "users", window._userId), {
-        plan:       "trial",
-        trialUsed:  true,
-        trialStart: now.toISOString(),
-        trialEnd:   endDate.toISOString(),
-        lastActive: now.toDateString()
+        plan:            "trial",
+        trialUsed:       true,
+        trialStart:      now.toISOString(),
+        trialExamsAllowed: 3,
+        trialExamsUsed:  0,
+        lastActive:      now.toDateString()
       });
       toast("🎉 7-day free trial started! Enjoy Premium features.", "success", 5000);
       setTimeout(function(){ window.location.href = "index.html"; }, 2000);
     } catch (err) {
-      console.error("startTrial error:", err);
-      if (trialBtn) { trialBtn.disabled = false; trialBtn.textContent = "🚀 Start Free Trial — No Card Needed"; }
-      toast("Could not start trial. Please try again.", "error");
+      console.error("startTrial error:", er      toast("Could not start trial. Please try again.", "error");
     }
   };
 

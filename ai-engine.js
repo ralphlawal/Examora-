@@ -1,188 +1,184 @@
-// ═══════════════════════════════════════════════════════
-// EXAMORA AI Engine — OpenRouter + Gemini Failover
-// Replace OPENROUTER_API_KEY with your key from openrouter.ai
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// EXAMORA AI Engine v4.0 — Bulletproof free model chain
+// ALL models below are :free — zero cost, no billing needed
+// Get your free key at: openrouter.ai/keys  (takes 2 minutes)
+// ═══════════════════════════════════════════════════════════════
 
 const EXAMORA_AI = (() => {
+  var KEY = "YOUR_OPENROUTER_API_KEY";
+  var URL = "https://openrouter.ai/api/v1/chat/completions";
 
-  // ── Config ─────────────────────────────────────────
-  const OPENROUTER_KEY = "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"; // Get from openrouter.ai/keys
-  const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-  const APP_URL        = "https://examora.com.ng";
-  const APP_NAME       = "EXAMORA";
-
-  // Model chain — tries each in order until one succeeds
-  const MODELS = [
-    "google/gemini-2.0-flash-001",       // Primary: fastest, cheapest Gemini
-    "google/gemini-flash-1.5-8b",        // Fallback 1: small Gemini
-    "google/gemini-flash-1.5",           // Fallback 2: full Gemini 1.5
-    "mistralai/mistral-7b-instruct:free",// Fallback 3: free Mistral
-    "meta-llama/llama-3.2-3b-instruct:free", // Last resort: free Llama
+  // Ordered by reliability — all free tier, no payment required
+  var MODELS = [
+    "google/gemini-2.0-flash-exp:free",
+    "google/gemini-flash-1.5-8b:free",
+    "meta-llama/llama-3.1-8b-instruct:free",
+    "meta-llama/llama-3.2-3b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
+    "qwen/qwen-2-7b-instruct:free",
+    "microsoft/phi-3-mini-128k-instruct:free"
   ];
 
-  // ── Core call ──────────────────────────────────────
-  async function call(messages, maxTokens = 500, temperature = 0.25) {
-    if (!OPENROUTER_KEY || OPENROUTER_KEY === "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") {
+  var SYSTEM = "You are EXAMORA AI Tutor — expert at SAT, ACT, IELTS, TOEFL, GRE, GMAT, A-Levels, GCSE, IB Diploma, JAMB, WAEC, NECO, and professional certifications worldwide. Be concise, accurate, encouraging. No markdown headers. Under 280 words.";
+
+  // Core: tries every model until one works
+  async function call(messages, maxTokens, temperature) {
+    maxTokens = maxTokens || 500;
+    temperature = (temperature !== undefined) ? temperature : 0.3;
+
+    if (!KEY || KEY === "YOUR_OPENROUTER_API_KEY") {
       throw new Error("AI_KEY_MISSING");
     }
 
-    const errors = [];
-    for (const model of MODELS) {
+    var lastErr = "No models tried";
+
+    for (var i = 0; i < MODELS.length; i++) {
+      var model = MODELS[i];
       try {
-        const res = await fetch(OPENROUTER_URL, {
+        var ctrl = new AbortController();
+        var tid = setTimeout(function(){ ctrl.abort(); }, 16000);
+
+        var res = await fetch(URL, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + OPENROUTER_KEY,
-            "HTTP-Referer": APP_URL,
-            "X-Title": APP_NAME,
+            "Content-Type":  "application/json",
+            "Authorization": "Bearer " + KEY,
+            "HTTP-Referer":  "https://examora.app",
+            "X-Title":       "EXAMORA"
           },
-          body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature }),
+          body: JSON.stringify({
+            model: model,
+            messages: messages,
+            max_tokens: maxTokens,
+            temperature: temperature
+          }),
+          signal: ctrl.signal
         });
+        clearTimeout(tid);
+
+        // Rate limited — skip to next model
+        if (res.status === 429) { lastErr = model + ": rate limited"; continue; }
+        // Model unavailable — skip
+        if (res.status === 503 || res.status === 502) { lastErr = model + ": unavailable"; continue; }
 
         if (!res.ok) {
-          const err = await res.text().catch(() => res.status);
-          throw new Error("HTTP " + res.status + ": " + err);
+          var body = "";
+          try { body = await res.text(); } catch(_){}
+          lastErr = model + ": HTTP " + res.status;
+          // Auth error — no point trying other models
+          if (res.status === 401) throw new Error("Invalid API key — check openrouter.ai");
+          continue;
         }
 
-        const data = await res.json();
-        const text = data?.choices?.[0]?.message?.content?.trim();
-        if (!text) throw new Error("Empty response from " + model);
+        var data = await res.json();
+        var text = "";
+        if (data && data.choices && data.choices[0] && data.choices[0].message) {
+          text = (data.choices[0].message.content || "").trim();
+        }
 
-        return { text, model };
-      } catch (e) {
-        errors.push(model + ": " + e.message);
-        console.warn("[EXAMORA AI] Model failed:", model, e.message);
+        if (!text || text.length < 2) { lastErr = model + ": empty response"; continue; }
+
+        return { text: text, model: model };
+
+      } catch(e) {
+        if (e.name === "AbortError") { lastErr = model + ": timeout"; continue; }
+        if (e.message && e.message.indexOf("Invalid API key") >= 0) throw e;
+        lastErr = model + ": " + (e.message || "unknown error");
+        // Short wait before next model
+        try { await new Promise(function(r){ setTimeout(r, 300); }); } catch(_){}
       }
     }
 
-    throw new Error("All AI models failed. Errors: " + errors.join(" | "));
+    throw new Error("All " + MODELS.length + " AI models tried and failed. Last: " + lastErr);
   }
 
-  // ── Prompts ────────────────────────────────────────
-  const SYSTEM = `You are an expert Nigerian education tutor helping students prepare for JAMB, WAEC, NECO, and Post-UTME exams. 
-Be concise, accurate, and encouraging. Use simple English that Nigerian secondary students understand.
-Format your answers clearly. Use bullet points only when listing multiple steps or items.
-Never use markdown headers. Keep responses under 300 words.`;
-
-  // Explain a wrong answer in detail
-  async function explainAnswer({ question, options, correctAnswer, userAnswer, subject, category, year }) {
-    const optText = Object.entries(options || {})
-      .map(([k, v]) => `${k}. ${v}`)
-      .join("\n");
-    
-    const prompt = `${SYSTEM}
-
-A student got this ${category || "JAMB"} ${subject || ""} question wrong ${year ? `(${year})` : ""}.
-
-Question: ${question}
-
-Options:
-${optText}
-
-Correct Answer: ${correctAnswer}. ${options?.[correctAnswer] || ""}
-Student chose: ${userAnswer ? userAnswer + ". " + (options?.[userAnswer] || "") : "Skipped"}
-
-Explain:
-1. Why the correct answer is right (brief, direct explanation)
-2. Why the student's choice is wrong (if applicable)
-3. The key concept they need to remember
-4. A memory tip if helpful
-
-Be encouraging at the end.`;
-
-    return call([{ role: "user", content: prompt }], 450);
+  function optsText(opts) {
+    if (!opts) return "";
+    return Object.entries(opts).map(function(e){ return e[0] + ". " + e[1]; }).join("\n");
   }
 
-  // Get a hint for the current question (practice mode)
-  async function getHint({ question, options, subject, category }) {
-    const optText = Object.entries(options || {})
-      .map(([k, v]) => `${k}. ${v}`)
-      .join("\n");
-
-    const prompt = `${SYSTEM}
-
-Give a helpful hint for this ${category || "JAMB"} ${subject || ""} question WITHOUT revealing the answer.
-
-Question: ${question}
-
-Options:
-${optText}
-
-Give a 2-3 sentence hint that narrows down the answer through logic or key concepts. Don't say the answer directly.`;
-
-    return call([{ role: "user", content: prompt }], 200);
+  function parseJson(text) {
+    text = text.trim()
+      .replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/, "")
+      .replace(/,\s*\}/g, "}").replace(/,\s*\]/g, "]").trim();
+    return JSON.parse(text);
   }
 
-  // Generate a 7-day personalized study plan
-  async function generateStudyPlan({ weakSubjects, avgScore, totalExams, targetScore, examType }) {
-    const weakList = weakSubjects.map(s => `${s.subject}: ${s.score}%`).join(", ");
-    
-    const prompt = `${SYSTEM}
+  // Explain why a question was answered wrongly
+  async function explainAnswer(o) {
+    var msg = SYSTEM + "\n\nA student answered this " + (o.category||"exam") + " " + (o.subject||"") + " question incorrectly" + (o.year?" ("+o.year+")":"") + ".\n\nQuestion: " + o.question + "\n\nOptions:\n" + optsText(o.options) + "\n\nCorrect answer: " + o.correctAnswer + ". " + ((o.options||{})[o.correctAnswer]||"") + "\nStudent chose: " + (o.userAnswer ? o.userAnswer + ". " + ((o.options||{})[o.userAnswer]||"") : "did not answer") + "\n\nPlease explain:\n1. Why the correct answer is right\n2. Why the student's choice was wrong (if applicable)\n3. The key concept to understand\n4. A memory trick if helpful\n\nEnd with one encouraging sentence.";
+    return call([{ role: "user", content: msg }], 480);
+  }
 
-Create a focused 7-day study plan for a ${examType || "JAMB"} student.
+  // Give a hint without revealing the answer
+  async function getHint(o) {
+    var msg = SYSTEM + "\n\nGive a 2-3 sentence hint for this " + (o.category||"exam") + " " + (o.subject||"") + " question. Do NOT give away the answer or say which letter is correct.\n\nQuestion: " + o.question + "\n\nOptions:\n" + optsText(o.options) + "\n\nHint only — guide through logic or key concept.";
+    return call([{ role: "user", content: msg }], 180);
+  }
 
-Student stats:
-- Average score: ${avgScore}%
-- Target score: ${targetScore || 250}/400
-- Total practice exams: ${totalExams}
-- Weak subjects: ${weakList || "General revision needed"}
+  // Conversational study chat
+  async function chat(userMsg, context, history) {
+    var sys = SYSTEM + "\nYou are in a friendly study chat session. Be warm and conversational." + (context ? "\nCurrent context: " + context : "");
+    var msgs = [{ role: "system", content: sys }]
+      .concat((history||[]).slice(-8))
+      .concat([{ role: "user", content: userMsg }]);
+    return call(msgs, 420, 0.5);
+  }
 
-Return a JSON array of 7 days. Each day must have exactly these fields:
-{
-  "day": number,
-  "title": "short focus area (max 30 chars)",
-  "tasks": "2-3 specific tasks for that day (1 sentence each, separated by |)",
-  "duration": "e.g. 2 hours"
-}
-
-Return ONLY the JSON array, no other text, no markdown.`;
-
-    const result = await call([{ role: "user", content: prompt }], 700, 0.3);
-    
-    // Parse JSON
-    let text = result.text.trim();
-    text = text.replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
-    
+  // Generate practice questions from any topic
+  async function generateQuestions(o) {
+    var msg = SYSTEM + "\n\nGenerate exactly " + (o.count||5) + " multiple-choice practice questions about \"" + o.topic + "\" for a " + (o.category||"general") + " " + (o.subject||"exam") + " student. Difficulty: " + (o.difficulty||"medium") + ".\n\nReturn ONLY a valid JSON array, nothing else:\n[{\"question\":\"...\",\"options\":{\"A\":\"...\",\"B\":\"...\",\"C\":\"...\",\"D\":\"...\"},\"answer\":\"A\",\"explanation\":\"brief reason\"}]\n\nJSON array only. No text before or after.";
+    var r = await call([{ role: "user", content: msg }], 1000, 0.4);
     try {
-      const plan = JSON.parse(text);
-      return { plan, model: result.model };
-    } catch {
-      // Fallback: return raw text
-      return { plan: null, rawText: result.text, model: result.model };
+      var q = parseJson(r.text);
+      return { questions: Array.isArray(q) ? q : [q], model: r.model };
+    } catch(_) {
+      return { questions: null, rawText: r.text, model: r.model };
     }
   }
 
-  // Score prediction based on practice performance
-  async function predictScore({ avgScore, weakSubjects, totalExams, examType, recentTrend }) {
-    const prompt = `${SYSTEM}
-
-Based on this student's practice data, predict their ${examType || "JAMB"} score.
-
-Data:
-- Practice average: ${avgScore}%
-- Total exams taken: ${totalExams}
-- Recent trend: ${recentTrend > 0 ? "+" : ""}${recentTrend}% change
-- Weak areas: ${weakSubjects.join(", ") || "None identified"}
-
-Return ONLY a JSON object:
-{
-  "predictedScore": number (out of 400 for JAMB, or percentage for others),
-  "confidence": "Low" | "Medium" | "High",
-  "range": "e.g. 240-280",
-  "tip": "one sentence improvement tip"
-}
-
-No other text.`;
-
-    const result = await call([{ role: "user", content: prompt }], 200, 0.2);
-    let text = result.text.trim().replace(/^```json\s*/i, "").replace(/\s*```$/, "").trim();
-    try {
-      return { data: JSON.parse(text), model: result.model };
-    } catch {
-      return { data: null, model: result.model };
-    }
+  // 7-day personalised study plan
+  async function generateStudyPlan(o) {
+    var weak = (o.weakSubjects||[]).map(function(s){ return s.subject+": "+s.score+"%"; }).join(", ");
+    var msg = SYSTEM + "\n\nCreate a 7-day study plan for a " + (o.examType||"exam") + " student.\nCurrent average: " + o.avgScore + "% | Target: " + (o.targetScore||75) + "% | Sessions done: " + o.totalExams + " | Weak areas: " + (weak||"general revision needed") + "\n\nReturn ONLY a JSON array of 7 objects:\n[{\"day\":1,\"title\":\"Focus area\",\"tasks\":\"Task 1|Task 2|Task 3\",\"duration\":\"2 hrs\"}]\n\nJSON only.";
+    var r = await call([{ role: "user", content: msg }], 750, 0.3);
+    try { return { plan: parseJson(r.text), model: r.model }; }
+    catch(_) { return { plan: null, rawText: r.text, model: r.model }; }
   }
 
-  return { call, explainAnswer, getHint, generateStudyPlan, predictScore };
+  // Predict exam performance
+  async function predictScore(o) {
+    var msg = SYSTEM + "\n\nPredict this student's " + (o.examType||"exam") + " performance.\nPractice average: " + o.avgScore + "% | Sessions: " + o.totalExams + " | Trend: " + (o.recentTrend>=0?"+":"") + o.recentTrend + "% | Weak areas: " + ((o.weakSubjects||[]).join(", ")||"none identified") + "\n\nReturn ONLY this JSON (no other text):\n{\"predictedScore\":75,\"confidence\":\"Medium\",\"range\":\"70-80%\",\"tip\":\"One specific improvement tip\"}\n\nJSON only.";
+    var r = await call([{ role: "user", content: msg }], 200, 0.2);
+    try { return { data: parseJson(r.text), model: r.model }; }
+    catch(_) { return { data: null, model: r.model }; }
+  }
+
+  // Spaced repetition queue — pure client logic, no API needed
+  function getSpacedRepetitionQueue(questions, history) {
+    var now = Date.now(), DAY = 86400000;
+    return questions.map(function(q) {
+      var h = (history||{})[q.id] || { correct:0, wrong:0, lastSeen:0 };
+      var total = h.correct + h.wrong;
+      var acc = total > 0 ? h.correct/total : 0;
+      var age = (now - (h.lastSeen||0)) / DAY;
+      var priority;
+      if (total === 0)    priority = 50 + Math.random()*10;  // never seen
+      else if (acc < 0.5) priority = 80 + age;               // struggling
+      else if (acc < 0.8) priority = 40 + age*0.5;           // needs review
+      else                priority = 5  + age*0.2;            // mastered
+      return Object.assign({}, q, { _priority:priority, _accuracy:acc, _seen:total });
+    }).sort(function(a,b){ return b._priority - a._priority; });
+  }
+
+  return {
+    call: call,
+    explainAnswer: explainAnswer,
+    getHint: getHint,
+    chat: chat,
+    generateQuestions: generateQuestions,
+    generateStudyPlan: generateStudyPlan,
+    predictScore: predictScore,
+    getSpacedRepetitionQueue: getSpacedRepetitionQueue
+  };
 })();

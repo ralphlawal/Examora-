@@ -259,7 +259,7 @@
     <h4>Invite friends to EXAMORA</h4>
     <p>Share your personal link. Every student you bring helps grow the community!</p>
     <div class="referral-link-row">
-      <div class="referral-link-text" id="referralLinkText">examora.com.ng=...</div>
+      <div class="referral-link-text" id="referralLinkText">examora.app/join?ref=...</div>
       <button class="referral-copy-btn" onclick="copyReferralLink()">Copy</button>
     </div>
     <div class="referral-share-row">
@@ -274,14 +274,7 @@
     <h3>Support</h3>
   </div>
   <div class="settings-list animate-in animate-in-delay-4">
-    <a href="mailto:support@examora.com.ng" class="setting-row">
-      <div class="setting-icon" style="background:rgba(16,185,129,0.1);"><span class="material-symbols-rounded">mail</span></div>
-      <div class="setting-content">
-        <div class="setting-label">Email Support</div>
-        <div class="setting-value">support@examora.com.ng</div>
-      </div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </a>
+    <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a>
     <div class="setting-row" onclick="toast('Version 1.0.0 · Build 2025','info')">
       <div class="setting-icon" style="background:rgba(99,102,241,0.1);"><span class="material-symbols-rounded">smartphone</span></div>
       <div class="setting-content"><div class="setting-label">App Version</div><div class="setting-value">v1.0.0 · 2025</div></div>
@@ -475,7 +468,7 @@
   function confirmDeleteAccount(){ if (confirm("Delete your account?\nAll your data will be permanently lost.")) window._doDelete && window._doDelete(); }
 
   function buildReferralLink(uid) {
-    var link = "https://examora.com.ng=" + uid.slice(0,8);
+    var link = "https://examora.app/join?ref=" + uid.slice(0,8);
     document.getElementById("referralLinkText").textContent = link;
     return link;
   }
@@ -615,9 +608,9 @@
     try{
       await updateDoc(doc(db,"users",uid),{targetScore:val});
       window._pd.targetScore=val;
-      document.getElementById("targetVal").textContent=val+"/400";
+      document.getElementById("targetVal").textContent=val+"pts";
       document.getElementById("targetStrip").style.display="block";
-      document.getElementById("tsValue").textContent=val+"/400";
+      document.getElementById("tsValue").textContent=val+"pts";
       closeSheet("targetOverlay");
       toast("Target set to "+val+"!","success");
     }catch(e){ toast("Save failed.","error"); }
@@ -695,10 +688,10 @@
     if(ud.targetScore){
       const t=ud.targetScore, p=Math.min(Math.round((avg/t)*100),100);
       document.getElementById("targetStrip").style.display="block";
-      document.getElementById("tsValue").textContent   =t+"/400";
+      document.getElementById("tsValue").textContent   =t+"pts";
       document.getElementById("tsCurrent").textContent =avg+"%";
       document.getElementById("tsPct").textContent     =p+"% of goal";
-      document.getElementById("targetVal").textContent =t+"/400";
+      document.getElementById("targetVal").textContent =t+"pts";
       setTimeout(()=>document.getElementById("tsBarFill").style.width=p+"%",300);
     }
     if(window._sub.length>0){
@@ -713,16 +706,10 @@
     if(results.some(r=>r.percent===100)&&!badges.includes("perfect")) badges.push("perfect");
     if(total>=100&&!badges.includes("100_exams")) badges.push("100_exams");
     if(avg>=80&&total>=5&&!badges.includes("high_scorer")) badges.push("high_scorer");
-    if(badges.length!==(ud.badges||[]).length){ try{ await updateDoc(doc(db,"users",user.uid),{badges}); }catch(_){} }
+    if(results.length>=50&&!badges.includes("50_exams")) badges.push("50_exams");
+    if(badges.length>0){ try{ await updateDoc(doc(db,"users",uid),{badges}); }catch(_){} }
     renderBadges(badges);
-
-    if(plan!=="premium") document.getElementById("upgradeStrip").style.display="block";
-    if(ud.role==="admin") document.getElementById("adminLink").style.display="flex";
   });
-</script>
-
-<script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

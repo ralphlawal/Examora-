@@ -5,12 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Analytics</title>
   <link rel="stylesheet" href="style.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
+  // Smart Notes
+  (function(){
+    var el = document.getElementById('studyNotes');
+    if (!el) return;
+    el.value = localStorage.getItem('examora_notes') || '';
+    el.addEventListener('input', function(){ localStorage.setItem('examora_notes', el.value); });
+  })();
+  function saveNote() {
+    var el = document.getElementById('studyNotes');
+    if (el) {
+      localStorage.setItem('examora_notes', el.value);
+      var toast = document.getElementById('toast');
+      if (toast) { toast.textContent = '✓ Notes saved'; toast.classList.add('show'); setTimeout(function(){ toast.classList.remove('show'); }, 2000); }
+    }
+  }
+</script>
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -388,7 +404,21 @@
         Tap <strong>Generate</strong> to get a personalised study plan based on your performance.
       </div>
     </div>
+  
+  <!-- ── Smart Notes ─────────────────────────────────────────── -->
+  <div class="section-header animate-in">
+    <div class="section-icon">notes</div>
+    <h3>Study Notes</h3>
+    <button class="section-link" onclick="saveNote()" style="cursor:pointer;background:var(--c-brand-pale);padding:3px 10px;border-radius:100px;border:none;">Save</button>
   </div>
+  <div class="notes-panel animate-in" style="margin-bottom:20px;">
+    <div class="notes-header">
+      <span style="font-size:0.75rem;color:var(--text-3);font-weight:600;">📝 Personal study notes — synced locally</span>
+    </div>
+    <textarea class="notes-textarea" id="studyNotes" placeholder="Jot down key formulas, weak areas, tips..."></textarea>
+  </div>
+
+</div>
 
 </div>
 </div>
@@ -448,7 +478,7 @@
         document.getElementById("predictRange").textContent = d.range || "—";
         document.getElementById("predictConfidence").textContent = (d.confidence||"") + " confidence";
         document.getElementById("predictTip").textContent = d.tip || "";
-        const pct = Math.min(((d.predictedScore||200)/400)*100, 100);
+        const pct = Math.min(((d.predictedScore||200)%)*100, 100);
         setTimeout(() => { document.getElementById("predictBarFill").style.width = pct + "%"; }, 300);
         const pb = document.getElementById("predictModelBadge");
         const modelShort = res.model.includes("gemini-2.0") ? "Gemini 2.0 Flash" : res.model.split("/").pop();
@@ -767,7 +797,7 @@
         :intensity<0.33?"rgba(99,102,241,0.25)"
         :intensity<0.66?"rgba(99,102,241,0.55)"
         :"var(--c-brand)";
-      const dt=new Date(c.key).toLocaleDateString("en-NG",{day:"numeric",month:"short"});
+      const dt=new Date(c.key).toLocaleDateString("undefined",{day:"numeric",month:"short"});
       return `<div class="hm-cell" style="background:${bg};" title="${dt}: ${c.count} exam${c.count!==1?"s":""}"></div>`;
     }).join("");
   }
@@ -809,7 +839,7 @@
       const current=avg;
       const pct=Math.min(Math.round((current/target)*100),100);
       document.getElementById("targetCard").style.display="block";
-      document.getElementById("targetBadge").textContent=`Target: ${target}/400`;
+      document.getElementById("targetBadge").textContent=`Target: ${target}%`;
       document.getElementById("targetCurrent").textContent=avg+"%";
       document.getElementById("targetPct").textContent=pct+"% of goal";
       setTimeout(()=>document.getElementById("targetBarFill").style.width=pct+"%",300);
@@ -863,5 +893,54 @@
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
+
+<!-- ── AI Chat FAB ─────────────────────────────────────────── -->
+<button class="ai-chat-fab" id="aiChatFab" onclick="toggleAIChat()" title="Ask AI Tutor">🤖</button>
+<div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-header">
+    <div class="ai-chat-logo">🤖</div>
+    <div><div class="ai-chat-name">AI Study Buddy</div><div class="ai-chat-status">● Online</div></div>
+    <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
+  </div>
+  <div class="ai-chat-messages" id="aiChatMessages">
+    <div class="ai-chat-msg bot">Hi! Ask me anything about your studies. 📚</div>
+  </div>
+  <div class="ai-chat-footer">
+    <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAIChat()"/>
+    <button class="ai-chat-send" id="aiChatSend" onclick="sendAIChat()">➤</button>
+  </div>
+</div>
+<script src="ai-engine.js"></script>
+<script>
+  var _chatHistory=[];
+  function toggleAIChat(){
+    var p=document.getElementById('aiChatPanel');
+    p.classList.toggle('open');
+    if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
+  }
+  async function sendAIChat(){
+    var inp=document.getElementById('aiChatInput');
+    var msg=inp.value.trim(); if(!msg)return;
+    inp.value='';
+    var msgs=document.getElementById('aiChatMessages');
+    var ub=document.createElement('div'); ub.className='ai-chat-msg user'; ub.textContent=msg; msgs.appendChild(ub);
+    var lb=document.createElement('div'); lb.className='ai-chat-msg bot loading';
+    lb.innerHTML='<div class="ai-chat-dot"></div><div class="ai-chat-dot"></div><div class="ai-chat-dot"></div>';
+    msgs.appendChild(lb); msgs.scrollTop=msgs.scrollHeight;
+    document.getElementById('aiChatSend').disabled=true;
+    try{
+      _chatHistory.push({role:'user',content:msg});
+      var r=await EXAMORA_AI.chat(msg,'',_chatHistory.slice(-6));
+      _chatHistory.push({role:'assistant',content:r.text});
+      lb.className='ai-chat-msg bot'; lb.innerHTML=''; lb.textContent=r.text;
+    }catch(e){
+      lb.className='ai-chat-msg bot'; lb.innerHTML='';
+      lb.textContent=e.message==='AI_KEY_MISSING'?'Add your OpenRouter key in ai-engine.js':'Could not reach AI. Try again.';
+    }
+    msgs.scrollTop=msgs.scrollHeight;
+    document.getElementById('aiChatSend').disabled=false;
+  }
+</script>
+
 </body>
 </html>

@@ -315,6 +315,36 @@
     <div class="hero-avatar" id="heroAvatar">?</div>
   </div>
 
+
+  <!-- ── EXAM COUNTDOWN ─────────────────────────────────────── -->
+  <div id="countdownCard" class="countdown-card animate-in" style="display:none;" onclick="editCountdown()">
+    <div class="countdown-nums">
+      <div class="countdown-block"><div class="countdown-num" id="cdDays">--</div><div class="countdown-unit">days</div></div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block"><div class="countdown-num" id="cdHours">--</div><div class="countdown-unit">hrs</div></div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block"><div class="countdown-num" id="cdMins">--</div><div class="countdown-unit">min</div></div>
+    </div>
+    <div class="countdown-info">
+      <div class="countdown-exam" id="cdExamName">Your Exam</div>
+      <div class="countdown-date" id="cdExamDate">Tap to set exam date</div>
+    </div>
+  </div>
+  <div id="countdownSetup" class="card animate-in" style="display:none;">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:12px;">📅 Set Your Exam Date</div>
+    <div class="form-group">
+      <label class="form-label">Exam Name</label>
+      <input type="text" class="form-input" id="cdNameInput" placeholder="e.g. IELTS, JAMB 2026, SAT March..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Exam Date</label>
+      <input type="date" class="form-input" id="cdDateInput"/>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('countdownSetup').style.display='none';">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCountdown()">Save</button>
+    </div>
+  </div>
   <!-- ── DAILY CHALLENGE ────────────────────────────────────── -->
   <div class="daily-card animate-in animate-in-delay-1" id="dailyCard" onclick="window.location.href='daily-challenge.html'">
     <div class="dc-icon-wrap"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.5rem;">bolt</span></div>
@@ -487,6 +517,27 @@
 
 </div>
 
+
+<!-- ── AI Chat FAB + Panel ──────────────────────────────── -->
+<button class="ai-chat-fab" id="aiChatFab" onclick="toggleAIChat()" title="Ask AI Tutor">🤖</button>
+<div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-header">
+    <div class="ai-chat-logo">🤖</div>
+    <div>
+      <div class="ai-chat-title">AI Study Buddy</div>
+      <div class="ai-chat-subtitle">● Online · Powered by Gemini</div>
+    </div>
+    <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
+  </div>
+  <div class="ai-chat-messages" id="aiChatMessages">
+    <div class="ai-chat-msg bot">Hey! I'm your EXAMORA AI tutor. Ask me anything about your studies — concepts, questions, tips. What are you working on? 📚</div>
+  </div>
+  <div class="ai-chat-input-row">
+    <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAIChat()"/>
+    <button class="ai-chat-send" id="aiChatSend" onclick="sendAIChat()">➤</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <!-- ── Bottom Nav ─────────────────────────────────────────── -->
@@ -561,6 +612,89 @@
       "Tap Share → 'Add to Home Screen' to install";
     document.getElementById("installBarBtn").style.display = "none";
   }
+
+  // ── Countdown widget ──
+  function initCountdown() {
+    var stored = localStorage.getItem('examora_countdown');
+    if (!stored) { document.getElementById('countdownCard').style.display = 'none'; return; }
+    try {
+      var d = JSON.parse(stored);
+      document.getElementById('countdownCard').style.display = 'flex';
+      document.getElementById('cdExamName').textContent = d.name || 'Your Exam';
+      document.getElementById('cdExamDate').textContent = 'on ' + new Date(d.date).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
+      updateCountdownNums(d.date);
+      setInterval(function(){ updateCountdownNums(d.date); }, 60000);
+    } catch(_) {}
+  }
+  function updateCountdownNums(dateStr) {
+    var diff = new Date(dateStr) - new Date();
+    if (diff <= 0) { document.getElementById('countdownCard').style.display = 'none'; return; }
+    var days  = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins  = Math.floor((diff % 3600000) / 60000);
+    document.getElementById('cdDays').textContent  = days;
+    document.getElementById('cdHours').textContent = hours;
+    document.getElementById('cdMins').textContent  = mins;
+  }
+  function editCountdown() {
+    var s = document.getElementById('countdownSetup');
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
+  }
+  function saveCountdown() {
+    var name = document.getElementById('cdNameInput').value.trim() || 'My Exam';
+    var date = document.getElementById('cdDateInput').value;
+    if (!date) { return; }
+    localStorage.setItem('examora_countdown', JSON.stringify({name:name, date:date}));
+    document.getElementById('countdownSetup').style.display = 'none';
+    initCountdown();
+  }
+  initCountdown();
+  // Show setup if no countdown set
+  if (!localStorage.getItem('examora_countdown')) {
+    document.getElementById('countdownCard').style.display = 'none';
+  }
+
+  // ── AI Chat widget ──
+  var _aiChatHistory = [];
+  function toggleAIChat() {
+    var p = document.getElementById('aiChatPanel');
+    p.classList.toggle('open');
+    if (p.classList.contains('open')) document.getElementById('aiChatInput').focus();
+  }
+  async function sendAIChat() {
+    var input = document.getElementById('aiChatInput');
+    var msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    var msgs = document.getElementById('aiChatMessages');
+    // Add user bubble
+    var userBubble = document.createElement('div');
+    userBubble.className = 'ai-chat-msg user';
+    userBubble.textContent = msg;
+    msgs.appendChild(userBubble);
+    // Loading dots
+    var loadBubble = document.createElement('div');
+    loadBubble.className = 'ai-chat-msg bot loading';
+    loadBubble.innerHTML = '<div class="ai-chat-dot"></div><div class="ai-chat-dot"></div><div class="ai-chat-dot"></div>';
+    msgs.appendChild(loadBubble);
+    msgs.scrollTop = msgs.scrollHeight;
+    document.getElementById('aiChatSend').disabled = true;
+    try {
+      _aiChatHistory.push({role:'user', content:msg});
+      var result = await EXAMORA_AI.chat(msg, '', _aiChatHistory.slice(-6));
+      _aiChatHistory.push({role:'assistant', content:result.text});
+      loadBubble.className = 'ai-chat-msg bot';
+      loadBubble.innerHTML = '';
+      loadBubble.textContent = result.text;
+    } catch(e) {
+      loadBubble.className = 'ai-chat-msg bot';
+      var errMsg = e.message === 'AI_KEY_MISSING' ? 'AI key not set. Add your OpenRouter key in ai-engine.js' : 'Could not reach AI. Try again.';
+      loadBubble.textContent = errMsg;
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+    document.getElementById('aiChatSend').disabled = false;
+  }
+
 </script>
 
 <script type="module">

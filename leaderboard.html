@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -535,5 +535,54 @@
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
+
+<!-- ── AI Chat FAB ─────────────────────────────────────────── -->
+<button class="ai-chat-fab" id="aiChatFab" onclick="toggleAIChat()" title="Ask AI Tutor">🤖</button>
+<div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-header">
+    <div class="ai-chat-logo">🤖</div>
+    <div><div class="ai-chat-name">AI Study Buddy</div><div class="ai-chat-status">● Online</div></div>
+    <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
+  </div>
+  <div class="ai-chat-messages" id="aiChatMessages">
+    <div class="ai-chat-msg bot">Hi! Ask me anything about your studies. 📚</div>
+  </div>
+  <div class="ai-chat-footer">
+    <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAIChat()"/>
+    <button class="ai-chat-send" id="aiChatSend" onclick="sendAIChat()">➤</button>
+  </div>
+</div>
+<script src="ai-engine.js"></script>
+<script>
+  var _chatHistory=[];
+  function toggleAIChat(){
+    var p=document.getElementById('aiChatPanel');
+    p.classList.toggle('open');
+    if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
+  }
+  async function sendAIChat(){
+    var inp=document.getElementById('aiChatInput');
+    var msg=inp.value.trim(); if(!msg)return;
+    inp.value='';
+    var msgs=document.getElementById('aiChatMessages');
+    var ub=document.createElement('div'); ub.className='ai-chat-msg user'; ub.textContent=msg; msgs.appendChild(ub);
+    var lb=document.createElement('div'); lb.className='ai-chat-msg bot loading';
+    lb.innerHTML='<div class="ai-chat-dot"></div><div class="ai-chat-dot"></div><div class="ai-chat-dot"></div>';
+    msgs.appendChild(lb); msgs.scrollTop=msgs.scrollHeight;
+    document.getElementById('aiChatSend').disabled=true;
+    try{
+      _chatHistory.push({role:'user',content:msg});
+      var r=await EXAMORA_AI.chat(msg,'',_chatHistory.slice(-6));
+      _chatHistory.push({role:'assistant',content:r.text});
+      lb.className='ai-chat-msg bot'; lb.innerHTML=''; lb.textContent=r.text;
+    }catch(e){
+      lb.className='ai-chat-msg bot'; lb.innerHTML='';
+      lb.textContent=e.message==='AI_KEY_MISSING'?'Add your OpenRouter key in ai-engine.js':'Could not reach AI. Try again.';
+    }
+    msgs.scrollTop=msgs.scrollHeight;
+    document.getElementById('aiChatSend').disabled=false;
+  }
+</script>
+
 </body>
 </html>

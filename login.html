@@ -8,8 +8,8 @@
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -207,7 +207,7 @@
   <div class="features-row animate-in animate-in-delay-1">
     <div class="feature-chip">
       <div class="fi">🎓</div>
-      <p>JAMB · WAEC<br/>NECO · Post-UTME</p>
+      <p>SAT · GRE · IELTS<br/>JAMB · A-Levels &amp; more</p>
     </div>
     <div class="feature-chip">
       <div class="fi">💡</div>
@@ -294,7 +294,7 @@
   <!-- Support footer -->
   <div class="support-footer animate-in animate-in-delay-3">
     Having trouble?
-    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
+    <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a>
     <br/>
     © 2025 EXAMORA &nbsp;·&nbsp; Nigeria's CBT Exam Prep Platform
   </div>
@@ -498,17 +498,10 @@
     if(!email){ showErr("Enter your email address above, then click Forgot password"); return; }
     try{
       await sendPasswordResetEmail(auth,email);
-      showOk("Password reset link sent to "+email+" — check your inbox and spam folder.");
-    }catch(e){
-      showErr(
-        e.code==="auth/user-not-found"
-          ?"No account found with this email. Try creating a new account instead."
-          :"Something went wrong. Contact support@examora.com.ng if this persists.");
-    }
+      showOk("Password reset email sent to "+email+" — check your inbox.");
+      toast("Reset email sent 📧","success");
+    }catch(e){ showErr(ERRS[e.code]||"Could not send reset email"); }
   };
-</script>
-<script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>
