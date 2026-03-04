@@ -18,14 +18,15 @@ const EXAMORA_AI = (() => {
     // "sk-or-v1-yyyy",
   ];
 
-  // ── FREE MODELS — tried in order, costs you $0 ──────────────
+  // ── FREE MODELS — updated March 2026, all verified on OpenRouter ──
+  // Order matters: fastest/best first, fallbacks after
   var MODELS = [
-    "google/gemini-2.0-flash-exp:free",
-    "google/gemini-flash-1.5-8b:free",
-    "meta-llama/llama-3.1-8b-instruct:free",
-    "mistralai/mistral-7b-instruct:free",
-    "qwen/qwen-2-7b-instruct:free",
-    "microsoft/phi-3-mini-128k-instruct:free",
+    "google/gemini-2.0-flash-exp:free",       // Best quality, very fast
+    "deepseek/deepseek-chat:free",             // Excellent reasoning
+    "meta-llama/llama-3.3-70b-instruct:free", // Strong, reliable
+    "meta-llama/llama-3.1-8b-instruct:free",  // Fast lightweight fallback
+    "qwen/qwen-2.5-72b-instruct:free",        // Good multilingual
+    "microsoft/phi-4:free",                    // Compact, capable
   ];
 
   var OR_URL = "https://openrouter.ai/api/v1/chat/completions";
