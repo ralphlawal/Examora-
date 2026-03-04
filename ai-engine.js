@@ -101,11 +101,11 @@ const EXAMORA_AI = (() => {
 
           if (resp.status === 429) {
             allErrors.push(tag + ": rate limited");
-            break; // key exhausted, try next key
+            continue; // this model is rate limited — try next model
           }
           if (resp.status === 401 || resp.status === 403) {
             allErrors.push(tag + ": INVALID KEY — check your OpenRouter key");
-            break; // bad key, skip to next
+            break; // bad key — skip to next key
           }
           if (!resp.ok) {
             var errBody = "";
