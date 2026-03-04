@@ -663,11 +663,13 @@
   }
   async function sendAIChat() {
     // Trial / premium only
-    if ((localStorage.getItem('examora_plan')||'free') === 'free') {
-      var lb2 = document.createElement('div');
-      lb2.className = 'ai-chat-msg bot';
-      lb2.innerHTML = '🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;">Start free trial →</a>';
-      document.getElementById('aiChatMessages').appendChild(lb2);
+    var _chatPlan = localStorage.getItem('examora_plan') || 'free';
+    if (_chatPlan === 'free') {
+      var _lockBubble = document.createElement('div');
+      _lockBubble.className = 'ai-chat-msg bot';
+      _lockBubble.innerHTML = '🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;text-decoration:none;">Start free trial →</a>';
+      document.getElementById('aiChatMessages').appendChild(_lockBubble);
+      document.getElementById('aiChatMessages').scrollTop = 9999;
       return;
     }
     var input = document.getElementById('aiChatInput');
@@ -696,7 +698,7 @@
       loadBubble.textContent = result.text;
     } catch(e) {
       loadBubble.className = 'ai-chat-msg bot';
-      var errMsg = e.message === 'AI_KEY_MISSING' ? 'AI key not set. Add your Gemini AI key in ai-engine.js' : 'Could not reach AI. Try again.';
+      var errMsg = (e.message === 'AI_KEY_MISSING' || (e.message||'').startsWith('AI_KEY_MISSING')) ? '🔑 Add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)' : 'Could not reach AI. Try again.';
       loadBubble.textContent = errMsg;
     }
     msgs.scrollTop = msgs.scrollHeight;

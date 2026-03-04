@@ -561,11 +561,12 @@
     if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
   }
   async function sendAIChat(){
-    if ((localStorage.getItem('examora_plan')||'free')==='free') {
-      var msgs=document.getElementById('aiChatMessages');
-      var lb=document.createElement('div'); lb.className='ai-chat-msg bot';
-      lb.innerHTML='🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;">Start free trial →</a>';
-      msgs.appendChild(lb); return;
+    var _cp = localStorage.getItem('examora_plan') || 'free';
+    if (_cp === 'free') {
+      var _msgs = document.getElementById('aiChatMessages');
+      var _lb = document.createElement('div'); _lb.className = 'ai-chat-msg bot';
+      _lb.innerHTML = '🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;text-decoration:none;">Start free trial →</a>';
+      _msgs.appendChild(_lb); _msgs.scrollTop = 9999; return;
     }
     var inp=document.getElementById('aiChatInput');
     var msg=inp.value.trim(); if(!msg)return;

@@ -464,7 +464,18 @@
     el.style.color        = on ? "white" : "var(--text-2)";
     el.style.borderColor  = on ? "var(--c-brand)" : "var(--border)";
   }
-  function confirmSignOut()      { if (confirm("Sign out of EXAMORA?")) window._doSignOut && window._doSignOut(); }
+  function confirmSignOut() {
+    if (!confirm("Sign out of EXAMORA?")) return;
+    // Try module-set handler first, fallback to direct Firebase import
+    if (typeof window._doSignOut === "function") {
+      window._doSignOut();
+    } else {
+      // Fallback: clear local state and redirect
+      localStorage.removeItem("examora_plan");
+      localStorage.removeItem("examora_user_display");
+      window.location.href = "login.html";
+    }
+  }
   function confirmDeleteAccount(){ if (confirm("Delete your account?\nAll your data will be permanently lost.")) window._doDelete && window._doDelete(); }
 
   function buildReferralLink(uid) {
@@ -706,11 +717,13 @@
     if(results.some(r=>r.percent===100)&&!badges.includes("perfect")) badges.push("perfect");
     if(total>=100&&!badges.includes("100_exams")) badges.push("100_exams");
     if(avg>=80&&total>=5&&!badges.includes("high_scorer")) badges.push("high_scorer");
-    iforer");
-    if(total>=50&&!badges.includes('50_exams')) badges.push('50_exams');
-    if(badges.length>0){ try{ await updateDoc(doc(db,'users',uid),{badges}); }catch(_){} }
+    if(total>=50&&!badges.includes("50_exams")) badges.push("50_exams");
+    if(badges.length>0){ try{ await updateDoc(doc(db,"users",uid),{badges}); }catch(_){} }
     renderBadges(badges);
   });
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

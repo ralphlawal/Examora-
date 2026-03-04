@@ -548,9 +548,10 @@
 
   async function aiExplain(idx) {
     // Trial / premium only
-    if ((localStorage.getItem('examora_plan')||'free') === 'free') {
+    var _exPlan = localStorage.getItem('examora_plan') || 'free';
+    if (_exPlan === 'free') {
       var box = document.getElementById('aiBox_'+idx);
-      if (box) box.innerHTML = '<div style="font-size:0.78rem;color:var(--c-brand);padding:8px 0;">🔒 AI explanations need a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;">Start free trial →</a></div>';
+      if (box) box.innerHTML = '<div style="padding:10px;background:var(--c-brand-pale);border-radius:10px;font-size:0.8rem;text-align:center;">🔒 AI explanations need a trial or Premium.<br/><a href=\"upgrade.html\" style=\"color:var(--c-brand);font-weight:700;\">Start free trial →</a></div>';
       return;
     }
     const item = allItems[idx];
@@ -564,7 +565,7 @@
     // Prevent double-click
     if (btn.disabled) return;
     btn.disabled = true;
-    btn.innerHTML = '<div class="ai-explain-loading"><div class="ai-loading-dots"><span></span><span></span><span></span></div> Gemini is explaining...</div>';
+    btn.innerHTML = '<div class="ai-explain-loading"><div class="ai-loading-dots"><span></span><span></span><span></span></div> NexaCore AI is explaining...</div>';
     box.classList.remove("show");
 
     try {

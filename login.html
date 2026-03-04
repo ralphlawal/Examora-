@@ -497,21 +497,14 @@
     const email=document.getElementById("emailInput").value.trim();
     if(!email){ showErr("Enter your email address above, then click Forgot password"); return; }
     try{
-      await sendPasswordResetEmahowOk("Passwor
-    }catch(e){
-      setLoading(false);
-      showErr(ERRS[e.code]||'Something went wrong. Please try again.');
-    }
-  };
-  window.forgotPassword=async()=>{
-    const email=document.getElementById('emailInput').value.trim();
-    if(!email){ showErr('Enter your email above then click Forgot password'); return; }
-    try{
       await sendPasswordResetEmail(auth,email);
-      showOk('Password reset email sent to '+email+' — check your inbox.');
-      toast('Reset email sent 📧','success');
-    }catch(e){ showErr(ERRS[e.code]||'Could not send reset email.'); }
+      showOk("Password reset email sent to "+email+" — check your inbox.");
+      toast("Reset email sent 📧","success");
+    }catch(e){ showErr(ERRS[e.code]||"Could not send reset email. Please try again."); }
   };
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>

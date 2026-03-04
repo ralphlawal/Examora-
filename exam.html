@@ -760,10 +760,10 @@
 
   // ── AI Question Generator ──
   async function generateAIQuestions() {
-    var plan = (window._userData && window._userData.plan) || 'free';
-    if (plan === 'free') {
-      toast('AI Question Generator requires a trial or Premium', 'warning', 3500);
-      setTimeout(function(){ window.location.href='upgrade.html'; }, 1800);
+    var _qgPlan = localStorage.getItem('examora_plan') || (window._userData && window._userData.plan) || 'free';
+    if (_qgPlan === 'free') {
+      document.getElementById('qgenResult').style.display = 'block';
+      document.getElementById('qgenResult').innerHTML = '<div style="padding:12px;text-align:center;font-size:0.82rem;"><span style="font-size:1.2rem;">🔒</span><br/><strong>Needs trial or Premium</strong><br/><a href="upgrade.html" style="color:var(--c-brand);font-weight:700;">Start free trial →</a></div>';
       return;
     }
     var topic = document.getElementById('qgenTopic').value.trim();
@@ -803,7 +803,7 @@
         resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Could not generate questions. Try a different topic.</div>';
       }
     } catch(e) {
-      var msg = e.message === 'AI_KEY_MISSING' ? 'AI not configured. Add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)' : e.message;
+      var msg = (e.message === 'AI_KEY_MISSING' || e.message.startsWith('AI_KEY_MISSING')) ? 'AI not configured — add your OpenRouter key in ai-engine.js' : e.message;
       resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Error: ' + msg + '</div>';
     }
 
@@ -1130,7 +1130,7 @@
     <!-- Model badge -->
     <div class="ai-model-badge" id="aiModelBadge" style="display:none;">
       <span class="material-symbols-rounded ms-sm ms-fill">auto_awesome</span>
-      <span id="aiModelName">Gemini</span>
+      <span id="aiModelName">NexaCore Labs</span>
     </div>
 
     <!-- Try again button -->
@@ -1165,10 +1165,10 @@
 
   async function askAiTutor(action) {
     // AI only available on trial or premium
-    var plan = (window._userData && window._userData.plan) || 'free';
-    if (plan === 'free') {
-      toast('AI features require a trial or Premium — tap Upgrade to start your free trial', 'warning', 4000);
-      setTimeout(function(){ window.location.href='upgrade.html'; }, 2200);
+    var _aiPlan = localStorage.getItem('examora_plan') || (window._userData && window._userData.plan) || 'free';
+    if (_aiPlan === 'free') {
+      document.getElementById('aiResultBox').innerHTML = '<div style="padding:14px;background:var(--c-brand-pale);border-radius:12px;font-size:0.82rem;text-align:center;"><div style="font-size:1.4rem;margin-bottom:6px;">🔒</div><strong style="color:var(--c-brand);">AI features need a trial or Premium</strong><br/><br/><a href="upgrade.html" style="display:inline-flex;align-items:center;gap:6px;background:var(--c-brand);color:white;padding:9px 18px;border-radius:100px;font-weight:700;font-size:0.8rem;text-decoration:none;">🚀 Start Free Trial</a></div>';
+      document.getElementById('aiPanel').style.display = 'block';
       return;
     }
     const q = examQuestions[currentIdx];
@@ -1183,7 +1183,7 @@
 
     // Show loading
     document.getElementById("aiResponseArea").innerHTML =
-      '<div class="ai-loading"><div class="ai-loading-dots"><span></span><span></span><span></span></div>Gemini is thinking...</div>';
+      '<div class="ai-loading"><div class="ai-loading-dots"><span></span><span></span><span></span></div>NexaCore AI is thinking...</div>';
     document.getElementById("aiModelBadge").style.display = "none";
     document.getElementById("aiRetryArea").style.display = "none";
 
@@ -1218,11 +1218,11 @@
       document.getElementById("aiModelBadge").style.display = "inline-flex";
 
     } catch (e) {
-      const isKeyMissing = e.message === "AI_KEY_MISSING";
+      const isKeyMissing = (e.message === "AI_KEY_MISSING" || e.message.startsWith("AI_KEY_MISSING"));
       document.getElementById("aiResponseArea").innerHTML =
         '<div class="ai-error"><span class="material-symbols-rounded ms-sm">error</span>' +
         (isKeyMissing
-          ? 'AI key not configured. AI not configured. Add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)'
+          ? 'AI not configured — add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)'
           : 'Could not connect to AI. Check your internet and try again.') +
         '</div>';
       document.getElementById("aiRetryArea").style.display = !isKeyMissing ? "block" : "none";

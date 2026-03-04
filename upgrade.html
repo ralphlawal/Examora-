@@ -792,10 +792,8 @@
       return;
     }
 
-    /* CASE 4: Free user who hasn't used trial */
-    if (!ud.trialUsed) {
-      trialOffer.classList.add("show");
-    }
+    /* CASE 4: Free user — show trial offer always */
+    trialOffer.classList.add("show");
 
     priceCard.style.display = "block";
   }
@@ -855,24 +853,31 @@
         trialExamsUsed:  0,
         lastActive:      now.toDateString()
       });
-      toast("🎉 7-day free trial started! Enjoy Premium features.", "success", 5000);
+      localStorage.setItem("examora_plan", "trial");
+      toast("🎉 Free trial started! 3 exams with full AI access.", "success", 5000);
       setTimeout(function(){ window.location.href = "index.html"; }, 2000);
     } catch (err) {
       console.error("startTrial error:", err);
       toast("Could not start trial. Please try again.", "error");
     }
+    if (trialBtn) { trialBtn.disabled = false; trialBtn.textContent = "🚀 Start Free Trial — No Card Needed"; }
   };
 
   /* auth listener */
-  onAuthStateChanged(auth, asy
-    window._userId = user.uid;
-    try{
-      const snap=await getDoc(doc(db,'users',user.uid));
-      const ud=snap.data()||{};
-      localStorage.setItem('examora_plan', ud.plan||'free');
+  onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = "login.html"; return; }
+    window._userEmail = user.email;
+    window._userId    = user.uid;
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const ud   = snap.data() || {};
+      localStorage.setItem("examora_plan", ud.plan||"free");
       applyPlanUI(ud);
-    }catch(err){ console.error('Plan load error:',err); }
+    } catch(err) { console.error("Plan load error:", err); }
   });
+</script>
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
 </body>
 </html>
