@@ -869,11 +869,11 @@
     window._userEmail = user.email;
     window._userId    = user.uid;
     try {
-      const snap = await getDoc(doc(db, "users", user.uid));
+      const snap = await getDoc(doc(db,"users",user.uid));
       const ud   = snap.data() || {};
       localStorage.setItem("examora_plan", ud.plan||"free");
       applyPlanUI(ud);
-    } catch(err) { console.error("Plan load error:", err); }
+    } catch(err) { console.error("Plan load error:",err); }
   });
 </script>
 <script>

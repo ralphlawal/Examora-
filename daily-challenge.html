@@ -652,12 +652,23 @@
     if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
   }
   async function sendAIChat(){
+    // AI Chat: free users see upgrade prompt, trial/premium get full access
     var _cp = localStorage.getItem('examora_plan') || 'free';
     if (_cp === 'free') {
       var _msgs = document.getElementById('aiChatMessages');
-      var _lb = document.createElement('div'); _lb.className = 'ai-chat-msg bot';
-      _lb.innerHTML = '🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;text-decoration:none;">Start free trial →</a>';
-      _msgs.appendChild(_lb); _msgs.scrollTop = 9999; return;
+      if (_msgs) {
+        var _lb = document.createElement('div');
+        _lb.className = 'ai-chat-msg bot';
+        _lb.innerHTML = '<div style="padding:12px;background:rgba(99,102,241,0.08);border-radius:12px;text-align:center;">'
+          + '<div style="font-size:1.2rem;margin-bottom:4px;">🔒</div>'
+          + '<strong style="font-size:0.82rem;">AI Chat is a Premium feature</strong>'
+          + '<div style="font-size:0.75rem;color:var(--text-3);margin:6px 0 10px;">Start your free trial to unlock AI Chat, hints, explanations and more.</div>'
+          + '<a href="upgrade.html" style="display:inline-block;background:var(--c-brand);color:white;padding:8px 18px;border-radius:100px;font-weight:700;font-size:0.78rem;text-decoration:none;">🚀 Start Free Trial</a>'
+          + '</div>';
+        _msgs.appendChild(_lb);
+        _msgs.scrollTop = 99999;
+      }
+      return;
     }
     var inp=document.getElementById('aiChatInput');
     var msg=inp.value.trim(); if(!msg)return;

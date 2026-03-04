@@ -594,12 +594,23 @@
     if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
   }
   async function sendAIChat(){
+    // AI Chat: free users see upgrade prompt, trial/premium get full access
     var _cp = localStorage.getItem('examora_plan') || 'free';
     if (_cp === 'free') {
       var _msgs = document.getElementById('aiChatMessages');
-      var _lb = document.createElement('div'); _lb.className = 'ai-chat-msg bot';
-      _lb.innerHTML = '🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;text-decoration:none;">Start free trial →</a>';
-      _msgs.appendChild(_lb); _msgs.scrollTop = 9999; return;
+      if (_msgs) {
+        var _lb = document.createElement('div');
+        _lb.className = 'ai-chat-msg bot';
+        _lb.innerHTML = '<div style="padding:12px;background:rgba(99,102,241,0.08);border-radius:12px;text-align:center;">'
+          + '<div style="font-size:1.2rem;margin-bottom:4px;">🔒</div>'
+          + '<strong style="font-size:0.82rem;">AI Chat is a Premium feature</strong>'
+          + '<div style="font-size:0.75rem;color:var(--text-3);margin:6px 0 10px;">Start your free trial to unlock AI Chat, hints, explanations and more.</div>'
+          + '<a href="upgrade.html" style="display:inline-block;background:var(--c-brand);color:white;padding:8px 18px;border-radius:100px;font-weight:700;font-size:0.78rem;text-decoration:none;">🚀 Start Free Trial</a>'
+          + '</div>';
+        _msgs.appendChild(_lb);
+        _msgs.scrollTop = 99999;
+      }
+      return;
     }
     var inp=document.getElementById('aiChatInput');
     var msg=inp.value.trim(); if(!msg)return;
@@ -621,6 +632,67 @@
     }
     msgs.scrollTop=msgs.scrollHeight;
     document.getElementById('aiChatSend').disabled=false;
+  }
+</script>
+
+<!-- ── COMING SOON POPUP ── -->
+<div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:90%;margin:auto;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3);border:1px solid var(--border);animation:fadeInUp 0.3s ease;">
+    <div style="font-size:2.6rem;margin-bottom:8px;">🚀</div>
+    <div id="csTitle" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
+    <div id="csBody" style="font-size:0.82rem;color:var(--text-3);line-height:1.7;margin-bottom:20px;">We're building something exciting for you — stay tuned!</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="csBadges"></div>
+    <button onclick="document.getElementById('comingSoonOverlay').style.display='none'" 
+      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
+      Can't Wait! 🎉
+    </button>
+    <button onclick="dismissCS()" style="margin-top:8px;background:none;border:none;color:var(--text-3);font-size:0.75rem;cursor:pointer;width:100%;">Don't show again</button>
+  </div>
+</div>
+<script>
+  // Coming Soon popup — shows once per session unless dismissed
+  (function(){
+    var updates = [
+      {
+        title: "🎯 Offline Mode Coming!",
+        body: "Download exam packs and practice without internet. Perfect for when data runs out.",
+        badges: ["No Data Needed","Full Exam Access","Auto-Sync"]
+      },
+      {
+        title: "📊 PDF Score Reports",
+        body: "Download beautiful performance reports to share with teachers or parents.",
+        badges: ["Share Results","Track Progress","Print Ready"]
+      },
+      {
+        title: "🏫 Group Study Mode",
+        body: "Challenge your classmates, compare scores, and study together in real-time.",
+        badges: ["Multiplayer","Live Rankings","Team Goals"]
+      },
+      {
+        title: "🌍 More Exam Categories",
+        body: "SAT, GRE, LSAT, ACCA and more professional exams are being added weekly.",
+        badges: ["SAT Ready","GRE Prep","ACCA Coming"]
+      }
+    ];
+    var pick = updates[Math.floor(Math.random()*updates.length)];
+    var shown = sessionStorage.getItem('cs_shown');
+    var dismissed = localStorage.getItem('cs_dismissed_v2');
+    if(!shown && !dismissed){
+      setTimeout(function(){
+        document.getElementById('csTitle').textContent = pick.title;
+        document.getElementById('csBody').textContent = pick.body;
+        var badgeHTML = pick.badges.map(function(b){
+          return '<span style="background:var(--c-brand-pale);color:var(--c-brand);padding:4px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;">'+b+'</span>';
+        }).join('');
+        document.getElementById('csBadges').innerHTML = badgeHTML;
+        document.getElementById('comingSoonOverlay').style.display = 'flex';
+        sessionStorage.setItem('cs_shown','1');
+      }, 4000);
+    }
+  })();
+  function dismissCS(){
+    document.getElementById('comingSoonOverlay').style.display='none';
+    localStorage.setItem('cs_dismissed_v2','1');
   }
 </script>
 
