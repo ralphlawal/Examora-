@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Notifications — EXAMORA</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+  <style>
+    .notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;transition:var(--transition);position:relative;}
+    .notif-item:hover{border-color:var(--c-brand);box-shadow:var(--shadow-sm);}
+    .notif-item.unread{border-left:3px solid var(--c-brand);background:var(--c-brand-pale);}
+    .notif-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+    .notif-body{flex:1;min-width:0;}
+    .notif-title{font-family:var(--font-display);font-weight:700;font-size:0.82rem;color:var(--text);margin-bottom:3px;}
+    .notif-msg{font-size:0.74rem;color:var(--text-2);line-height:1.5;}
+    .notif-time{font-size:0.64rem;color:var(--text-3);margin-top:4px;}
+    .notif-dot{width:8px;height:8px;border-radius:50%;background:var(--c-brand);flex-shrink:0;margin-top:6px;}
+    .push-card{background:linear-gradient(135deg,#1e1b4b,#0f172a);border-radius:var(--radius-xl);padding:22px;margin-bottom:20px;border:1px solid rgba(99,102,241,0.3);}
+    .push-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;}
+    .push-toggle-label{font-size:0.82rem;font-weight:600;color:var(--text);}
+    .push-toggle-sub{font-size:0.68rem;color:var(--text-3);margin-top:2px;}
+    .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+    .toggle-switch input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:var(--border-strong);border-radius:100px;cursor:pointer;transition:var(--transition);}
+    .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:var(--transition);}
+    .toggle-switch input:checked + .toggle-slider{background:var(--c-brand);}
+    .toggle-switch input:checked + .toggle-slider::before{transform:translateX(20px);}
+    .section-label{font-family:var(--font-display);font-weight:700;font-size:0.78rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin:16px 0 8px;}
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Notifications</div>
+    <button class="icon-btn" onclick="markAllRead()" title="Mark all read"><span class="material-symbols-rounded">done_all</span></button>
+  </div>
+  <div style="padding:16px;">
+
+    <!-- Push notification setup card -->
+    <div class="push-card" id="pushSetupCard">
+      <div style="font-size:1.8rem;margin-bottom:10px;">🔔</div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:white;margin-bottom:4px;">Stay on track with reminders</div>
+      <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:14px;">Get daily study reminders, streak alerts, and result notifications even when the app is closed.</div>
+      <button class="btn btn-primary" id="enablePushBtn" onclick="enablePush()" style="width:100%;">Enable Notifications</button>
+      <div id="pushStatus" style="font-size:0.72rem;color:rgba(255,255,255,0.4);text-align:center;margin-top:8px;display:none;"></div>
+    </div>
+
+    <!-- Notification preferences -->
+    <div class="section-label">Notification Settings</div>
+    <div class="push-toggle-row">
+      <div><div class="push-toggle-label">Daily Study Reminder</div><div class="push-toggle-sub">Nudge to study every day at 7 PM</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="tog_daily" checked onchange="savePref('daily',this.checked)"/><span class="toggle-slider"></span></label>
+    </div>
+    <div class="push-toggle-row">
+      <div><div class="push-toggle-label">Streak Alerts</div><div class="push-toggle-sub">Warn when your streak is at risk</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="tog_streak" checked onchange="savePref('streak',this.checked)"/><span class="toggle-slider"></span></label>
+    </div>
+    <div class="push-toggle-row">
+      <div><div class="push-toggle-label">Daily Challenge</div><div class="push-toggle-sub">Remind you when a new challenge drops</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="tog_challenge" checked onchange="savePref('challenge',this.checked)"/><span class="toggle-slider"></span></label>
+    </div>
+    <div class="push-toggle-row">
+      <div><div class="push-toggle-label">Leaderboard Updates</div><div class="push-toggle-sub">When someone overtakes you</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="tog_leaderboard" onchange="savePref('leaderboard',this.checked)"/><span class="toggle-slider"></span></label>
+    </div>
+    <div class="push-toggle-row">
+      <div><div class="push-toggle-label">New Class Assignments</div><div class="push-toggle-sub">When your teacher assigns work</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="tog_class" checked onchange="savePref('class',this.checked)"/><span class="toggle-slider"></span></label>
+    </div>
+
+    <!-- Notification feed -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 8px;">
+      <div class="section-label" style="margin:0;">Recent</div>
+      <button onclick="clearAll()" style="font-size:0.72rem;color:var(--text-3);background:none;border:none;cursor:pointer;">Clear all</button>
+    </div>
+    <div id="notifFeed"></div>
+  </div>
+</div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+<script>
+  const _t=localStorage.getItem('examora_theme')||'light';
+  document.documentElement.setAttribute('data-theme',_t);
+  function toast(msg,type){var t=document.getElementById('toast');document.getElementById('toastIcon').textContent={success:'✅',error:'❌',warning:'⚠️'}[type]||'ℹ️';document.getElementById('toastMsg').textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.className='toast',3000);}
+
+  // Load prefs
+  var prefs=JSON.parse(localStorage.getItem('examora_notif_prefs')||'{"daily":true,"streak":true,"challenge":true,"leaderboard":false,"class":true}');
+  Object.keys(prefs).forEach(k=>{var el=document.getElementById('tog_'+k);if(el)el.checked=prefs[k];});
+  function savePref(k,v){prefs[k]=v;localStorage.setItem('examora_notif_prefs',JSON.stringify(prefs));}
+
+  // Check push state
+  (function(){
+    if(!('Notification' in window)){document.getElementById('pushSetupCard').innerHTML='<div style="color:rgba(255,255,255,0.5);font-size:0.8rem;text-align:center;padding:12px;">Notifications not supported on this device</div>';return;}
+    if(Notification.permission==='granted'){
+      document.getElementById('enablePushBtn').textContent='✓ Notifications Enabled';
+      document.getElementById('enablePushBtn').style.background='rgba(16,185,129,0.2)';
+      document.getElementById('enablePushBtn').style.color='#10b981';
+      document.getElementById('enablePushBtn').disabled=true;
+    } else if(Notification.permission==='denied'){
+      document.getElementById('pushStatus').style.display='block';
+      document.getElementById('pushStatus').textContent='Notifications blocked. Enable in browser settings → Site Settings → Notifications.';
+      document.getElementById('enablePushBtn').textContent='Blocked — Open Settings';
+      document.getElementById('enablePushBtn').disabled=true;
+    }
+  })();
+
+  async function enablePush(){
+    if(!('Notification' in window)){toast('Not supported on this device','error');return;}
+    var btn=document.getElementById('enablePushBtn');
+    btn.textContent='Requesting...'; btn.disabled=true;
+    var result=await Notification.requestPermission();
+    if(result==='granted'){
+      localStorage.setItem('examora_push_enabled','1');
+      btn.textContent='✓ Notifications Enabled';
+      btn.style.background='rgba(16,185,129,0.2)'; btn.style.color='#10b981';
+      toast('Notifications enabled! ✓','success');
+      scheduleLocalReminders();
+      addNotif({icon:'🔔',iconBg:'rgba(99,102,241,0.12)',title:'Notifications Enabled',msg:'You\'ll now receive study reminders and alerts.',url:'/notifications.html'});
+    } else {
+      btn.textContent='Enable Notifications'; btn.disabled=false;
+      document.getElementById('pushStatus').style.display='block';
+      document.getElementById('pushStatus').textContent='Permission denied. Please allow notifications in your browser settings.';
+    }
+  }
+
+  function scheduleLocalReminders(){
+    // Use SW to handle periodic reminders where supported
+    if('serviceWorker' in navigator && 'periodicSync' in window.ServiceWorkerRegistration.prototype){
+      navigator.serviceWorker.ready.then(sw=>{
+        sw.periodicSync.register('daily-reminder',{minInterval:24*60*60*1000}).catch(()=>{});
+      });
+    }
+  }
+
+  // Notifications stored in localStorage
+  var NOTIF_KEY='examora_notifications';
+  function loadNotifs(){try{return JSON.parse(localStorage.getItem(NOTIF_KEY)||'[]');}catch(_){return[];}}
+  function saveNotifs(n){localStorage.setItem(NOTIF_KEY,JSON.stringify(n.slice(0,50)));}
+
+  function addNotif(n){
+    var notifs=loadNotifs();
+    notifs.unshift({...n,id:Date.now(),unread:true,time:Date.now()});
+    saveNotifs(notifs);
+    renderFeed();
+  }
+  window.addNotif=addNotif;
+
+  function markAllRead(){
+    var n=loadNotifs().map(x=>({...x,unread:false}));
+    saveNotifs(n); renderFeed();
+    // Update badge in other pages
+    localStorage.setItem('examora_notif_unread','0');
+    toast('All marked as read','success');
+  }
+
+  function clearAll(){
+    if(!confirm('Clear all notifications?')) return;
+    saveNotifs([]); renderFeed();
+  }
+
+  function timeAgo(ts){
+    var d=(Date.now()-ts)/1000;
+    if(d<60) return 'just now';
+    if(d<3600) return Math.floor(d/60)+'m ago';
+    if(d<86400) return Math.floor(d/3600)+'h ago';
+    return Math.floor(d/86400)+'d ago';
+  }
+
+  function renderFeed(){
+    var notifs=loadNotifs();
+    var unread=notifs.filter(n=>n.unread).length;
+    localStorage.setItem('examora_notif_unread',unread.toString());
+    if(!notifs.length){
+      document.getElementById('notifFeed').innerHTML='<div style="text-align:center;padding:40px;color:var(--text-3);"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="font-size:0.82rem;">No notifications yet</div></div>';
+      return;
+    }
+    document.getElementById('notifFeed').innerHTML=notifs.map((n,i)=>`
+      <div class="notif-item ${n.unread?'unread':''}" onclick="openNotif(${i})">
+        <div class="notif-icon" style="background:${n.iconBg||'var(--c-brand-pale)'};">${n.icon||'🔔'}</div>
+        <div class="notif-body">
+          <div class="notif-title">${n.title||''}</div>
+          <div class="notif-msg">${n.msg||''}</div>
+          <div class="notif-time">${timeAgo(n.time)}</div>
+        </div>
+        ${n.unread?'<div class="notif-dot"></div>':''}
+      </div>`).join('');
+  }
+
+  function openNotif(i){
+    var notifs=loadNotifs();
+    notifs[i].unread=false;
+    saveNotifs(notifs);
+    renderFeed();
+    if(notifs[i].url) window.location.href=notifs[i].url;
+  }
+
+  // Seed some welcome notifications on first visit
+  if(!localStorage.getItem('examora_notif_seeded')){
+    localStorage.setItem('examora_notif_seeded','1');
+    var seeds=[
+      {icon:'🎉',iconBg:'rgba(99,102,241,0.12)',title:'Welcome to EXAMORA!',msg:'Your journey to exam success starts now. Complete your first practice exam to get started.',url:'/exam.html',time:Date.now()-5*60000},
+      {icon:'⚡',iconBg:'rgba(245,158,11,0.12)',title:'Daily Challenge Available',msg:"Today's challenge is ready. Complete it to build your streak!",url:'/daily-challenge.html',time:Date.now()-2*60000},
+      {icon:'🤖',iconBg:'rgba(16,185,129,0.12)',title:'AI Tutor is Ready',msg:'Ask any exam question and get instant, detailed explanations.',url:'/chat.html',time:Date.now()-60000},
+    ];
+    localStorage.setItem(NOTIF_KEY,JSON.stringify(seeds));
+  }
+
+  renderFeed();
+
+  // Trigger browser notification for test (if permitted)
+  function sendTestNotification(){
+    if(Notification.permission==='granted'){
+      new Notification('EXAMORA ⚡',{body:"You have a new daily challenge ready!",icon:'/logo.png',badge:'/logo.png',tag:'test'});
+    }
+  }
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const app=initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.appspot.com",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+  const auth=getAuth(app),db=getFirestore(app);
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href='login.html';return;}
+    // Pull server-side notifications (assignments, class updates)
+    try{
+      const snap=await getDocs(query(collection(db,'notifications'),where('userId','==',user.uid),orderBy('createdAt','desc')));
+      snap.forEach(d=>{
+        var n=d.data();
+        var existing=loadNotifs().find(x=>x.serverId===d.id);
+        if(!existing) window.addNotif({...n,icon:n.icon||'🔔',iconBg:n.iconBg||'var(--c-brand-pale)',serverId:d.id});
+      });
+    }catch(_){}
+  });
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

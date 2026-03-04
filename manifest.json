@@ -1,5 +1,5 @@
 {
-  "name": "EXAMORA — Nigeria's #1 CBT Prep App",
+  "name": "EXAMORA \u2014 Nigeria's #1 CBT Prep App",
   "short_name": "EXAMORA",
   "description": "Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, performance analytics, daily challenges and leaderboards.",
   "start_url": "/index.html",
@@ -9,7 +9,9 @@
   "background_color": "#0f172a",
   "theme_color": "#6366f1",
   "lang": "en-NG",
-  "categories": ["education"],
+  "categories": [
+    "education"
+  ],
   "icons": [
     {
       "src": "logo.png",
@@ -43,23 +45,62 @@
     {
       "name": "Start Exam",
       "short_name": "Exam",
-      "description": "Jump straight into a practice exam",
+      "description": "Jump into practice",
       "url": "/exam.html",
-      "icons": [{ "src": "logo.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "logo.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Daily Challenge",
       "short_name": "Challenge",
-      "description": "Complete today's daily challenge",
+      "description": "Today's challenge",
       "url": "/daily-challenge.html",
-      "icons": [{ "src": "logo.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "logo.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
-      "name": "My Analytics",
-      "short_name": "Stats",
-      "description": "View your performance analytics",
-      "url": "/analytics.html",
-      "icons": [{ "src": "logo.png", "sizes": "96x96" }]
+      "name": "Mock Exam",
+      "short_name": "Mock",
+      "description": "Timed mock exam",
+      "url": "/mock.html",
+      "icons": [
+        {
+          "src": "logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "AI Tutor",
+      "short_name": "AI Chat",
+      "description": "Ask the AI tutor",
+      "url": "/chat.html",
+      "icons": [
+        {
+          "src": "logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Study Planner",
+      "short_name": "Planner",
+      "description": "Your study plan",
+      "url": "/planner.html",
+      "icons": [
+        {
+          "src": "logo.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
   "related_applications": [],
@@ -68,6 +109,10 @@
   "share_target": {
     "action": "/index.html",
     "method": "GET",
-    "params": { "title": "title", "text": "text", "url": "url" }
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
   }
 }

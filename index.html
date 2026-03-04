@@ -262,6 +262,10 @@
   </a>
   <div class="header-actions">
     <div class="streak-badge" id="streakBadge" style="display:none;"><span class="material-symbols-rounded ms-fill" style="font-size:0.9rem;color:#fbbf24;">local_fire_department</span> <span id="streakCount">0</span></div>
+    <a href="notifications.html" class="header-btn" id="notifBtn" title="Notifications" style="position:relative;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">
+      <span class="material-symbols-rounded" style="font-size:1.2rem;color:var(--text-2);">notifications</span>
+      <span id="notifBadge" style="display:none;position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--c-red);border-radius:50%;border:1.5px solid var(--bg-card);"></span>
+    </a>
     <button class="header-btn" id="themeBtn" title="Toggle theme">🌙</button>
   </div>
 </header>
@@ -396,6 +400,18 @@
     <a href="school.html" class="quick-card">
       <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">school</span></div>
       <div class="quick-label">School<br/>Mode</div>
+    </a>
+    <a href="flashcards.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(168,85,247,0.12);"><span class="material-symbols-rounded" style="color:#a855f7;">style</span></div>
+      <div class="quick-label">Flash<br/>Cards</div>
+    </a>
+    <a href="planner.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(20,184,166,0.12);"><span class="material-symbols-rounded" style="color:#14b8a6;">calendar_month</span></div>
+      <div class="quick-label">Study<br/>Planner</div>
+    </a>
+    <a href="notes.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">edit_note</span></div>
+      <div class="quick-label">Study<br/>Notes</div>
     </a>
     <a href="bookmarks.html" class="quick-card">
       <div class="quick-icon-wrap"><span class="material-symbols-rounded">bookmark</span></div>
@@ -551,6 +567,12 @@
   const _t = localStorage.getItem("examora_theme") || "light";
   document.documentElement.setAttribute("data-theme", _t);
   document.getElementById("themeBtn").innerHTML = _t==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>';
+  // Check notification badge
+  (function(){
+    var unread = parseInt(localStorage.getItem('examora_notif_unread')||'0');
+    var badge = document.getElementById('notifBadge');
+    if(badge) badge.style.display = unread>0 ? 'block' : 'none';
+  })();
   document.getElementById("themeBtn").addEventListener("click", () => {
     const cur = document.documentElement.getAttribute("data-theme");
     const nxt = cur === "dark" ? "light" : "dark";

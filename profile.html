@@ -307,6 +307,26 @@
       <div class="setting-content"><div class="setting-label">AI Tutor Chat</div><div class="setting-value">Ask anything, get explanations</div></div>
       <span class="material-symbols-rounded setting-arrow">chevron_right</span>
     </div>
+    <div class="setting-row" onclick="window.location.href='flashcards.html'">
+      <div class="setting-icon" style="background:rgba(168,85,247,0.1);"><span class="material-symbols-rounded" style="color:#a855f7;">style</span></div>
+      <div class="setting-content"><div class="setting-label">Flashcards</div><div class="setting-value">AI-generated study decks</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='planner.html'">
+      <div class="setting-icon" style="background:rgba(20,184,166,0.1);"><span class="material-symbols-rounded" style="color:#14b8a6;">calendar_month</span></div>
+      <div class="setting-content"><div class="setting-label">Study Planner</div><div class="setting-value">Daily tasks & AI study plan</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='notes.html'">
+      <div class="setting-icon" style="background:rgba(245,158,11,0.1);"><span class="material-symbols-rounded" style="color:var(--c-gold);">edit_note</span></div>
+      <div class="setting-content"><div class="setting-label">Study Notes</div><div class="setting-value">Write and AI-summarise notes</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='notifications.html'">
+      <div class="setting-icon" style="background:rgba(244,63,94,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">notifications</span></div>
+      <div class="setting-content"><div class="setting-label">Notifications</div><div class="setting-value">Reminders and alerts</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
   </div>
 
   <!-- Referral Rewards -->
@@ -791,10 +811,9 @@
     if(total>=100&&!badges.includes("100_exams")) badges.push("100_exams");
     if(avg>=80&&total>=5&&!badges.includes("high_scorer")) badges.push("high_scorer");
     if(total>=50&&!badges.includes("50_exams")) badges.push("50_exams");
-    if(badges.length>0){ try{ await updateDoc(doc(db,"users",uid),{badges}); }catch(_){} }
-    renderBadges(badges);
-  });
+    if(badg
 </script>
+
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>

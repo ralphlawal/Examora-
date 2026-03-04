@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Flashcards — EXAMORA</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+  <style>
+    .deck-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+    .deck-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden;}
+    .deck-card:hover{border-color:var(--c-brand);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .deck-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--deck-color,var(--c-brand));}
+    .deck-icon{font-size:1.6rem;margin-bottom:8px;}
+    .deck-name{font-family:var(--font-display);font-weight:700;font-size:0.82rem;color:var(--text);margin-bottom:3px;}
+    .deck-count{font-size:0.65rem;color:var(--text-3);}
+    .deck-progress{height:3px;background:var(--bg-input);border-radius:2px;margin-top:8px;overflow:hidden;}
+    .deck-progress-fill{height:100%;border-radius:2px;background:var(--deck-color,var(--c-brand));}
+
+    /* Study mode */
+    #studyMode{display:none;}
+    .fc-container{perspective:1000px;height:220px;margin:20px 0;cursor:pointer;}
+    .fc-inner{position:relative;width:100%;height:100%;transition:transform 0.6s cubic-bezier(0.34,1.2,0.64,1);transform-style:preserve-3d;}
+    .fc-inner.flipped{transform:rotateY(180deg);}
+    .fc-face{
+      position:absolute;inset:0;border-radius:var(--radius-xl);
+      display:flex;align-items:center;justify-content:center;padding:24px;
+      backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      text-align:center;
+    }
+    .fc-front{background:linear-gradient(135deg,#1e1b4b,#0f172a);border:1px solid rgba(99,102,241,0.3);}
+    .fc-back{background:linear-gradient(135deg,#052e16,#0f172a);border:1px solid rgba(16,185,129,0.3);transform:rotateY(180deg);}
+    .fc-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;opacity:0.5;color:white;}
+    .fc-text{font-family:var(--font-display);font-weight:700;font-size:1rem;line-height:1.5;color:white;}
+    .fc-hint{font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:8px;}
+    .fc-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
+    .fc-btn{padding:12px 8px;border-radius:var(--radius-md);border:none;font-family:var(--font-display);font-weight:700;font-size:0.78rem;cursor:pointer;transition:var(--transition);}
+    .fc-btn.wrong{background:rgba(244,63,94,0.12);color:var(--c-red);border:1.5px solid rgba(244,63,94,0.25);}
+    .fc-btn.hard{background:rgba(245,158,11,0.12);color:var(--c-gold);border:1.5px solid rgba(245,158,11,0.25);}
+    .fc-btn.got{background:rgba(16,185,129,0.12);color:var(--c-green);border:1.5px solid rgba(16,185,129,0.25);}
+    .fc-topbar{display:flex;align-items:center;gap:10px;padding:0 16px;height:54px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
+    .fc-progress-bar{flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden;}
+    .fc-progress-fill{height:100%;background:var(--c-brand);border-radius:3px;transition:width 0.4s;}
+    .fc-counter{font-size:0.72rem;color:var(--text-3);font-weight:600;white-space:nowrap;}
+
+    /* Create deck sheet */
+    .tab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;}
+    .tab-btn{flex:1;padding:10px;font-size:0.78rem;font-weight:600;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);}
+    .tab-btn.active{color:var(--c-brand);border-bottom-color:var(--c-brand);}
+    .tab-panel{display:none;} .tab-panel.active{display:block;}
+
+    /* Results screen */
+    #studyDone{display:none;padding:24px;text-align:center;}
+    .done-ring{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),#7c3aed);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:2rem;}
+  </style>
+</head>
+<body>
+<div class="app-container">
+
+<!-- LIST VIEW -->
+<div id="listView">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Flashcards</div>
+    <button class="icon-btn" onclick="openCreate()"><span class="material-symbols-rounded">add</span></button>
+  </div>
+  <div style="padding:16px;">
+    <div class="tab-row">
+      <div class="tab-btn active" onclick="switchTab('my',this)">My Decks</div>
+      <div class="tab-btn" onclick="switchTab('ai',this)">AI Generate</div>
+    </div>
+    <div class="tab-panel active" id="tab-my">
+      <div class="deck-grid" id="deckGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);">
+          <div style="font-size:2rem;margin-bottom:8px;">📭</div>
+          <div style="font-size:0.82rem;">No decks yet. Create one or use AI Generate!</div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-ai">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;margin-bottom:4px;">🤖 AI Flashcard Generator</div>
+        <div style="font-size:0.74rem;color:var(--text-3);margin-bottom:14px;">Type a topic and AI will create a complete flashcard deck instantly.</div>
+        <label class="form-label">Topic or Subject</label>
+        <input type="text" class="form-input" id="aiTopic" placeholder="e.g. Photosynthesis, Newton's Laws, Nigerian History..."/>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+          <div>
+            <label class="form-label">Exam Type</label>
+            <select class="form-select" id="aiExamCat">
+              <option value="JAMB">JAMB</option>
+              <option value="WAEC">WAEC</option>
+              <option value="NECO">NECO</option>
+              <option value="General">General</option>
+              <option value="SAT">SAT</option>
+              <option value="IELTS">IELTS</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Card Count</label>
+            <select class="form-select" id="aiCount">
+              <option value="8">8 cards</option>
+              <option value="12" selected>12 cards</option>
+              <option value="20">20 cards</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:12px;" id="genBtn" onclick="generateDeck()">⚡ Generate Deck</button>
+        <div id="genStatus" style="text-align:center;padding:12px;font-size:0.78rem;color:var(--text-3);display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDY MODE -->
+<div id="studyMode">
+  <div class="fc-topbar">
+    <button class="icon-btn" onclick="exitStudy()"><span class="material-symbols-rounded">close</span></button>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:0.72rem;color:var(--text-3);font-weight:600;" id="deckNameBar">Deck</div>
+      <div class="fc-progress-bar" style="margin-top:4px;"><div class="fc-progress-fill" id="fcProgressFill" style="width:0%"></div></div>
+    </div>
+    <div class="fc-counter" id="fcCounter">0/0</div>
+  </div>
+  <div style="padding:16px;">
+    <div class="fc-container" onclick="flipCard()">
+      <div class="fc-inner" id="fcInner">
+        <div class="fc-face fc-front">
+          <div>
+            <div class="fc-label">Tap to reveal</div>
+            <div class="fc-text" id="fcFront">Loading...</div>
+          </div>
+        </div>
+        <div class="fc-face fc-back">
+          <div>
+            <div class="fc-label">Answer</div>
+            <div class="fc-text" id="fcBack">Loading...</div>
+            <div class="fc-hint" id="fcHint"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:0.72rem;color:var(--text-3);margin-bottom:12px;" id="flipHint">Tap the card to flip ↑</div>
+    <div class="fc-actions" id="fcActions" style="display:none;">
+      <button class="fc-btn wrong" onclick="rateCard('wrong')">😕 Again</button>
+      <button class="fc-btn hard" onclick="rateCard('hard')">🤔 Hard</button>
+      <button class="fc-btn got" onclick="rateCard('got')">✅ Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- DONE SCREEN -->
+<div id="studyDone">
+  <div class="done-ring">🎉</div>
+  <div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;margin-bottom:6px;">Session Complete!</div>
+  <div style="font-size:0.8rem;color:var(--text-3);line-height:1.6;margin-bottom:20px;" id="doneStats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:300px;margin:0 auto 20px;">
+    <div style="background:var(--c-green-pale);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-md);padding:12px;text-align:center;">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--c-green);" id="doneGot">0</div>
+      <div style="font-size:0.65rem;color:var(--text-3);">Got It</div>
+    </div>
+    <div style="background:var(--c-red-pale);border:1px solid rgba(244,63,94,0.2);border-radius:var(--radius-md);padding:12px;text-align:center;">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--c-red);" id="doneWrong">0</div>
+      <div style="font-size:0.65rem;color:var(--text-3);">Study Again</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" style="width:100%;max-width:300px;margin-bottom:10px;" onclick="restudyWrong()">🔁 Re-study Wrong Cards</button>
+  <button class="btn btn-ghost" style="width:100%;max-width:300px;" onclick="exitStudy()">← Back to Decks</button>
+</div>
+
+<!-- Create deck FAB sheet -->
+<div class="overlay" id="createSheet" onclick="if(event.target===this)closeCreate()">
+  <div class="edit-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">New Deck</div>
+    <div class="form-group">
+      <label class="form-label">Deck Name</label>
+      <input type="text" class="form-input" id="newDeckName" placeholder="e.g. JAMB Biology 2024"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Add Cards (one per line: Front | Back)</label>
+      <textarea class="form-input" id="newDeckCards" rows="6" placeholder="What is osmosis? | Movement of water from low to high concentration&#10;Photosynthesis equation | 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="createDeck()">Create Deck</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeCreate()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script src="ai-engine.js"></script>
+<script>
+  const _t=localStorage.getItem('examora_theme')||'light';
+  document.documentElement.setAttribute('data-theme',_t);
+
+  function toast(msg,type){
+    var t=document.getElementById('toast');
+    document.getElementById('toastIcon').textContent={success:'✅',error:'❌',warning:'⚠️'}[type]||'ℹ️';
+    document.getElementById('toastMsg').textContent=msg;
+    t.className='toast show '+(type||'');
+    setTimeout(()=>t.className='toast',3000);
+  }
+
+  function switchTab(name,el){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+  }
+
+  // ── Decks stored in localStorage ─────────────────────────────
+  var DECK_KEY = 'examora_flashdecks';
+  function loadDecks(){ try{return JSON.parse(localStorage.getItem(DECK_KEY)||'[]');}catch(_){return[];} }
+  function saveDecks(d){ localStorage.setItem(DECK_KEY,JSON.stringify(d)); }
+
+  var DECK_COLORS = ['#6366f1','#10b981','#f59e0b','#f43f5e','#3b82f6','#8b5cf6','#14b8a6'];
+
+  function renderDecks(){
+    var decks = loadDecks();
+    if(!decks.length){
+      document.getElementById('deckGrid').innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);"><div style="font-size:2rem;margin-bottom:8px;">📭</div><div style="font-size:0.82rem;">No decks yet. Create one or use AI Generate!</div></div>';
+      return;
+    }
+    var icons = {'JAMB':'📚','WAEC':'🎓','NECO':'📝','Biology':'🧬','Chemistry':'🧪','Physics':'⚡','Mathematics':'🔢','English':'📖','History':'🏛','Geography':'🌍'};
+    var html = decks.map(function(d,i){
+      var prog = d.cards.length>0 ? Math.round(((d.mastered||0)/d.cards.length)*100) : 0;
+      var color = DECK_COLORS[i%DECK_COLORS.length];
+      var icon = Object.entries(icons).reduce((a,[k,v])=>d.name.includes(k)?v:a,'📇');
+      return '<div class="deck-card" style="--deck-color:'+color+';" onclick="startStudy('+i+')">'
+        +'<div class="deck-icon">'+icon+'</div>'
+        +'<div class="deck-name">'+d.name+'</div>'
+        +'<div class="deck-count">'+d.cards.length+' cards · '+prog+'% mastered</div>'
+        +'<div class="deck-progress"><div class="deck-progress-fill" style="width:'+prog+'%;"></div></div>'
+        +'<button onclick="event.stopPropagation();deleteDeck('+i+')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.7rem;padding:4px;">✕</button>'
+        +'</div>';
+    }).join('');
+    document.getElementById('deckGrid').innerHTML = html;
+  }
+
+  function openCreate(){ document.getElementById('createSheet').classList.add('open'); }
+  function closeCreate(){ document.getElementById('createSheet').classList.remove('open'); }
+
+  function createDeck(){
+    var name = document.getElementById('newDeckName').value.trim();
+    var raw  = document.getElementById('newDeckCards').value.trim();
+    if(!name){toast('Enter a deck name','warning');return;}
+    var cards = raw.split('\n').map(function(line){
+      var parts = line.split('|');
+      return parts.length>=2 ? {front:parts[0].trim(), back:parts.slice(1).join('|').trim()} : null;
+    }).filter(Boolean);
+    if(!cards.length){toast('Add at least one card (Front | Back)','warning');return;}
+    var decks = loadDecks();
+    decks.push({name, cards, mastered:0, created:Date.now()});
+    saveDecks(decks);
+    document.getElementById('newDeckName').value='';
+    document.getElementById('newDeckCards').value='';
+    closeCreate();
+    renderDecks();
+    toast('Deck created with '+cards.length+' cards ✓','success');
+  }
+
+  function deleteDeck(i){
+    if(!confirm('Delete this deck?')) return;
+    var d = loadDecks(); d.splice(i,1); saveDecks(d); renderDecks();
+  }
+
+  // ── AI Generate ──────────────────────────────────────────────
+  async function generateDeck(){
+    var topic = document.getElementById('aiTopic').value.trim();
+    if(!topic){toast('Enter a topic','warning');return;}
+    var count = document.getElementById('aiCount').value;
+    var cat   = document.getElementById('aiExamCat').value;
+    var btn   = document.getElementById('genBtn');
+    var status= document.getElementById('genStatus');
+    btn.disabled=true; btn.textContent='⏳ Generating...';
+    status.style.display='block'; status.textContent='AI is creating your flashcards...';
+
+    try {
+      var prompt = 'Create exactly '+count+' flashcards for "'+topic+'" for '+cat+' exam preparation.\n'
+        +'Return ONLY a JSON array, no other text:\n'
+        +'[{"front":"question or term","back":"answer or definition","hint":"optional memory tip"}]\n'
+        +'Make the fronts concise questions/terms. Make backs clear, memorable answers. Include memory hints where helpful.';
+
+      var r = await EXAMORA_AI.call([{role:'user',content:prompt}], 1200, 0.4);
+      var raw = r.text.trim()
+        .replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'');
+      var cards = JSON.parse(raw);
+      if(!Array.isArray(cards)||!cards.length) throw new Error('Invalid response');
+
+      var decks = loadDecks();
+      decks.push({name:cat+' · '+topic, cards, mastered:0, created:Date.now(), aiGenerated:true});
+      saveDecks(decks);
+
+      switchTab('my', document.querySelector('.tab-btn'));
+      document.querySelector('.tab-btn').classList.add('active');
+      document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+      document.getElementById('tab-ai').classList.remove('active');
+      document.getElementById('tab-my').classList.add('active');
+
+      renderDecks();
+      btn.disabled=false; btn.textContent='⚡ Generate Deck';
+      status.style.display='none';
+      toast('✓ '+cards.length+' flashcards created!','success');
+      document.getElementById('aiTopic').value='';
+    } catch(e) {
+      btn.disabled=false; btn.textContent='⚡ Generate Deck';
+      status.style.display='none';
+      toast('AI error: '+(e.message||'Try again'),'error');
+    }
+  }
+
+  // ── Study session ─────────────────────────────────────────────
+  var _deck, _queue, _qIdx, _ratings;
+
+  function startStudy(i){
+    var decks = loadDecks();
+    _deck  = decks[i];
+    _queue = _deck.cards.map(function(c,j){return Object.assign({},c,{_idx:j});});
+    _queue = _queue.sort(()=>Math.random()-0.5);
+    _qIdx  = 0;
+    _ratings = {};
+    document.getElementById('listView').style.display='none';
+    document.getElementById('studyMode').style.display='block';
+    document.getElementById('studyDone').style.display='none';
+    document.getElementById('deckNameBar').textContent=_deck.name;
+    showCard();
+  }
+
+  function showCard(){
+    if(_qIdx>=_queue.length){ finishStudy(); return; }
+    var card = _queue[_qIdx];
+    document.getElementById('fcInner').classList.remove('flipped');
+    document.getElementById('fcFront').textContent = card.front;
+    document.getElementById('fcBack').textContent  = card.back;
+    document.getElementById('fcHint').textContent  = card.hint||'';
+    document.getElementById('fcActions').style.display='none';
+    document.getElementById('flipHint').style.display='block';
+    var pct = Math.round((_qIdx/_queue.length)*100);
+    document.getElementById('fcProgressFill').style.width=pct+'%';
+    document.getElementById('fcCounter').textContent=(_qIdx+1)+'/'+_queue.length;
+  }
+
+  function flipCard(){
+    var inner = document.getElementById('fcInner');
+    inner.classList.toggle('flipped');
+    if(inner.classList.contains('flipped')){
+      document.getElementById('fcActions').style.display='grid';
+      document.getElementById('flipHint').style.display='none';
+    }
+  }
+
+  function rateCard(rating){
+    _ratings[_qIdx] = rating;
+    _qIdx++;
+    showCard();
+  }
+
+  function finishStudy(){
+    document.getElementById('studyMode').style.display='none';
+    document.getElementById('studyDone').style.display='block';
+    var got   = Object.values(_ratings).filter(r=>r==='got').length;
+    var wrong = Object.values(_ratings).filter(r=>r==='wrong').length;
+    document.getElementById('doneGot').textContent=got;
+    document.getElementById('doneWrong').textContent=wrong;
+    document.getElementById('doneStats').textContent=
+      'You studied '+_queue.length+' cards. '+got+' mastered, '+wrong+' need review.';
+    // Update mastered count
+    var decks = loadDecks();
+    var deckIdx = decks.findIndex(d=>d.name===_deck.name);
+    if(deckIdx>=0){ decks[deckIdx].mastered=got; saveDecks(decks); }
+  }
+
+  function restudyWrong(){
+    _queue = _queue.filter((_,i)=>_ratings[i]==='wrong'||_ratings[i]==='hard');
+    if(!_queue.length){ toast('No cards to re-study!','success'); exitStudy(); return; }
+    _qIdx=0; _ratings={};
+    document.getElementById('studyDone').style.display='none';
+    document.getElementById('studyMode').style.display='block';
+    showCard();
+  }
+
+  function exitStudy(){
+    document.getElementById('studyMode').style.display='none';
+    document.getElementById('studyDone').style.display='none';
+    document.getElementById('listView').style.display='block';
+    renderDecks();
+  }
+
+  renderDecks();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const app = initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.appspot.com",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+  const auth=getAuth(app), db=getFirestore(app);
+  onAuthStateChanged(auth, async user=>{
+    if(!user){window.location.href='login.html';return;}
+    try{const s=await getDoc(doc(db,'users',user.uid));localStorage.setItem('examora_plan',(s.data()||{}).plan||'free');}catch(_){}
+    const aiSnap=await getDoc(doc(db,'settings','ai')).catch(()=>null);
+    if(aiSnap&&aiSnap.exists()){const k=aiSnap.data().openRouterKeys||[];if(k.length)localStorage.setItem('examora_ai_keys',JSON.stringify(k));}
+  });
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

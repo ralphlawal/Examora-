@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Study Planner — EXAMORA</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+  <style>
+    .week-strip{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none;margin-bottom:4px;}
+    .week-strip::-webkit-scrollbar{display:none;}
+    .day-chip{flex-shrink:0;width:44px;text-align:center;cursor:pointer;border-radius:14px;padding:6px 4px;border:1.5px solid var(--border);background:var(--bg-card);transition:var(--transition);}
+    .day-chip.active{background:var(--c-brand);border-color:var(--c-brand);}
+    .day-chip.today{border-color:var(--c-brand);}
+    .day-chip.done{background:var(--c-green-pale);border-color:var(--c-green);}
+    .day-chip-name{font-size:0.6rem;font-weight:700;color:var(--text-3);text-transform:uppercase;}
+    .day-chip.active .day-chip-name,.day-chip.active .day-chip-num{color:white;}
+    .day-chip-num{font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:var(--text);}
+    .task-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:var(--transition);}
+    .task-card.done-task{opacity:0.55;}
+    .task-card.done-task .task-title{text-decoration:line-through;}
+    .task-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);margin-top:1px;}
+    .task-check.checked{background:var(--c-green);border-color:var(--c-green);}
+    .task-title{font-family:var(--font-display);font-weight:700;font-size:0.83rem;color:var(--text);margin-bottom:3px;}
+    .task-meta{font-size:0.68rem;color:var(--text-3);}
+    .task-actions{margin-left:auto;display:flex;gap:4px;}
+    .task-tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:0.62rem;font-weight:700;margin-top:5px;}
+    .progress-hero{background:linear-gradient(135deg,#1e1b4b,#0f172a);border-radius:var(--radius-xl);padding:20px;margin-bottom:16px;border:1px solid rgba(99,102,241,0.25);}
+    .day-progress{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-top:10px;}
+    .day-progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#10b981);border-radius:4px;transition:width 0.5s cubic-bezier(0.34,1.2,0.64,1);}
+    /* Add task sheet */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;}
+    .overlay.open{display:flex;}
+    .bottom-sheet{width:100%;background:var(--bg-card);border-radius:24px 24px 0 0;padding:20px;padding-bottom:max(20px,env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
+    .sheet-handle{width:36px;height:4px;background:var(--border-strong);border-radius:2px;margin:0 auto 16px;}
+    .exam-countdown{background:linear-gradient(90deg,rgba(244,63,94,0.12),rgba(245,158,11,0.08));border:1px solid rgba(244,63,94,0.2);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Study Planner</div>
+    <button class="icon-btn" onclick="openAddSheet()"><span class="material-symbols-rounded">add</span></button>
+  </div>
+  <div style="padding:16px;">
+
+    <!-- Exam countdown -->
+    <div class="exam-countdown" id="examCountdown" style="display:none;">
+      <div style="font-size:1.4rem;">📅</div>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:0.82rem;color:var(--text);" id="countdownTitle">Exam countdown</div>
+        <div style="font-size:0.7rem;color:var(--text-3);" id="countdownSub"></div>
+      </div>
+      <button onclick="editExamDate()" style="font-size:0.7rem;color:var(--c-brand);background:none;border:none;cursor:pointer;font-weight:700;">Edit</button>
+    </div>
+    <button id="setExamDateBtn" onclick="editExamDate()" style="width:100%;margin-bottom:14px;background:var(--bg-card);border:1.5px dashed var(--border);border-radius:var(--radius-md);padding:12px;font-size:0.78rem;color:var(--text-3);cursor:pointer;transition:var(--transition);">📅 Set Exam Date for Countdown</button>
+
+    <!-- Week strip -->
+    <div class="week-strip" id="weekStrip"></div>
+
+    <!-- Day progress hero -->
+    <div class="progress-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:white;" id="heroDate">Today</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:2px;" id="heroSub">0 of 0 tasks done</div>
+        </div>
+        <div style="font-family:var(--font-display);font-weight:900;font-size:1.5rem;color:white;" id="heroPercent">0%</div>
+      </div>
+      <div class="day-progress"><div class="day-progress-fill" id="dayProgressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- AI Generate Plan button -->
+    <button onclick="generateAIPlan()" id="aiPlanBtn" style="width:100%;margin-bottom:14px;background:var(--c-brand-pale);border:1px solid rgba(99,102,241,0.25);border-radius:var(--radius-md);padding:12px;font-family:var(--font-display);font-weight:700;font-size:0.82rem;color:var(--c-brand);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span>🤖</span> Generate 7-Day AI Study Plan
+    </button>
+
+    <!-- Task list -->
+    <div id="taskList">
+      <div style="text-align:center;padding:40px;color:var(--text-3);">
+        <div style="font-size:2rem;margin-bottom:8px;">📋</div>
+        <div style="font-size:0.82rem;">No tasks yet. Add one or let AI create your plan.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add task sheet -->
+<div class="overlay" id="addSheet" onclick="if(event.target===this)closeAddSheet()">
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;margin-bottom:16px;" id="sheetTitle">Add Task</div>
+    <div style="display:grid;gap:10px;">
+      <div>
+        <label class="form-label">Task</label>
+        <input type="text" class="form-input" id="taskTitle" placeholder="e.g. Revise Organic Chemistry"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <label class="form-label">Subject</label>
+          <select class="form-select" id="taskSubject">
+            <option value="">General</option>
+            <option>Mathematics</option><option>English Language</option><option>Physics</option>
+            <option>Chemistry</option><option>Biology</option><option>Economics</option>
+            <option>Government</option><option>Literature</option><option>Geography</option>
+            <option>Commerce</option><option>History</option><option>Computer Studies</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Duration</label>
+          <select class="form-select" id="taskDuration">
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60" selected>1 hour</option>
+            <option value="90">1.5 hrs</option>
+            <option value="120">2 hours</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Type</label>
+        <select class="form-select" id="taskType">
+          <option value="practice">📝 Practice Questions</option>
+          <option value="revision">📖 Revision / Reading</option>
+          <option value="flashcards">🃏 Flashcards</option>
+          <option value="mock">⏱ Mock Exam</option>
+          <option value="notes">✏️ Write Notes</option>
+          <option value="video">🎥 Watch Video</option>
+        </select>
+      </div>
+      <input type="hidden" id="editTaskIdx" value=""/>
+      <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
+      <button class="btn btn-ghost" onclick="closeAddSheet()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exam date sheet -->
+<div class="overlay" id="examDateSheet" onclick="if(event.target===this)closeExamSheet()">
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;margin-bottom:16px;">📅 Set Exam Date</div>
+    <div style="display:grid;gap:10px;">
+      <div>
+        <label class="form-label">Exam Name</label>
+        <input type="text" class="form-input" id="examName" placeholder="e.g. JAMB 2025"/>
+      </div>
+      <div>
+        <label class="form-label">Exam Date</label>
+        <input type="date" class="form-input" id="examDate"/>
+      </div>
+      <button class="btn btn-primary" onclick="saveExamDate()">Save</button>
+      <button class="btn btn-ghost" onclick="closeExamSheet()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+<script src="ai-engine.js"></script>
+<script>
+  const _t=localStorage.getItem('examora_theme')||'light';
+  document.documentElement.setAttribute('data-theme',_t);
+  function toast(msg,type){var t=document.getElementById('toast');document.getElementById('toastIcon').textContent={success:'✅',error:'❌',warning:'⚠️'}[type]||'ℹ️';document.getElementById('toastMsg').textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.className='toast',3000);}
+
+  var PLAN_KEY='examora_study_plan';
+  var EXAM_KEY='examora_exam_date';
+  function loadPlan(){try{return JSON.parse(localStorage.getItem(PLAN_KEY)||'{}');}catch(_){return {};}}
+  function savePlan(p){localStorage.setItem(PLAN_KEY,JSON.stringify(p));}
+
+  var _selectedDate = todayStr();
+  function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function pad(n){return n<10?'0'+n:n;}
+
+  var DAY_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var TYPE_ICONS={practice:'📝',revision:'📖',flashcards:'🃏',mock:'⏱',notes:'✏️',video:'🎥'};
+  var SUBJ_COLORS={'Mathematics':'#6366f1','Physics':'#3b82f6','Chemistry':'#10b981','Biology':'#f59e0b','English Language':'#f43f5e','Economics':'#8b5cf6','Government':'#14b8a6','Literature':'#ec4899','Geography':'#f97316'};
+
+  function buildWeekStrip(){
+    var today = new Date();
+    var html='';
+    for(var i=-1;i<=7;i++){
+      var d=new Date(today);d.setDate(today.getDate()+i);
+      var str=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+      var plan=loadPlan();
+      var tasks=plan[str]||[];
+      var done=tasks.filter(t=>t.done).length;
+      var isToday=str===todayStr(), isSelected=str===_selectedDate;
+      var cls='day-chip'+(isSelected?' active':isToday&&!isSelected?' today':done>0&&done===tasks.length?' done':'');
+      html+='<div class="'+cls+'" onclick="selectDate(\''+str+'\')">'
+        +'<div class="day-chip-name">'+DAY_NAMES[d.getDay()]+'</div>'
+        +'<div class="day-chip-num">'+d.getDate()+'</div>'
+        +(tasks.length>0?'<div style="font-size:0.55rem;color:inherit;opacity:0.6;">'+done+'/'+tasks.length+'</div>':'')
+        +'</div>';
+    }
+    document.getElementById('weekStrip').innerHTML=html;
+  }
+
+  function selectDate(str){
+    _selectedDate=str;
+    buildWeekStrip();
+    renderTasks();
+    updateHero();
+  }
+
+  function updateHero(){
+    var plan=loadPlan(), tasks=plan[_selectedDate]||[];
+    var done=tasks.filter(t=>t.done).length, total=tasks.length;
+    var pct=total>0?Math.round((done/total)*100):0;
+    var d=new Date(_selectedDate+'T12:00:00');
+    var isToday=_selectedDate===todayStr();
+    document.getElementById('heroDate').textContent=isToday?'Today — '+d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}):d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+    document.getElementById('heroSub').textContent=done+' of '+total+' tasks done'+(total===0?' · Tap + to add a task':'');
+    document.getElementById('heroPercent').textContent=pct+'%';
+    document.getElementById('dayProgressFill').style.width=pct+'%';
+  }
+
+  function renderTasks(){
+    var plan=loadPlan(), tasks=plan[_selectedDate]||[];
+    if(!tasks.length){
+      document.getElementById('taskList').innerHTML='<div style="text-align:center;padding:40px;color:var(--text-3);"><div style="font-size:2rem;margin-bottom:8px;">📋</div><div style="font-size:0.82rem;">No tasks for this day. Tap + to add one.</div></div>';
+      return;
+    }
+    var html=tasks.map(function(task,i){
+      var col=SUBJ_COLORS[task.subject]||'var(--c-brand)';
+      var icon=TYPE_ICONS[task.type]||'📝';
+      return '<div class="task-card'+(task.done?' done-task':'')+'">'
+        +'<div class="task-check'+(task.done?' checked':'')+'" onclick="toggleTask('+i+')">'
+          +(task.done?'<span style="color:white;font-size:0.8rem;">✓</span>':'')
+        +'</div>'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div class="task-title">'+icon+' '+task.title+'</div>'
+          +'<div class="task-meta">'+(task.duration||60)+' min · '+(task.subject||'General')+'</div>'
+          +(task.subject?'<span class="task-tag" style="background:'+col+'20;color:'+col+';">'+task.subject+'</span>':'')
+        +'</div>'
+        +'<div class="task-actions">'
+          +'<button class="icon-btn" onclick="editTask('+i+')" style="color:var(--text-3);"><span class="material-symbols-rounded" style="font-size:1rem;">edit</span></button>'
+          +'<button class="icon-btn" onclick="deleteTask('+i+')" style="color:var(--c-red);"><span class="material-symbols-rounded" style="font-size:1rem;">delete</span></button>'
+        +'</div></div>';
+    }).join('');
+    document.getElementById('taskList').innerHTML=html;
+  }
+
+  function openAddSheet(){document.getElementById('editTaskIdx').value='';document.getElementById('taskTitle').value='';document.getElementById('sheetTitle').textContent='Add Task';document.getElementById('addSheet').classList.add('open');}
+  function closeAddSheet(){document.getElementById('addSheet').classList.remove('open');}
+  function closeExamSheet(){document.getElementById('examDateSheet').classList.remove('open');}
+
+  function saveTask(){
+    var title=document.getElementById('taskTitle').value.trim();
+    if(!title){toast('Enter a task title','warning');return;}
+    var plan=loadPlan();
+    if(!plan[_selectedDate]) plan[_selectedDate]=[];
+    var task={title,subject:document.getElementById('taskSubject').value,duration:document.getElementById('taskDuration').value,type:document.getElementById('taskType').value,done:false,created:Date.now()};
+    var idx=document.getElementById('editTaskIdx').value;
+    if(idx!=='') plan[_selectedDate][parseInt(idx)]=Object.assign(plan[_selectedDate][parseInt(idx)],task);
+    else plan[_selectedDate].push(task);
+    savePlan(plan); closeAddSheet(); renderTasks(); buildWeekStrip(); updateHero();
+    toast('Task saved ✓','success');
+  }
+
+  function editTask(i){
+    var plan=loadPlan(), task=plan[_selectedDate][i];
+    document.getElementById('editTaskIdx').value=i;
+    document.getElementById('taskTitle').value=task.title||'';
+    document.getElementById('taskSubject').value=task.subject||'';
+    document.getElementById('taskDuration').value=task.duration||60;
+    document.getElementById('taskType').value=task.type||'practice';
+    document.getElementById('sheetTitle').textContent='Edit Task';
+    document.getElementById('addSheet').classList.add('open');
+  }
+
+  function toggleTask(i){
+    var plan=loadPlan();
+    plan[_selectedDate][i].done=!plan[_selectedDate][i].done;
+    savePlan(plan); renderTasks(); buildWeekStrip(); updateHero();
+  }
+
+  function deleteTask(i){
+    var plan=loadPlan();
+    plan[_selectedDate].splice(i,1);
+    savePlan(plan); renderTasks(); buildWeekStrip(); updateHero();
+  }
+
+  // Exam countdown
+  function editExamDate(){
+    var ed=JSON.parse(localStorage.getItem(EXAM_KEY)||'{}');
+    document.getElementById('examName').value=ed.name||'';
+    document.getElementById('examDate').value=ed.date||'';
+    document.getElementById('examDateSheet').classList.add('open');
+  }
+  function saveExamDate(){
+    var name=document.getElementById('examName').value.trim();
+    var date=document.getElementById('examDate').value;
+    if(!name||!date){toast('Enter exam name and date','warning');return;}
+    localStorage.setItem(EXAM_KEY,JSON.stringify({name,date}));
+    closeExamSheet(); renderCountdown();
+    toast('Exam date saved ✓','success');
+  }
+  function renderCountdown(){
+    var ed=JSON.parse(localStorage.getItem(EXAM_KEY)||'{}');
+    if(!ed.date){document.getElementById('examCountdown').style.display='none';document.getElementById('setExamDateBtn').style.display='block';return;}
+    var days=Math.ceil((new Date(ed.date)-new Date())/86400000);
+    document.getElementById('examCountdown').style.display='flex';
+    document.getElementById('setExamDateBtn').style.display='none';
+    document.getElementById('countdownTitle').textContent=(ed.name||'Exam')+' in '+days+' day'+(days!==1?'s':'');
+    document.getElementById('countdownSub').textContent=days<=7?'🔥 Final stretch! Focus hard!':days<=30?'⚡ Keep consistent!':'📚 Steady preparation pays off';
+  }
+
+  // AI Plan
+  async function generateAIPlan(){
+    var btn=document.getElementById('aiPlanBtn');
+    btn.textContent='⏳ Generating 7-day plan...'; btn.disabled=true;
+    try{
+      var plan=await EXAMORA_AI.generateStudyPlan({
+        examType:localStorage.getItem('examora_selected_cat')||'JAMB',
+        avgScore:parseInt(localStorage.getItem('examora_avg_score')||'50'),
+        targetScore:75, totalExams:parseInt(localStorage.getItem('examora_exam_count')||'0'),
+        weakSubjects:JSON.parse(localStorage.getItem('examora_weak_subjects')||'[]')
+      });
+      if(plan.plan&&Array.isArray(plan.plan)){
+        var existing=loadPlan();
+        var today=new Date();
+        plan.plan.forEach(function(day,i){
+          var d=new Date(today); d.setDate(today.getDate()+i);
+          var str=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+          if(!existing[str]) existing[str]=[];
+          var tasks=(day.tasks||'').split('|').map(t=>t.trim()).filter(Boolean);
+          tasks.forEach(function(task){
+            existing[str].push({title:task,subject:'',duration:60,type:'practice',done:false,created:Date.now(),aiGenerated:true});
+          });
+        });
+        savePlan(existing);
+        renderTasks(); buildWeekStrip(); updateHero();
+        toast('7-day AI plan added ✓','success');
+      }
+    }catch(e){toast('AI error: '+(e.message||'Try again'),'error');}
+    btn.innerHTML='<span>🤖</span> Generate 7-Day AI Study Plan'; btn.disabled=false;
+  }
+
+  // Init
+  renderCountdown();
+  buildWeekStrip();
+  renderTasks();
+  updateHero();
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const app=initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.appspot.com",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+  const auth=getAuth(app),db=getFirestore(app);
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href='login.html';return;}
+    try{const s=await getDoc(doc(db,'users',user.uid));localStorage.setItem('examora_plan',(s.data()||{}).plan||'free');}catch(_){}
+    const aiSnap=await getDoc(doc(db,'settings','ai')).catch(()=>null);
+    if(aiSnap&&aiSnap.exists()){const k=aiSnap.data().openRouterKeys||[];if(k.length)localStorage.setItem('examora_ai_keys',JSON.stringify(k));}
+  });
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

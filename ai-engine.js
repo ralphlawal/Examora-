@@ -293,10 +293,54 @@ const EXAMORA_AI = (() => {
     if (keys.length > 0) fetchLiveModels(keys[0]);
   }, 2000);
 
+  // ── Vocabulary Builder ────────────────────────────────────────
+  async function buildVocabulary(topic, count) {
+    count = count || 10;
+    var msg = SYSTEM + "\n\nGenerate " + count + " vocabulary words/terms for: " + topic + "\n\n"
+      + "Return ONLY a JSON array:\n"
+      + '[{"word":"...","definition":"...","example":"...","tip":"memory trick"}]';
+    var r = await call([{role:'user',content:msg}], 800, 0.4);
+    try { return { words: cleanJson(r.text), model: r.model }; }
+    catch(_) { return { words: null, rawText: r.text, model: r.model }; }
+  }
+
+  // ── Step-by-Step Solver ───────────────────────────────────────
+  async function solveStepByStep(problem, subject) {
+    var msg = SYSTEM + "\n\nSolve this " + (subject||'') + " problem step by step. Show every step clearly numbered. At the end, box the final answer.\n\nProblem: " + problem;
+    return call([{role:'user', content:msg}], 600, 0.2);
+  }
+
+  // ── Essay / Answer Checker ────────────────────────────────────
+  async function checkEssay(essay, question, subject) {
+    var msg = SYSTEM + "\n\nCheck this student's exam answer for a " + (subject||'') + " question.\n\n"
+      + "Question: " + (question||'(not provided)') + "\n\n"
+      + "Student's Answer:\n" + essay + "\n\n"
+      + "Provide:\n1. Score out of 10 with justification\n2. Key strengths\n3. Missing points\n4. Improved version (2-3 sentences)\n5. Examiner tip\n\n"
+      + "Format: Start with Score: X/10 on the first line.";
+    return call([{role:'user', content:msg}], 700, 0.3);
+  }
+
+  // ── Concept Explainer (ELI15) ─────────────────────────────────
+  async function explainConcept(concept, subject, level) {
+    level = level || 'O-Level';
+    var msg = SYSTEM + "\n\nExplain '" + concept + "' for a " + level + " " + (subject||'') + " student in Nigeria. "
+      + "Use simple language, a real-life Nigerian example, and end with 3 exam-style questions about this topic.";
+    return call([{role:'user', content:msg}], 500, 0.4);
+  }
+
+  // ── Past Question Analyser ────────────────────────────────────
+  async function analysePastQuestion(question, subject, year, category) {
+    var msg = SYSTEM + "\n\nAnalyse this " + (category||'') + " " + (subject||'') + (year?' ('+year+')':'') + " past question:\n\n"
+      + question + "\n\n"
+      + "Provide: 1) The concept being tested 2) How to approach it 3) Common mistakes students make 4) Related topics to review";
+    return call([{role:'user', content:msg}], 450, 0.3);
+  }
   return {
     call, chat, explainAnswer, getHint,
     generateQuestions, generateStudyPlan, predictScore,
-    getSpacedRepetitionQueue, getStatus, BRAND
+    getSpacedRepetitionQueue, getStatus,
+    buildVocabulary, solveStepByStep, checkEssay, explainConcept, analysePastQuestion,
+    BRAND
   };
 
 })();
