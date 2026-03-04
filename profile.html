@@ -706,10 +706,9 @@
     if(results.some(r=>r.percent===100)&&!badges.includes("perfect")) badges.push("perfect");
     if(total>=100&&!badges.includes("100_exams")) badges.push("100_exams");
     if(avg>=80&&total>=5&&!badges.includes("high_scorer")) badges.push("high_scorer");
-    if (total >= 50 && !badges.includes("50_exams"))  badges.push("50_exams");
-    if (badges.length > 0) {
-      try { await updateDoc(doc(db, "users", uid), { badges }); } catch(_) {}
-    }
+    iforer");
+    if(total>=50&&!badges.includes('50_exams')) badges.push('50_exams');
+    if(badges.length>0){ try{ await updateDoc(doc(db,'users',uid),{badges}); }catch(_){} }
     renderBadges(badges);
   });
 </script>

@@ -760,6 +760,12 @@
 
   // ── AI Question Generator ──
   async function generateAIQuestions() {
+    var plan = (window._userData && window._userData.plan) || 'free';
+    if (plan === 'free') {
+      toast('AI Question Generator requires a trial or Premium', 'warning', 3500);
+      setTimeout(function(){ window.location.href='upgrade.html'; }, 1800);
+      return;
+    }
     var topic = document.getElementById('qgenTopic').value.trim();
     if (!topic) { toast('Enter a topic first', 'warning'); return; }
     var count = parseInt(document.getElementById('qgenCount').value) || 5;
@@ -797,7 +803,7 @@
         resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Could not generate questions. Try a different topic.</div>';
       }
     } catch(e) {
-      var msg = e.message === 'AI_KEY_MISSING' ? 'Add your Gemini API key in ai-engine.js — get one free at aistudio.google.com' : e.message;
+      var msg = e.message === 'AI_KEY_MISSING' ? 'AI not configured. Add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)' : e.message;
       resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Error: ' + msg + '</div>';
     }
 
@@ -875,7 +881,10 @@
   onAuthStateChanged(auth,async user=>{
     if(!user){window.location.href="login.html";return;}
     uid=user.uid; window._uid=uid;
-    try{const s=await getDoc(doc(db,"users",uid));userData=s.data()||{};window._userData=userData;}catch(_){}
+    try{const s=await getDoc(doc(db,"users",uid));userData=s.data()||{};window._userData=userData;
+      // Store plan in localStorage for pages like result.html
+      localStorage.setItem('examora_plan', userData.plan||'free');
+    }catch(_){}
 
     // ── Read URL params — pre-select category if ?cat= is set ──
     const urlParams=new URLSearchParams(window.location.search);
@@ -1114,7 +1123,7 @@
       <div style="padding:20px;text-align:center;color:var(--text-3);">
         <span class="material-symbols-rounded ms-xl ms-fill" style="color:var(--c-brand-pale);display:block;margin-bottom:8px;">psychology</span>
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:4px;">EXAMORA AI Tutor</div>
-        <div style="font-size:0.75rem;line-height:1.6;">Powered by Gemini · Select an option above to get help with this question</div>
+        <div style="font-size:0.75rem;line-height:1.6;">Powered by NexaCore Labs · Select an option above to get help with this question</div>
       </div>
     </div>
 
@@ -1155,6 +1164,13 @@
   }
 
   async function askAiTutor(action) {
+    // AI only available on trial or premium
+    var plan = (window._userData && window._userData.plan) || 'free';
+    if (plan === 'free') {
+      toast('AI features require a trial or Premium — tap Upgrade to start your free trial', 'warning', 4000);
+      setTimeout(function(){ window.location.href='upgrade.html'; }, 2200);
+      return;
+    }
     const q = examQuestions[currentIdx];
     if (!q) return;
     window._lastAiAction = action;
@@ -1198,12 +1214,7 @@
         '<div class="ai-response"><p>' + formatted + '</p></div>';
 
       // Show model badge
-      const modelShort = result.model.includes("gemini-2.0") ? "Gemini 2.0 Flash"
-        : result.model.includes("gemini-flash-1.5-8b") ? "Gemini 1.5 Flash 8B"
-        : result.model.includes("gemini-flash-1.5") ? "Gemini 1.5 Flash"
-        : result.model.includes("mistral") ? "Mistral 7B"
-        : result.model.split("/").pop();
-      document.getElementById("aiModelName").textContent = modelShort;
+      document.getElementById("aiModelName").textContent = "NexaCore Labs";
       document.getElementById("aiModelBadge").style.display = "inline-flex";
 
     } catch (e) {
@@ -1211,7 +1222,7 @@
       document.getElementById("aiResponseArea").innerHTML =
         '<div class="ai-error"><span class="material-symbols-rounded ms-sm">error</span>' +
         (isKeyMissing
-          ? 'AI key not configured. Add your Gemini API key in ai-engine.js (get one free at aistudio.google.com)'
+          ? 'AI key not configured. AI not configured. Add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)'
           : 'Could not connect to AI. Check your internet and try again.') +
         '</div>';
       document.getElementById("aiRetryArea").style.display = !isKeyMissing ? "block" : "none";

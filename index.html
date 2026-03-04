@@ -525,7 +525,7 @@
     <div class="ai-chat-logo">🤖</div>
     <div>
       <div class="ai-chat-title">AI Study Buddy</div>
-      <div class="ai-chat-subtitle">● Online · Powered by Gemini</div>
+      <div class="ai-chat-subtitle">Powered by NexaCore Labs</div>
     </div>
     <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
   </div>
@@ -662,6 +662,14 @@
     if (p.classList.contains('open')) document.getElementById('aiChatInput').focus();
   }
   async function sendAIChat() {
+    // Trial / premium only
+    if ((localStorage.getItem('examora_plan')||'free') === 'free') {
+      var lb2 = document.createElement('div');
+      lb2.className = 'ai-chat-msg bot';
+      lb2.innerHTML = '🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;">Start free trial →</a>';
+      document.getElementById('aiChatMessages').appendChild(lb2);
+      return;
+    }
     var input = document.getElementById('aiChatInput');
     var msg = input.value.trim();
     if (!msg) return;
@@ -729,6 +737,8 @@
       const snap = await getDoc(doc(db, "users", user.uid));
       if (!snap.exists()) { window.location.href = "login.html"; return; }
       ud = snap.data();
+      // Store plan for AI gate checks across pages
+      localStorage.setItem('examora_plan', ud.plan||'free');
     } catch(e) {}
 
     if (ud.onboarded === false) { window.location.href = "onboarding.html"; return; }

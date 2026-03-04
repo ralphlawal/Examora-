@@ -541,11 +541,11 @@
 <div class="ai-chat-panel" id="aiChatPanel">
   <div class="ai-chat-header">
     <div class="ai-chat-logo">🤖</div>
-    <div><div class="ai-chat-name">AI Study Buddy</div><div class="ai-chat-status">● Online</div></div>
+    <div><div class="ai-chat-name">AI Study Buddy</div><div class="ai-chat-status">Powered by NexaCore Labs</div></div>
     <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
   </div>
   <div class="ai-chat-messages" id="aiChatMessages">
-    <div class="ai-chat-msg bot">Hi! Ask me anything about your studies. 📚</div>
+    <div class="ai-chat-msg bot">Hi! Ask me anything — powered by NexaCore Labs 🤖 📚</div>
   </div>
   <div class="ai-chat-footer">
     <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAIChat()"/>
@@ -561,6 +561,12 @@
     if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
   }
   async function sendAIChat(){
+    if ((localStorage.getItem('examora_plan')||'free')==='free') {
+      var msgs=document.getElementById('aiChatMessages');
+      var lb=document.createElement('div'); lb.className='ai-chat-msg bot';
+      lb.innerHTML='🔒 AI Chat needs a trial or Premium. <a href="upgrade.html" style="color:var(--c-brand);font-weight:700;">Start free trial →</a>';
+      msgs.appendChild(lb); return;
+    }
     var inp=document.getElementById('aiChatInput');
     var msg=inp.value.trim(); if(!msg)return;
     inp.value='';
