@@ -882,8 +882,16 @@
     if(!user){window.location.href="login.html";return;}
     uid=user.uid; window._uid=uid;
     try{const s=await getDoc(doc(db,"users",uid));userData=s.data()||{};window._userData=userData;
-      // Store plan in localStorage for pages like result.html
+      // Store plan in localStorage for AI gate checks
       localStorage.setItem('examora_plan', userData.plan||'free');
+      // Sync AI keys from Firestore so ai-engine.js can use them
+      try{
+        const aiCfg=await getDoc(doc(db,'settings','ai'));
+        if(aiCfg.exists()){
+          const aiKeys=aiCfg.data().openRouterKeys||[];
+          if(aiKeys.length>0) localStorage.setItem('examora_ai_keys',JSON.stringify(aiKeys));
+        }
+      }catch(_){}
     }catch(_){}
 
     // ── Read URL params — pre-select category if ?cat= is set ──

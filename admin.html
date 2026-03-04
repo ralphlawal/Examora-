@@ -680,6 +680,7 @@
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
+<script src="ai-engine.js"></script>
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
@@ -1220,50 +1221,59 @@
 
   window.saveAIKeys = async function() {
     var statusEl = document.getElementById('aiKeyStatus');
-    var keys = [
+    var raw = [
       document.getElementById('aiKey1').value.trim(),
       document.getElementById('aiKey2').value.trim(),
       document.getElementById('aiKey3').value.trim(),
-    ].filter(function(k){ return k.length > 10; });
+    ];
+    var keys = raw.filter(function(k){ return k.length >= 20; });
     
     if (keys.length === 0) {
-      statusEl.innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one key. Get a free key at openrouter.ai/keys</span>';
+      statusEl.innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one OpenRouter key (starts with sk-or-v1-...). Get one free at <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--c-brand);">openrouter.ai/keys</a></span>';
       return;
     }
-    
-    statusEl.innerHTML = '<span style="color:var(--c-gold);">Saving...</span>';
 
-    // Save to localStorage (fast, works immediately)
+    statusEl.innerHTML = '<span style="color:var(--c-gold);">💾 Saving ' + keys.length + ' key(s)...</span>';
+
+    // Save to localStorage immediately (ai-engine.js reads this on every call)
     localStorage.setItem('examora_ai_keys', JSON.stringify(keys));
 
-    // Also save to Firestore so keys persist across devices and browsers
+    // Also save to Firestore so keys work across devices
     try {
       await setDoc(doc(db, 'settings', 'ai'), {
         openRouterKeys: keys,
         updatedAt: new Date().toISOString(),
         updatedBy: uid || 'admin'
       }, { merge: true });
-      statusEl.innerHTML = '<span style="color:var(--c-green);">✓ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved to cloud ☁️ — active immediately.</span>';
-      toast('AI keys saved — ' + keys.length + ' key(s) active', 'success');
+      statusEl.innerHTML = '<span style="color:var(--c-green);">✅ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved to cloud — AI is ready. Click 🧪 Test AI to verify.</span>';
+      toast('AI keys saved to cloud ✅', 'success');
     } catch(e) {
-      // Firestore failed but localStorage worked — still functional
-      statusEl.innerHTML = '<span style="color:var(--c-gold);">⚠️ Saved locally only (Firestore error: ' + e.message.slice(0,60) + ')</span>';
-      toast('Keys saved locally — AI should work on this device', 'warning');
+      statusEl.innerHTML = '<span style="color:var(--c-gold);">⚠️ Saved to this device only (cloud sync failed: ' + e.message.slice(0,50) + '). AI will work on this device.</span>';
+      toast('Keys saved locally', 'warning');
     }
   };
 
   window.testAIKeys = async function() {
     var statusEl = document.getElementById('aiKeyStatus');
-    statusEl.innerHTML = '<span style="color:var(--c-gold);">Testing AI connection...</span>';
+    statusEl.innerHTML = '<span style="color:var(--c-gold);">🧪 Testing AI connection...</span>';
     try {
       if (typeof EXAMORA_AI === 'undefined') {
-        statusEl.innerHTML = '<span style="color:var(--c-red);">AI engine not loaded on this page.</span>';
+        statusEl.innerHTML = '<span style="color:var(--c-red);">❌ ai-engine.js not loaded. Make sure ai-engine.js is in the same folder as admin.html.</span>';
         return;
       }
-      var r = await EXAMORA_AI.chat('Say "NexaCore Labs AI is working!" in exactly those words.', '', []);
-      statusEl.innerHTML = '<span style="color:var(--c-green);">✓ AI working: ' + (r.text||'').slice(0,80) + '</span>';
+      var status = EXAMORA_AI.getStatus();
+      if (status.keys === 0) {
+        statusEl.innerHTML = '<span style="color:var(--c-red);">❌ No valid keys found. Save your OpenRouter key above first.</span>';
+        return;
+      }
+      statusEl.innerHTML = '<span style="color:var(--c-gold);">🧪 Calling OpenRouter with ' + status.keys + ' key(s)...</span>';
+      var r = await EXAMORA_AI.chat('Reply with exactly: "NexaCore Labs AI is working!"', '', []);
+      statusEl.innerHTML = '<span style="color:var(--c-green);">✅ AI working! Response: ' + (r.text||'').slice(0,80) + '</span>';
+      toast('AI connection successful ✅', 'success');
     } catch(e) {
-      statusEl.innerHTML = '<span style="color:var(--c-red);">✗ ' + (e.message||'').slice(0,100) + '</span>';
+      var msg = (e.message||'').slice(0,120);
+      statusEl.innerHTML = '<span style="color:var(--c-red);">❌ Test failed: ' + msg + '</span>';
+      toast('AI test failed — check your key', 'error');
     }
   };
 

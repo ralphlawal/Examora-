@@ -43,8 +43,12 @@ const EXAMORA_AI = (() => {
       if (raw) stored = JSON.parse(raw);
     } catch(_) {}
     var all = API_KEYS.concat(stored);
+    var placeholders = ["YOUR_OPENROUTER_KEY_1","YOUR_OPENROUTER_KEY_2","YOUR_OPENROUTER_KEY_3"];
     return all.filter(function(k) {
-      return typeof k === "string" && k.startsWith("sk-or-") && k.length > 20;
+      return typeof k === "string"
+        && k.length >= 20
+        && placeholders.indexOf(k) === -1
+        && k.trim() !== "";
     });
   }
 
