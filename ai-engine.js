@@ -18,15 +18,16 @@ const EXAMORA_AI = (() => {
     // "sk-or-v1-yyyy",
   ];
 
-  // ── FREE MODELS — updated March 2026, all verified on OpenRouter ──
-  // Order matters: fastest/best first, fallbacks after
+  // ── MODELS — openrouter/auto goes first so it never 404s ──────
+  // "openrouter/auto" lets OpenRouter pick the best available free model.
+  // It can never return 404. Specific models are fallbacks only.
   var MODELS = [
-    "google/gemini-2.0-flash-exp:free",       // Best quality, very fast
-    "deepseek/deepseek-chat:free",             // Excellent reasoning
-    "meta-llama/llama-3.3-70b-instruct:free", // Strong, reliable
-    "meta-llama/llama-3.1-8b-instruct:free",  // Fast lightweight fallback
-    "qwen/qwen-2.5-72b-instruct:free",        // Good multilingual
-    "microsoft/phi-4:free",                    // Compact, capable
+    "openrouter/auto",
+    "google/gemini-2.0-flash-exp:free",
+    "deepseek/deepseek-r1:free",
+    "meta-llama/llama-3.1-8b-instruct:free",
+    "qwen/qwen-2.5-7b-instruct:free",
+    "google/gemma-3-4b-it:free",
   ];
 
   var OR_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -101,18 +102,22 @@ const EXAMORA_AI = (() => {
 
           if (resp.status === 429) {
             allErrors.push(tag + ": rate limited");
-            break; // this key is exhausted, try next key
+            break; // key exhausted, try next key
           }
           if (resp.status === 401 || resp.status === 403) {
-            allErrors.push(tag + ": auth error");
-            break; // bad key, try next
-          }
-          if (resp.status === 503 || resp.status === 502) {
-            allErrors.push(tag + ": model down");
-            continue; // try next model
+            allErrors.push(tag + ": INVALID KEY — check your OpenRouter key");
+            break; // bad key, skip to next
           }
           if (!resp.ok) {
-            allErrors.push(tag + ": HTTP " + resp.status);
+            var errBody = "";
+            try {
+              var errJson = await resp.json();
+              errBody = (errJson.error && errJson.error.message)
+                ? errJson.error.message.slice(0, 80)
+                : JSON.stringify(errJson).slice(0, 80);
+            } catch(_) { errBody = "HTTP " + resp.status; }
+            allErrors.push(tag + ": " + errBody);
+            // 404 = model name wrong, 502/503 = model down — both: try next model
             continue;
           }
 
