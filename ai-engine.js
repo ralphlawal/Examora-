@@ -18,9 +18,14 @@ const EXAMORA_AI = (() => {
     // "sk-or-v1-yyyy",
   ];
 
-  // ── MODEL — openrouter/auto lets OpenRouter pick the best available
-  // model automatically. Never goes stale, never needs updating.
+  // ── MODELS — specific free models that reliably return content ──
+  // openrouter/auto sometimes returns empty for free accounts, so we
+  // use explicit models and rotate through them.
   var MODELS = [
+    "mistralai/mistral-small-3.1-24b-instruct:free",
+    "deepseek/deepseek-r1-zero:free",
+    "google/gemma-3-12b-it:free",
+    "mistralai/mistral-7b-instruct:free",
     "openrouter/auto",
   ];
 
@@ -120,7 +125,9 @@ const EXAMORA_AI = (() => {
           try { text = (data.choices[0].message.content || "").trim(); } catch(_){}
 
           if (!text) {
-            allErrors.push(tag + ": empty");
+            // Log the raw response so we can debug what OpenRouter actually returned
+            var rawPreview = JSON.stringify(data).slice(0, 120);
+            allErrors.push(tag + ": empty (raw: " + rawPreview + ")");
             continue;
           }
 
