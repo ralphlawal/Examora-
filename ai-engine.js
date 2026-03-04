@@ -18,16 +18,10 @@ const EXAMORA_AI = (() => {
     // "sk-or-v1-yyyy",
   ];
 
-  // ── MODELS — openrouter/auto goes first so it never 404s ──────
-  // "openrouter/auto" lets OpenRouter pick the best available free model.
-  // It can never return 404. Specific models are fallbacks only.
+  // ── MODEL — openrouter/auto lets OpenRouter pick the best available
+  // model automatically. Never goes stale, never needs updating.
   var MODELS = [
     "openrouter/auto",
-    "google/gemini-2.0-flash-exp:free",
-    "deepseek/deepseek-r1:free",
-    "meta-llama/llama-3.1-8b-instruct:free",
-    "qwen/qwen-2.5-7b-instruct:free",
-    "google/gemma-3-4b-it:free",
   ];
 
   var OR_URL = "https://openrouter.ai/api/v1/chat/completions";
