@@ -86,7 +86,7 @@ const EXAMORA_AI = (() => {
             headers: {
               "Content-Type":  "application/json",
               "Authorization": "Bearer " + key,
-              "HTTP-Referer":  "https://examora.app",
+              "HTTP-Referer":  "https://examora.com.ng",
               "X-Title":       "EXAMORA by NexaCore Labs"
             },
             body: JSON.stringify({

@@ -618,7 +618,7 @@
 </script>
 
 <!-- ── AI Chat FAB ─────────────────────────────────────────── -->
-<button class="ai-chat-fab" id="aiChatFab" onclick="toggleAIChat()" title="Ask AI Tutor">🤖</button>
+<a href="chat.html" class="ai-chat-fab" title="AI Tutor" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">🤖</a>
 <div class="ai-chat-panel" id="aiChatPanel">
   <div class="ai-chat-header">
     <div class="ai-chat-logo">🤖</div>
@@ -636,44 +636,7 @@
 <script src="ai-engine.js"></script>
 <script>
   var _chatHistory=[];
-  function toggleAIChat(){
-    var p=document.getElementById('aiChatPanel');
-    p.classList.toggle('open');
-    if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
-  }
-  async function sendAIChat(){
-    if (!_checkAIAccess()) {
-      var _msgs = document.getElementById('aiChatMessages');
-      if (_msgs) {
-        var _lb = document.createElement('div');
-        _lb.className = 'ai-chat-msg bot';
-        _lb.innerHTML = _aiUpgradeHTML(true);
-        _msgs.appendChild(_lb);
-        _msgs.scrollTop = 99999;
-      }
-      return;
-    }
-    var inp=document.getElementById('aiChatInput');
-    var msg=inp.value.trim(); if(!msg)return;
-    inp.value='';
-    var msgs=document.getElementById('aiChatMessages');
-    var ub=document.createElement('div'); ub.className='ai-chat-msg user'; ub.textContent=msg; msgs.appendChild(ub);
-    var lb=document.createElement('div'); lb.className='ai-chat-msg bot loading';
-    lb.innerHTML='<div class="ai-chat-dot"></div><div class="ai-chat-dot"></div><div class="ai-chat-dot"></div>';
-    msgs.appendChild(lb); msgs.scrollTop=msgs.scrollHeight;
-    document.getElementById('aiChatSend').disabled=true;
-    try{
-      _chatHistory.push({role:'user',content:msg});
-      var r=await EXAMORA_AI.chat(msg,'',_chatHistory.slice(-6));
-      _chatHistory.push({role:'assistant',content:r.text});
-      lb.className='ai-chat-msg bot'; lb.innerHTML=''; lb.textContent=r.text;
-    }catch(e){
-      lb.className='ai-chat-msg bot'; lb.innerHTML='';
-      lb.textContent=e.message==='AI_KEY_MISSING'?'Add your Gemini AI key in ai-engine.js':'Could not reach AI. Try again.';
-    }
-    msgs.scrollTop=msgs.scrollHeight;
-    document.getElementById('aiChatSend').disabled=false;
-  }
+  // AI Chat → see chat.html
 </script>
 
 </body>

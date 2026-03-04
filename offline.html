@@ -2,64 +2,316 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EXAMORA — You're Offline</title>
-  <link rel="icon" type="image/png" href="logo.png"/>
-  <meta name="theme-color" content="#0f172a"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Offline Packs — EXAMORA</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #0f172a; color: white;
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 24px; text-align: center;
+    .pack-card{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;
+      display:flex;align-items:center;gap:14px;
     }
-    .logo {
-      width: 72px; height: 72px; border-radius: 22px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; font-weight: 800; color: white;
-      margin: 0 auto 20px;
-      box-shadow: 0 8px 32px rgba(99,102,241,0.45);
-      overflow: hidden;
+    .pack-icon{
+      width:48px;height:48px;border-radius:14px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:1.4rem;
     }
-    .logo img { width:100%; height:100%; object-fit:contain; }
-    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
-    p { font-size: 0.84rem; color: rgba(255,255,255,0.45); line-height: 1.7; max-width: 280px; margin-bottom: 28px; }
-    .wifi { font-size: 3rem; margin-bottom: 16px; display: block; opacity: 0.6; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 13px 24px; border-radius: 100px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white; font-family: inherit; font-weight: 800;
-      font-size: 0.88rem; border: none; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
-      text-decoration: none; transition: all 0.2s ease;
-      margin-bottom: 12px;
+    .pack-info{flex:1;min-width:0;}
+    .pack-name{font-family:var(--font-display);font-weight:700;font-size:0.88rem;margin-bottom:2px;}
+    .pack-meta{font-size:0.7rem;color:var(--text-3);}
+    .pack-size{font-size:0.65rem;color:var(--text-3);margin-top:3px;}
+    .pack-btn{
+      flex-shrink:0;padding:7px 14px;border-radius:100px;
+      font-size:0.74rem;font-weight:700;border:none;cursor:pointer;
+      transition:var(--transition);font-family:var(--font-body);
     }
-    .btn:active { transform: scale(0.97); }
-    .tip {
-      font-size: 0.72rem; color: rgba(255,255,255,0.25);
-      margin-top: 20px; line-height: 1.8;
+    .pack-btn.download{background:var(--c-brand);color:white;}
+    .pack-btn.downloaded{background:var(--c-green-pale);color:var(--c-green);border:1px solid var(--c-green);}
+    .pack-btn.downloading{background:var(--bg-input);color:var(--text-3);cursor:not-allowed;}
+    .pack-progress{height:4px;background:var(--bg-input);border-radius:2px;margin-top:8px;overflow:hidden;display:none;}
+    .pack-progress-fill{height:100%;background:var(--c-brand);border-radius:2px;transition:width 0.3s;}
+    .storage-bar{
+      background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+      padding:14px;margin-bottom:16px;
     }
-    .tip a { color: rgba(99,102,241,0.7); text-decoration: none; }
+    .storage-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .storage-track{height:8px;background:var(--bg-input);border-radius:4px;overflow:hidden;}
+    .storage-fill{height:100%;background:linear-gradient(90deg,var(--c-brand),#7c3aed);border-radius:4px;transition:width 0.5s;}
+    .cat-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 10px;scrollbar-width:none;margin-bottom:4px;}
+    .cat-tabs::-webkit-scrollbar{display:none;}
+    .cat-tab{
+      flex-shrink:0;padding:6px 14px;border-radius:100px;
+      font-size:0.75rem;font-weight:700;border:1.5px solid var(--border);
+      background:var(--bg-card);color:var(--text-2);cursor:pointer;transition:var(--transition);
+    }
+    .cat-tab.active{background:var(--c-brand);color:white;border-color:var(--c-brand);}
+    .offline-badge{
+      display:inline-flex;align-items:center;gap:4px;
+      background:var(--c-green-pale);color:var(--c-green);
+      padding:3px 8px;border-radius:100px;font-size:0.65rem;font-weight:700;
+    }
+    .premium-gate{
+      background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(124,58,237,0.06));
+      border:1px solid rgba(99,102,241,0.2);border-radius:var(--radius-lg);
+      padding:24px;text-align:center;margin-bottom:16px;
+    }
   </style>
 </head>
 <body>
-  <span class="wifi">📡</span>
-  <div class="logo">
-    <img src="logo.png" alt="EX" onerror="this.style.display='none';this.parentElement.textContent='EX'"/>
+<div class="app-container">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Offline Packs</div>
+    <button class="icon-btn" onclick="clearAllPacks()" title="Clear downloads"><span class="material-symbols-rounded">delete_sweep</span></button>
   </div>
-  <h1>You're Offline</h1>
-  <p>No internet connection detected. Check your WiFi or data and try again — your progress is saved.</p>
-  <button class="btn" onclick="location.reload()">🔄 Try Again</button>
-  <br/>
-  <a href="index.html" class="btn" style="background:rgba(255,255,255,0.08);box-shadow:none;">🏠 Go to Dashboard</a>
-  <p class="tip">
-    Pages you've visited before will load even offline.<br/>
-    Need help? <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;">support@examora.com.ng</a></p>
+
+  <div style="padding:16px;">
+
+    <!-- Storage indicator -->
+    <div class="storage-bar">
+      <div class="storage-row">
+        <span style="font-size:0.78rem;font-weight:600;color:var(--text);">📦 Storage Used</span>
+        <span style="font-size:0.72rem;color:var(--text-3);" id="storageText">Calculating...</span>
+      </div>
+      <div class="storage-track"><div class="storage-fill" id="storageFill" style="width:0%"></div></div>
+      <div style="font-size:0.67rem;color:var(--text-3);margin-top:6px;">
+        Packs are stored in your browser. Works 100% offline once downloaded. ✓
+      </div>
+    </div>
+
+    <!-- Plan gate for free users -->
+    <div id="planGate" style="display:none;">
+      <div class="premium-gate">
+        <div style="font-size:2rem;margin-bottom:10px;">📥</div>
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:6px;">Offline Packs — Trial Feature</div>
+        <div style="font-size:0.78rem;color:var(--text-3);line-height:1.6;margin-bottom:16px;">Download question packs and practise without internet. Start your free trial to unlock.</div>
+        <a href="upgrade.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:11px 24px;">🚀 Start Free Trial</a>
+      </div>
+    </div>
+
+    <!-- Category tabs -->
+    <div class="cat-tabs" id="catTabs">
+      <button class="cat-tab active" onclick="filterCat('all',this)">All Packs</button>
+      <button class="cat-tab" onclick="filterCat('JAMB',this)">JAMB</button>
+      <button class="cat-tab" onclick="filterCat('WAEC',this)">WAEC</button>
+      <button class="cat-tab" onclick="filterCat('NECO',this)">NECO</button>
+      <button class="cat-tab" onclick="filterCat('Post-UTME',this)">Post-UTME</button>
+      <button class="cat-tab" onclick="filterCat('SAT',this)">SAT</button>
+      <button class="cat-tab" onclick="filterCat('IELTS',this)">IELTS</button>
+    </div>
+
+    <div id="packList">
+      <div style="text-align:center;padding:40px;color:var(--text-3);">
+        <div style="font-size:2rem;margin-bottom:8px;">⏳</div>
+        <div style="font-size:0.82rem;">Loading available packs...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script>
+  const _t=localStorage.getItem('examora_theme')||'light';
+  document.documentElement.setAttribute('data-theme',_t);
+
+  var allPacks = [];
+  var currentFilter = 'all';
+
+  function toast(msg,type){
+    var t=document.getElementById('toast');
+    var icons={success:'✅',error:'❌',warning:'⚠️'};
+    document.getElementById('toastIcon').textContent=icons[type]||'ℹ️';
+    document.getElementById('toastMsg').textContent=msg;
+    t.className='toast show '+(type||'');
+    setTimeout(()=>t.className='toast',3000);
+  }
+
+  function isDownloaded(packId){
+    return !!localStorage.getItem('examora_pack_'+packId);
+  }
+
+  function filterCat(cat, el){
+    currentFilter = cat;
+    document.querySelectorAll('.cat-tab').forEach(e=>e.classList.remove('active'));
+    el.classList.add('active');
+    renderPacks();
+  }
+
+  function renderPacks(){
+    var plan = localStorage.getItem('examora_plan')||'free';
+    var canDownload = plan==='premium'||plan==='trial';
+    document.getElementById('planGate').style.display = canDownload ? 'none' : 'block';
+
+    var packs = currentFilter==='all' ? allPacks : allPacks.filter(p=>p.category===currentFilter);
+    if(!packs.length){
+      document.getElementById('packList').innerHTML =
+        '<div style="text-align:center;padding:40px;color:var(--text-3);">'
+        +'<div style="font-size:2rem;margin-bottom:8px;">📭</div>'
+        +'<div style="font-size:0.82rem;">No packs in this category yet</div></div>';
+      return;
+    }
+    var html = packs.map(function(p){
+      var dl = isDownloaded(p.id);
+      var qCount = 0;
+      if(dl){ try{qCount=JSON.parse(localStorage.getItem('examora_pack_'+p.id)).length;}catch(_){} }
+      return '<div class="pack-card" id="packcard_'+p.id+'">'
+        +'<div class="pack-icon" style="background:'+p.bg+';">'+p.icon+'</div>'
+        +'<div class="pack-info">'
+          +'<div class="pack-name">'+p.name+'</div>'
+          +'<div class="pack-meta">'+p.category+' · '+p.subject+' · '+p.count+' questions</div>'
+          +(dl?'<div style="margin-top:4px;"><span class="offline-badge">✓ Downloaded · '+qCount+' Qs</span></div>':'')
+          +'<div class="pack-progress" id="prog_'+p.id+'"><div class="pack-progress-fill" id="progfill_'+p.id+'" style="width:0%"></div></div>'
+        +'</div>'
+        +(canDownload
+          ?'<button class="pack-btn '+(dl?'downloaded':'download')+'" id="pkbtn_'+p.id+'" onclick="'+(dl?'deletePack(\''+p.id+'\')':'downloadPack(\''+p.id+'\')')+'">'
+            +(dl?'🗑 Remove':'⬇ Get')+'</button>'
+          :'<button class="pack-btn download" onclick="window.location.href=\'upgrade.html\'">🔒 Trial</button>'
+        )
+      +'</div>';
+    }).join('');
+    document.getElementById('packList').innerHTML = html;
+  }
+
+  async function downloadPack(packId){
+    var pack = allPacks.find(p=>p.id===packId);
+    if(!pack||!window._allQuestions) return;
+    var btn = document.getElementById('pkbtn_'+packId);
+    var prog = document.getElementById('prog_'+packId);
+    var fill = document.getElementById('progfill_'+packId);
+    btn.className='pack-btn downloading'; btn.textContent='Downloading...';
+    prog.style.display='block';
+
+    // Filter questions for this pack
+    var questions = window._allQuestions.filter(q=>
+      q.category===pack.category && (pack.subject==='All'||q.subject===pack.subject)
+    );
+
+    // Simulate progressive download
+    for(var i=0;i<=100;i+=10){
+      fill.style.width=i+'%';
+      await new Promise(r=>setTimeout(r,80));
+    }
+
+    if(questions.length===0){
+      toast('No questions available for this pack yet','warning');
+      btn.className='pack-btn download'; btn.textContent='⬇ Get';
+      prog.style.display='none';
+      return;
+    }
+
+    localStorage.setItem('examora_pack_'+packId, JSON.stringify(questions));
+    toast('✓ '+pack.name+' downloaded ('+questions.length+' questions)','success');
+    updateStorage();
+    renderPacks();
+  }
+
+  function deletePack(packId){
+    var pack = allPacks.find(p=>p.id===packId);
+    if(!confirm('Remove "'+pack.name+'" from offline storage?')) return;
+    localStorage.removeItem('examora_pack_'+packId);
+    toast('Pack removed','success');
+    updateStorage();
+    renderPacks();
+  }
+
+  function clearAllPacks(){
+    if(!confirm('Remove ALL downloaded packs?')) return;
+    Object.keys(localStorage).filter(k=>k.startsWith('examora_pack_'))
+      .forEach(k=>localStorage.removeItem(k));
+    toast('All packs cleared','success');
+    updateStorage();
+    renderPacks();
+  }
+
+  function updateStorage(){
+    var total = 0;
+    Object.keys(localStorage).filter(k=>k.startsWith('examora_pack_')).forEach(k=>{
+      total += (localStorage.getItem(k)||'').length;
+    });
+    var mb = (total/1024/1024).toFixed(1);
+    var pct = Math.min(Math.round((total/1024/1024/50)*100),100);
+    document.getElementById('storageText').textContent = mb+' MB / 50 MB';
+    document.getElementById('storageFill').style.width = pct+'%';
+  }
+
+  // Pack definitions — populated from Firestore questions grouped by cat+subject
+  function buildPackList(questions){
+    var groups = {};
+    questions.forEach(function(q){
+      var key = (q.category||'General')+'||'+(q.subject||'General');
+      if(!groups[key]) groups[key]={category:q.category||'General',subject:q.subject||'General',count:0};
+      groups[key].count++;
+    });
+
+    var colors = {
+      'JAMB':'rgba(99,102,241,0.15)','WAEC':'rgba(16,185,129,0.15)',
+      'NECO':'rgba(245,158,11,0.15)','Post-UTME':'rgba(244,63,94,0.15)',
+      'SAT':'rgba(59,130,246,0.15)','IELTS':'rgba(139,92,246,0.15)',
+      'GRE':'rgba(20,184,166,0.15)','Custom':'rgba(148,163,184,0.15)'
+    };
+    var icons = {
+      'Mathematics':'🔢','English Language':'📖','Physics':'⚡','Chemistry':'🧪',
+      'Biology':'🧬','Economics':'📈','Government':'🏛','Literature in English':'📜',
+      'Geography':'🌍','Commerce':'💼','Agricultural Science':'🌱','Accounting':'💰',
+      'Further Mathematics':'🔣','Computer Studies':'💻','General':'📚'
+    };
+
+    return Object.entries(groups)
+      .filter(e=>e[1].count>=3)
+      .map(function(e,i){
+        var d=e[1];
+        return {
+          id:'pack_'+d.category+'_'+d.subject.replace(/\s/g,'_'),
+          name:d.category+' '+d.subject,
+          category:d.category, subject:d.subject,
+          count:d.count,
+          icon:icons[d.subject]||'📚',
+          bg:colors[d.category]||'rgba(148,163,184,0.15)'
+        };
+      });
+  }
+
+  updateStorage();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.appspot.com",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+
+  onAuthStateChanged(auth, async user=>{
+    if(!user){window.location.href='login.html';return;}
+    try{
+      const snap=await getDoc(doc(db,'users',user.uid));
+      const ud=snap.data()||{};
+      localStorage.setItem('examora_plan',ud.plan||'free');
+    }catch(_){}
+    try{
+      const qs=await getDocs(collection(db,'questions'));
+      window._allQuestions=[];
+      qs.forEach(d=>window._allQuestions.push({id:d.id,...d.data()}));
+      allPacks = buildPackList(window._allQuestions);
+      renderPacks();
+    }catch(e){
+      document.getElementById('packList').innerHTML=
+        '<div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">Could not load packs. Check your connection.</div>';
+    }
+  });
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
 </body>
 </html>

@@ -259,7 +259,7 @@
     <h4>Invite friends to EXAMORA</h4>
     <p>Share your personal link. Every student you bring helps grow the community!</p>
     <div class="referral-link-row">
-      <div class="referral-link-text" id="referralLinkText">examora.app/join?ref=...</div>
+      <div class="referral-link-text" id="referralLinkText">examora.com.ng/join?ref=...</div>
       <button class="referral-copy-btn" onclick="copyReferralLink()">Copy</button>
     </div>
     <div class="referral-share-row">
@@ -274,10 +274,69 @@
     <h3>Support</h3>
   </div>
   <div class="settings-list animate-in animate-in-delay-4">
-    <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a>
+    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
     <div class="setting-row" onclick="toast('Version 1.0.0 · Build 2025','info')">
       <div class="setting-icon" style="background:rgba(99,102,241,0.1);"><span class="material-symbols-rounded">smartphone</span></div>
       <div class="setting-content"><div class="setting-label">App Version</div><div class="setting-value">v1.0.0 · 2025</div></div>
+    </div>
+  </div>
+
+  <!-- Quick Access Links -->
+  <div class="section-header animate-in animate-in-delay-4" style="margin-top:20px;">
+    <div class="section-icon">apps</div>
+    <h3>Quick Access</h3>
+  </div>
+  <div class="settings-list animate-in animate-in-delay-4">
+    <div class="setting-row" onclick="window.location.href='mock.html'">
+      <div class="setting-icon" style="background:rgba(244,63,94,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">timer</span></div>
+      <div class="setting-content"><div class="setting-label">Mock Exams</div><div class="setting-value">Timed full exam simulation</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='offline.html'">
+      <div class="setting-icon" style="background:rgba(16,185,129,0.1);"><span class="material-symbols-rounded" style="color:var(--c-green);">download_for_offline</span></div>
+      <div class="setting-content"><div class="setting-label">Offline Packs</div><div class="setting-value">Study without internet</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='school.html'">
+      <div class="setting-icon" style="background:rgba(245,158,11,0.1);"><span class="material-symbols-rounded" style="color:var(--c-gold);">school</span></div>
+      <div class="setting-content"><div class="setting-label">School / Class</div><div class="setting-value">Join or manage a class</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='chat.html'">
+      <div class="setting-icon" style="background:rgba(99,102,241,0.1);"><span class="material-symbols-rounded" style="color:var(--c-brand);">smart_toy</span></div>
+      <div class="setting-content"><div class="setting-label">AI Tutor Chat</div><div class="setting-value">Ask anything, get explanations</div></div>
+      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    </div>
+  </div>
+
+  <!-- Referral Rewards -->
+  <div class="section-header animate-in animate-in-delay-4" style="margin-top:20px;">
+    <div class="section-icon">card_giftcard</div>
+    <h3>Refer & Earn</h3>
+  </div>
+  <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.25);" class="animate-in animate-in-delay-4">
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:white;margin-bottom:4px;">🎁 Get 7 Days Premium Free</div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:14px;">Share EXAMORA with friends. When they sign up and practice, you both get 7 days Premium free.</div>
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--c-brand);" id="refCount">0</div>
+        <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);">Friends Joined</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--c-green);" id="refDaysEarned">0</div>
+        <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);">Days Earned</div>
+      </div>
+    </div>
+    <!-- Link row -->
+    <div style="display:flex;gap:8px;align-items:center;background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.08);">
+      <div style="flex:1;font-size:0.72rem;color:#818cf8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-display);font-weight:600;" id="referralLinkText">examora.com.ng/join?ref=...</div>
+      <button onclick="copyReferralLink()" style="background:var(--c-brand);color:white;font-weight:700;font-size:0.65rem;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;flex-shrink:0;">Copy</button>
+    </div>
+    <!-- Share buttons -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="shareRef('whatsapp')" style="flex:1;background:rgba(37,211,102,0.15);color:#25d366;border:1px solid rgba(37,211,102,0.25);border-radius:100px;padding:9px;font-size:0.74rem;font-weight:700;cursor:pointer;">📱 WhatsApp</button>
+      <button onclick="shareRef('twitter')" style="flex:1;background:rgba(29,161,242,0.1);color:#1da1f2;border:1px solid rgba(29,161,242,0.2);border-radius:100px;padding:9px;font-size:0.74rem;font-weight:700;cursor:pointer;">🐦 Twitter</button>
     </div>
   </div>
 
@@ -479,7 +538,7 @@
   function confirmDeleteAccount(){ if (confirm("Delete your account?\nAll your data will be permanently lost.")) window._doDelete && window._doDelete(); }
 
   function buildReferralLink(uid) {
-    var link = "https://examora.app/join?ref=" + uid.slice(0,8);
+    var link = "https://examora.com.ng/join?ref=" + uid.slice(0,8);
     document.getElementById("referralLinkText").textContent = link;
     return link;
   }
@@ -661,6 +720,14 @@
     window._pd  = ud;
     window._sub = ud.subjects||[];
     buildReferralLink(user.uid);
+    // Load referral count
+    try {
+      const { getDocs: _gd2, collection: _col2, query: _q2, where: _w2 } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const refSnap = await _gd2(_q2(_col2(db,"users"),_w2("referredBy","==",user.uid)));
+      const rc = refSnap.size;
+      document.getElementById("refCount").textContent = rc;
+      document.getElementById("refDaysEarned").textContent = rc * 7;
+    } catch(_) {}
 
     const name   = ud.displayName||user.email.split("@")[0];
     const plan   = ud.plan||"free";

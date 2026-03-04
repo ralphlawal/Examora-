@@ -285,7 +285,7 @@
     var name    = document.getElementById('certName').textContent;
     var subject = document.getElementById('certMeta').textContent.split("
 ")[0] || 'exam';
-    var text    = name + ' scored ' + score + ' on ' + subject + ' — practised with EXAMORA! 🎓 examora.app';
+    var text    = name + ' scored ' + score + ' on ' + subject + ' — practised with EXAMORA! 🎓 examora.com.ng';
     if (navigator.share) {
       navigator.share({ title:'My EXAMORA Score', text:text }).catch(function(){});
     } else if (navigator.clipboard) {
@@ -608,7 +608,7 @@
     const score=resultData.correct||0;
     const total=resultData.total||0;
     const bar="█".repeat(Math.round(pct/10))+"░".repeat(10-Math.round(pct/10));
-    return `🎓 EXAMORA Score Alert!\n\nI scored ${pct}% on ${cat} ${subj}\n${bar} (${score}/${total})\n\n${pct>=70?"✅ Passed!":"💪 Keep grinding!"}\n\nTest yourself FREE at examora.app`;
+    return `🎓 EXAMORA Score Alert!\n\nI scored ${pct}% on ${cat} ${subj}\n${bar} (${score}/${total})\n\n${pct>=70?"✅ Passed!":"💪 Keep grinding!"}\n\nTest yourself FREE at examora.com.ng`;
   }
 
   function openShare(){ document.getElementById("shareModal").classList.add("open"); }
@@ -616,11 +616,11 @@
 
   function shareVia(channel){
     const text=buildShareText();
-    const url="https://examora.app";
+    const url="https://examora.com.ng";
     if(channel==="whatsapp"){
       window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
     } else if(channel==="twitter"){
-      const short=`I scored ${resultData.percent||0}% on EXAMORA! Test yourself at examora.app 🎓 #JAMB #WAEC #NECO`;
+      const short=`I scored ${resultData.percent||0}% on EXAMORA! Test yourself at examora.com.ng 🎓 #JAMB #WAEC #NECO`;
       window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(short),"_blank");
     } else {
       navigator.clipboard?.writeText(text).then(()=>{toast("📋 Result copied!");closeShare();}).catch(()=>{});
@@ -862,6 +862,21 @@
   </div>
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const app = initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.appspot.com",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  onAuthStateChanged(getAuth(app), user => {
+    if (!user) window.location.href = 'login.html';
+  });
+</script>
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>

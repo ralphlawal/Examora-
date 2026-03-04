@@ -307,11 +307,17 @@
     </div>
   </div>
 
-  <!-- Subject Breakdown -->
+  <!-- Subject Readiness — enhanced -->
   <div class="chart-card animate-in animate-in-delay-2">
-    <div class="chart-title">Subject Performance</div>
-    <div class="chart-sub">Accuracy per subject across all exams</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+      <div>
+        <div class="chart-title">Subject Readiness</div>
+        <div class="chart-sub">Your exam readiness score per subject</div>
+      </div>
+      <div id="overallReadiness" style="font-family:var(--font-display);font-weight:900;font-size:1.4rem;color:var(--c-brand);"></div>
+    </div>
     <div id="subjBreakdown"></div>
+    <div id="readinessSummary" style="margin-top:12px;"></div>
   </div>
 
   <!-- Category Doughnut -->
@@ -692,20 +698,54 @@
       el.innerHTML=`<div class="empty-state"><div class="es-icon">📚</div><h4>No subject data yet</h4><p>Take exams with a subject selected to see breakdown.</p></div>`;
       return;
     }
+    // Calculate overall readiness
+    const allPcts = subjects.map(s=>{const d=map[s];return d.total>0?Math.round((d.correct/d.total)*100):0;});
+    const overallPct = allPcts.length?Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length):0;
+    const overallEl = document.getElementById('overallReadiness');
+    if(overallEl) overallEl.textContent = overallPct+'%';
+
     el.innerHTML=subjects.map(s=>{
       const d=map[s];
       const pct=d.total>0?Math.round((d.correct/d.total)*100):0;
       const col=pct>=70?"#10b981":pct>=50?"#f59e0b":"#f43f5e";
       const icon=SUBJ_ICONS[s]||"📖";
-      return `<div class="subj-row">
+      const label=pct>=80?"Ready ✓":pct>=60?"Getting there":"Needs work";
+      const labelCol=pct>=80?"var(--c-green)":pct>=60?"var(--c-gold)":"var(--c-red)";
+      return `<div class="subj-row" style="margin-bottom:10px;">
         <div class="subj-icon" style="background:${col}1a;">${icon}</div>
-        <div class="subj-name">${s}</div>
-        <div class="subj-bar-wrap">
-          <div class="subj-bar-fill" style="width:${pct}%;background:${col};"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <div class="subj-name" style="font-size:0.78rem;">${s}</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:0.62rem;color:${labelCol};font-weight:700;">${label}</span>
+              <span class="subj-pct" style="color:${col};">${pct}%</span>
+            </div>
+          </div>
+          <div class="subj-bar-wrap">
+            <div class="subj-bar-fill" style="width:${pct}%;background:${col};"></div>
+          </div>
+          <div style="font-size:0.6rem;color:var(--text-3);margin-top:3px;">${d.total} question${d.total!==1?'s':''} attempted</div>
         </div>
-        <div class="subj-pct" style="color:${col};">${pct}%</div>
       </div>`;
     }).join("");
+
+    // Readiness summary
+    const ready=allPcts.filter(p=>p>=70).length;
+    const needsWork=allPcts.filter(p=>p<50).length;
+    const summEl=document.getElementById('readinessSummary');
+    if(summEl && subjects.length>0) {
+      summEl.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+        +'<div style="flex:1;min-width:80px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:8px;text-align:center;">'
+          +'<div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--c-green);">'+ready+'</div>'
+          +'<div style="font-size:0.62rem;color:var(--text-3);">Ready</div></div>'
+        +'<div style="flex:1;min-width:80px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px;text-align:center;">'
+          +'<div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--c-gold);">'+(subjects.length-ready-needsWork)+'</div>'
+          +'<div style="font-size:0.62rem;color:var(--text-3);">In Progress</div></div>'
+        +'<div style="flex:1;min-width:80px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:10px;padding:8px;text-align:center;">'
+          +'<div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--c-red);">'+needsWork+'</div>'
+          +'<div style="font-size:0.62rem;color:var(--text-3);">Needs Work</div></div>'
+        +'</div>';
+    }
   }
 
   function buildCatChart(results){
@@ -895,7 +935,7 @@
 </script>
 
 <!-- ── AI Chat FAB ─────────────────────────────────────────── -->
-<button class="ai-chat-fab" id="aiChatFab" onclick="toggleAIChat()" title="Ask AI Tutor">🤖</button>
+<a href="chat.html" class="ai-chat-fab" title="AI Tutor" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">🤖</a>
 <div class="ai-chat-panel" id="aiChatPanel">
   <div class="ai-chat-header">
     <div class="ai-chat-logo">🤖</div>
@@ -913,44 +953,7 @@
 <script src="ai-engine.js"></script>
 <script>
   var _chatHistory=[];
-  function toggleAIChat(){
-    var p=document.getElementById('aiChatPanel');
-    p.classList.toggle('open');
-    if(p.classList.contains('open')) document.getElementById('aiChatInput').focus();
-  }
-  async function sendAIChat(){
-    if (!_checkAIAccess()) {
-      var _msgs = document.getElementById('aiChatMessages');
-      if (_msgs) {
-        var _lb = document.createElement('div');
-        _lb.className = 'ai-chat-msg bot';
-        _lb.innerHTML = _aiUpgradeHTML(true);
-        _msgs.appendChild(_lb);
-        _msgs.scrollTop = 99999;
-      }
-      return;
-    }
-    var inp=document.getElementById('aiChatInput');
-    var msg=inp.value.trim(); if(!msg)return;
-    inp.value='';
-    var msgs=document.getElementById('aiChatMessages');
-    var ub=document.createElement('div'); ub.className='ai-chat-msg user'; ub.textContent=msg; msgs.appendChild(ub);
-    var lb=document.createElement('div'); lb.className='ai-chat-msg bot loading';
-    lb.innerHTML='<div class="ai-chat-dot"></div><div class="ai-chat-dot"></div><div class="ai-chat-dot"></div>';
-    msgs.appendChild(lb); msgs.scrollTop=msgs.scrollHeight;
-    document.getElementById('aiChatSend').disabled=true;
-    try{
-      _chatHistory.push({role:'user',content:msg});
-      var r=await EXAMORA_AI.chat(msg,'',_chatHistory.slice(-6));
-      _chatHistory.push({role:'assistant',content:r.text});
-      lb.className='ai-chat-msg bot'; lb.innerHTML=''; lb.textContent=r.text;
-    }catch(e){
-      lb.className='ai-chat-msg bot'; lb.innerHTML='';
-      lb.textContent=e.message==='AI_KEY_MISSING'?'Add your Gemini AI key in ai-engine.js':'Could not reach AI. Try again.';
-    }
-    msgs.scrollTop=msgs.scrollHeight;
-    document.getElementById('aiChatSend').disabled=false;
-  }
+  // AI Chat → see chat.html
 </script>
 
 <!-- ── COMING SOON POPUP ── -->

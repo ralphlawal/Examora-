@@ -533,7 +533,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> Is there a student discount?</div>
-      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a> with your school email to claim it.</div>
+      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a> with your school email to claim it.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> What if I'm not satisfied?</div>
@@ -558,7 +558,7 @@
   <!-- Support row -->
   <div style="text-align:center;padding:16px 20px 8px;font-size:0.72rem;color:var(--text-3);line-height:2;">
     Questions about pricing?<br/>
-    <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a>
+    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
   </div>
 
 </div>
@@ -800,55 +800,7 @@
 
   /* activate premium after payment */
   window._activatePremium = async (ref, plan) => {
-    if (!window._userId) { toast("User not signed in", "error"); return; }
-    try {
-      const now       = new Date();
-      const expiresAt = plan === "yearly"
-        ? new Date(now.getFullYear()+1, now.getMonth(), now.getDate()).toISOString()
-        : new Date(now.getFullYear(),   now.getMonth()+1, now.getDate()).toISOString();
-
-      await updateDoc(doc(db, "users", window._userId), {
-        plan:             "premium",
-        premiumSince:     now.toISOString(),
-        premiumExpiresAt: expiresAt,
-        premiumPlan:      plan,
-        paystackRef:      ref,
-        lastActive:       now.toDateString()
-      });
-
-      toast("🎉 Premium activated! Welcome to EXAMORA Premium.", "success", 5000);
-      setTimeout(function() {
-        document.getElementById("premiumActive").style.display = "block";
-        document.getElementById("priceCard").style.display     = "none";
-        document.getElementById("trialActiveBanner").classList.remove("show");
-        document.getElementById("trialOfferCard").classList.remove("show");
-        var fc = document.getElementById("finalCta");
-        if (fc) fc.style.display = "none";
-        document.getElementById("paywallOverlay").classList.remove("show");
-        document.getElementById("urgencyStrip").classList.remove("show");
-      }, 1500);
-    } catch (err) {
-      console.error("activatePremium error:", err);
-      toast("Payment received but activation failed — contact support@examora.com.ng with ref: " + ref, "error", 10000);
-    }
-  };
-
-  /* start free trial */
-  window._startTrial = async () => {
-    if (!window._userId) {
-      toast("Please sign in first", "error");
-      setTimeout(function(){ window.location.href = "login.html"; }, 1000);
-      return;
-    }
-    var trialBtn = document.getElementById("trialStartBtn");
-    if (trialBtn) { trialBtn.disabled = true; trialBtn.textContent = "Activating…"; }
-    try {
-      const snap = await getDoc(doc(db,"users",user.uid));
-      const ud   = snap.data() || {};
-      localStorage.setItem("examora_plan", ud.plan||"free");
-      applyPlanUI(ud);
-    } catch(err) { console.error("Plan load error:",err); }
-  });
+    if (!window._userId) { toast("User
 </script>
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});

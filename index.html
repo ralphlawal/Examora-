@@ -385,7 +385,19 @@
       <div class="quick-icon-wrap"><span class="material-symbols-rounded">bolt</span></div>
       <div class="quick-label">Daily<br/>Challenge</div>
     </a>
-    <a href="bookmarks.html"       class="quick-card">
+    <a href="mock.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(244,63,94,0.12);"><span class="material-symbols-rounded" style="color:var(--c-red);">timer</span></div>
+      <div class="quick-label">Mock<br/>Exam</div>
+    </a>
+    <a href="offline.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(16,185,129,0.12);"><span class="material-symbols-rounded" style="color:var(--c-green);">download_for_offline</span></div>
+      <div class="quick-label">Offline<br/>Packs</div>
+    </a>
+    <a href="school.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">school</span></div>
+      <div class="quick-label">School<br/>Mode</div>
+    </a>
+    <a href="bookmarks.html" class="quick-card">
       <div class="quick-icon-wrap"><span class="material-symbols-rounded">bookmark</span></div>
       <div class="quick-label">Saved<br/>Questions</div>
     </a>
@@ -518,25 +530,8 @@
 </div>
 
 
-<!-- ── AI Chat FAB + Panel ──────────────────────────────── -->
-<button class="ai-chat-fab" id="aiChatFab" onclick="toggleAIChat()" title="Ask AI Tutor">🤖</button>
-<div class="ai-chat-panel" id="aiChatPanel">
-  <div class="ai-chat-header">
-    <div class="ai-chat-logo">🤖</div>
-    <div>
-      <div class="ai-chat-title">AI Study Buddy</div>
-      <div class="ai-chat-subtitle">Powered by NexaCore Labs</div>
-    </div>
-    <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
-  </div>
-  <div class="ai-chat-messages" id="aiChatMessages">
-    <div class="ai-chat-msg bot">Hey! I'm your EXAMORA AI tutor. Ask me anything about your studies — concepts, questions, tips. What are you working on? 📚</div>
-  </div>
-  <div class="ai-chat-input-row">
-    <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAIChat()"/>
-    <button class="ai-chat-send" id="aiChatSend" onclick="sendAIChat()">➤</button>
-  </div>
-</div>
+<!-- ── AI Chat FAB → links to full chat page ── -->
+<a href="chat.html" class="ai-chat-fab" title="AI Tutor" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">🤖</a>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
@@ -655,54 +650,7 @@
     document.getElementById('countdownCard').style.display = 'none';
   }
 
-  // ── AI Chat widget ──
-  var _aiChatHistory = [];
-  function toggleAIChat() {
-    var p = document.getElementById('aiChatPanel');
-    p.classList.toggle('open');
-    if (p.classList.contains('open')) document.getElementById('aiChatInput').focus();
-  }
-  async function sendAIChat() {
-    if (!_checkAIAccess()) {
-      var _lb = document.createElement('div');
-      _lb.className = 'ai-chat-msg bot';
-      _lb.innerHTML = _aiUpgradeHTML(true);
-      document.getElementById('aiChatMessages').appendChild(_lb);
-      document.getElementById('aiChatMessages').scrollTop = 99999;
-      return;
-    }
-    var input = document.getElementById('aiChatInput');
-    var msg = input.value.trim();
-    if (!msg) return;
-    input.value = '';
-    var msgs = document.getElementById('aiChatMessages');
-    // Add user bubble
-    var userBubble = document.createElement('div');
-    userBubble.className = 'ai-chat-msg user';
-    userBubble.textContent = msg;
-    msgs.appendChild(userBubble);
-    // Loading dots
-    var loadBubble = document.createElement('div');
-    loadBubble.className = 'ai-chat-msg bot loading';
-    loadBubble.innerHTML = '<div class="ai-chat-dot"></div><div class="ai-chat-dot"></div><div class="ai-chat-dot"></div>';
-    msgs.appendChild(loadBubble);
-    msgs.scrollTop = msgs.scrollHeight;
-    document.getElementById('aiChatSend').disabled = true;
-    try {
-      _aiChatHistory.push({role:'user', content:msg});
-      var result = await EXAMORA_AI.chat(msg, '', _aiChatHistory.slice(-6));
-      _aiChatHistory.push({role:'assistant', content:result.text});
-      loadBubble.className = 'ai-chat-msg bot';
-      loadBubble.innerHTML = '';
-      loadBubble.textContent = result.text;
-    } catch(e) {
-      loadBubble.className = 'ai-chat-msg bot';
-      var errMsg = (e.message === 'AI_KEY_MISSING' || (e.message||'').startsWith('AI_KEY_MISSING')) ? '🔑 Add your OpenRouter key in ai-engine.js (free at openrouter.ai/keys)' : 'Could not reach AI. Try again.';
-      loadBubble.textContent = errMsg;
-    }
-    msgs.scrollTop = msgs.scrollHeight;
-    document.getElementById('aiChatSend').disabled = false;
-  }
+  // AI Chat → see chat.html
 
 </script>
 
