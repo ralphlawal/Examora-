@@ -1,71 +1,99 @@
 // ═══════════════════════════════════════════════════════════════
-// EXAMORA AI Engine v7.0 — OpenRouter · Multi-Key Rotation
-// Powered by NexaCore Labs
+// EXAMORA AI Engine v8.0 — OpenRouter · Auto Model Discovery
+// Powered by NexaCore Labs · examora.com.ng
 //
 // HOW TO SET UP:
 //   1. Go to https://openrouter.ai/keys  (free account)
-//   2. Create a key — it's instant, no card needed
-//   3. Paste it below replacing YOUR_OPENROUTER_KEY_1
-//   4. Add more keys for automatic rotation / higher limits
+//   2. Create a key — instant, no card needed
+//   3. Paste it in Admin Panel → Settings → AI Keys
 // ═══════════════════════════════════════════════════════════════
 
 const EXAMORA_AI = (() => {
 
-  // ── YOUR KEYS GO HERE ───────────────────────────────────────
+  // ── YOUR KEYS GO HERE (or add via Admin Panel) ───────────────
   var API_KEYS = [
-    "YOUR_OPENROUTER_KEY_1",   // ← paste your key here
-    // "sk-or-v1-xxxx",        // ← add more keys for rotation
-    // "sk-or-v1-yyyy",
+    "YOUR_OPENROUTER_KEY_1",
+    // "sk-or-v1-xxxx",
   ];
 
-  // ── MODELS — specific free models that reliably return content ──
-  // openrouter/auto sometimes returns empty for free accounts, so we
-  // use explicit models and rotate through them.
-  var MODELS = [
+  var OR_URL   = "https://openrouter.ai/api/v1/chat/completions";
+  var BRAND    = "NexaCore Labs";
+  var SYSTEM   = "You are an AI tutor built by NexaCore Labs for EXAMORA. Help students prepare for JAMB, WAEC, NECO, Post-UTME, SAT, ACT, IELTS, TOEFL, GRE, GMAT, A-Levels, GCSE, IB, and professional certifications. Be concise, accurate, and encouraging. No markdown headers. Under 280 words.";
+
+  // ── Known-good fallback models (updated May 2025) ────────────
+  // These are only used if the live fetch fails
+  var FALLBACK_MODELS = [
+    "google/gemini-2.0-flash-exp:free",
+    "deepseek/deepseek-r1:free",
+    "meta-llama/llama-3.2-3b-instruct:free",
+    "qwen/qwen-2.5-7b-instruct:free",
+    "google/gemma-2-9b-it:free",
     "mistralai/mistral-small-3.1-24b-instruct:free",
-    "deepseek/deepseek-r1-zero:free",
-    "google/gemma-3-12b-it:free",
-    "mistralai/mistral-7b-instruct:free",
-    "openrouter/auto",
   ];
 
-  var OR_URL = "https://openrouter.ai/api/v1/chat/completions";
-  var BRAND  = "NexaCore Labs";
+  var _keyIndex    = 0;
+  var _liveModels  = null;   // cached from OpenRouter models API
+  var _modelsFetch = null;   // in-flight promise
 
-  var SYSTEM = "You are an AI tutor built by NexaCore Labs for EXAMORA. Help students prepare for SAT, ACT, IELTS, TOEFL, GRE, GMAT, A-Levels, GCSE, IB, JAMB, WAEC, NECO, and professional certifications. Be concise, accurate, and encouraging. No markdown headers. Under 280 words.";
-
-  var _keyIndex = 0;
-
+  // ── Get valid keys from hardcoded + localStorage ─────────────
   function validKeys() {
-    // Merge hardcoded keys with keys saved from Admin Panel (localStorage)
     var stored = [];
     try {
       var raw = localStorage.getItem("examora_ai_keys");
       if (raw) stored = JSON.parse(raw);
     } catch(_) {}
     var all = API_KEYS.concat(stored);
-    var placeholders = ["YOUR_OPENROUTER_KEY_1","YOUR_OPENROUTER_KEY_2","YOUR_OPENROUTER_KEY_3"];
+    var bad = ["YOUR_OPENROUTER_KEY_1","YOUR_OPENROUTER_KEY_2","YOUR_OPENROUTER_KEY_3"];
     return all.filter(function(k) {
-      return typeof k === "string"
-        && k.length >= 20
-        && placeholders.indexOf(k) === -1
-        && k.trim() !== "";
+      return typeof k === "string" && k.length >= 20 && bad.indexOf(k) === -1 && k.trim() !== "";
     });
   }
 
-  // Core: tries every key × every model until one succeeds
+  // ── Fetch live free models from OpenRouter ───────────────────
+  async function fetchLiveModels(key) {
+    if (_liveModels) return _liveModels;
+    if (_modelsFetch) return _modelsFetch;
+
+    _modelsFetch = (async function() {
+      try {
+        var r = await fetch("https://openrouter.ai/api/v1/models", {
+          headers: { "Authorization": "Bearer " + key }
+        });
+        if (!r.ok) return FALLBACK_MODELS;
+        var d = await r.json();
+        // Filter: free tier, has chat completion, context > 4k
+        var free = (d.data || [])
+          .filter(function(m) {
+            return m.id && m.id.endsWith(":free")
+              && m.context_length >= 4096;
+          })
+          .map(function(m) { return m.id; });
+
+        if (free.length === 0) return FALLBACK_MODELS;
+        _liveModels = free;
+        return free;
+      } catch(_) {
+        return FALLBACK_MODELS;
+      }
+    })();
+
+    return _modelsFetch;
+  }
+
+  // ── Core: tries every key × every model ──────────────────────
   async function call(promptOrMessages, maxTokens, temperature) {
     maxTokens   = maxTokens   || 500;
     temperature = temperature !== undefined ? temperature : 0.3;
 
     var keys = validKeys();
-    if (keys.length === 0) {
-      throw new Error("AI_KEY_MISSING");
-    }
+    if (keys.length === 0) throw new Error("AI_KEY_MISSING");
 
     var messages = Array.isArray(promptOrMessages)
       ? promptOrMessages
       : [{ role: "user", content: String(promptOrMessages) }];
+
+    // Get live model list using first key
+    var models = await fetchLiveModels(keys[0]);
 
     var allErrors = [];
 
@@ -73,13 +101,13 @@ const EXAMORA_AI = (() => {
       var keyIdx = (_keyIndex + ki) % keys.length;
       var key    = keys[keyIdx];
 
-      for (var mi = 0; mi < MODELS.length; mi++) {
-        var model = MODELS[mi];
+      for (var mi = 0; mi < models.length; mi++) {
+        var model = models[mi];
         var tag   = "Key" + (keyIdx+1) + "/" + model.split("/").pop();
 
         try {
-          var ctrl = new AbortController();
-          var timer = setTimeout(function() { ctrl.abort(); }, 18000);
+          var ctrl  = new AbortController();
+          var timer = setTimeout(function() { ctrl.abort(); }, 20000);
 
           var resp = await fetch(OR_URL, {
             method: "POST",
@@ -101,37 +129,40 @@ const EXAMORA_AI = (() => {
 
           if (resp.status === 429) {
             allErrors.push(tag + ": rate limited");
-            continue; // this model is rate limited — try next model
+            continue; // try next model
           }
           if (resp.status === 401 || resp.status === 403) {
-            allErrors.push(tag + ": INVALID KEY — check your OpenRouter key");
-            break; // bad key — skip to next key
+            allErrors.push(tag + ": invalid key");
+            break; // bad key — try next key
           }
           if (!resp.ok) {
             var errBody = "";
             try {
-              var errJson = await resp.json();
-              errBody = (errJson.error && errJson.error.message)
-                ? errJson.error.message.slice(0, 80)
-                : JSON.stringify(errJson).slice(0, 80);
+              var ej = await resp.json();
+              errBody = (ej.error && ej.error.message)
+                ? ej.error.message.slice(0, 80)
+                : ("HTTP " + resp.status);
             } catch(_) { errBody = "HTTP " + resp.status; }
             allErrors.push(tag + ": " + errBody);
-            // 404 = model name wrong, 502/503 = model down — both: try next model
+            // If model not found, invalidate cache so next call re-fetches
+            if (resp.status === 404 || errBody.includes("No endpoints")) {
+              _liveModels = null;
+              _modelsFetch = null;
+            }
             continue;
           }
 
           var data = await resp.json();
           var text = "";
-          try { text = (data.choices[0].message.content || "").trim(); } catch(_){}
+          try { text = (data.choices[0].message.content || "").trim(); } catch(_) {}
 
           if (!text) {
-            // Log the raw response so we can debug what OpenRouter actually returned
-            var rawPreview = JSON.stringify(data).slice(0, 120);
-            allErrors.push(tag + ": empty (raw: " + rawPreview + ")");
+            var raw = JSON.stringify(data).slice(0, 100);
+            allErrors.push(tag + ": empty (raw: " + raw + ")");
             continue;
           }
 
-          // ✓ success — rotate key for next call
+          // ✓ success — rotate key
           _keyIndex = (keyIdx + 1) % keys.length;
           return { text: text, model: model, brand: BRAND };
 
@@ -145,10 +176,10 @@ const EXAMORA_AI = (() => {
       }
     }
 
-    throw new Error("AI_FAILED: " + allErrors.slice(-3).join(" | "));
+    throw new Error("AI_FAILED: " + allErrors.slice(-4).join(" | "));
   }
 
-  // ── Helper: options list → text ─────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────
   function optsText(opts) {
     if (!opts) return "";
     return Object.entries(opts)
@@ -163,7 +194,7 @@ const EXAMORA_AI = (() => {
     return JSON.parse(t);
   }
 
-  // ── Public methods ───────────────────────────────────────────
+  // ── Public API ───────────────────────────────────────────────
 
   async function chat(userMsg, context, history) {
     var sysMsg = SYSTEM + (context ? "\nContext: " + context : "");
@@ -197,7 +228,7 @@ const EXAMORA_AI = (() => {
 
   async function generateQuestions(o) {
     var msg = SYSTEM + "\n\nGenerate exactly " + (o.count||5) +
-      " multiple-choice questions about \"" + o.topic + "\" for " +
+      ' multiple-choice questions about "' + o.topic + '" for ' +
       (o.category||"general") + " " + (o.subject||"exam") +
       ". Difficulty: " + (o.difficulty||"medium") + ".\n\n" +
       "Return ONLY a JSON array — no other text:\n" +
@@ -237,7 +268,6 @@ const EXAMORA_AI = (() => {
     catch(_) { return { data: null, model: r.model }; }
   }
 
-  // Spaced repetition — no API call needed
   function getSpacedRepetitionQueue(questions, history) {
     var now = Date.now(), DAY = 86400000;
     return questions.map(function(q) {
@@ -248,7 +278,7 @@ const EXAMORA_AI = (() => {
       var p = total === 0        ? 50 + Math.random() * 10
             : acc < 0.5          ? 80 + age
             : acc < 0.8          ? 40 + age * 0.5
-            :                      5  + age * 0.2;
+            :                       5 + age * 0.2;
       return Object.assign({}, q, { _priority: p, _accuracy: acc, _seen: total });
     }).sort(function(a, b) { return b._priority - a._priority; });
   }
@@ -257,16 +287,16 @@ const EXAMORA_AI = (() => {
     return { keys: validKeys().length, keyIndex: _keyIndex + 1, brand: BRAND };
   }
 
+  // Pre-warm model list in background (non-blocking)
+  setTimeout(function() {
+    var keys = validKeys();
+    if (keys.length > 0) fetchLiveModels(keys[0]);
+  }, 2000);
+
   return {
-    call:                     call,
-    chat:                     chat,
-    explainAnswer:            explainAnswer,
-    getHint:                  getHint,
-    generateQuestions:        generateQuestions,
-    generateStudyPlan:        generateStudyPlan,
-    predictScore:             predictScore,
-    getSpacedRepetitionQueue: getSpacedRepetitionQueue,
-    getStatus:                getStatus,
-    BRAND:                    BRAND
+    call, chat, explainAnswer, getHint,
+    generateQuestions, generateStudyPlan, predictScore,
+    getSpacedRepetitionQueue, getStatus, BRAND
   };
+
 })();
