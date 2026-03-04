@@ -584,6 +584,35 @@
       <button class="btn btn-primary" onclick="saveAppSettings()" style="margin-top:12px;">💾 Save Settings</button>
     </div>
 
+    <!-- AI Keys -->
+    <div style="border:1.5px solid rgba(99,102,241,0.2);border-radius:16px;padding:16px;margin-bottom:16px;">
+      <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.82rem;
+        color:var(--c-brand);margin-bottom:12px;">🤖 OpenRouter AI Keys</h4>
+      <p style="font-size:0.75rem;color:var(--text-3);margin-bottom:12px;line-height:1.6;">
+        Add your free OpenRouter keys here. Get keys at <strong>openrouter.ai/keys</strong>.
+        Multiple keys rotate automatically when one hits a limit.
+      </p>
+      <div id="aiKeysList">
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="password" id="aiKey1" class="input-field" placeholder="sk-or-v1-... (Key 1 — Primary)" style="flex:1;font-size:0.78rem;font-family:monospace;"/>
+          <button onclick="toggleKeyVis('aiKey1',this)" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:0.7rem;cursor:pointer;color:var(--text-2);">👁</button>
+        </div>
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="password" id="aiKey2" class="input-field" placeholder="sk-or-v1-... (Key 2 — Fallback)" style="flex:1;font-size:0.78rem;font-family:monospace;"/>
+          <button onclick="toggleKeyVis('aiKey2',this)" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:0.7rem;cursor:pointer;color:var(--text-2);">👁</button>
+        </div>
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="password" id="aiKey3" class="input-field" placeholder="sk-or-v1-... (Key 3 — Fallback)" style="flex:1;font-size:0.78rem;font-family:monospace;"/>
+          <button onclick="toggleKeyVis('aiKey3',this)" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:0.7rem;cursor:pointer;color:var(--text-2);">👁</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+        <button class="btn btn-primary" onclick="saveAIKeys()" style="flex:1;">💾 Save AI Keys</button>
+        <button class="btn btn-ghost" onclick="testAIKeys()" style="flex:1;">🧪 Test AI</button>
+      </div>
+      <div id="aiKeyStatus" style="font-size:0.75rem;color:var(--text-3);margin-top:8px;"></div>
+    </div>
+
     <!-- Danger zone -->
     <div style="border:1.5px solid rgba(244,63,94,0.2);border-radius:16px;padding:16px;background:rgba(244,63,94,0.03);">
       <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;
@@ -1100,6 +1129,18 @@
 
   // ── Settings ──
   window._loadSettings=async function(){
+    // Load saved AI keys into inputs
+    try {
+      var saved = JSON.parse(localStorage.getItem('examora_ai_keys') || '[]');
+      ['aiKey1','aiKey2','aiKey3'].forEach(function(id, i) {
+        var el = document.getElementById(id);
+        if (el && saved[i]) el.value = saved[i];
+      });
+      if (saved.length > 0) {
+        var st = document.getElementById('aiKeyStatus');
+        if (st) st.innerHTML = '<span style="color:var(--c-green);">✓ ' + saved.length + ' key(s) loaded</span>';
+      }
+    } catch(_){}
     try{
       const [annSnap,timerSnap,appSnap]=await Promise.all([
         getDoc(doc(db,"settings","announcement")),
@@ -1142,6 +1183,48 @@
       });
       toast("⏱️ Timer settings saved!");
     }catch(e){toast("Error: "+e.message);}
+  };
+
+  // ── AI Key management ──
+  function toggleKeyVis(id, btn) {
+    var inp = document.getElementById(id);
+    if (!inp) return;
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  window.saveAIKeys = function() {
+    var keys = [
+      document.getElementById('aiKey1').value.trim(),
+      document.getElementById('aiKey2').value.trim(),
+      document.getElementById('aiKey3').value.trim(),
+    ].filter(function(k){ return k.length > 10; });
+    
+    if (keys.length === 0) {
+      document.getElementById('aiKeyStatus').innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one key.</span>';
+      return;
+    }
+    
+    // Save to localStorage (loaded by ai-engine.js on next page load)
+    localStorage.setItem('examora_ai_keys', JSON.stringify(keys));
+    document.getElementById('aiKeyStatus').innerHTML = 
+      '<span style="color:var(--c-green);">✓ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved. Refresh exam pages to activate.</span>';
+    toast('AI keys saved — ' + keys.length + ' key(s) active', 'success');
+  };
+
+  window.testAIKeys = async function() {
+    var statusEl = document.getElementById('aiKeyStatus');
+    statusEl.innerHTML = '<span style="color:var(--c-gold);">Testing AI connection...</span>';
+    try {
+      if (typeof EXAMORA_AI === 'undefined') {
+        statusEl.innerHTML = '<span style="color:var(--c-red);">AI engine not loaded on this page.</span>';
+        return;
+      }
+      var r = await EXAMORA_AI.chat('Say "NexaCore Labs AI is working!" in exactly those words.', '', []);
+      statusEl.innerHTML = '<span style="color:var(--c-green);">✓ AI working: ' + (r.text||'').slice(0,80) + '</span>';
+    } catch(e) {
+      statusEl.innerHTML = '<span style="color:var(--c-red);">✗ ' + (e.message||'').slice(0,100) + '</span>';
+    }
   };
 
   window.saveAppSettings=async function(){
