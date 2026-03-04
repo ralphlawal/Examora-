@@ -844,8 +844,18 @@
     if(!user){window.location.href="login.html";return;}
     uid=user.uid;
     const s=await getDoc(doc(db,"users",uid)).catch(()=>null);
-    if(!s||s.data()?.role!=="admin"){
-      alert("Access denied. Admin only.");
+    const _role = s?.data()?.role;
+    if(_role !== "admin" && _role !== "superadmin"){
+      // First-time setup: visit admin.html?setup=1 while signed in to grant yourself admin
+      if(new URLSearchParams(location.search).get("setup")==="1"){
+        try{
+          const {updateDoc:_upd,doc:_d}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+          await updateDoc(doc(db,"users",uid),{role:"admin"});
+          location.replace("admin.html");
+        }catch(e){ alert("Setup failed: "+e.message); window.location.href="index.html"; }
+        return;
+      }
+      alert("Access denied.\n\nTo get admin access:\n1. Make sure you are signed in\n2. Go to: admin.html?setup=1\nThis grants admin role to your account.");
       window.location.href="index.html"; return;
     }
     document.getElementById("adminSub").textContent=`Signed in as ${user.email}`;
