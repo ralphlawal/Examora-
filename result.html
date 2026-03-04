@@ -547,11 +547,9 @@
   }
 
   async function aiExplain(idx) {
-    // Trial / premium only
-    var _exPlan = localStorage.getItem('examora_plan') || 'free';
-    if (_exPlan === 'free') {
+    if (!_checkAIAccess()) {
       var box = document.getElementById('aiBox_'+idx);
-      if (box) box.innerHTML = '<div style="padding:10px;background:var(--c-brand-pale);border-radius:10px;font-size:0.8rem;text-align:center;">🔒 AI explanations need a trial or Premium.<br/><a href=\"upgrade.html\" style=\"color:var(--c-brand);font-weight:700;\">Start free trial →</a></div>';
+      if (box) box.innerHTML = _aiUpgradeHTML(true);
       return;
     }
     const item = allItems[idx];

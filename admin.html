@@ -1283,7 +1283,13 @@
       document.getElementById('aiKey2').value.trim(),
       document.getElementById('aiKey3').value.trim(),
     ];
-    var keys = raw.filter(function(k){ return k.length >= 20; });
+    // Deduplicate — in case same key was entered in multiple fields
+    var seen = {};
+    var keys = raw.filter(function(k) {
+      if (k.length < 20 || seen[k]) return false;
+      seen[k] = true;
+      return true;
+    });
     
     if (keys.length === 0) {
       statusEl.innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one OpenRouter key (starts with sk-or-v1-...). Get one free at <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--c-brand);">openrouter.ai/keys</a></span>';

@@ -843,32 +843,6 @@
     var trialBtn = document.getElementById("trialStartBtn");
     if (trialBtn) { trialBtn.disabled = true; trialBtn.textContent = "Activating…"; }
     try {
-      const now     = new Date();
-      const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      await updateDoc(doc(db, "users", window._userId), {
-        plan:            "trial",
-        trialUsed:       true,
-        trialStart:      now.toISOString(),
-        trialExamsAllowed: 3,
-        trialExamsUsed:  0,
-        lastActive:      now.toDateString()
-      });
-      localStorage.setItem("examora_plan", "trial");
-      toast("🎉 Free trial started! 3 exams with full AI access.", "success", 5000);
-      setTimeout(function(){ window.location.href = "index.html"; }, 2000);
-    } catch (err) {
-      console.error("startTrial error:", err);
-      toast("Could not start trial. Please try again.", "error");
-    }
-    if (trialBtn) { trialBtn.disabled = false; trialBtn.textContent = "🚀 Start Free Trial — No Card Needed"; }
-  };
-
-  /* auth listener */
-  onAuthStateChanged(auth, async user => {
-    if (!user) { window.location.href = "login.html"; return; }
-    window._userEmail = user.email;
-    window._userId    = user.uid;
-    try {
       const snap = await getDoc(doc(db,"users",user.uid));
       const ud   = snap.data() || {};
       localStorage.setItem("examora_plan", ud.plan||"free");
