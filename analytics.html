@@ -935,7 +935,7 @@
       lb.className='ai-chat-msg bot'; lb.innerHTML=''; lb.textContent=r.text;
     }catch(e){
       lb.className='ai-chat-msg bot'; lb.innerHTML='';
-      lb.textContent=e.message==='AI_KEY_MISSING'?'Add your OpenRouter key in ai-engine.js':'Could not reach AI. Try again.';
+      lb.textContent=e.message==='AI_KEY_MISSING'?'Add your Gemini AI key in ai-engine.js':'Could not reach AI. Try again.';
     }
     msgs.scrollTop=msgs.scrollHeight;
     document.getElementById('aiChatSend').disabled=false;

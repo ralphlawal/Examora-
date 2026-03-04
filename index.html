@@ -688,7 +688,7 @@
       loadBubble.textContent = result.text;
     } catch(e) {
       loadBubble.className = 'ai-chat-msg bot';
-      var errMsg = e.message === 'AI_KEY_MISSING' ? 'AI key not set. Add your OpenRouter key in ai-engine.js' : 'Could not reach AI. Try again.';
+      var errMsg = e.message === 'AI_KEY_MISSING' ? 'AI key not set. Add your Gemini AI key in ai-engine.js' : 'Could not reach AI. Try again.';
       loadBubble.textContent = errMsg;
     }
     msgs.scrollTop = msgs.scrollHeight;

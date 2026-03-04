@@ -533,7 +533,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> Is there a student discount?</div>
-      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a> with your school email to claim it.</div>
+      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a> with your school email to claim it.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> What if I'm not satisfied?</div>
@@ -558,7 +558,7 @@
   <!-- Support row -->
   <div style="text-align:center;padding:16px 20px 8px;font-size:0.72rem;color:var(--text-3);line-height:2;">
     Questions about pricing?<br/>
-    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
+    <a href="mailto:support@examora.app" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.app</a>
   </div>
 
 </div>
@@ -858,7 +858,8 @@
       toast("🎉 7-day free trial started! Enjoy Premium features.", "success", 5000);
       setTimeout(function(){ window.location.href = "index.html"; }, 2000);
     } catch (err) {
-      console.error("startTrial error:", er      toast("Could not start trial. Please try again.", "error");
+      console.error("startTrial error:", err);
+      toast("Could not start trial. Please try again.", "error");
     }
   };
 
@@ -866,19 +867,15 @@
   onAuthStateChanged(auth, async user => {
     if (!user) { window.location.href = "login.html"; return; }
     window._userEmail = user.email;
-    window._userId    = user.uid;
+    window._userId = user.uid;
     try {
       const snap = await getDoc(doc(db, "users", user.uid));
       const ud   = snap.data() || {};
       applyPlanUI(ud);
-    } catch (err) {
+    } catch(err) {
       console.error("Plan load error:", err);
     }
   });
-</script>
-
-<script>
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(function(){});
 </script>
 </body>
 </html>

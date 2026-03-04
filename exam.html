@@ -797,7 +797,7 @@
         resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Could not generate questions. Try a different topic.</div>';
       }
     } catch(e) {
-      var msg = e.message === 'AI_KEY_MISSING' ? 'Add your OpenRouter API key in ai-engine.js' : e.message;
+      var msg = e.message === 'AI_KEY_MISSING' ? 'Add your Gemini API key in ai-engine.js — get one free at aistudio.google.com' : e.message;
       resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Error: ' + msg + '</div>';
     }
 
@@ -1181,15 +1181,9 @@
           category: q.category,
         });
       } else if (action === "explain") {
-        result = await EXAMORA_AI.call([{
-          role: "user",
-          content: "Explain the key concept behind this " + (q.category||"General") + " " + (q.subject||"") + " question in simple terms. Don't give the answer directly. Question: " + (q.text||q.question)
-        }], 350);
+        result = await EXAMORA_AI.call("Explain the key concept behind this " + (q.category||"General") + " " + (q.subject||"") + " question in simple terms. Don't give the answer directly. Question: " + (q.text||q.question), 350);
       } else {
-        result = await EXAMORA_AI.call([{
-          role: "user",
-          content: "Give me 2 similar practice questions (with answers) for this " + (q.category||"General") + " " + (q.subject||"") + " topic: " + (q.text||q.question).substring(0, 100)
-        }], 400);
+        result = await EXAMORA_AI.call("Give me 2 similar practice questions with correct answers for this " + (q.category||"General") + " " + (q.subject||"") + " topic: " + (q.text||q.question).substring(0, 100), 400);
       }
 
       // Render response
@@ -1217,7 +1211,7 @@
       document.getElementById("aiResponseArea").innerHTML =
         '<div class="ai-error"><span class="material-symbols-rounded ms-sm">error</span>' +
         (isKeyMissing
-          ? 'AI key not configured. Add your OpenRouter API key in ai-engine.js'
+          ? 'AI key not configured. Add your Gemini API key in ai-engine.js (get one free at aistudio.google.com)'
           : 'Could not connect to AI. Check your internet and try again.') +
         '</div>';
       document.getElementById("aiRetryArea").style.display = !isKeyMissing ? "block" : "none";

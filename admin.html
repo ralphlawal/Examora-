@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — Nigeria's #1 CBT Prep App"/>
-  <meta property="og:description" content="Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, analytics and leaderboards."/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
   <meta property="og:image" content="og-image.png"/>
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
@@ -161,7 +161,7 @@
       font-size:0.88rem; color:var(--text); margin-bottom:4px;
     }
     .upload-zone p { font-size:0.72rem; color:var(--text-3); }
-    #csvFileInput { display:none; }
+    #csvFileInput { display:none; }/* SMART */
 
     /* ── Progress bar for upload ── */
     .upload-progress {
@@ -327,8 +327,8 @@
           <select class="form-select" id="qCat">
             <option value="JAMB">JAMB</option>
             <option value="WAEC">WAEC</option>
-            <option value="NECO">NECO</option>
-            <option value="Post-UTME">Post-UTME</option>
+            <option value="Cert Prep">Cert Prep</option>
+            <option value="Custom">Custom</option>
           </select>
         </div>
         <div>
@@ -398,8 +398,8 @@
         <option value="">All Categories</option>
         <option value="JAMB">JAMB</option>
         <option value="WAEC">WAEC</option>
-        <option value="NECO">NECO</option>
-        <option value="Post-UTME">Post-UTME</option>
+        <option value="Cert Prep">Cert Prep</option>
+        <option value="Custom">Custom</option>
       </select>
       <select class="form-select" id="filterQSubj" onchange="loadQuestions()">
         <option value="">All Subjects</option>
@@ -543,11 +543,11 @@
           <input type="number" class="form-input" id="timerWAEC" value="1.5" step="0.25" min="0.5" max="5"/>
         </div>
         <div>
-          <label class="form-label">NECO</label>
-          <input type="number" class="form-input" id="timerNECO" value="1.5" step="0.25" min="0.5" max="5"/>
+          <label class="form-label">Cert Prep</label>
+          <input type="number" class="form-input" id="timerCert Prep" value="1.5" step="0.25" min="0.5" max="5"/>
         </div>
         <div>
-          <label class="form-label">Post-UTME</label>
+          <label class="form-label">Custom</label>
           <input type="number" class="form-input" id="timerPostUTME" value="1.5" step="0.25" min="0.5" max="5"/>
         </div>
       </div>
@@ -610,7 +610,7 @@
         <label class="form-label">Category</label>
         <select class="form-select" id="editCat">
           <option value="JAMB">JAMB</option><option value="WAEC">WAEC</option>
-          <option value="NECO">NECO</option><option value="Post-UTME">Post-UTME</option>
+          <option value="Cert Prep">Cert Prep</option><option value="Custom">Custom</option>
         </select>
       </div>
       <div>
@@ -1113,8 +1113,8 @@
         const t=timerSnap.data();
         document.getElementById("timerJAMB").value=t.JAMB||1.5;
         document.getElementById("timerWAEC").value=t.WAEC||1.5;
-        document.getElementById("timerNECO").value=t.NECO||1.5;
-        document.getElementById("timerPostUTME").value=t["Post-UTME"]||1.5;
+        document.getElementById("timerCert Prep").value=t.Cert Prep||1.5;
+        document.getElementById("timerPostUTME").value=t["Custom"]||1.5;
       }
       if(appSnap.exists()){
         const a=appSnap.data();
@@ -1137,8 +1137,8 @@
       await setDoc(doc(db,"settings","timers"),{
         JAMB:parseFloat(document.getElementById("timerJAMB").value)||1.5,
         WAEC:parseFloat(document.getElementById("timerWAEC").value)||1.5,
-        NECO:parseFloat(document.getElementById("timerNECO").value)||1.5,
-        "Post-UTME":parseFloat(document.getElementById("timerPostUTME").value)||1.5
+        Cert Prep:parseFloat(document.getElementById("timerCert Prep").value)||1.5,
+        "Custom":parseFloat(document.getElementById("timerPostUTME").value)||1.5
       });
       toast("⏱️ Timer settings saved!");
     }catch(e){toast("Error: "+e.message);}
