@@ -741,6 +741,14 @@
       ud = snap.data();
       // Store plan for AI gate checks across pages
       localStorage.setItem('examora_plan', ud.plan||'free');
+      // Sync AI keys from Firestore into localStorage so ai-engine.js can use them
+      try {
+        var aiCfg = await getDoc(doc(db,'settings','ai')).catch(()=>null);
+        if (aiCfg && aiCfg.exists()) {
+          var aiKeys = aiCfg.data().openRouterKeys || [];
+          if (aiKeys.length > 0) localStorage.setItem('examora_ai_keys', JSON.stringify(aiKeys));
+        }
+      } catch(_) {}
     } catch(e) {}
 
     if (ud.onboarded === false) { window.location.href = "onboarding.html"; return; }

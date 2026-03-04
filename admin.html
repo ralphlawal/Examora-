@@ -1139,18 +1139,33 @@
 
   // ── Settings ──
   window._loadSettings=async function(){
-    // Load saved AI keys into inputs
+    // Load AI keys — try Firestore first, fall back to localStorage
     try {
-      var saved = JSON.parse(localStorage.getItem('examora_ai_keys') || '[]');
+      var aiSnap = await getDoc(doc(db, 'settings', 'ai')).catch(()=>null);
+      var saved = [];
+      if (aiSnap && aiSnap.exists()) {
+        saved = aiSnap.data().openRouterKeys || [];
+        // Sync to localStorage
+        localStorage.setItem('examora_ai_keys', JSON.stringify(saved));
+      } else {
+        saved = JSON.parse(localStorage.getItem('examora_ai_keys') || '[]');
+      }
       ['aiKey1','aiKey2','aiKey3'].forEach(function(id, i) {
         var el = document.getElementById(id);
         if (el && saved[i]) el.value = saved[i];
       });
-      if (saved.length > 0) {
-        var st = document.getElementById('aiKeyStatus');
-        if (st) st.innerHTML = '<span style="color:var(--c-green);">✓ ' + saved.length + ' key(s) loaded</span>';
+      var st = document.getElementById('aiKeyStatus');
+      if (st) {
+        if (saved.length > 0) {
+          st.innerHTML = '<span style="color:var(--c-green);">✓ ' + saved.length + ' key(s) loaded from cloud</span>';
+        } else {
+          st.innerHTML = '<span style="color:var(--text-3);">No keys saved yet. Get a free key at <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--c-brand);">openrouter.ai/keys</a></span>';
+        }
       }
-    } catch(_){}
+    } catch(e) {
+      var stEl = document.getElementById('aiKeyStatus');
+      if (stEl) stEl.innerHTML = '<span style="color:var(--c-red);">Could not load keys: ' + e.message.slice(0,60) + '</span>';
+    }
     try{
       const [annSnap,timerSnap,appSnap]=await Promise.all([
         getDoc(doc(db,"settings","announcement")),
@@ -1196,14 +1211,15 @@
   };
 
   // ── AI Key management ──
-  function toggleKeyVis(id, btn) {
+  window.toggleKeyVis = function(id, btn) {
     var inp = document.getElementById(id);
     if (!inp) return;
     if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
     else { inp.type = 'password'; btn.textContent = '👁'; }
-  }
+  };
 
-  window.saveAIKeys = function() {
+  window.saveAIKeys = async function() {
+    var statusEl = document.getElementById('aiKeyStatus');
     var keys = [
       document.getElementById('aiKey1').value.trim(),
       document.getElementById('aiKey2').value.trim(),
@@ -1211,15 +1227,29 @@
     ].filter(function(k){ return k.length > 10; });
     
     if (keys.length === 0) {
-      document.getElementById('aiKeyStatus').innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one key.</span>';
+      statusEl.innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one key. Get a free key at openrouter.ai/keys</span>';
       return;
     }
     
-    // Save to localStorage (loaded by ai-engine.js on next page load)
+    statusEl.innerHTML = '<span style="color:var(--c-gold);">Saving...</span>';
+
+    // Save to localStorage (fast, works immediately)
     localStorage.setItem('examora_ai_keys', JSON.stringify(keys));
-    document.getElementById('aiKeyStatus').innerHTML = 
-      '<span style="color:var(--c-green);">✓ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved. Refresh exam pages to activate.</span>';
-    toast('AI keys saved — ' + keys.length + ' key(s) active', 'success');
+
+    // Also save to Firestore so keys persist across devices and browsers
+    try {
+      await setDoc(doc(db, 'settings', 'ai'), {
+        openRouterKeys: keys,
+        updatedAt: new Date().toISOString(),
+        updatedBy: uid || 'admin'
+      }, { merge: true });
+      statusEl.innerHTML = '<span style="color:var(--c-green);">✓ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved to cloud ☁️ — active immediately.</span>';
+      toast('AI keys saved — ' + keys.length + ' key(s) active', 'success');
+    } catch(e) {
+      // Firestore failed but localStorage worked — still functional
+      statusEl.innerHTML = '<span style="color:var(--c-gold);">⚠️ Saved locally only (Firestore error: ' + e.message.slice(0,60) + ')</span>';
+      toast('Keys saved locally — AI should work on this device', 'warning');
+    }
   };
 
   window.testAIKeys = async function() {
