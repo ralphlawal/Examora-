@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Wrong Answer Drill — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<script src="ai-engine.js"></script>
+<style>
+.page-header{padding:16px 16px 0;display:flex;align-items:center;gap:12px;}
+.back-btn{width:38px;height:38px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;flex-shrink:0;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text);}
+.page-sub{font-size:0.72rem;color:var(--text-3);}
+.content{padding:16px;}
+.hero{background:linear-gradient(135deg,rgba(244,63,94,.12),rgba(239,68,68,.06));border:1px solid rgba(244,63,94,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:16px;}
+.hero-icon{font-size:2.5rem;margin-bottom:8px;}
+.hero-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:4px;}
+.hero-sub{font-size:0.78rem;color:var(--text-3);}
+.stats-row{display:flex;gap:10px;margin-bottom:16px;}
+.stat-pill{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
+.stat-n{font-family:var(--font-display);font-weight:800;font-size:1.4rem;}
+.stat-n.red{color:var(--c-red);}
+.stat-n.green{color:var(--c-green);}
+.stat-l{font-size:0.68rem;color:var(--text-3);margin-top:2px;}
+.wrong-list{margin-bottom:16px;}
+.wrong-item{background:var(--bg-card);border:1px solid rgba(244,63,94,.2);border-radius:16px;padding:14px;margin-bottom:10px;position:relative;}
+.wrong-item-q{font-size:0.83rem;color:var(--text);line-height:1.5;margin-bottom:8px;}
+.wrong-item-ans{display:flex;gap:8px;font-size:0.76rem;font-weight:600;}
+.ans-wrong{color:var(--c-red);}
+.ans-correct{color:var(--c-green);}
+.drill-result{margin-top:10px;padding:12px;background:var(--bg-input);border-radius:12px;display:none;}
+.drill-result.show{display:block;}
+.drill-section{margin-bottom:10px;}
+.drill-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.drill-label.red{color:var(--c-red);}
+.drill-label.green{color:var(--c-green);}
+.drill-label.gold{color:#d97706;}
+.drill-text{font-size:0.81rem;color:var(--text-2);line-height:1.55;}
+.btn-ai{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:14px;font-family:var(--font-display);font-weight:800;font-size:.9rem;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-ai:hover{transform:translateY(-1px);}
+.btn-ai:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-3);}
+.empty-icon{font-size:3rem;margin-bottom:12px;}
+.empty-msg{font-size:.85rem;line-height:1.6;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-badge{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--text-3);margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <div class="page-header">
+    <div class="back-btn" onclick="history.back()">←</div>
+    <div>
+      <div class="page-title">🔍 Wrong Answer Drill</div>
+      <div class="page-sub">AI explains every mistake you made</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="mainContent"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+    <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+  </nav>
+</div>
+
+<script>
+document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme')||'light');
+
+var wrongQuestions = [];
+var drillResults   = {};
+
+function loadWrongQuestions() {
+  var data = [];
+  // Gather from exam results
+  try {
+    var results = JSON.parse(localStorage.getItem('examora_results')||'[]');
+    results.forEach(function(r) {
+      if (!r.answers || !r.questions) return;
+      r.questions.forEach(function(q, i) {
+        var userAns = r.answers[i];
+        var correctAns = q.answer || q.correctAnswer;
+        if (userAns && userAns !== correctAns) {
+          data.push({
+            question: q.question || q.text || q.qu,
+            options: q.options || {},
+            userAnswer: userAns,
+            correctAnswer: correctAns,
+            subject: q.subject || r.subject || 'General',
+            source: r.subject || 'Exam',
+            ts: r.date || r.timestamp || Date.now()
+          });
+        }
+      });
+    });
+  } catch(_) {}
+  // Dedupe by question text
+  var seen = new Set();
+  data = data.filter(function(d) {
+    var k = (d.question||'').slice(0,60);
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+  // Sort newest first, cap at 20
+  data.sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+  return data.slice(0,20);
+}
+
+function renderPage() {
+  wrongQuestions = loadWrongQuestions();
+  var el = document.getElementById('mainContent');
+
+  if (wrongQuestions.length === 0) {
+    el.innerHTML = '<div class="empty-state">'
+      + '<div class="empty-icon">🎉</div>'
+      + '<div class="empty-msg"><strong>No wrong answers found!</strong><br>'
+      + 'Complete some exams first, then come back here to drill your mistakes.</div>'
+      + '<a href="exam.html" style="display:inline-block;margin-top:16px;padding:12px 24px;background:var(--c-brand);color:#fff;border-radius:12px;font-weight:700;text-decoration:none;">Start an Exam</a>'
+      + '</div>';
+    return;
+  }
+
+  var correct = 0, total = wrongQuestions.length;
+  var html = '<div class="hero">'
+    + '<div class="hero-icon">🔍</div>'
+    + '<div class="hero-title">'+total+' Mistakes Found</div>'
+    + '<div class="hero-sub">Let NOVA explain each one so you never repeat them</div>'
+    + '</div>';
+
+  html += '<div class="stats-row">'
+    + '<div class="stat-pill"><div class="stat-n red">'+total+'</div><div class="stat-l">Wrong</div></div>'
+    + '<div class="stat-pill"><div class="stat-n" style="color:var(--text-3)">'+
+      [...new Set(wrongQuestions.map(q=>q.subject))].length+'</div><div class="stat-l">Subjects</div></div>'
+    + '</div>';
+
+  html += '<button class="btn-ai" id="drillAllBtn" onclick="drillAll()">'
+    + '<span>🧠 Explain All Mistakes</span></button>';
+
+  html += '<div class="wrong-list" id="wrongList" style="margin-top:14px;">';
+  wrongQuestions.forEach(function(q, i) {
+    html += '<div class="wrong-item" id="item-'+i+'">'
+      + '<div class="wrong-item-q">'+(i+1)+'. '+(q.question||'Question').slice(0,200)+'</div>'
+      + '<div class="wrong-item-ans">'
+      + '<span class="ans-wrong">✗ You: '+(q.userAnswer||'?')+'</span>'
+      + '<span style="color:var(--text-3)">•</span>'
+      + '<span class="ans-correct">✓ Correct: '+(q.correctAnswer||'?')+'</span>'
+      + '</div>'
+      + '<div class="drill-result" id="drill-'+i+'"></div>'
+      + '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+async function drillAll() {
+  var btn = document.getElementById('drillAllBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> NOVA is analysing…';
+
+  // Process in batches of 5
+  var batch = wrongQuestions.slice(0, 5);
+  try {
+    var r = await EXAMORA_AI.drillWrongAnswers(batch);
+    var data = r.json || null;
+    if (data && data.analyses) {
+      data.analyses.forEach(function(a) {
+        var idx = (a.num||1) - 1;
+        var el = document.getElementById('drill-'+idx);
+        if (!el) return;
+        el.innerHTML = '<div class="drill-section">'
+            + '<div class="drill-label red">❌ Why you were wrong</div>'
+            + '<div class="drill-text">'+(a.whyWrong||'')+'</div>'
+          + '</div>'
+          + '<div class="drill-section">'
+            + '<div class="drill-label green">✅ Why the correct answer is right</div>'
+            + '<div class="drill-text">'+(a.whyCorrect||'')+'</div>'
+          + '</div>'
+          + '<div class="drill-section">'
+            + '<div class="drill-label gold">💡 Memory tip</div>'
+            + '<div class="drill-text">'+(a.tip||'')+'</div>'
+          + '</div>';
+        el.classList.add('show');
+      });
+    } else if (r.rawText) {
+      // Fallback - show raw text in first item
+      var el0 = document.getElementById('drill-0');
+      if (el0) {
+        el0.innerHTML = '<div class="drill-text" style="white-space:pre-wrap;">'+r.rawText+'</div>';
+        el0.classList.add('show');
+      }
+    }
+    btn.innerHTML = '<span>✓ Analysis Complete</span>';
+    // If more than 5 wrong, offer to drill next batch
+    if (wrongQuestions.length > 5) {
+      btn.textContent = '🧠 Explain Next 5 Mistakes';
+      btn.disabled = false;
+      btn.onclick = function() { drillBatch(5); };
+    }
+  } catch(e) {
+    var msg = e.message||'';
+    if (msg.includes('AI_KEY_MISSING')) window.toast('Add OpenRouter key in Admin → AI Keys','warning');
+    else window.toast('Could not analyse. Try again.','error');
+    btn.disabled = false;
+    btn.innerHTML = '<span>🧠 Explain All Mistakes</span>';
+  }
+}
+
+async function drillBatch(startIdx) {
+  var btn = document.getElementById('drillAllBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Analysing next batch…';
+  var batch = wrongQuestions.slice(startIdx, startIdx+5).map(function(q,i) {
+    return Object.assign({}, q, {_origIdx: startIdx+i});
+  });
+  try {
+    var r = await EXAMORA_AI.drillWrongAnswers(batch);
+    var data = r.json || null;
+    if (data && data.analyses) {
+      data.analyses.forEach(function(a, i) {
+        var idx = startIdx + i;
+        var el = document.getElementById('drill-'+idx);
+        if (!el) return;
+        el.innerHTML = '<div class="drill-section">'
+            + '<div class="drill-label red">❌ Why wrong</div>'
+            + '<div class="drill-text">'+(a.whyWrong||'')+'</div>'
+          + '</div>'
+          + '<div class="drill-section">'
+            + '<div class="drill-label green">✅ Why correct</div>'
+            + '<div class="drill-text">'+(a.whyCorrect||'')+'</div>'
+          + '</div>'
+          + '<div class="drill-section">'
+            + '<div class="drill-label gold">💡 Tip</div>'
+            + '<div class="drill-text">'+(a.tip||'')+'</div>'
+          + '</div>';
+        el.classList.add('show');
+      });
+    }
+    var nextStart = startIdx + 5;
+    if (nextStart < wrongQuestions.length) {
+      btn.textContent = '🧠 Explain Next '+Math.min(5,wrongQuestions.length-nextStart)+' Mistakes';
+      btn.disabled = false;
+      btn.onclick = function() { drillBatch(nextStart); };
+    } else {
+      btn.textContent = '✓ All Mistakes Explained!';
+    }
+  } catch(e) {
+    window.toast('Could not analyse. Try again.','error');
+    btn.disabled = false;
+    btn.textContent = '🧠 Retry';
+  }
+}
+
+window.toast = window.toast || function(msg,type) {
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:12px;font-size:.82rem;z-index:9999;font-weight:600;';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+};
+
+renderPage();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const app = initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+const auth = getAuth(app);
+onAuthStateChanged(auth, user => { if (!user) window.location.href = 'login.html'; });
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

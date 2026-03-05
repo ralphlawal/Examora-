@@ -535,6 +535,28 @@ function saveCrop() {
     window._uploadPhoto && window._uploadPhoto(blob, cropMode);
   }, 'image/jpeg', 0.85);
 }
+
+  // ── Module function wrappers (safe onclick bridge) ──
+  function saveProfile() {
+    if (typeof window.saveProfile === 'function') window.saveProfile();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveTarget() {
+    if (typeof window.saveTarget === 'function') window.saveTarget();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveSubjects() {
+    if (typeof window.saveSubjects === 'function') window.saveSubjects();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function _doSignOut() {
+    if (typeof window._doSignOut === 'function') window._doSignOut();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function _doDelete() {
+    if (typeof window._doDelete === 'function') window._doDelete();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
 </script>
 
 <script type="module">

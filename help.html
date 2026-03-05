@@ -153,5 +153,28 @@
       <div class="c-icon" style="background:rgba(16,185,129,0.1);">🌐</div>
 
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+
+<script>
+document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme') || 'light');
+function toggleFaq(el) {
+  var item = el.closest ? el.closest('.faq-item') : el;
+  var answer = item.querySelector('.faq-a');
+  var icon = item.querySelector('.faq-toggle');
+  var isOpen = item.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.faq-item.open').forEach(function(oi) {
+    oi.classList.remove('open');
+    var oa = oi.querySelector('.faq-a');
+    var oi2 = oi.querySelector('.faq-toggle');
+    if (oa) oa.style.display = 'none';
+    if (oi2) oi2.textContent = '+';
+  });
+  if (!isOpen && answer) {
+    item.classList.add('open');
+    answer.style.display = 'block';
+    if (icon) icon.textContent = '×';
+  }
+}
+</script>
 </body>
 </html>

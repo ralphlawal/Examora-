@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Smart Summariser — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<script src="ai-engine.js"></script>
+<style>
+.page-header{padding:16px 16px 0;display:flex;align-items:center;gap:12px;}
+.back-btn{width:38px;height:38px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;flex-shrink:0;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text);}
+.page-sub{font-size:0.72rem;color:var(--text-3);}
+.content{padding:16px;}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:18px;}
+.card+.card{margin-top:12px;}
+.label{font-family:var(--font-display);font-weight:700;font-size:0.78rem;color:var(--text-2);margin-bottom:8px;}
+.input{width:100%;padding:12px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;box-sizing:border-box;transition:all .18s;}
+.input:focus{border-color:var(--c-brand);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+textarea.input{min-height:80px;resize:vertical;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{padding:5px 12px;border-radius:100px;background:var(--bg-input);border:1.5px solid var(--border);font-size:0.74rem;font-weight:600;cursor:pointer;transition:all .18s;color:var(--text-2);}
+.chip.active{background:var(--c-brand);border-color:var(--c-brand);color:#fff;}
+.tabs{display:flex;background:var(--bg-input);border-radius:12px;padding:3px;margin-bottom:16px;}
+.tab{flex:1;padding:8px;text-align:center;border-radius:9px;font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;transition:all .18s;color:var(--text-3);}
+.tab.active{background:var(--bg-card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.btn-ai{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:14px;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(99,102,241,.3);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-ai:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.4);}
+.btn-ai:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.result-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-input));border:1px solid var(--c-brand);border-radius:20px;padding:18px;margin-top:16px;display:none;}
+.result-card.show{display:block;animation:fadeInUp .3s ease;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.result-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:12px;}
+.keyfact{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.keyfact:last-child{border:none;}
+.keyfact-dot{width:8px;height:8px;border-radius:50%;background:var(--c-brand);margin-top:5px;flex-shrink:0;}
+.keyfact-text{font-size:0.83rem;color:var(--text-2);line-height:1.5;}
+.mnemonic-card{background:var(--bg-input);border-radius:14px;padding:14px;margin-top:10px;}
+.mnemonic-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;margin-bottom:8px;}
+.badge-acronym{background:rgba(99,102,241,.15);color:var(--c-brand);}
+.badge-story{background:rgba(16,185,129,.15);color:var(--c-green);}
+.badge-rhyme{background:rgba(245,158,11,.15);color:#d97706;}
+.mnemonic-text{font-family:var(--font-display);font-weight:700;font-size:0.9rem;color:var(--text);margin-bottom:6px;}
+.mnemonic-exp{font-size:0.78rem;color:var(--text-3);line-height:1.5;}
+.tip-box{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px;margin-top:10px;}
+.tip-label{font-size:0.7rem;font-weight:700;color:#d97706;margin-bottom:4px;}
+.tip-text{font-size:0.82rem;color:var(--text-2);line-height:1.5;}
+.ai-badge{display:flex;align-items:center;gap:6px;font-size:0.68rem;color:var(--text-3);margin-top:12px;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(99,102,241,.3);border-top-color:var(--c-brand);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <div class="page-header">
+    <div class="back-btn" onclick="history.back()">←</div>
+    <div>
+      <div class="page-title">🧠 Smart Summariser</div>
+      <div class="page-sub">AI-powered summaries &amp; memory tricks</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Mode tabs -->
+    <div class="tabs">
+      <div class="tab active" id="tab-summary" onclick="switchMode('summary')">📋 Summary</div>
+      <div class="tab" id="tab-mnemonic" onclick="switchMode('mnemonic')">🎯 Mnemonics</div>
+    </div>
+
+    <!-- Summary mode -->
+    <div id="summaryPanel">
+      <div class="card">
+        <div class="label">Topic or Subject</div>
+        <input class="input" id="topicInput" placeholder="e.g. Photosynthesis, Supply & Demand…" type="text"/>
+        <div class="label" style="margin-top:14px;">Exam Level</div>
+        <div class="chips" id="levelChips">
+          <div class="chip active" onclick="pickLevel(this,'JAMB')">JAMB</div>
+          <div class="chip" onclick="pickLevel(this,'WAEC')">WAEC</div>
+          <div class="chip" onclick="pickLevel(this,'NECO')">NECO</div>
+          <div class="chip" onclick="pickLevel(this,'Post-UTME')">Post-UTME</div>
+          <div class="chip" onclick="pickLevel(this,'General')">General</div>
+        </div>
+        <button class="btn-ai" id="summaryBtn" onclick="doSummary()">
+          <span>✨ Generate Summary</span>
+        </button>
+      </div>
+
+      <div class="result-card" id="summaryResult">
+        <div class="result-title" id="summaryTitle"></div>
+        <div id="summaryFacts"></div>
+        <div class="tip-box" id="summaryTipBox" style="display:none;">
+          <div class="tip-label">📌 EXAM TIP</div>
+          <div class="tip-text" id="summaryTip"></div>
+        </div>
+        <div class="tip-box" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.2);margin-top:8px;" id="mnemonicInlineBox" style="display:none;">
+          <div class="tip-label" style="color:var(--c-brand);">🎯 MEMORY TRICK</div>
+          <div class="tip-text" id="mnemonicInline"></div>
+        </div>
+        <div class="ai-badge"><div id="summarySpinner"></div><span id="summaryModel"></span></div>
+      </div>
+    </div>
+
+    <!-- Mnemonics mode -->
+    <div id="mnemonicPanel" style="display:none;">
+      <div class="card">
+        <div class="label">Topic to Remember</div>
+        <input class="input" id="mnemonicTopic" placeholder="e.g. Mitosis stages, Electromagnetic spectrum…" type="text"/>
+        <div class="label" style="margin-top:14px;">Items to Remember (optional)</div>
+        <input class="input" id="mnemonicItems" placeholder="e.g. Prophase, Metaphase, Anaphase, Telophase"/>
+        <button class="btn-ai" id="mnemonicBtn" onclick="doMnemonic()">
+          <span>🎯 Generate Mnemonics</span>
+        </button>
+      </div>
+
+      <div class="result-card" id="mnemonicResult">
+        <div class="result-title">Memory Tricks 🧠</div>
+        <div id="mnemonicCards"></div>
+        <div class="ai-badge"><div id="mnemonicSpinner"></div><span id="mnemonicModel"></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+    <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+  </nav>
+</div>
+
+<script>
+var _level = 'JAMB';
+var _mode  = 'summary';
+
+document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme')||'light');
+
+function switchMode(m) {
+  _mode = m;
+  document.getElementById('tab-summary').classList.toggle('active', m==='summary');
+  document.getElementById('tab-mnemonic').classList.toggle('active', m==='mnemonic');
+  document.getElementById('summaryPanel').style.display = m==='summary'?'block':'none';
+  document.getElementById('mnemonicPanel').style.display = m==='mnemonic'?'block':'none';
+}
+
+function pickLevel(el, lv) {
+  _level = lv;
+  document.querySelectorAll('#levelChips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function doSummary() {
+  var topic = document.getElementById('topicInput').value.trim();
+  if (!topic) { window.toast('Enter a topic first.','warning'); return; }
+  var btn = document.getElementById('summaryBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Summarising…';
+  try {
+    var r = await EXAMORA_AI.summariseTopic(topic, _level);
+    var data = r.json || null;
+    var res = document.getElementById('summaryResult');
+    res.classList.add('show');
+
+    if (data) {
+      document.getElementById('summaryTitle').textContent = data.title || topic;
+      var factsEl = document.getElementById('summaryFacts');
+      factsEl.innerHTML = (data.keyfacts||[]).map(f=>
+        '<div class="keyfact"><div class="keyfact-dot"></div><div class="keyfact-text">'+f+'</div></div>'
+      ).join('');
+      if (data.examtips) {
+        document.getElementById('summaryTip').textContent = data.examtips;
+        document.getElementById('summaryTipBox').style.display = 'block';
+      }
+      if (data.mnemonics) {
+        document.getElementById('mnemonicInline').textContent = data.mnemonics;
+        document.getElementById('mnemonicInlineBox').style.display = 'block';
+      }
+    } else {
+      document.getElementById('summaryTitle').textContent = topic;
+      document.getElementById('summaryFacts').innerHTML =
+        '<div style="font-size:.85rem;color:var(--text-2);line-height:1.6;white-space:pre-wrap;">'+(r.rawText||'No result')+'</div>';
+    }
+    document.getElementById('summaryModel').textContent = '✨ via '+(r.model||'AI').split('/').pop();
+    // Save to localStorage for offline review
+    var saved = JSON.parse(localStorage.getItem('examora_summaries')||'[]');
+    saved.unshift({topic, level:_level, data, ts:Date.now()});
+    localStorage.setItem('examora_summaries', JSON.stringify(saved.slice(0,20)));
+  } catch(e) {
+    var msg = e.message||'';
+    if (msg.includes('AI_KEY_MISSING')) window.toast('Add OpenRouter key in Admin → AI Keys','warning');
+    else window.toast('Could not summarise. Try again.','error');
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<span>✨ Generate Summary</span>';
+}
+
+async function doMnemonic() {
+  var topic = document.getElementById('mnemonicTopic').value.trim();
+  if (!topic) { window.toast('Enter a topic first.','warning'); return; }
+  var items = document.getElementById('mnemonicItems').value.trim();
+  var btn = document.getElementById('mnemonicBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Creating tricks…';
+  try {
+    var r = await EXAMORA_AI.generateMnemonic(topic, items);
+    var data = r.json || null;
+    var res = document.getElementById('mnemonicResult');
+    res.classList.add('show');
+    var container = document.getElementById('mnemonicCards');
+    if (data && data.mnemonics) {
+      container.innerHTML = data.mnemonics.map(m => {
+        var badgeCls = {ACRONYM:'badge-acronym',STORY:'badge-story',RHYME:'badge-rhyme'}[m.device]||'badge-acronym';
+        return '<div class="mnemonic-card">'
+          + '<span class="mnemonic-badge '+badgeCls+'">'+m.device+'</span>'
+          + '<div class="mnemonic-text">'+m.text+'</div>'
+          + '<div class="mnemonic-exp">'+m.explanation+'</div>'
+          + '</div>';
+      }).join('');
+    } else {
+      container.innerHTML = '<div style="font-size:.85rem;color:var(--text-2);line-height:1.6;white-space:pre-wrap;">'+(r.rawText||'No result')+'</div>';
+    }
+    document.getElementById('mnemonicModel').textContent = '✨ via '+(r.model||'AI').split('/').pop();
+  } catch(e) {
+    var msg = e.message||'';
+    if (msg.includes('AI_KEY_MISSING')) window.toast('Add OpenRouter key in Admin → AI Keys','warning');
+    else window.toast('Could not generate mnemonics. Try again.','error');
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<span>🎯 Generate Mnemonics</span>';
+}
+
+window.toast = window.toast || function(msg, type) {
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:12px;font-size:.82rem;z-index:9999;font-weight:600;';
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+};
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const app = initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+const auth = getAuth(app);
+onAuthStateChanged(auth, user => { if (!user) window.location.href = 'login.html'; });
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

@@ -341,6 +341,9 @@ function toggleRoleView() {
 }
 </script>
 
+window.renderAssignments = renderAssignments;
+window.renderStudents = renderStudents;
+window.toast = toast;
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged }
@@ -417,14 +420,14 @@ onAuthStateChanged(auth, async user => {
       try {
         const sSnap = await getDocs(query(collection(db,'users'), where('classId','==',classData.id)));
         _students = sSnap.docs.map(d => d.data());
-        renderStudents(_students);
+        window.renderStudents(_students);
       } catch(e) {}
 
       // Load assignments
       try {
         const aSnap = await getDocs(query(collection(db,'assignments'), where('classId','==',classData.id)));
         _assignments = aSnap.docs.map(d => ({id:d.id,...d.data()}));
-        renderAssignments(_assignments, true);
+        window.renderAssignments(_assignments, true);
       } catch(e) {}
     }
   } else {
@@ -445,7 +448,7 @@ onAuthStateChanged(auth, async user => {
       try {
         const aSnap = await getDocs(query(collection(db,'assignments'), where('classId','==',ud.classId)));
         _assignments = aSnap.docs.map(d => ({id:d.id,...d.data()}));
-        renderAssignments(_assignments, false);
+        window.renderAssignments(_assignments, false);
       } catch(e) {}
 
       // Class rankings (get all students in class)
@@ -473,5 +476,12 @@ onAuthStateChanged(auth, async user => {
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+</nav>
 </body>
 </html>

@@ -877,9 +877,71 @@
       }
     }
   }
+
+  // ── Module function wrappers (safe onclick bridge) ──
+  function saveAppSettings() {
+    if (typeof window.saveAppSettings === 'function') window.saveAppSettings();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveTimers() {
+    if (typeof window.saveTimers === 'function') window.saveTimers();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function uploadCSV() {
+    if (typeof window.uploadCSV === 'function') window.uploadCSV();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function deleteUser() {
+    if (typeof window.deleteUser === 'function') window.deleteUser();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function deleteQ() {
+    if (typeof window.deleteQ === 'function') window.deleteQ();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function toggleKeyVis() {
+    if (typeof window.toggleKeyVis === 'function') window.toggleKeyVis();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveAIKeys() {
+    if (typeof window.saveAIKeys === 'function') window.saveAIKeys();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveAnnouncement() {
+    if (typeof window.saveAnnouncement === 'function') window.saveAnnouncement();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function addQuestion() {
+    if (typeof window.addQuestion === 'function') window.addQuestion();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function resolveFlag() {
+    if (typeof window.resolveFlag === 'function') window.resolveFlag();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function grantPremium() {
+    if (typeof window.grantPremium === 'function') window.grantPremium();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function deleteFlag() {
+    if (typeof window.deleteFlag === 'function') window.deleteFlag();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function openEditQ() {
+    if (typeof window.openEditQ === 'function') window.openEditQ();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveEditQuestion() {
+    if (typeof window.saveEditQuestion === 'function') window.saveEditQuestion();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function testAIKeys() {
+    if (typeof window.testAIKeys === 'function') window.testAIKeys();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
 </script>
 
-window.toast = toast;
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1372,5 +1434,12 @@ window.toast = toast;
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+</nav>
 </body>
 </html>

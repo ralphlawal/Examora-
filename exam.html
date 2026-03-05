@@ -859,14 +859,27 @@
     return true;
   };
 
+
+  // ── Safe wrappers for module-async functions ──────────────────
+  // Called from onclick before module may have loaded; 
+  // window.startExam / window.submitExam are set by module.
+  function startExam() {
+    if (typeof window.startExam === 'function' && window.startExam !== startExam) {
+      window.startExam();
+    } else {
+      toast('Loading questions… please wait a moment and try again.', 'info');
+    }
+  }
+  function submitExam() {
+    if (typeof window.submitExam === 'function' && window.submitExam !== submitExam) {
+      window.submitExam();
+    } else {
+      toast('Submitting…', 'info');
+    }
+  }
 </script>
 
-window.toast = toast;
-window.buildSubjectDropdowns = buildSubjectDropdowns;
-window.startTimer = startTimer;
-window.renderQuestion = renderQuestion;
-window.updateSubjects = updateSubjects;
-window.updateAvailCount = updateAvailCount;
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -959,7 +972,7 @@ window.updateAvailCount = updateAvailCount;
     } catch(_){ window._timers={JAMB:1.5,WAEC:1.5,NECO:1.5,"Post-UTME":1.5,SAT:2,ACT:2,GRE:2,GMAT:2,IELTS:2,"A-Levels":2,GCSE:2,IB:2,Professional:2,Certification:1.5,"Custom":1.5}; }
   });
 
-  window.startExam=async()=>{
+  window._startExamImpl=window.startExam=async()=>{
     // Trial gate check
     if (window._checkTrialGate && !window._checkTrialGate(window._userData||{})) return;
 
@@ -994,7 +1007,7 @@ window.updateAvailCount = updateAvailCount;
     }
   };
 
-  window.submitExam=async()=>{
+  window._submitExamImpl=window.submitExam=async()=>{
     clearInterval(timerInterval);
     document.getElementById("submitOverlay").classList.remove("show");
 
