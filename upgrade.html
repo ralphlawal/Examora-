@@ -1,802 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EXAMORA — Go Premium</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="logo.png"/>
-  <link rel="apple-touch-icon" href="logo.png"/>
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="application-name" content="EXAMORA"/>
-  <meta name="theme-color" content="#0f172a"/>
-  <script src="https://js.paystack.co/v1/inline.js"></script>
-  <style>
-    body { padding-bottom: 0; }
-
-    .ug-hero {
-      background: linear-gradient(160deg, #1a0e00 0%, #2d1a00 50%, #1a0e00 100%);
-      padding: 40px 20px 36px; text-align: center;
-      position: relative; overflow: hidden;
-    }
-    .ug-hero::before {
-      content:''; position:absolute; top:-80px; right:-80px;
-      width:240px; height:240px; border-radius:50%;
-      background:rgba(245,158,11,0.12); pointer-events:none;
-    }
-    .ug-hero::after {
-      content:''; position:absolute; bottom:-50px; left:-50px;
-      width:180px; height:180px; border-radius:50%;
-      background:rgba(249,115,22,0.08); pointer-events:none;
-    }
-    .plan-toggle {
-      display:flex; background:rgba(255,255,255,0.07);
-      border:1px solid rgba(255,255,255,0.1); border-radius:100px;
-      padding:4px; margin:20px auto 0; width:fit-content;
-      position:relative; z-index:1;
-    }
-    .plan-toggle-btn {
-      padding:7px 20px; border-radius:100px; cursor:pointer;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-      font-size:0.78rem; color:rgba(255,255,255,0.5);
-      transition:all 0.2s ease; white-space:nowrap;
-    }
-    .plan-toggle-btn.active {
-      background:linear-gradient(135deg,#f59e0b,#f97316);
-      color:white; box-shadow:0 2px 10px rgba(245,158,11,0.45);
-    }
-    .save-badge {
-      display:inline-flex; align-items:center;
-      background:rgba(16,185,129,0.2); color:#34d399;
-      border:1px solid rgba(16,185,129,0.3);
-      font-size:0.6rem; font-weight:700; padding:2px 7px;
-      border-radius:100px; margin-left:5px; vertical-align:middle;
-    }
-
-    /* Trial banner - shown while on trial */
-    .trial-active-banner {
-      display:none;
-      background:linear-gradient(135deg,#064e3b,#065f46);
-      border-radius:18px; padding:16px 18px;
-      margin-bottom:14px; text-align:center;
-      border:1.5px solid rgba(16,185,129,0.5);
-      animation: fadeInDown 0.3s ease;
-    }
-    .trial-active-banner.show { display:block; }
-    .trial-countdown {
-      display:flex; align-items:center; justify-content:center; gap:6px;
-      margin-bottom:12px;
-    }
-    .trial-days-big {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
-      font-size:3rem; color:#6ee7b7; line-height:1;
-    }
-    .trial-days-label { font-size:0.75rem; color:rgba(255,255,255,0.6); text-align:left; line-height:1.3; }
-    .trial-progress-wrap {
-      background:rgba(255,255,255,0.1); border-radius:100px;
-      height:6px; margin-bottom:12px; overflow:hidden;
-    }
-    .trial-progress-bar {
-      height:100%; border-radius:100px;
-      background:linear-gradient(90deg,#10b981,#34d399);
-      transition:width 0.5s ease;
-    }
-    .trial-upgrade-btn {
-      width:100%; padding:13px;
-      background:linear-gradient(135deg,#f59e0b,#f97316);
-      color:white; font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:800; font-size:0.95rem;
-      border:none; border-radius:14px; cursor:pointer;
-      box-shadow:0 4px 18px rgba(245,158,11,0.4);
-    }
-    .trial-upgrade-btn:active { transform:scale(0.98); }
-
-    /* Expiry paywall modal */
-    .paywall-overlay {
-      display:none; position:fixed; inset:0; z-index:9999;
-      background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
-      align-items:flex-end; justify-content:center;
-    }
-    .paywall-overlay.show { display:flex; }
-    .paywall-sheet {
-      background:var(--bg-card); border-radius:24px 24px 0 0;
-      padding:28px 20px 40px; width:100%; max-width:480px;
-      border-top:3px solid #f59e0b;
-      animation: slideUp 0.35s cubic-bezier(0.34,1.1,0.64,1);
-    }
-    @keyframes slideUp {
-      from { transform:translateY(100%); opacity:0; }
-      to   { transform:translateY(0);    opacity:1; }
-    }
-    .paywall-icon  { font-size:2.8rem; text-align:center; margin-bottom:10px; }
-    .paywall-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
-      font-size:1.3rem; color:var(--text); text-align:center; margin-bottom:8px;
-    }
-    .paywall-sub {
-      font-size:0.82rem; color:var(--text-2); text-align:center;
-      line-height:1.6; margin-bottom:20px;
-    }
-    .paywall-btn-primary {
-      width:100%; padding:15px;
-      background:linear-gradient(135deg,#f59e0b,#f97316);
-      color:white; font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:800; font-size:1rem;
-      border:none; border-radius:14px; cursor:pointer;
-      box-shadow:0 6px 20px rgba(245,158,11,0.4);
-      margin-bottom:10px;
-    }
-    .paywall-btn-secondary {
-      width:100%; padding:12px;
-      background:transparent; color:var(--text-3);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:600;
-      font-size:0.82rem; border:1.5px solid var(--border);
-      border-radius:14px; cursor:pointer;
-    }
-
-    /* Urgency strip for last 2 days */
-    .urgency-strip {
-      display:none; background:linear-gradient(90deg,#dc2626,#b91c1c);
-      color:white; text-align:center; padding:10px 16px;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-      font-size:0.8rem; animation: pulse 2s infinite;
-      cursor:pointer;
-    }
-    .urgency-strip.show { display:block; }
-    @keyframes pulse {
-      0%,100% { opacity:1; }
-      50%      { opacity:0.85; }
-    }
-
-    /* Price card */
-    .price-card {
-      background:linear-gradient(135deg, #1a0e00, #2d1a00);
-      border:1.5px solid rgba(245,158,11,0.3);
-      border-radius:20px; padding:24px 20px;
-      margin:16px 0; text-align:center;
-      box-shadow:0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.1) inset;
-      position:relative; overflow:hidden;
-    }
-    .price-card::before {
-      content:'MOST POPULAR'; position:absolute;
-      top:14px; right:-24px; background:linear-gradient(135deg,#f59e0b,#f97316);
-      color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
-      font-size:0.55rem; letter-spacing:1px; padding:4px 32px;
-      transform:rotate(45deg); box-shadow:0 2px 8px rgba(245,158,11,0.4);
-    }
-    .price-amount {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
-      font-size:3rem; color:white; letter-spacing:-2px;
-      line-height:1; margin-bottom:4px;
-    }
-    .price-amount span {
-      font-size:1.2rem; vertical-align:top; margin-top:10px;
-      display:inline-block; letter-spacing:0; font-weight:700;
-      color:rgba(255,255,255,0.6);
-    }
-    .price-period { font-size:0.78rem; color:rgba(255,255,255,0.4); margin-bottom:4px; }
-    .price-save {
-      display:inline-flex; align-items:center; gap:4px;
-      background:rgba(16,185,129,0.15); color:#34d399;
-      border:1px solid rgba(16,185,129,0.25);
-      padding:3px 10px; border-radius:100px;
-      font-size:0.68rem; font-weight:700; margin-bottom:18px;
-    }
-    .features-list { margin-bottom:20px; }
-    .feat-item {
-      display:flex; align-items:flex-start; gap:10px;
-      padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);
-    }
-    .feat-item:last-child { border-bottom:none; }
-    .feat-check {
-      width:22px; height:22px; border-radius:7px; flex-shrink:0;
-      background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.25);
-      display:flex; align-items:center; justify-content:center;
-      font-size:0.7rem; color:#34d399; margin-top:1px;
-    }
-    .feat-text { font-size:0.82rem; color:rgba(255,255,255,0.8); line-height:1.5; }
-    .feat-text strong { color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; }
-    .feat-badge {
-      display:inline-flex; align-items:center;
-      background:rgba(245,158,11,0.15); color:#fbbf24;
-      font-size:0.58rem; font-weight:700; padding:2px 6px;
-      border-radius:100px; margin-left:5px; vertical-align:middle;
-    }
-    .btn-gold-big {
-      width:100%; padding:16px; border-radius:var(--radius-sm);
-      background:linear-gradient(135deg,#f59e0b,#f97316);
-      color:white; font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:800; font-size:1rem; letter-spacing:-0.3px;
-      border:none; cursor:pointer; transition:all 0.2s ease;
-      box-shadow:0 8px 24px rgba(245,158,11,0.45);
-      margin-bottom:10px;
-    }
-    .btn-gold-big:active { transform:scale(0.98); }
-
-    /* Free trial offer card (for users who haven't started trial) */
-    .trial-offer-card {
-      display:none;
-      background:linear-gradient(135deg,#064e3b,#065f46);
-      border-radius:20px; padding:22px 18px; margin-bottom:14px;
-      text-align:center; border:1.5px solid rgba(16,185,129,0.4);
-    }
-    .trial-offer-card.show { display:block; animation:fadeInDown 0.3s ease; }
-    .trial-offer-btn {
-      width:100%; padding:14px 28px;
-      background:linear-gradient(135deg,#10b981,#059669);
-      color:white; font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:800; font-size:0.95rem;
-      border-radius:14px; border:none; cursor:pointer;
-      box-shadow:0 4px 20px rgba(16,185,129,0.4);
-    }
-
-    /* Already premium */
-    .premium-active {
-      display:none;
-      background:linear-gradient(135deg,rgba(16,185,129,0.1),var(--bg-card));
-      border:1.5px solid rgba(16,185,129,0.25);
-      border-radius:20px; padding:28px 20px; text-align:center; margin-bottom:16px;
-    }
-
-    /* Compare table */
-    .compare-table {
-      width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.78rem;
-    }
-    .compare-table th {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-      padding:10px 8px; border-bottom:2px solid var(--border);
-      color:var(--text-3); text-align:left; font-size:0.7rem;
-      text-transform:uppercase; letter-spacing:0.5px;
-    }
-    .compare-table th:not(:first-child) { text-align:center; }
-    .compare-table td {
-      padding:10px 8px; border-bottom:1px solid var(--border);
-      color:var(--text-2); vertical-align:middle;
-    }
-    .compare-table td:not(:first-child) { text-align:center; }
-    .compare-table tr:last-child td { border-bottom:none; }
-    .compare-table .ct-free { color:var(--text-3); }
-    .compare-table .ct-prem { color:var(--c-gold); font-weight:700; }
-    .compare-table .ct-feat { color:var(--text); font-weight:600; }
-
-    /* Testimonials */
-    .testimonial-card {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:16px; padding:16px; margin-bottom:10px;
-      box-shadow:var(--shadow-xs);
-    }
-    .test-stars { color:#f59e0b; font-size:0.85rem; margin-bottom:8px; }
-    .test-text  { font-size:0.82rem; color:var(--text-2); line-height:1.6; margin-bottom:10px; font-style:italic; }
-    .test-author { display:flex; align-items:center; gap:8px; }
-    .test-av {
-      width:30px; height:30px; border-radius:50%;
-      background:linear-gradient(135deg,var(--c-brand),#8b5cf6);
-      display:flex; align-items:center; justify-content:center;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
-      font-size:0.75rem; color:white; flex-shrink:0;
-    }
-    .test-name  { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.78rem; color:var(--text); }
-    .test-score { font-size:0.67rem; color:var(--c-green); font-weight:600; }
-
-    /* FAQ */
-    .faq-item {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:12px; margin-bottom:8px; overflow:hidden;
-    }
-    .faq-q {
-      padding:13px 14px; font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:700; font-size:0.84rem; color:var(--text);
-      cursor:pointer; display:flex; align-items:center; gap:10px;
-      transition:background 0.15s ease;
-    }
-    .faq-q:active { background:var(--bg-input); }
-    .faq-q .fa-icon { flex-shrink:0; transition:transform 0.2s ease; }
-    .faq-q.open .fa-icon { transform:rotate(45deg); }
-    .faq-a {
-      max-height:0; overflow:hidden;
-      transition:max-height 0.3s ease;
-      font-size:0.78rem; color:var(--text-2); line-height:1.6;
-    }
-    .faq-a.open { max-height:200px; padding:0 14px 14px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Go Premium — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<style>
+:root{--max-width:480px;}
+.page-wrapper{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:40px;}
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;flex-shrink:0;color:var(--text-2);}
+/* Urgency strip */
+.urgency-strip{display:none;background:linear-gradient(135deg,#dc2626,#b91c1c);padding:10px 16px;text-align:center;}
+.urgency-strip.show{display:block;}
+/* Hero */
+.hero{background:linear-gradient(135deg,#0f0e17,#1e1b4b,#2d1b69);padding:32px 20px 24px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(99,102,241,0.15);top:-100px;right:-80px;pointer-events:none;}
+.hero-emoji{font-size:3rem;margin-bottom:12px;}
+.hero-title{font-family:var(--font-display);font-weight:900;font-size:1.6rem;color:white;margin-bottom:6px;line-height:1.15;}
+.hero-sub{font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.6;}
+/* Already premium */
+.prem-banner{margin:16px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:20px;padding:20px;text-align:center;display:none;}
+/* Trial banner */
+.trial-banner{margin:16px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px;display:none;}
+.trial-bar{height:6px;background:rgba(255,255,255,0.15);border-radius:100px;overflow:hidden;margin:10px 0;}
+.trial-fill{height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:100px;transition:width 0.8s ease;}
+/* Free trial offer */
+.trial-offer{margin:16px;background:var(--bg-card);border:2px solid rgba(99,102,241,0.25);border-radius:20px;padding:20px;display:none;}
+/* Plan toggle */
+.plan-toggle{display:flex;background:var(--bg-input);border-radius:14px;padding:4px;margin:16px;gap:0;}
+.plan-opt{flex:1;padding:10px;text-align:center;border-radius:10px;font-family:var(--font-display);font-weight:700;font-size:0.8rem;cursor:pointer;transition:all 0.18s;color:var(--text-3);position:relative;}
+.plan-opt.on{background:var(--c-brand);color:white;box-shadow:0 2px 10px rgba(99,102,241,0.35);}
+.save-badge{position:absolute;top:-8px;right:-6px;background:#f59e0b;color:white;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:100px;}
+/* Price card */
+.price-card{margin:0 16px 16px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:22px;padding:24px;border:1.5px solid rgba(99,102,241,0.35);}
+.price-amount{font-family:var(--font-display);font-weight:900;font-size:2.4rem;color:white;line-height:1;}
+.price-period{font-size:0.8rem;color:rgba(255,255,255,0.45);margin-top:4px;}
+.price-savings{display:inline-block;background:rgba(245,158,11,0.25);color:#f59e0b;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:100px;margin-top:8px;}
+.feat-list{margin:16px 0;display:flex;flex-direction:column;gap:8px;}
+.feat-row{display:flex;align-items:center;gap:10px;font-size:0.82rem;color:rgba(255,255,255,0.75);}
+.feat-row .f-icon{width:22px;height:22px;border-radius:50%;background:rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0;}
+.btn-pay{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:14px;font-family:var(--font-display);font-weight:800;font-size:0.95rem;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(99,102,241,0.4);margin-top:4px;}
+.btn-pay:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(99,102,241,0.5);}
+.btn-pay:active{transform:scale(0.98);}
+.btn-pay:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+/* Promo */
+.promo-wrap{display:flex;gap:8px;margin-top:12px;}
+.promo-input{flex:1;padding:10px 13px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;color:white;font-family:var(--font-display);font-weight:700;font-size:0.82rem;outline:none;}
+.promo-input::placeholder{color:rgba(255,255,255,0.3);}
+.promo-input:focus{border-color:rgba(99,102,241,0.6);}
+.btn-promo{padding:10px 16px;background:rgba(255,255,255,0.1);color:white;border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;font-family:var(--font-display);font-weight:700;font-size:0.8rem;cursor:pointer;white-space:nowrap;transition:all 0.18s;}
+.btn-promo:hover{background:rgba(255,255,255,0.18);}
+/* Compare table */
+.compare-wrap{margin:0 16px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.compare-hd{display:grid;grid-template-columns:1fr 80px 80px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg-input);}
+.compare-hd span{font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);}
+.compare-hd span:not(:first-child){text-align:center;}
+.compare-row{display:grid;grid-template-columns:1fr 80px 80px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.compare-row:last-child{border-bottom:none;}
+.compare-feat{font-size:0.8rem;color:var(--text-2);}
+.compare-cell{text-align:center;font-size:0.85rem;}
+.chk{color:var(--c-green);}
+.cross{color:var(--c-red);}
+/* Guarantee */
+.guarantee{margin:0 16px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;}
+/* Paywall modal */
+.pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.pw-overlay.open{display:flex;}
+.pw-sheet{background:var(--bg-card);border-radius:24px 24px 0 0;padding:32px 20px 48px;width:100%;max-width:var(--max-width);text-align:center;}
+</style>
 </head>
 <body>
-
-<!-- Urgency strip (shown when <=2 trial days left) -->
-<div class="urgency-strip" id="urgencyStrip" onclick="document.getElementById('paywallOverlay').classList.add('show')">
-  ⏰ Only <span id="urgencyDays">1</span> free exam left — upgrade to keep full access
-</div>
-
-<header class="app-header">
-  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
-    <img class="app-logo-img" src="logo.png" alt="EXAMORA"
-      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
-    <div class="app-logo-icon" style="display:none;">EX</div>
-    <div><div class="app-logo-name">EXAMORA</div></div>
-  </a>
-  <div class="header-actions">
-    <button class="header-btn" id="themeBtn">🌙</button>
+<div class="page-wrapper">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Go Premium</div>
   </div>
-</header>
 
-<!-- Paywall modal (trial expired) -->
-<div class="paywall-overlay" id="paywallOverlay">
-  <div class="paywall-sheet">
-    <div class="paywall-icon">⏰</div>
-    <div class="paywall-title" id="paywallTitle">Free Trial Used Up</div>
-    <div class="paywall-sub" id="paywallSub">
-      You've used all 3 free trial exams. Upgrade to keep practicing with AI explanations, analytics and unlimited exams.
+  <!-- Urgency strip -->
+  <div class="urgency-strip" id="urgencyStrip">
+    <span style="font-family:var(--font-display);font-weight:800;font-size:0.82rem;color:white;">⏳ Trial ends in <span id="urgencyDays">2</span> day(s)! Upgrade now to keep access.</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-emoji">⚡</div>
+    <div class="hero-title">Unlock Your<br/>Full Potential</div>
+    <div class="hero-sub">Join 50,000+ students who improved their JAMB & WAEC scores with EXAMORA Premium</div>
+  </div>
+
+  <!-- Already Premium -->
+  <div class="prem-banner" id="premiumActive">
+    <div style="font-size:2rem;margin-bottom:8px;">👑</div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:white;">You're Premium!</div>
+    <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);margin-top:4px;">Enjoy unlimited access to all features</div>
+  </div>
+
+  <!-- Trial banner -->
+  <div class="trial-banner" id="trialActiveBanner">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:0.82rem;color:white;">🎉 Free Trial Active</div>
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:2px;"><span id="trialDaysNum">—</span> days remaining</div>
+      </div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:white;" id="trialPctTxt">—%</div>
     </div>
-    <button class="paywall-btn-primary" onclick="initiatePayment();document.getElementById('paywallOverlay').classList.remove('show')">
-      👑 Upgrade Now — ₦2,000/mo
-    </button>
-    <button class="paywall-btn-secondary" onclick="document.getElementById('paywallOverlay').classList.remove('show')">
-      Maybe later
-    </button>
+    <div class="trial-bar"><div class="trial-fill" id="trialProgressBar" style="width:100%;"></div></div>
   </div>
-</div>
 
-<!-- Hero -->
-<div class="ug-hero animate-in">
-  <span class="material-symbols-rounded ms-fill"
-    style="font-size:3rem;color:#f59e0b;display:block;margin-bottom:14px;
-    filter:drop-shadow(0 4px 16px rgba(245,158,11,0.5));position:relative;z-index:1;">
-    workspace_premium
-  </span>
-  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.8rem;color:white;letter-spacing:-0.8px;margin-bottom:8px;position:relative;z-index:1;">
-    Go Premium
+  <!-- Trial offer (free) -->
+  <div class="trial-offer" id="trialOfferCard">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="font-size:1.6rem;">🎁</div>
+      <div>
+        <div style="font-family:var(--font-display);font-weight:800;font-size:0.92rem;color:var(--text);">Start Free 7-Day Trial</div>
+        <div style="font-size:0.74rem;color:var(--text-3);">No payment needed. Full premium access.</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="trialStartBtn" onclick="startTrial()">Start Free Trial →</button>
   </div>
-  <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.6;position:relative;z-index:1;max-width:300px;margin:0 auto;">
-    Everything you need to score higher and get admitted
-  </div>
+
+  <!-- Plan toggle -->
   <div class="plan-toggle">
-    <div class="plan-toggle-btn active" id="planMonthly" onclick="setPlan('monthly')">Monthly</div>
-    <div class="plan-toggle-btn" id="planYearly" onclick="setPlan('yearly')">
-      Yearly <span class="save-badge">Save 40%</span>
-    </div>
-  </div>
-</div>
-
-<div class="page-wrapper" style="padding-top:16px;">
-
-  <!-- Already premium -->
-  <div class="premium-active animate-in" id="premiumActive">
-    <div style="font-size:2.5rem;margin-bottom:12px;">✨</div>
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:var(--c-green);margin-bottom:6px;">
-      You're already Premium!
-    </div>
-    <p style="font-size:0.78rem;color:var(--text-3);line-height:1.6;margin-bottom:16px;">
-      Enjoy all premium features. Thank you for supporting EXAMORA!
-    </p>
-    <a href="index.html" class="btn btn-green">🏠 Back to Dashboard</a>
-  </div>
-
-  <!-- Active trial banner (days countdown) -->
-  <div class="trial-active-banner" id="trialActiveBanner">
-    <div class="trial-countdown">
-      <div class="trial-days-big" id="trialDaysNum">7</div>
-      <div class="trial-days-label">free exams<br/>remaining</div>
-    </div>
-    <div class="trial-progress-wrap">
-      <div class="trial-progress-bar" id="trialProgressBar" style="width:100%;"></div>
-    </div>
-    <p style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-bottom:14px;line-height:1.5;">
-      You have free trial exams remaining. Upgrade now to keep unlimited access after they're used.
-    </p>
-    <button class="trial-upgrade-btn" onclick="initiatePayment()">
-      ⚡ Upgrade Now to Keep Access
-    </button>
-    <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-top:8px;">
-      Cancel anytime · Secure payment via Paystack
-    </div>
-  </div>
-
-  <!-- Free trial offer (not yet used) -->
-  <div class="trial-offer-card" id="trialOfferCard">
-    <div style="font-size:2.2rem;margin-bottom:8px;">🎁</div>
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#6ee7b7;margin-bottom:6px;">
-      Try 3 Exams Free — No Card
-    </div>
-    <p style="font-size:0.78rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:16px;">
-      Take 3 full practice exams with AI explanations and analytics — completely free. No card, no commitment.
-    </p>
-    <button class="trial-offer-btn" id="trialStartBtn" onclick="window._startTrial()">
-      🚀 Start Free Trial — No Card Needed
-    </button>
-    <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-top:8px;">
-      One trial per account · 3 exams included
+    <div class="plan-opt on" id="planMonthly" onclick="setPlan('monthly')">Monthly</div>
+    <div class="plan-opt" id="planYearly" onclick="setPlan('yearly')">
+      Yearly
+      <span class="save-badge">Save 50%</span>
     </div>
   </div>
 
   <!-- Price card -->
-  <div class="price-card animate-in animate-in-delay-1" id="priceCard">
-    <div class="price-amount"><span>₦</span><span id="priceNum">2,000</span></div>
-    <div class="price-period" id="pricePeriod">per month · cancel anytime</div>
-    <div class="price-save" id="priceSave" style="display:none;">
-      🎉 Save ₦9,600 compared to monthly
-    </div>
-    <div class="features-list">
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>Unlimited Practice Exams</strong> — no daily caps</div>
+  <div class="price-card" id="priceCard">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+      <div>
+        <div class="price-amount" id="priceAmount">₦2,500</div>
+        <div class="price-period" id="pricePeriod">per month</div>
+        <div class="price-savings" id="priceSavings" style="display:none;">You save ₦15,000/year</div>
       </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text">
-          <strong>AI-Powered Explanations</strong>
-          <span class="feat-badge">⚡ NEW</span>
-          — every wrong answer explained in detail
-        </div>
-      </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>Deep Analytics</strong> — subject-by-subject breakdown, score trends, weak area detection</div>
-      </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>Unlimited Bookmarks</strong> — save as many questions as you want</div>
-      </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>Offline Mode</strong> — practise without internet</div>
-      </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>All Past Questions</strong> — JAMB, WAEC, SAT, A-Levels, IELTS and more</div>
-      </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>Priority Support</strong> — get help within 2 hours</div>
-      </div>
-      <div class="feat-item">
-        <div class="feat-check">✓</div>
-        <div class="feat-text"><strong>👑 Premium Badge</strong> on the leaderboard</div>
+      <div style="background:rgba(99,102,241,0.2);border-radius:12px;padding:8px 12px;text-align:center;">
+        <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;">Best for</div>
+        <div style="font-family:var(--font-display);font-weight:800;font-size:0.8rem;color:white;margin-top:2px;" id="bestForText">Flexibility</div>
       </div>
     </div>
-    <button class="btn-gold-big" id="upgradeBtn" onclick="initiatePayment()">
-      ⚡ Upgrade Now — ₦<span id="ctaPrice">2,000</span>/mo
+
+    <div class="feat-list">
+      <div class="feat-row"><div class="f-icon">🤖</div>Unlimited AI Tutor (NOVA) sessions</div>
+      <div class="feat-row"><div class="f-icon">📚</div>All 60,000+ past questions (JAMB, WAEC, NECO)</div>
+      <div class="feat-row"><div class="f-icon">📱</div>Full offline mode — study without data</div>
+      <div class="feat-row"><div class="f-icon">🔥</div>Unlimited mock exams & detailed analysis</div>
+      <div class="feat-row"><div class="f-icon">📊</div>Advanced analytics & score predictions</div>
+      <div class="feat-row"><div class="f-icon">🃏</div>AI flashcard generation — any topic</div>
+      <div class="feat-row"><div class="f-icon">🏆</div>Premium leaderboard & achievements</div>
+    </div>
+
+    <button class="btn-pay" id="payBtn" onclick="startPayment()">
+      Pay ₦2,500 / month
     </button>
-    <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);text-align:center;">
-      Secure payment · Cancel anytime · Instant activation
+
+    <!-- Promo code -->
+    <div class="promo-wrap">
+      <input class="promo-input" id="promoInput" placeholder="Promo code (optional)" onkeydown="if(event.key==='Enter')applyPromo()"/>
+      <button class="btn-promo" onclick="applyPromo()">Apply</button>
     </div>
+    <div id="promoMsg" style="font-size:0.72rem;margin-top:6px;text-align:center;"></div>
+
+    <div style="font-size:0.68rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:12px;">Secured by Paystack · Cancel anytime</div>
   </div>
 
   <!-- Compare table -->
-  <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">bar_chart</div>
-    <h3>Free vs Premium</h3>
-  </div>
-  <div class="card animate-in animate-in-delay-2" style="padding:0;overflow:hidden;">
-    <table class="compare-table">
-      <thead>
-        <tr>
-          <th style="padding-left:14px;">Feature</th>
-          <th>Free</th>
-          <th style="color:var(--c-gold);">👑 Premium</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td class="ct-feat" style="padding-left:14px;">Daily Exams</td>   <td class="ct-free">5/day</td>      <td class="ct-prem">Unlimited</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">Bookmarks</td>      <td class="ct-free">10</td>         <td class="ct-prem">Unlimited</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">AI Explanations</td><td class="ct-free">❌</td>         <td class="ct-prem">✅</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">Deep Analytics</td> <td class="ct-free">Basic</td>      <td class="ct-prem">Full</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">Past Questions</td> <td class="ct-free">2010–2024</td>  <td class="ct-prem">1980–2024</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">Offline Mode</td>   <td class="ct-free">❌</td>         <td class="ct-prem">✅</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">Leaderboard Badge</td><td class="ct-free">❌</td>       <td class="ct-prem">👑</td></tr>
-        <tr><td class="ct-feat" style="padding-left:14px;">Support</td>        <td class="ct-free">Email</td>      <td class="ct-prem">Priority</td></tr>
-      </tbody>
-    </table>
+  <div style="padding:0 16px;font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">Compare Plans</div>
+  <div class="compare-wrap">
+    <div class="compare-hd">
+      <span>Feature</span>
+      <span>Free</span>
+      <span style="color:var(--c-brand);">Premium</span>
+    </div>
+    <div class="compare-row"><div class="compare-feat">Practice exams</div><div class="compare-cell"><span style="font-size:0.68rem;color:var(--text-3);">10/day</span></div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">AI Tutor (NOVA)</div><div class="compare-cell"><span style="font-size:0.68rem;color:var(--text-3);">5/day</span></div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">All past questions</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">Offline mode</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">Mock exams</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">Score prediction</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">AI flashcard gen</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">AI essay checker</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">Priority support</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
+    <div class="compare-row"><div class="compare-feat">School mode</div><div class="compare-cell cross">✗</div><div class="compare-cell chk">✓</div></div>
   </div>
 
-  <!-- Testimonials -->
-  <div class="section-header animate-in animate-in-delay-2" style="margin-top:20px;">
-    <div class="section-icon">chat</div>
-    <h3>Student Stories</h3>
-  </div>
-  <div class="testimonial-card animate-in animate-in-delay-2">
-    <div class="test-stars">⭐⭐⭐⭐⭐</div>
-    <div class="test-text">"I scored 312 in JAMB after just 6 weeks using EXAMORA Premium. The AI explanations helped me understand exactly why I was getting questions wrong."</div>
-    <div class="test-author">
-      <div class="test-av">C</div>
-      <div>
-        <div class="test-name">Chioma Eze</div>
-        <div class="test-score">JAMB Score: 312 · University of Lagos</div>
-      </div>
+  <!-- Guarantee -->
+  <div class="guarantee">
+    <div style="font-size:1.8rem;">🛡️</div>
+    <div>
+      <div style="font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);">7-Day Money-Back Guarantee</div>
+      <div style="font-size:0.72rem;color:var(--text-3);margin-top:2px;">Not satisfied? Email us within 7 days for a full refund. No questions asked.</div>
     </div>
   </div>
-  <div class="testimonial-card animate-in animate-in-delay-3">
-    <div class="test-stars">⭐⭐⭐⭐⭐</div>
-    <div class="test-text">"The deep analytics showed me I was weak in Organic Chemistry. I focused there and went from 55% to 82% in 3 weeks."</div>
-    <div class="test-author">
-      <div class="test-av">A</div>
-      <div>
-        <div class="test-name">Adebayo Okafor</div>
-        <div class="test-score">WAEC B3 Chemistry · OAU</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ -->
-  <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
-    <div class="section-icon">help</div>
-    <h3>Common Questions</h3>
-  </div>
-  <div id="faqList" class="animate-in animate-in-delay-3">
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> How do I pay?</div>
-      <div class="faq-a">We accept all bank cards, transfers, and mobile money via Paystack. Payment is secure and instant.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> Can I cancel anytime?</div>
-      <div class="faq-a">Yes. You can cancel from your profile page at any time. You'll keep access until the end of your billing period.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> Is there a student discount?</div>
-      <div class="faq-a">Yes! Students with a valid school email get 20% off. Contact us at <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a> with your school email to claim it.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> What if I'm not satisfied?</div>
-      <div class="faq-a">We offer a 7-day money-back guarantee. If you're not happy, just email us and we'll refund you — no questions asked.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)"><span class="fa-icon">+</span> How does the free trial work?</div>
-      <div class="faq-a">Start a 7-day free trial with no card required. You get full premium access. After 7 days, you choose whether to upgrade — no automatic charges ever.</div>
-    </div>
-  </div>
-
-  <!-- Final CTA -->
-  <div style="margin-top:20px;margin-bottom:32px;" class="animate-in animate-in-delay-4" id="finalCta">
-    <button class="btn-gold-big" onclick="initiatePayment()">
-      👑 Start Premium — ₦<span id="ctaPrice2">2,000</span>/mo
-    </button>
-    <p style="text-align:center;font-size:0.68rem;color:var(--text-3);margin-top:8px;">
-      Join thousands of students worldwide using EXAMORA Premium
-    </p>
-  </div>
-
-  <!-- Support row -->
-  <div style="text-align:center;padding:16px 20px 8px;font-size:0.72rem;color:var(--text-3);line-height:2;">
-    Questions about pricing?<br/>
-    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
-  </div>
-
 </div>
 
-<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
-<nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">home</span>        <span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item"><span class="nav-icon">edit_note</span>   <span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item"><span class="nav-icon">bar_chart</span>   <span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">person</span>      <span class="nav-label">Profile</span></a>
-</nav>
+<!-- Paywall modal (trial expired) -->
+<div class="pw-overlay" id="paywallOverlay">
+  <div class="pw-sheet">
+    <div style="font-size:2.5rem;margin-bottom:12px;">⏰</div>
+    <div style="font-family:var(--font-display);font-weight:900;font-size:1.2rem;color:var(--text);margin-bottom:8px;" id="paywallTitle">Trial Ended</div>
+    <div style="font-size:0.8rem;color:var(--text-3);margin-bottom:20px;line-height:1.6;" id="paywallSub">Your free trial has ended. Upgrade to keep access to all premium features.</div>
+    <button class="btn btn-primary" onclick="document.getElementById('paywallOverlay').classList.remove('open');startPayment()">Upgrade Now — ₦2,500/month</button>
+    <div style="margin-top:12px;font-size:0.74rem;color:var(--text-3);cursor:pointer;" onclick="document.getElementById('paywallOverlay').classList.remove('open')">Continue with free plan</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <script>
-  /* ── Theme ── */
-  var _t = localStorage.getItem("examora_theme") || "light";
-  document.documentElement.setAttribute("data-theme", _t);
-  document.getElementById("themeBtn").textContent = _t === "dark" ? "☀️" : "🌙";
-  document.getElementById("themeBtn").addEventListener("click", function() {
-    var c = document.documentElement.getAttribute("data-theme");
-    var n = c === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", n);
-    localStorage.setItem("examora_theme", n);
-    document.getElementById("themeBtn").textContent = n === "dark" ? "☀️" : "🌙";
-  });
+var _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
 
-  /* ── Toast ── */
-  function toast(msg, type, dur) {
-    type = type || ""; dur = dur || 3200;
-    var el  = document.getElementById("toast");
-    var ico = document.getElementById("toastIcon");
-    var txt = document.getElementById("toastMsg");
-    var icons = { success:"✓", error:"✕", info:"ℹ", warning:"!" };
-    el.className = "toast" + (type ? " toast-"+type : "");
-    if (ico) { ico.textContent = icons[type] || ""; ico.style.display = type ? "flex" : "none"; }
-    if (txt) txt.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(el._tid);
-    el._tid = setTimeout(function(){ el.classList.remove("show"); }, dur);
+var _plan = 'monthly', _userEmail = '', _discount = 0, _promoCode = '';
+var PRICES = { monthly: 2500, yearly: 15000 };
+var PROMOS = { 'JAMB2025': 30, 'WAEC50': 50, 'NEXACORE': 100, 'STUDENT25': 25 };
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type]||'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show '+(type||'info');
+  setTimeout(function(){t.className='toast';}, 3200);
+}
+
+function setPlan(p) {
+  _plan = p;
+  document.getElementById('planMonthly').classList.toggle('on', p==='monthly');
+  document.getElementById('planYearly').classList.toggle('on', p==='yearly');
+  updatePriceDisplay();
+}
+
+function updatePriceDisplay() {
+  var base = PRICES[_plan];
+  var final = Math.round(base * (1 - _discount/100));
+  var fmt = function(n) { return '₦' + n.toLocaleString(); };
+  document.getElementById('priceAmount').textContent = fmt(final);
+  document.getElementById('pricePeriod').textContent = _plan==='monthly' ? 'per month' : 'per year ('+fmt(Math.round(final/12))+'/mo)';
+  document.getElementById('priceSavings').style.display = _plan==='yearly' ? 'block' : 'none';
+  document.getElementById('priceSavings').textContent = 'You save '+fmt(PRICES.monthly*12-PRICES.yearly)+' vs monthly';
+  document.getElementById('bestForText').textContent = _plan==='monthly' ? 'Flexibility' : 'Best Value';
+  document.getElementById('payBtn').textContent = 'Pay '+fmt(final)+' / '+(_plan==='monthly'?'month':'year');
+  if (_discount > 0) {
+    document.getElementById('payBtn').textContent += ' ('+_discount+'% off)';
   }
+}
 
-  /* ── Plan toggle ── */
-  var currentPlan = "monthly";
-
-  function setPlan(plan) {
-    currentPlan = plan;
-    document.getElementById("planMonthly").classList.toggle("active", plan === "monthly");
-    document.getElementById("planYearly").classList.toggle("active",  plan === "yearly");
-    if (plan === "monthly") {
-      document.getElementById("priceNum").textContent    = "2,000";
-      document.getElementById("pricePeriod").textContent = "per month · cancel anytime";
-      document.getElementById("priceSave").style.display = "none";
-      document.getElementById("ctaPrice").textContent    = "2,000";
-      document.getElementById("ctaPrice2").textContent   = "2,000";
-      document.getElementById("upgradeBtn").innerHTML    = "⚡ Upgrade Now — ₦2,000/mo";
-      document.getElementById("paywallOverlay").querySelector(".paywall-btn-primary").innerHTML = "👑 Upgrade Now — ₦2,000/mo";
+function applyPromo() {
+  var code = document.getElementById('promoInput').value.trim().toUpperCase();
+  var msgEl = document.getElementById('promoMsg');
+  if (!code) { msgEl.textContent = 'Enter a promo code'; msgEl.style.color = 'rgba(244,63,94,0.8)'; return; }
+  if (PROMOS[code] !== undefined) {
+    _discount = PROMOS[code];
+    _promoCode = code;
+    if (_discount === 100) {
+      msgEl.textContent = '🎉 Code applied! FREE access activated!';
+      msgEl.style.color = '#10b981';
+      window._applyFreePremium && window._applyFreePremium();
     } else {
-      document.getElementById("priceNum").textContent    = "14,400";
-      document.getElementById("pricePeriod").textContent = "per year · ₦1,200/month equivalent";
-      document.getElementById("priceSave").style.display = "inline-flex";
-      document.getElementById("ctaPrice").textContent    = "14,400";
-      document.getElementById("ctaPrice2").textContent   = "14,400";
-      document.getElementById("upgradeBtn").innerHTML    = "⚡ Upgrade Now — ₦14,400/yr";
-      document.getElementById("paywallOverlay").querySelector(".paywall-btn-primary").innerHTML = "👑 Upgrade Now — ₦14,400/yr";
+      msgEl.textContent = '✅ Code applied — ' + _discount + '% discount!';
+      msgEl.style.color = '#10b981';
     }
+    updatePriceDisplay();
+  } else {
+    msgEl.textContent = '❌ Invalid promo code. Try JAMB2025 or WAEC50';
+    msgEl.style.color = 'rgba(244,63,94,0.8)';
+    _discount = 0; _promoCode = '';
   }
+}
 
-  /* ── FAQ ── */
-  function toggleFaq(el) {
-    var a    = el.nextElementSibling;
-    var open = a.classList.toggle("open");
-    el.classList.toggle("open", open);
-  }
-
-  /* ── Paystack payment ── */
-  var PAYSTACK_PK = "pk_test_678a1fb31b3820da62161e78720a051b54a34a8b"; // swap to pk_live_* for production
-
-  function initiatePayment() {
-    if (!window._userEmail) {
-      toast("Please sign in to upgrade", "error");
-      setTimeout(function(){ window.location.href = "login.html"; }, 1200);
-      return;
+async function startTrial() {
+  var btn = document.getElementById('trialStartBtn');
+  btn.disabled = true; btn.textContent = 'Starting trial...';
+  try {
+    if (window._startTrial) {
+      await window._startTrial();
+      document.getElementById('trialOfferCard').style.display = 'none';
+      document.getElementById('trialActiveBanner').style.display = 'block';
+      var days = 7;
+      document.getElementById('trialDaysNum').textContent = days;
+      document.getElementById('trialPctTxt').textContent = '100%';
+      document.getElementById('trialProgressBar').style.width = '100%';
+      toast('🎉 7-day free trial started!','success');
     }
-    if (!window.PaystackPop) {
-      toast("Payment gateway loading… please try again in a moment", "info");
-      return;
-    }
+  } catch(e) { toast('Could not start trial. Try again.','error'); }
+  btn.disabled = false; btn.textContent = 'Start Free Trial →';
+}
 
-    var isMonthly = currentPlan === "monthly";
-    var amount    = isMonthly ? 200000 : 1440000; // kobo
-    var planLabel = isMonthly ? "Monthly" : "Yearly";
-    var ref       = "examora_" + (window._userId || "user") + "_" + Date.now();
+function startPayment() {
+  if (!_userEmail) { toast('Loading... try again shortly.','info'); return; }
+  var amount = Math.round(PRICES[_plan] * (1 - _discount/100)) * 100; // kobo
+  if (typeof PaystackPop === 'undefined') { toast('Payment system not loaded. Check internet.','error'); return; }
+  var handler = PaystackPop.setup({
+    key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // replace with real key
+    email: _userEmail,
+    amount: amount,
+    currency: 'NGN',
+    ref: 'EXAMORA_' + Date.now(),
+    metadata: { plan: _plan, promo: _promoCode, custom_fields: [{display_name:'App',variable_name:'app',value:'EXAMORA'}] },
+    callback: function(response) { handlePaymentSuccess(response); },
+    onClose: function() { toast('Payment cancelled','info'); }
+  });
+  handler.openIframe();
+}
 
-    var btn = document.getElementById("upgradeBtn");
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<div style="display:flex;align-items:center;gap:8px;justify-content:center;"><div style="width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.3);border-top-color:white;animation:spin 0.7s linear infinite;"></div> Opening payment…</div>';
+async function handlePaymentSuccess(response) {
+  toast('Payment successful! Activating premium...','success');
+  try {
+    if (window._activatePremium) {
+      await window._activatePremium(_plan, response.reference);
+      document.getElementById('premiumActive').style.display = 'block';
+      document.getElementById('priceCard').style.opacity = '0.5';
+      document.getElementById('payBtn').disabled = true;
+      document.getElementById('trialOfferCard').style.display = 'none';
+      document.getElementById('trialActiveBanner').style.display = 'none';
+      localStorage.setItem('examora_plan', 'premium');
+      setTimeout(function() { window.location.href = 'index.html'; }, 2000);
     }
-
-    try {
-      var handler = PaystackPop.setup({
-        key:      PAYSTACK_PK,
-        email:    window._userEmail,
-        amount:   amount,
-        currency: "NGN",
-        ref:      ref,
-        label:    "EXAMORA Premium — " + planLabel,
-        metadata: {
-          custom_fields: [
-            { display_name:"Plan",    variable_name:"plan",    value:currentPlan },
-            { display_name:"User ID", variable_name:"user_id", value:window._userId || "" }
-          ]
-        },
-        channels: ["card","bank","ussd","mobile_money","bank_transfer","qr"],
-        callback: function(response) {
-          toast("Payment confirmed! Activating Premium…", "success");
-          if (btn) { btn.disabled = false; btn.innerHTML = "⚡ Upgrade Now"; }
-          window._activatePremium(response.reference, currentPlan);
-        },
-        onClose: function() {
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = isMonthly ? "⚡ Upgrade Now — ₦2,000/mo" : "⚡ Upgrade Now — ₦14,400/yr";
-          }
-          toast("Payment cancelled. You can try again anytime.", "info");
-        }
-      });
-      handler.openIframe();
-    } catch (err) {
-      if (btn) { btn.disabled = false; btn.innerHTML = "⚡ Upgrade Now"; }
-      toast("Could not open payment window. Please try again.", "error");
-      console.error("Paystack error:", err);
-    }
-  }
+  } catch(e) { toast('Activated! Reload if needed.','success'); }
+}
 </script>
 
 <script type="module">
-  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app = initializeApp({
-    apiKey:            "AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
-    authDomain:        "cbt-app-5907f.firebaseapp.com",
-    projectId:         "cbt-app-5907f",
-    storageBucket:     "cbt-app-5907f.firebasestorage.app",
-    messagingSenderId: "705323924101",
-    appId:             "1:705323924101:web:ad9f153f25a0685a1287ec"
+const app = initializeApp({
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com",
+  projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101",
+  appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+});
+const auth = getAuth(app), db = getFirestore(app);
+
+window._startTrial = async () => {
+  const uid = window._uid; if (!uid) return;
+  const trialEnd = new Date(Date.now() + 7*24*60*60*1000).toISOString();
+  await updateDoc(doc(db,'users',uid), {
+    plan:'trial', trialStart:new Date().toISOString(), trialEnd, updatedAt:new Date().toISOString()
   });
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+  localStorage.setItem('examora_plan','trial');
+};
 
-  /* helpers */
-  function trialDaysLeft(ud) {
-    var allowed = ud.trialExamsAllowed || 3;
-    var used    = ud.trialExamsUsed    || 0;
-    return Math.max(0, allowed - used);
-  }
-  function isTrialActive(ud) {
-    if (ud.plan !== "trial") return false;
-    var allowed = ud.trialExamsAllowed || 3;
-    var used    = ud.trialExamsUsed    || 0;
-    return used < allowed;
-  }
-  function isTrialExpired(ud) {
-    if (ud.plan !== "trial") return false;
-    var allowed = ud.trialExamsAllowed || 3;
-    var used    = ud.trialExamsUsed    || 0;
-    return used >= allowed;
-  }
+window._activatePremium = async (plan, ref) => {
+  const uid = window._uid; if (!uid) return;
+  const expiry = plan==='yearly'
+    ? new Date(Date.now()+365*24*60*60*1000).toISOString()
+    : new Date(Date.now()+31*24*60*60*1000).toISOString();
+  await updateDoc(doc(db,'users',uid), {
+    plan:'premium', premiumSince:new Date().toISOString(),
+    premiumExpiry:expiry, paymentRef:ref, billingPlan:plan,
+    updatedAt:new Date().toISOString()
+  });
+  localStorage.setItem('examora_plan','premium');
+};
 
-  /* apply plan UI state */
-  function applyPlanUI(ud) {
-    const premiumEl    = document.getElementById("premiumActive");
-    const priceCard    = document.getElementById("priceCard");
-    const trialBanner  = document.getElementById("trialActiveBanner");
-    const trialOffer   = document.getElementById("trialOfferCard");
-    const finalCta     = document.getElementById("finalCta");
-    const urgencyStrip = document.getElementById("urgencyStrip");
-    const paywall      = document.getElementById("paywallOverlay");
+window._applyFreePremium = async () => {
+  const uid = window._uid; if (!uid) return;
+  const expiry = new Date(Date.now()+365*24*60*60*1000).toISOString();
+  await updateDoc(doc(db,'users',uid), {
+    plan:'premium', premiumSince:new Date().toISOString(),
+    premiumExpiry:expiry, promoActivated:true
+  }).catch(()=>{});
+  localStorage.setItem('examora_plan','premium');
+};
 
-    // Reset everything hidden first
-    premiumEl.style.display   = "none";
-    priceCard.style.display   = "block";
-    trialBanner.classList.remove("show");
-    trialOffer.classList.remove("show");
-    if (finalCta) finalCta.style.display = "block";
-    urgencyStrip.classList.remove("show");
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  window._uid   = user.uid;
+  window._userEmail = user.email;
+  _userEmail = user.email;
 
-    /* CASE 1: Already paid premium */
-    if (ud.plan === "premium") {
-      premiumEl.style.display  = "block";
-      priceCard.style.display  = "none";
-      if (finalCta) finalCta.style.display = "none";
-      return;
-    }
+  let ud = {};
+  try { const snap = await getDoc(doc(db,'users',user.uid)); if(snap.exists()) ud = snap.data(); } catch(e) {}
 
-    /* CASE 2: Active trial */
-    if (isTrialActive(ud)) {
-      const days = trialDaysLeft(ud);
-      const totalDays = ud.trialExamsAllowed || 3;
+  const plan = ud.plan || 'free';
+  localStorage.setItem('examora_plan', plan);
 
-      // Show countdown banner
-      trialBanner.classList.add("show");
-      document.getElementById("trialDaysNum").textContent = days;
-
-      // Progress bar — how much is left
-      const pct = Math.round((days / totalDays) * 100);
-      document.getElementById("trialProgressBar").style.width = pct + "%";
-      document.getElementById("trialProgressBar").style.background =
-        days <= 2 ? "linear-gradient(90deg,#ef4444,#f97316)" : "linear-gradient(90deg,#10b981,#34d399)";
-
-      // Urgency strip for last 2 days
-      if (days <= 1) {
-        urgencyStrip.classList.add("show");
-        document.getElementById("urgencyDays").textContent = days;
+  if (plan === 'premium') {
+    document.getElementById('premiumActive').style.display = 'block';
+    document.getElementById('priceCard').style.opacity = '0.5';
+    document.getElementById('payBtn').disabled = true;
+    document.getElementById('trialOfferCard').style.display = 'none';
+  } else if (plan === 'trial') {
+    // Show trial countdown
+    const trialEnd = ud.trialEnd ? new Date(ud.trialEnd) : null;
+    if (trialEnd) {
+      const now = new Date();
+      const daysLeft = Math.max(0, Math.ceil((trialEnd-now)/(1000*60*60*24)));
+      if (daysLeft <= 0) {
+        // Expired - show paywall
+        document.getElementById('paywallOverlay').classList.add('open');
+      } else {
+        document.getElementById('trialActiveBanner').style.display = 'block';
+        document.getElementById('trialDaysNum').textContent = daysLeft;
+        document.getElementById('trialPctTxt').textContent = Math.round((daysLeft/7)*100)+'%';
+        document.getElementById('trialProgressBar').style.width = Math.round((daysLeft/7)*100)+'%';
+        document.getElementById('trialOfferCard').style.display = 'none';
+        if (daysLeft <= 2) {
+          document.getElementById('urgencyStrip').classList.add('show');
+          document.getElementById('urgencyDays').textContent = daysLeft;
+        }
       }
-
-      // Still show price card so they can upgrade
-      priceCard.style.display = "block";
-      return;
     }
+  } else {
+    // Free - show trial offer
+    const hasUsedTrial = ud.trialStart || ud.trialUsed;
+    if (!hasUsedTrial) document.getElementById('trialOfferCard').style.display = 'block';
+  }
 
-    /* CASE 3: Trial has expired */
-    if (isTrialExpired(ud)) {
-      // Show paywall immediately
-      paywall.classList.add("show");
-      priceCard.style.display = "block";
-      return;
-    }
-
-    /* CASE 4:
+  updatePriceDisplay();
+});
 </script>
-
 <script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>

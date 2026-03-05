@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Payment Successful — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.wrap{max-width:var(--max-width);margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;}
+.confetti{font-size:3rem;animation:pop 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-ring{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;margin:16px auto;box-shadow:0 8px 32px rgba(16,185,129,0.4);animation:pop 0.5s 0.1s both cubic-bezier(0.34,1.56,0.64,1);}
+.success-icon{font-size:2.5rem;}
+.title{font-family:var(--font-display);font-weight:900;font-size:1.6rem;color:var(--text);margin-bottom:6px;animation:fadeIn 0.4s 0.3s both;}
+.subtitle{font-size:0.84rem;color:var(--text-3);line-height:1.7;margin-bottom:28px;animation:fadeIn 0.4s 0.4s both;}
+.receipt-card{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:20px;text-align:left;animation:fadeIn 0.4s 0.5s both;}
+.receipt-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.receipt-row:last-child{border-bottom:none;}
+.receipt-label{font-size:0.78rem;color:var(--text-3);}
+.receipt-value{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.receipt-value.green{color:var(--c-green);}
+.features-unlocked{width:100%;background:linear-gradient(135deg,#0f0e17,#1e1b4b);border-radius:20px;padding:20px;margin-bottom:20px;text-align:left;animation:fadeIn 0.4s 0.6s both;}
+.feat-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:0.82rem;color:rgba(255,255,255,0.75);}
+.feat-item::before{content:'✓';color:#10b981;font-weight:800;flex-shrink:0;}
+.btn-home{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:14px;font-family:var(--font-display);font-weight:800;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 20px rgba(99,102,241,0.4);transition:all 0.2s;animation:fadeIn 0.4s 0.7s both;}
+.btn-home:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(99,102,241,0.5);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="confetti">🎉</div>
+  <div class="success-ring"><span class="success-icon">✓</span></div>
+  <div class="title">Payment Successful!</div>
+  <div class="subtitle" id="subMsg">Welcome to EXAMORA Premium. Your account has been upgraded and you now have full access to all features.</div>
+
+  <div class="receipt-card">
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.85rem;color:var(--text);margin-bottom:12px;">🧾 Receipt</div>
+    <div class="receipt-row">
+      <span class="receipt-label">Plan</span>
+      <span class="receipt-value" id="rcPlan">Premium Monthly</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Amount Paid</span>
+      <span class="receipt-value green" id="rcAmount">₦2,500</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Date</span>
+      <span class="receipt-value" id="rcDate"></span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Reference</span>
+      <span class="receipt-value" id="rcRef" style="font-size:0.72rem;font-family:monospace;"></span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Next billing</span>
+      <span class="receipt-value" id="rcNext"></span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Status</span>
+      <span class="receipt-value green">✅ Active</span>
+    </div>
+  </div>
+
+  <div class="features-unlocked">
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.85rem;color:white;margin-bottom:12px;">🔓 Now Unlocked</div>
+    <div class="feat-item">Unlimited AI Tutor (NOVA) sessions</div>
+    <div class="feat-item">All 60,000+ past questions</div>
+    <div class="feat-item">Full offline mode</div>
+    <div class="feat-item">Unlimited mock exams</div>
+    <div class="feat-item">Advanced analytics & score prediction</div>
+    <div class="feat-item">AI flashcard generation</div>
+    <div class="feat-item">AI essay checker & step-by-step solver</div>
+    <div class="feat-item">Priority customer support</div>
+  </div>
+
+  <button class="btn-home" onclick="goHome()">Start Studying →</button>
+  <div style="margin-top:12px;font-size:0.72rem;color:var(--text-3);">A receipt has been sent to your email address.</div>
+</div>
+
+<script>
+var _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+
+// Read payment data from URL params or localStorage
+var params = new URLSearchParams(window.location.search);
+var plan  = params.get('plan') || localStorage.getItem('examora_last_plan') || 'monthly';
+var ref   = params.get('ref')  || localStorage.getItem('examora_last_ref')  || 'EXAMORA_' + Date.now();
+var amt   = params.get('amount') || (plan === 'yearly' ? '15,000' : '2,500');
+
+var now  = new Date();
+var next = new Date(now);
+if (plan === 'yearly') next.setFullYear(next.getFullYear() + 1);
+else next.setMonth(next.getMonth() + 1);
+
+function fmt(d) {
+  return d.toLocaleDateString('en-NG', {day:'numeric', month:'short', year:'numeric'});
+}
+
+document.getElementById('rcPlan').textContent  = plan === 'yearly' ? 'Premium Yearly' : 'Premium Monthly';
+document.getElementById('rcAmount').textContent = '₦' + amt;
+document.getElementById('rcDate').textContent   = fmt(now);
+document.getElementById('rcRef').textContent    = ref;
+document.getElementById('rcNext').textContent   = fmt(next);
+document.getElementById('subMsg').textContent   =
+  'Welcome to EXAMORA Premium! You now have full access to all features until ' + fmt(next) + '.';
+
+localStorage.setItem('examora_plan', 'premium');
+
+function goHome() {
+  window.location.href = 'index.html';
+}
+
+// Confetti particles
+(function() {
+  var colors = ['#6366f1','#10b981','#f59e0b','#f43f5e','#8b5cf6'];
+  for (var i = 0; i < 30; i++) {
+    (function(i) {
+      setTimeout(function() {
+        var el = document.createElement('div');
+        el.style.cssText = 'position:fixed;width:8px;height:8px;border-radius:2px;top:-10px;pointer-events:none;z-index:999;animation:fall 1.5s ease-in forwards;';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+        var style = document.createElement('style');
+        style.textContent = '@keyframes fall{to{top:110vh;transform:rotate('+(Math.random()*720)+'deg);opacity:0;}}';
+        document.head.appendChild(style);
+        document.body.appendChild(el);
+        setTimeout(function(){el.remove();}, 1600);
+      }, i * 60);
+    })(i);
+  }
+})();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});</script>
+</body>
+</html>

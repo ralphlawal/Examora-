@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Essay Checker — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.app-container{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:30px;}
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s ease;flex-shrink:0;color:var(--text-2);}
+.icon-btn span{font-size:1.15rem;}
+.score-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:24px 16px 16px;}
+.score-ring{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;}
+.score-inner{width:76px;height:76px;border-radius:50%;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:var(--font-display);font-weight:900;font-size:1.5rem;line-height:1;}
+.score-denom{font-size:0.6rem;color:var(--text-3);}
+.feedback-section{margin:0 16px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;}
+.feedback-section h4{font-family:var(--font-display);font-weight:800;font-size:0.82rem;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.feedback-section p{font-size:0.81rem;line-height:1.7;color:var(--text-2);}
+.feedback-section ul{padding-left:18px;font-size:0.81rem;line-height:1.8;color:var(--text-2);}
+.improved-box{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(99,102,241,0.03));border:1.5px solid rgba(99,102,241,0.2);border-radius:14px;padding:14px;font-size:0.83rem;line-height:1.7;color:var(--text-2);font-style:italic;}
+.word-counter{font-size:0.68rem;color:var(--text-3);text-align:right;margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Answer Checker</div>
+    <button class="icon-btn" onclick="clearAll()"><span class="material-symbols-rounded">refresh</span></button>
+  </div>
+
+  <div id="inputView" style="padding:16px;">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#0f172a);border-radius:18px;padding:18px;margin-bottom:16px;border:1px solid rgba(99,102,241,0.3);">
+      <div style="font-size:1.4rem;margin-bottom:8px;">📝</div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:white;margin-bottom:4px;">AI Answer Checker</div>
+      <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);line-height:1.6;">Write your exam answer and NOVA will score it, find gaps, and show you a model answer. Perfect for essay, theory, and short-answer questions.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Subject</label>
+      <select class="form-select" id="essaySubject">
+        <option value="">General</option>
+        <option>English Language</option><option>Literature in English</option>
+        <option>Mathematics</option><option>Physics</option><option>Chemistry</option>
+        <option>Biology</option><option>Economics</option><option>Government</option>
+        <option>History</option><option>Geography</option><option>Commerce</option>
+        <option>Agricultural Science</option><option>Computer Studies</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Question (optional but helps scoring)</label>
+      <textarea class="form-input" id="essayQuestion" rows="2" placeholder="Paste the exam question here..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Answer</label>
+      <textarea class="form-input" id="essayAnswer" rows="7" oninput="updateWordCount()" placeholder="Write your answer here. Minimum 30 words for a useful score."></textarea>
+      <div class="word-counter" id="wordCount">0 words</div>
+    </div>
+    <button class="btn btn-primary" id="checkBtn" onclick="checkEssay()">
+      <span class="material-symbols-rounded" style="font-size:1rem;">rate_review</span>
+      Check My Answer
+    </button>
+  </div>
+
+  <div id="resultView" style="display:none;">
+    <div class="score-ring-wrap">
+      <div class="score-ring" id="scoreRingEl" style="background:conic-gradient(var(--c-brand) 0deg, var(--bg-input) 0deg);">
+        <div class="score-inner">
+          <div class="score-num" id="scoreNum">—</div>
+          <div class="score-denom">/10</div>
+        </div>
+      </div>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-top:10px;" id="scoreLabel">—</div>
+      <div style="font-size:0.74rem;color:var(--text-3);margin-top:4px;" id="scoreJustification"></div>
+    </div>
+
+    <div class="feedback-section" id="strengthsSection">
+      <h4><span style="color:var(--c-green);">✅</span> Strengths</h4>
+      <p id="strengthsText"></p>
+    </div>
+    <div class="feedback-section" id="missingsSection">
+      <h4><span style="color:var(--c-red);">⚠️</span> Missing / Wrong Points</h4>
+      <p id="missingsText"></p>
+    </div>
+    <div class="feedback-section">
+      <h4><span style="color:var(--c-brand);">✨</span> Model Answer</h4>
+      <div class="improved-box" id="improvedText"></div>
+    </div>
+    <div class="feedback-section" id="tipSection">
+      <h4><span style="color:var(--c-gold);">💡</span> Examiner Tip</h4>
+      <p id="tipText"></p>
+    </div>
+    <div style="padding:0 16px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn btn-ghost" onclick="showInput()">← Try Again</button>
+      <button class="btn btn-primary" onclick="saveToNotes()">📝 Save Feedback</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon" class="toast-icon"></span><span id="toastMsg"></span></div>
+
+<script src="ai-engine.js"></script>
+<script>
+var _theme=localStorage.getItem('examora_theme')||'light';
+document.documentElement.setAttribute('data-theme',_theme);
+var _lastResult=null;
+
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  document.getElementById('toastIcon').textContent={success:'OK',error:'!',warning:'?',info:'i'}[type]||'i';
+  document.getElementById('toastMsg').textContent=msg;
+  t.className='toast show '+(type||'info');
+  setTimeout(function(){t.className='toast';},3200);
+}
+
+function updateWordCount(){
+  var words=document.getElementById('essayAnswer').value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wordCount').textContent=words+' word'+(words!==1?'s':'');
+}
+
+function clearAll(){
+  document.getElementById('essayAnswer').value='';
+  document.getElementById('essayQuestion').value='';
+  updateWordCount();
+  showInput();
+}
+
+function showInput(){
+  document.getElementById('inputView').style.display='block';
+  document.getElementById('resultView').style.display='none';
+}
+
+async function checkEssay(){
+  var essay=document.getElementById('essayAnswer').value.trim();
+  var question=document.getElementById('essayQuestion').value.trim();
+  var subject=document.getElementById('essaySubject').value;
+  if(essay.split(/\s+/).filter(Boolean).length<10){toast('Write at least 10 words','warning');return;}
+  var btn=document.getElementById('checkBtn');
+  btn.disabled=true;btn.textContent='NOVA is marking...';
+  try{
+    var res=await EXAMORA_AI.checkEssay(essay,question,subject);
+    _lastResult={essay,question,subject,feedback:res.text};
+    parseAndRender(res.text,subject);
+    document.getElementById('inputView').style.display='none';
+    document.getElementById('resultView').style.display='block';
+    window.scrollTo(0,0);
+  }catch(e){
+    toast('Check failed: '+(e.message||'Try again'),'error');
+  }
+  btn.disabled=false;btn.innerHTML='<span class="material-symbols-rounded" style="font-size:1rem;">rate_review</span> Check My Answer';
+}
+
+function parseAndRender(text,subject){
+  // Extract score
+  var scoreMatch=text.match(/score[:\s]+(\d+)\s*\/\s*10/i);
+  var score=scoreMatch?parseInt(scoreMatch[1]):5;
+  var pct=score/10;
+  var col=score>=8?'#10b981':score>=6?'#f59e0b':score>=4?'#f97316':'#f43f5e';
+  var label=score>=8?'Excellent!':score>=6?'Good work':score>=4?'Needs work':'Needs major improvement';
+  
+  // Animated ring
+  var deg=Math.round(pct*360);
+  document.getElementById('scoreRingEl').style.background=
+    'conic-gradient('+col+' '+deg+'deg, var(--bg-input) '+deg+'deg)';
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreNum').style.color=col;
+  document.getElementById('scoreLabel').textContent=label;
+  
+  // Split sections by numbered headings
+  var sections=text.split(/
+(?=\d+\.|\*\*\d+)/);
+  var strength='',missing='',improved='',tip='',justification='';
+  
+  // Try to extract justification from score line
+  var justMatch=text.match(/score[:\s]+\d+\s*\/\s*10[\s\-:]+([^
+]+)/i);
+  if(justMatch)justification=justMatch[1].trim();
+  
+  text.split('
+').forEach(function(line){
+    var l=line.toLowerCase();
+    if(l.includes('strength')||l.includes('correct')||l.includes('good point')){strength+=line+'
+';}
+    else if(l.includes('missing')||l.includes('wrong')||l.includes('incorrect')||l.includes('lack')){missing+=line+'
+';}
+    else if(l.includes('improved')||l.includes('model')||l.includes('better answer')||l.includes('suggested')){improved+=line+'
+';}
+    else if(l.includes('tip')||l.includes('examiner')||l.includes('remember')){tip+=line+'
+';}
+  });
+  
+  // Fallback: just show full text split in thirds
+  if(!strength&&!missing){
+    var lines=text.split('
+').filter(function(l){return l.trim();});
+    var third=Math.floor(lines.length/3);
+    strength=lines.slice(0,third).join('
+');
+    missing=lines.slice(third,third*2).join('
+');
+    improved=lines.slice(third*2).join('
+');
+  }
+  
+  function fmt(s){return s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/
+/g,'<br>').replace(/^[\d\.\-\*\s]+/,'');}
+  document.getElementById('scoreJustification').textContent=justification;
+  document.getElementById('strengthsText').innerHTML=fmt(strength||'Good attempt at the answer.');
+  document.getElementById('missingsText').innerHTML=fmt(missing||'Review key concepts for this topic.');
+  document.getElementById('improvedText').innerHTML=fmt(improved||text);
+  document.getElementById('tipText').innerHTML=fmt(tip||'Keep practising — consistency is key!');
+}
+
+function saveToNotes(){
+  if(!_lastResult)return;
+  var notes=[];
+  try{notes=JSON.parse(localStorage.getItem('examora_notes')||'[]');}catch(_){}
+  notes.unshift({
+    title:'Answer Feedback: '+(_lastResult.question||_lastResult.subject||'Essay').slice(0,50),
+    body:'Question: '+(_lastResult.question||'N/A')+'
+
+My answer:
+'+_lastResult.essay+'
+
+--- NOVA Feedback ---
+'+_lastResult.feedback,
+    color:'#10b981',subject:_lastResult.subject||'General',
+    created:Date.now(),updated:Date.now()
+  });
+  localStorage.setItem('examora_notes',JSON.stringify(notes));
+  toast('Saved to Notes ✓','success');
+}
+</script>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,doc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+const auth=getAuth(app),db=getFirestore(app);
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href='login.html';return;}
+  try{
+    const aiSnap=await getDoc(doc(db,'settings','ai'));
+    if(aiSnap.exists()){const k=aiSnap.data().openRouterKeys||[];if(k.length)localStorage.setItem('examora_ai_keys',JSON.stringify(k));}
+  }catch(_){}
+});
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

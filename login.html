@@ -1,507 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EXAMORA — Sign In</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="logo.png"/>
-  <link rel="apple-touch-icon" href="logo.png"/>
-  <link rel="manifest" href="manifest.json"/>
-  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
-  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
-  <meta property="og:image" content="og-image.png"/>
-  <meta name="application-name" content="EXAMORA"/>
-  <meta name="theme-color" content="#0f172a"/>
-  <style>
-    body { padding-bottom: 0; display: flex; flex-direction: column; min-height: 100vh; }
-    .login-page {
-      flex: 1; display: flex; flex-direction: column;
-      max-width: var(--max-width); margin: 0 auto; width: 100%;
-    }
-
-    /* Brand hero */
-    .login-top {
-      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
-      padding: 48px 28px 40px; position: relative; overflow: hidden; text-align: center;
-    }
-    .login-top::before {
-      content:''; position:absolute; top:-60px; right:-60px;
-      width:200px; height:200px; border-radius:50%;
-      background:rgba(99,102,241,0.12); pointer-events:none;
-    }
-    .login-top::after {
-      content:''; position:absolute; bottom:-40px; left:-40px;
-      width:150px; height:150px; border-radius:50%;
-      background:rgba(16,185,129,0.08); pointer-events:none;
-    }
-    .login-logo-wrap {
-      width:72px; height:72px; border-radius:22px; overflow:hidden;
-      margin:0 auto 16px; position:relative; z-index:1;
-      box-shadow: 0 8px 32px rgba(99,102,241,0.5);
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      display:flex; align-items:center; justify-content:center;
-    }
-    .login-logo-wrap img { width:100%; height:100%; object-fit:contain; }
-    .login-brand-name {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
-      font-size:2rem; color:white; letter-spacing:-1px; margin-bottom:5px;
-      position:relative; z-index:1;
-    }
-    .login-brand-sub {
-      font-size:0.8rem; color:rgba(255,255,255,0.4);
-      position:relative; z-index:1;
-    }
-
-    /* Feature chips */
-    .features-row {
-      display:grid; grid-template-columns:repeat(3,1fr);
-      gap:8px; padding:18px 18px 0;
-    }
-    .feature-chip {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:14px; padding:12px 8px; text-align:center;
-      box-shadow:var(--shadow-xs);
-    }
-    .feature-chip .fi { font-size:1.3rem; margin-bottom:4px; display:block; }
-    .feature-chip p {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-      font-size:0.62rem; color:var(--text-2); line-height:1.3;
-    }
-
-    /* Tab switcher */
-    .auth-tabs {
-      display:flex; background:var(--bg-input);
-      border-radius:12px; padding:4px;
-      margin:18px 18px 0; border:1px solid var(--border);
-    }
-    .auth-tab {
-      flex:1; padding:10px; border-radius:9px;
-      font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:700; font-size:0.84rem; color:var(--text-3);
-      cursor:pointer; transition:all 0.2s ease; text-align:center;
-    }
-    .auth-tab.active {
-      background:var(--bg-card); color:var(--text);
-      box-shadow:0 2px 8px rgba(15,23,42,0.08);
-    }
-
-    .login-form-area { padding:18px 18px 24px; flex:1; }
-    .form-group { margin-bottom:14px; }
-
-    /* Error / success banners */
-    .msg-banner {
-      display:none; align-items:flex-start; gap:10px;
-      border-radius:12px; padding:11px 14px;
-      font-size:0.8rem; font-weight:600; margin-bottom:14px; line-height:1.5;
-    }
-    .msg-banner.show { display:flex; animation:fadeInDown 0.22s ease; }
-    .msg-banner-icon {
-      width:24px; height:24px; border-radius:7px; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-size:0.8rem; margin-top:1px;
-    }
-    .msg-banner.error {
-      background:rgba(244,63,94,0.08); border:1.5px solid rgba(244,63,94,0.25); color:#f43f5e;
-    }
-    .msg-banner.error .msg-banner-icon { background:rgba(244,63,94,0.15); }
-    .msg-banner.success {
-      background:rgba(16,185,129,0.08); border:1.5px solid rgba(16,185,129,0.25); color:#10b981;
-    }
-    .msg-banner.success .msg-banner-icon { background:rgba(16,185,129,0.15); }
-    .msg-banner.info {
-      background:rgba(99,102,241,0.08); border:1.5px solid rgba(99,102,241,0.25); color:#818cf8;
-    }
-    .msg-banner.info .msg-banner-icon { background:rgba(99,102,241,0.15); }
-
-    /* Password toggle */
-    .input-wrap { position:relative; }
-    .input-wrap .form-input { padding-right:46px; }
-    .pw-toggle {
-      position:absolute; right:12px; top:50%; transform:translateY(-50%);
-      background:none; border:none; cursor:pointer;
-      color:var(--text-3); font-size:1rem; padding:4px;
-    }
-
-    /* Loading */
-    .btn-spinner {
-      width:16px; height:16px; border-radius:50%;
-      border:2.5px solid rgba(255,255,255,0.3);
-      border-top-color:white; animation:spin 0.7s linear infinite;
-      display:none; flex-shrink:0;
-    }
-    .loading .btn-spinner { display:block; }
-    .loading .btn-text    { display:none; }
-
-    .forgot-link {
-      display:block; text-align:right;
-      font-size:0.73rem; font-weight:700;
-      color:var(--c-brand); text-decoration:none;
-      margin-top:-8px; margin-bottom:14px;
-    }
-    .forgot-link:hover { text-decoration:underline; }
-
-    .terms-text {
-      font-size:0.68rem; color:var(--text-3);
-      text-align:center; line-height:1.7; margin-top:14px;
-    }
-    .terms-text a { color:var(--c-brand); font-weight:600; }
-
-    /* Install banner */
-    .install-banner {
-      display:none; align-items:center; gap:12px;
-      background:var(--bg-card); border:1.5px solid rgba(99,102,241,0.3);
-      border-radius:14px; padding:12px 14px;
-      margin:14px 18px 0; box-shadow:var(--shadow-sm);
-    }
-    .install-banner.show { display:flex; animation:fadeIn 0.3s ease; }
-    .install-text { flex:1; }
-    .install-text strong {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
-      font-size:0.8rem; color:var(--text); display:block; margin-bottom:2px;
-    }
-    .install-text span { font-size:0.68rem; color:var(--text-3); }
-    .install-btn {
-      background:var(--c-brand); color:white;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-      font-size:0.7rem; padding:7px 14px; border-radius:100px;
-      border:none; cursor:pointer; flex-shrink:0;
-      box-shadow:0 2px 8px rgba(99,102,241,0.35);
-    }
-
-    /* Support footer */
-    .support-footer {
-      text-align:center; padding:16px 20px 28px;
-      font-size:0.7rem; color:var(--text-3); line-height:1.9;
-      border-top:1px solid var(--border); margin-top:auto;
-    }
-    .support-footer a { color:var(--c-brand); font-weight:700; text-decoration:none; }
-    .support-footer a:hover { text-decoration:underline; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sign In — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.wrap{max-width:var(--max-width);margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:24px 20px 48px;}
+.logo-wrap{text-align:center;margin-bottom:32px;}
+.logo-icon{width:68px;height:68px;border-radius:22px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:inline-flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:12px;box-shadow:0 8px 32px rgba(99,102,241,0.35);}
+.logo-name{font-family:var(--font-display);font-weight:900;font-size:1.7rem;color:var(--text);letter-spacing:-0.5px;}
+.logo-sub{font-size:0.78rem;color:var(--text-3);margin-top:3px;}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:24px 20px 20px;}
+.tabs{display:flex;background:var(--bg-input);border-radius:12px;padding:3px;margin-bottom:20px;}
+.tab{flex:1;padding:9px;text-align:center;border-radius:9px;font-family:var(--font-display);font-weight:700;font-size:0.8rem;cursor:pointer;transition:all 0.18s;color:var(--text-3);}
+.tab.on{background:var(--bg-card);color:var(--c-brand);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.fg{margin-bottom:14px;}
+.fl{display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;}
+.fi{width:100%;padding:12px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;transition:all 0.18s;outline:none;box-sizing:border-box;}
+.fi:focus{border-color:var(--c-brand);background:var(--bg-card);box-shadow:0 0 0 3px rgba(99,102,241,0.12);}
+.fi::placeholder{color:var(--text-3);}
+.pw-wrap{position:relative;}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-3);padding:4px;font-size:0.9rem;}
+.forgot{display:block;text-align:right;font-size:0.74rem;color:var(--c-brand);font-weight:600;cursor:pointer;margin-top:-6px;margin-bottom:16px;}
+.btn-main{width:100%;padding:13px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:12px;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(99,102,241,0.35);}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(99,102,241,0.45);}
+.btn-main:active{transform:scale(0.98);}
+.btn-main:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-txt{font-size:0.7rem;color:var(--text-3);font-weight:600;flex-shrink:0;}
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);cursor:pointer;transition:all 0.18s;box-sizing:border-box;}
+.btn-google:hover{border-color:var(--c-brand);background:var(--bg-input);}
+.err{display:none;padding:10px 14px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.25);border-radius:10px;font-size:0.78rem;color:var(--c-red);font-weight:600;margin-bottom:12px;line-height:1.5;}
+.err.on{display:block;}
+.ok{display:none;padding:10px 14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;font-size:0.78rem;color:var(--c-green);font-weight:600;margin-bottom:12px;line-height:1.5;}
+.ok.on{display:block;}
+.tnote{font-size:0.68rem;color:var(--text-3);text-align:center;margin-top:14px;line-height:1.6;}
+.tnote a{color:var(--c-brand);text-decoration:none;font-weight:600;}
+</style>
 </head>
 <body>
-
-<div class="login-page">
-
-  <!-- Brand hero -->
-  <div class="login-top animate-in">
-    <div class="login-logo-wrap">
-      <img src="logo.png" alt="EXAMORA"
-        onerror="this.style.display='none';this.parentElement.innerHTML='EX';"/>
-    </div>
-    <div class="login-brand-name">EXAMORA</div>
-    <div class="login-brand-sub">Test · Train · Triumph</div>
+<div class="wrap">
+  <div class="logo-wrap">
+    <div class="logo-icon">📚</div>
+    <div class="logo-name">EXAMORA</div>
+    <div class="logo-sub">Nigeria's smartest exam prep — powered by AI</div>
   </div>
 
-  <!-- Install Banner -->
-  <div class="install-banner" id="installBanner">
-    <span style="font-size:1.7rem;flex-shrink:0;">📲</span>
-    <div class="install-text">
-      <strong>Install EXAMORA App</strong>
-      <span id="installHint">Add to your home screen — study anytime, even offline</span>
-    </div>
-    <button class="install-btn" id="installBannerBtn">Install</button>
-  </div>
-
-  <!-- Feature chips -->
-  <div class="features-row animate-in animate-in-delay-1">
-    <div class="feature-chip">
-      <div class="fi">🎓</div>
-      <p>SAT · GRE · IELTS<br/>JAMB · A-Levels &amp; more</p>
-    </div>
-    <div class="feature-chip">
-      <div class="fi">💡</div>
-      <p>AI<br/>Explanations</p>
-    </div>
-    <div class="feature-chip">
-      <div class="fi">📊</div>
-      <p>Track<br/>Your Progress</p>
-    </div>
-  </div>
-
-  <!-- Tabs -->
-  <div class="auth-tabs animate-in animate-in-delay-2">
-    <div class="auth-tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</div>
-    <div class="auth-tab"       id="tabSignUp" onclick="switchTab('signup')">Create Account</div>
-  </div>
-
-  <!-- Form -->
-  <div class="login-form-area animate-in animate-in-delay-2">
-
-    <!-- Message banner (error / success / info) -->
-    <div class="msg-banner error" id="errBanner">
-      <div class="msg-banner-icon">⚠️</div>
-      <span id="errMsg">Something went wrong</span>
-    </div>
-    <div class="msg-banner success" id="successBanner">
-      <div class="msg-banner-icon">✅</div>
-      <span id="successMsg">Done!</span>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab on" id="tab-in" onclick="setMode('login')">Sign In</div>
+      <div class="tab" id="tab-up" onclick="setMode('register')">Create Account</div>
     </div>
 
-    <!-- Email -->
-    <div class="form-group">
-      <label class="form-label">Email address</label>
-      <input type="email" class="form-input" id="emailInput"
-        placeholder="you@example.com" autocomplete="email"/>
-    </div>
+    <div class="err" id="errBox"></div>
+    <div class="ok"  id="okBox"></div>
 
-    <!-- Full name (signup) -->
-    <div class="form-group" id="nameGroup" style="display:none;">
-      <label class="form-label">Full name</label>
-      <input type="text" class="form-input" id="nameInput"
-        placeholder="e.g. Chioma Obi" autocomplete="name"/>
+    <div class="fg">
+      <label class="fl">Email address</label>
+      <input class="fi" type="email" id="emailInput" placeholder="you@email.com" autocomplete="email"/>
     </div>
-
-    <!-- Password -->
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <div class="input-wrap">
-        <input type="password" class="form-input" id="pwInput"
-          placeholder="Enter password" autocomplete="current-password"/>
-        <button class="pw-toggle" onclick="togglePw('pwInput','pwEye')" type="button" id="pwEye">👁</button>
+    <div class="fg">
+      <label class="fl">Password</label>
+      <div class="pw-wrap">
+        <input class="fi" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()"/>
+        <button class="pw-eye" onclick="togglePw()" type="button">👁</button>
       </div>
     </div>
 
-    <!-- Confirm password (signup) -->
-    <div class="form-group" id="confirmGroup" style="display:none;">
-      <label class="form-label">Confirm password</label>
-      <div class="input-wrap">
-        <input type="password" class="form-input" id="confirmInput"
-          placeholder="Re-enter password" autocomplete="new-password"/>
-        <button class="pw-toggle" onclick="togglePw('confirmInput','pwEye2')" type="button" id="pwEye2">👁</button>
-      </div>
+    <span class="forgot" id="forgotBtn" onclick="forgotPw()">Forgot password?</span>
+
+    <button class="btn-main" id="mainBtn" onclick="doAuth()">Sign In →</button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-txt">or continue with</span>
+      <div class="divider-line"></div>
     </div>
 
-    <!-- Forgot link (signin only) -->
-    <a href="#" class="forgot-link" id="forgotLink" onclick="forgotPassword();return false;">
-      Forgot password?
-    </a>
-
-    <!-- Submit -->
-    <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()">
-      <div class="btn-spinner"></div>
-      <span class="btn-text" id="submitText">Sign In →</span>
+    <button class="btn-google" onclick="googleAuth()" type="button">
+      <svg width="18" height="18" viewBox="0 0 48 48">
+        <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l6-6C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9l6-6C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/>
+        <path fill="#4CAF50" d="M24 44c5.2 0 10-1.9 13.7-5l-6.3-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.6-3.5-11.1-8.3l-6.5 5C9.5 39.8 16.3 44 24 44z"/>
+        <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.9 6l6.3 5.2C40.6 35.5 44 30.2 44 24c0-1.3-.1-2.7-.4-4z"/>
+      </svg>
+      Continue with Google
     </button>
 
-    <!-- Terms (signup) -->
-    <p class="terms-text" id="termsText" style="display:none;">
-      By creating an account you agree to our
-      <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-    </p>
-
+    <div class="tnote">By continuing you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a></div>
   </div>
-
-  <!-- Support footer -->
-  <div class="support-footer animate-in animate-in-delay-3">
-    Having trouble?
-    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
-    <br/>
-    © 2025 EXAMORA &nbsp;·&nbsp; Nigeria's CBT Exam Prep Platform
-  </div>
-
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast">
-  <span class="toast-icon" id="toastIcon"></span>
-  <span id="toastMsg"></span>
 </div>
 
 <script>
-  // Theme
-  const _t = localStorage.getItem("examora_theme") || "light";
-  document.documentElement.setAttribute("data-theme", _t);
+const _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
 
-  // Toast
-  function toast(msg, type="", dur=3200){
-    const el  = document.getElementById("toast");
-    const ico = document.getElementById("toastIcon");
-    const txt = document.getElementById("toastMsg");
-    const icons = { success:"✓", error:"✕", info:"i", warning:"!" };
-    el.className = "toast" + (type ? " toast-"+type : "");
-    ico.textContent = icons[type]||""; ico.style.display = type?"flex":"none";
-    txt.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(el._t);
-    el._t = setTimeout(()=>el.classList.remove("show"), dur);
-  }
+var _mode = 'login';
 
-  function showErr(msg){
-    const b=document.getElementById("errBanner");
-    document.getElementById("errMsg").textContent=msg;
-    document.getElementById("successBanner").classList.remove("show");
-    b.classList.add("show");
-    clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove("show"),8000);
-  }
+function setMode(m) {
+  _mode = m;
+  document.getElementById('tab-in').classList.toggle('on', m === 'login');
+  document.getElementById('tab-up').classList.toggle('on', m === 'register');
+  document.getElementById('mainBtn').textContent = m === 'login' ? 'Sign In →' : 'Create Account →';
+  document.getElementById('forgotBtn').style.display = m === 'login' ? 'block' : 'none';
+  clearMsg();
+}
 
-  function showOk(msg){
-    const b=document.getElementById("successBanner");
-    document.getElementById("successMsg").textContent=msg;
-    document.getElementById("errBanner").classList.remove("show");
-    b.classList.add("show");
-  }
+function showErr(msg) {
+  document.getElementById('errBox').textContent = msg;
+  document.getElementById('errBox').classList.add('on');
+  document.getElementById('okBox').classList.remove('on');
+}
+function showOk(msg) {
+  document.getElementById('okBox').textContent = msg;
+  document.getElementById('okBox').classList.add('on');
+  document.getElementById('errBox').classList.remove('on');
+}
+function clearMsg() {
+  document.getElementById('errBox').classList.remove('on');
+  document.getElementById('okBox').classList.remove('on');
+}
 
-  window._mode="signin";
+function togglePw() {
+  var inp = document.getElementById('passInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
 
-  function switchTab(tab){
-    window._mode=tab;
-    const s=tab==="signup";
-    document.getElementById("tabSignIn").classList.toggle("active",!s);
-    document.getElementById("tabSignUp").classList.toggle("active",s);
-    document.getElementById("nameGroup").style.display    =s?"block":"none";
-    document.getElementById("confirmGroup").style.display =s?"block":"none";
-    document.getElementById("forgotLink").style.display   =s?"none":"block";
-    document.getElementById("submitText").textContent     =s?"Create Account →":"Sign In →";
-    document.getElementById("termsText").style.display    =s?"block":"none";
-    document.getElementById("pwInput").autocomplete=s?"new-password":"current-password";
-    document.getElementById("errBanner").classList.remove("show");
-    document.getElementById("successBanner").classList.remove("show");
-  }
+function busy(on) {
+  var btn = document.getElementById('mainBtn');
+  btn.disabled = on;
+  btn.textContent = on ? 'Please wait...' : (_mode === 'login' ? 'Sign In →' : 'Create Account →');
+}
 
-  function togglePw(inputId, btnId){
-    const i=document.getElementById(inputId);
-    const b=document.getElementById(btnId);
-    const show=i.type==="password";
-    i.type=show?"text":"password"; b.textContent=show?"🙈":"👁";
-  }
+function doAuth() { _mode === 'login' ? signIn() : register(); }
 
-  function setLoading(state){
-    const btn=document.getElementById("submitBtn");
-    btn.classList.toggle("loading",state); btn.disabled=state;
-  }
+var ERRS = {
+  'auth/user-not-found': 'No account found with that email.',
+  'auth/wrong-password': 'Incorrect password.',
+  'auth/invalid-credential': 'Invalid email or password.',
+  'auth/invalid-email': 'Invalid email address.',
+  'auth/too-many-requests': 'Too many attempts. Try again later.',
+  'auth/email-already-in-use': 'An account with this email already exists.',
+  'auth/weak-password': 'Password must be at least 6 characters.',
+  'auth/network-request-failed': 'No internet connection.'
+};
 
-  document.addEventListener("keydown",e=>{ if(e.key==="Enter") handleSubmit(); });
-
-  // PWA install prompt
-  let _deferredPrompt=null;
-  window.addEventListener("beforeinstallprompt",e=>{
-    e.preventDefault(); _deferredPrompt=e;
-    document.getElementById("installBanner").classList.add("show");
-  });
-  document.getElementById("installBannerBtn").addEventListener("click",async()=>{
-    if(!_deferredPrompt) return;
-    _deferredPrompt.prompt();
-    const {outcome}=await _deferredPrompt.userChoice;
-    if(outcome==="accepted"){
-      document.getElementById("installBanner").classList.remove("show");
-      _deferredPrompt=null;
+async function signIn() {
+  var email = document.getElementById('emailInput').value.trim();
+  var pass  = document.getElementById('passInput').value;
+  if (!email || !pass) { showErr('Please fill in all fields.'); return; }
+  busy(true);
+  try {
+    var cred = await window._signIn(email, pass);
+    if (!cred.user.emailVerified) {
+      showErr('Please verify your email first. Check your inbox and spam folder.');
+      busy(false); return;
     }
-  });
-  // iOS hint
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.navigator.standalone;
-  if(isIOS){
-    document.getElementById("installBanner").classList.add("show");
-    document.getElementById("installHint").textContent=
-      "Tap the Share icon then 'Add to Home Screen' to install";
-    document.getElementById("installBannerBtn").style.display="none";
+    localStorage.setItem('examora_user_display', cred.user.displayName || email.split('@')[0]);
+    window.location.href = 'index.html';
+  } catch(e) { showErr(ERRS[e.code] || e.message || 'Sign in failed.'); busy(false); }
+}
+
+async function register() {
+  var email = document.getElementById('emailInput').value.trim();
+  var pass  = document.getElementById('passInput').value;
+  if (!email || !pass) { showErr('Please fill in all fields.'); return; }
+  if (pass.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+  busy(true);
+  try {
+    var cred = await window._register(email, pass);
+    await window._sendVerification(cred.user);
+    await window._createDoc(cred.user);
+    showOk('Account created! Check your email to verify, then sign in.');
+    setMode('login');
+  } catch(e) { showErr(ERRS[e.code] || e.message || 'Registration failed.'); }
+  busy(false);
+}
+
+async function forgotPw() {
+  var email = document.getElementById('emailInput').value.trim();
+  if (!email) { showErr('Enter your email address first.'); return; }
+  try {
+    await window._resetPw(email);
+    showOk('Password reset email sent! Check your inbox.');
+  } catch(e) { showErr('Could not send reset email. Check the address.'); }
+}
+
+async function googleAuth() {
+  try {
+    var r = await window._googleAuth();
+    localStorage.setItem('examora_user_display', r.name);
+    window.location.href = r.isNew ? 'onboarding.html' : 'index.html';
+  } catch(e) {
+    if (e.code !== 'auth/popup-closed-by-user') showErr('Google sign-in failed. Try email instead.');
   }
+}
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getAuth, onAuthStateChanged,
-    signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    sendPasswordResetEmail, updateProfile, sendEmailVerification
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         sendPasswordResetEmail, sendEmailVerification,
+         GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app=initializeApp({
-    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
-    authDomain:"cbt-app-5907f.firebaseapp.com",
-    projectId:"cbt-app-5907f",
-    storageBucket:"cbt-app-5907f.firebasestorage.app",
-    messagingSenderId:"705323924101",
-    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
-  });
-  const auth=getAuth(app), db=getFirestore(app);
+const app = initializeApp({
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com",
+  projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101",
+  appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const gp   = new GoogleAuthProvider();
 
-  // Auto-redirect if signed in
-  onAuthStateChanged(auth,async user=>{
-    if(!user) return;
-    try{
-      const snap=await getDoc(doc(db,"users",user.uid));
-      if(snap.exists())
-        window.location.href=snap.data().onboarded===false?"onboarding.html":"index.html";
-    }catch(_){}
-  });
+onAuthStateChanged(auth, user => {
+  if (user && user.emailVerified) window.location.href = 'index.html';
+});
 
-  async function ensureUserDoc(user,name){
-    const ref=doc(db,"users",user.uid);
-    const snap=await getDoc(ref);
-    if(!snap.exists()){
-      await setDoc(ref,{
-        displayName: name||user.displayName||user.email.split("@")[0],
-        email: user.email, plan:"free", role:"user",
-        streak:0, totalExams:0, totalCorrect:0, totalQuestions:0,
-        badges:[], onboarded:false,
-        createdAt:new Date().toISOString(), lastActive:new Date().toDateString()
-      });
-      return "new";
-    }
-    return "existing";
+async function makeDoc(user) {
+  const ref  = doc(db, 'users', user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      displayName: user.displayName || user.email.split('@')[0],
+      email: user.email, photoURL: user.photoURL || '',
+      plan: 'free', streak: 0, totalExams: 0,
+      totalCorrect: 0, totalQuestions: 0,
+      badges: [], xp: 0, createdAt: serverTimestamp(), onboarded: false
+    }, { merge: true });
+    return true;
   }
+  return false;
+}
 
-  const ERRS={
-    "auth/user-not-found":        "No account found with this email address",
-    "auth/wrong-password":        "Incorrect password — please try again",
-    "auth/invalid-credential":    "Email or password is incorrect",
-    "auth/email-already-in-use":  "An account already exists with this email",
-    "auth/invalid-email":         "Please enter a valid email address",
-    "auth/too-many-requests":     "Too many failed attempts — wait a few minutes and try again",
-    "auth/network-request-failed":"Network error — check your internet connection and try again",
-    "auth/weak-password":         "Password too weak — use at least 6 characters"
-  };
-
-  window.handleSubmit=async()=>{
-    const email=document.getElementById("emailInput").value.trim();
-    const pw=document.getElementById("pwInput").value;
-    const confirm=document.getElementById("confirmInput").value;
-    const name=document.getElementById("nameInput").value.trim();
-
-    if(!email){ showErr("Please enter your email address"); return; }
-    if(!pw)   { showErr("Please enter your password"); return; }
-    if(window._mode==="signup"){
-      if(!name)          { showErr("Please enter your full name"); return; }
-      if(pw.length<6)    { showErr("Password must be at least 6 characters long"); return; }
-      if(pw!==confirm)   { showErr("Passwords do not match — please re-enter"); return; }
-    }
-
-    setLoading(true);
-    document.getElementById("errBanner").classList.remove("show");
-    document.getElementById("successBanner").classList.remove("show");
-
-    try{
-      if(window._mode==="signin"){
-        const cred=await signInWithEmailAndPassword(auth,email,pw);
-        await ensureUserDoc(cred.user,null);
-        toast("Welcome back! 👋","success");
-        setTimeout(()=>window.location.href="index.html",700);
-      } else {
-        const cred=await createUserWithEmailAndPassword(auth,email,pw);
-        await updateProfile(cred.user,{displayName:name});
-        await ensureUserDoc(cred.user,name);
-        try{ await sendEmailVerification(cred.user); }catch(_){}
-        showOk("Account created! Check "+email+" for a verification link, then continue.");
-        toast("Account created! 🎉","success");
-        setTimeout(()=>window.location.href="onboarding.html",1500);
-      }
-    }catch(e){
-      setLoading(false);
-      showErr(ERRS[e.code]||"Something went wrong. Contact support@examora.com.ng if this keeps happening.");
-    }
-  };
-
-  window.forgotPassword=async()=>{
-    const email=document.getElementById("emailInput").value.trim();
-    if(!email){ showErr("Enter your email address above, then click Forgot password"); return; }
-    try{
-      await sendPasswordResetEmail(auth,emai
+window._signIn          = (e,p) => signInWithEmailAndPassword(auth, e, p);
+window._register        = (e,p) => createUserWithEmailAndPassword(auth, e, p);
+window._sendVerification = u => sendEmailVerification(u);
+window._resetPw         = e => sendPasswordResetEmail(auth, e);
+window._createDoc       = makeDoc;
+window._googleAuth      = async () => {
+  const cred  = await signInWithPopup(auth, gp);
+  const isNew = await makeDoc(cred.user);
+  return { name: cred.user.displayName || cred.user.email.split('@')[0], isNew };
+};
 </script>
-
 <script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>

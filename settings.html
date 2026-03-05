@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Settings — EXAMORA</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+  <style>
+    :root{--max-width:480px;}
+    .app-container{max-width:var(--max-width);margin:0 auto;min-height:100dvh;}
+    .page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+    .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s ease;flex-shrink:0;color:var(--text-2);}
+    .icon-btn:active{transform:scale(0.93);}
+    .section-label{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin:20px 16px 8px;}
+    .setting-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.18s;}
+    .setting-row:first-child{border-top:1px solid var(--border);}
+    .setting-row:hover{background:var(--bg-input);}
+    .s-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+    .s-content{flex:1;}
+    .s-title{font-family:var(--font-display);font-weight:700;font-size:0.86rem;color:var(--text);}
+    .s-sub{font-size:0.72rem;color:var(--text-3);margin-top:2px;}
+    .s-right{color:var(--text-3);}
+    .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+    .toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-slider{position:absolute;inset:0;background:var(--border-strong);border-radius:100px;cursor:pointer;transition:all 0.2s;}
+    .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:all 0.2s;}
+    .toggle-switch input:checked+.toggle-slider{background:var(--c-brand);}
+    .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
+    .danger-zone{margin:16px;border:1.5px solid rgba(244,63,94,0.25);border-radius:16px;overflow:hidden;}
+    .version-footer{text-align:center;padding:24px 16px;font-size:0.72rem;color:var(--text-3);line-height:1.8;}
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Settings</div>
+  </div>
+
+  <!-- Appearance -->
+  <div class="section-label">Appearance</div>
+  <div class="setting-row" onclick="toggleTheme()">
+    <div class="s-icon" style="background:rgba(99,102,241,0.1);">🌙</div>
+    <div class="s-content"><div class="s-title">Dark Mode</div><div class="s-sub" id="themeSubtitle">Currently light mode</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="darkToggle" onchange="toggleTheme()"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row" onclick="openFontSheet()">
+    <div class="s-icon" style="background:rgba(245,158,11,0.1);">🔤</div>
+    <div class="s-content"><div class="s-title">Text Size</div><div class="s-sub" id="fontSizeSub">Normal</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+
+  <!-- Notifications -->
+  <div class="section-label">Notifications</div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(16,185,129,0.1);">🔔</div>
+    <div class="s-content"><div class="s-title">Daily Study Reminder</div><div class="s-sub">Nudge every evening at 7 PM</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_daily" onchange="savePref('daily',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(245,158,11,0.1);">🔥</div>
+    <div class="s-content"><div class="s-title">Streak Alerts</div><div class="s-sub">Warn when your streak is at risk</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_streak" onchange="savePref('streak',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(99,102,241,0.1);">⚡</div>
+    <div class="s-content"><div class="s-title">Daily Challenge</div><div class="s-sub">Alert when new challenge drops</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_challenge" onchange="savePref('challenge',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(168,85,247,0.1);">🏆</div>
+    <div class="s-content"><div class="s-title">Leaderboard Updates</div><div class="s-sub">When someone overtakes you</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_leader" onchange="savePref('leaderboard',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row" onclick="window.location.href='notifications.html'">
+    <div class="s-icon" style="background:rgba(244,63,94,0.1);">📱</div>
+    <div class="s-content"><div class="s-title">Push Notifications</div><div class="s-sub" id="pushStatusSub">Tap to enable</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+
+  <!-- Study Preferences -->
+  <div class="section-label">Study Preferences</div>
+  <div class="setting-row" onclick="openExamTypeSheet()">
+    <div class="s-icon" style="background:rgba(16,185,129,0.1);">🎯</div>
+    <div class="s-content"><div class="s-title">Default Exam Type</div><div class="s-sub" id="examTypeSub">Not set</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="openQCountSheet()">
+    <div class="s-icon" style="background:rgba(59,130,246,0.1);">🔢</div>
+    <div class="s-content"><div class="s-title">Questions Per Session</div><div class="s-sub" id="qCountSub">20 questions</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(245,158,11,0.1);">🔀</div>
+    <div class="s-content"><div class="s-title">Shuffle Questions</div><div class="s-sub">Randomise question order</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_shuffle" checked onchange="saveSetting('shuffle',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(20,184,166,0.1);">💡</div>
+    <div class="s-content"><div class="s-title">Show Hints</div><div class="s-sub">Allow hint requests during practice</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_hints" checked onchange="saveSetting('hints',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row">
+    <div class="s-icon" style="background:rgba(244,63,94,0.1);">⚡</div>
+    <div class="s-content"><div class="s-title">Auto-advance on Answer</div><div class="s-sub">Move to next Q immediately</div></div>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox" id="tog_autoadvance" onchange="saveSetting('autoadvance',this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Account & Privacy -->
+  <div class="section-label">Account & Privacy</div>
+  <div class="setting-row" onclick="window.location.href='profile.html'">
+    <div class="s-icon" style="background:rgba(99,102,241,0.1);">👤</div>
+    <div class="s-content"><div class="s-title">Edit Profile</div><div class="s-sub">Name, photo, subjects, targets</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="window.location.href='terms.html'">
+    <div class="s-icon" style="background:rgba(16,185,129,0.1);">📄</div>
+    <div class="s-content"><div class="s-title">Terms of Service</div><div class="s-sub">examora.com.ng/terms</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="window.location.href='privacy.html'">
+    <div class="s-icon" style="background:rgba(59,130,246,0.1);">🔒</div>
+    <div class="s-content"><div class="s-title">Privacy Policy</div><div class="s-sub">How we handle your data</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="exportData()">
+    <div class="s-icon" style="background:rgba(245,158,11,0.1);">📦</div>
+    <div class="s-content"><div class="s-title">Export My Data</div><div class="s-sub">Download all your exam history</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="clearLocalData()">
+    <div class="s-icon" style="background:rgba(244,63,94,0.1);">🗑️</div>
+    <div class="s-content"><div class="s-title">Clear Cache & Local Data</div><div class="s-sub">Removes offline packs, notes, flashcards</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+
+  <!-- Support -->
+  <div class="section-label">Support</div>
+  <div class="setting-row" onclick="window.location.href='help.html'">
+    <div class="s-icon" style="background:rgba(168,85,247,0.1);">❓</div>
+    <div class="s-content"><div class="s-title">Help & FAQ</div><div class="s-sub">Common questions answered</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="sendFeedback()">
+    <div class="s-icon" style="background:rgba(16,185,129,0.1);">💬</div>
+    <div class="s-content"><div class="s-title">Send Feedback</div><div class="s-sub">Report bugs or suggest features</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+  <div class="setting-row" onclick="rateApp()">
+    <div class="s-icon" style="background:rgba(245,158,11,0.1);">⭐</div>
+    <div class="s-content"><div class="s-title">Rate EXAMORA</div><div class="s-sub">Love the app? Tell others!</div></div>
+    <span class="material-symbols-rounded s-right">chevron_right</span>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="section-label" style="color:var(--c-red);">Danger Zone</div>
+  <div class="danger-zone">
+    <div class="setting-row" style="border-top:none;border-bottom:none;" onclick="signOutConfirm()">
+      <div class="s-icon" style="background:rgba(244,63,94,0.1);">🚪</div>
+      <div class="s-content"><div class="s-title" style="color:var(--c-red);">Sign Out</div><div class="s-sub">Log out of your account</div></div>
+    </div>
+    <div style="height:1px;background:rgba(244,63,94,0.15);margin:0 16px;"></div>
+    <div class="setting-row" style="border-top:none;" onclick="deleteAccountConfirm()">
+      <div class="s-icon" style="background:rgba(244,63,94,0.1);">❌</div>
+      <div class="s-content"><div class="s-title" style="color:var(--c-red);">Delete Account</div><div class="s-sub">Permanently delete all your data</div></div>
+    </div>
+  </div>
+
+  <div class="version-footer">
+    <div style="font-weight:700;color:var(--text-2);">EXAMORA v2.4</div>
+    <div>Powered by NexaCore Labs · examora.com.ng</div>
+    <div>Made with ❤️ for Nigerian students</div>
+  </div>
+</div>
+
+<!-- Font size sheet -->
+<div class="overlay" id="fontSheet" onclick="if(event.target===this)document.getElementById('fontSheet').classList.remove('open')">
+  <div class="edit-sheet" style="background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);" onclick="event.stopPropagation()">
+    <div style="width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;margin-bottom:16px;">Text Size</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <button onclick="setFontSize('small',this)" class="font-opt" style="padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);cursor:pointer;font-size:0.78rem;font-weight:700;">Small</button>
+      <button onclick="setFontSize('normal',this)" class="font-opt active" style="padding:12px;border-radius:12px;border:1.5px solid var(--c-brand);background:var(--c-brand-pale);cursor:pointer;font-size:0.9rem;font-weight:700;color:var(--c-brand);">Normal</button>
+      <button onclick="setFontSize('large',this)" class="font-opt" style="padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);cursor:pointer;font-size:1rem;font-weight:700;">Large</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exam type sheet -->
+<div class="overlay" id="examTypeSheet" onclick="if(event.target===this)document.getElementById('examTypeSheet').classList.remove('open')">
+  <div style="background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);" onclick="event.stopPropagation()">
+    <div style="width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;margin-bottom:16px;">Default Exam Type</div>
+    <div id="examTypeList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon" class="toast-icon"></span><span id="toastMsg"></span></div>
+
+<script>
+  const _t=localStorage.getItem('examora_theme')||'light';
+  document.documentElement.setAttribute('data-theme',_t);
+
+  function toast(msg,type){
+    var t=document.getElementById('toast');
+    document.getElementById('toastIcon').textContent={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type]||'ℹ️';
+    document.getElementById('toastMsg').textContent=msg;
+    t.className='toast show '+(type||'info');
+    setTimeout(()=>t.className='toast',3200);
+  }
+
+  // Load all settings
+  var prefs=JSON.parse(localStorage.getItem('examora_notif_prefs')||'{"daily":true,"streak":true,"challenge":true,"leaderboard":false}');
+  var settings=JSON.parse(localStorage.getItem('examora_settings')||'{"shuffle":true,"hints":true,"autoadvance":false,"qcount":20,"examtype":"JAMB","fontsize":"normal"}');
+
+  function init(){
+    // Theme
+    var isDark=localStorage.getItem('examora_theme')==='dark';
+    document.getElementById('darkToggle').checked=isDark;
+    document.getElementById('themeSubtitle').textContent=isDark?'Currently dark mode':'Currently light mode';
+    // Notif prefs
+    ['daily','streak','challenge','leader'].forEach(k=>{
+      var el=document.getElementById('tog_'+k);
+      if(el) el.checked=prefs[k==='leader'?'leaderboard':k]!==false;
+    });
+    // Study settings
+    document.getElementById('tog_shuffle').checked=settings.shuffle!==false;
+    document.getElementById('tog_hints').checked=settings.hints!==false;
+    document.getElementById('tog_autoadvance').checked=!!settings.autoadvance;
+    document.getElementById('examTypeSub').textContent=settings.examtype||'Not set';
+    document.getElementById('qCountSub').textContent=(settings.qcount||20)+' questions';
+    document.getElementById('fontSizeSub').textContent=({small:'Small',normal:'Normal',large:'Large'})[settings.fontsize||'normal'];
+    // Push status
+    if('Notification' in window){
+      document.getElementById('pushStatusSub').textContent=Notification.permission==='granted'?'Enabled ✓':'Tap to enable';
+    }
+  }
+
+  function toggleTheme(){
+    var cur=localStorage.getItem('examora_theme')||'light';
+    var nxt=cur==='dark'?'light':'dark';
+    localStorage.setItem('examora_theme',nxt);
+    document.documentElement.setAttribute('data-theme',nxt);
+    document.getElementById('darkToggle').checked=nxt==='dark';
+    document.getElementById('themeSubtitle').textContent=nxt==='dark'?'Currently dark mode':'Currently light mode';
+    toast('Theme changed to '+nxt+' mode','success');
+  }
+
+  function savePref(k,v){
+    prefs[k]=v;
+    localStorage.setItem('examora_notif_prefs',JSON.stringify(prefs));
+    toast('Preference saved','success');
+  }
+  function saveSetting(k,v){
+    settings[k]=v;
+    localStorage.setItem('examora_settings',JSON.stringify(settings));
+  }
+
+  function openFontSheet(){document.getElementById('fontSheet').classList.add('open');}
+  function openExamTypeSheet(){
+    var exams=['JAMB','WAEC','NECO','Post-UTME','SAT','IELTS','GRE','GMAT','A-Levels'];
+    document.getElementById('examTypeList').innerHTML=exams.map(e=>`
+      <div onclick="setExamType('${e}')" style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+        <span style="font-weight:600;font-size:0.86rem;color:var(--text);">${e}</span>
+        ${settings.examtype===e?'<span style="color:var(--c-brand);font-size:1rem;">✓</span>':''}
+      </div>`).join('');
+    document.getElementById('examTypeSheet').classList.add('open');
+  }
+  function openQCountSheet(){}
+
+  function setExamType(t){
+    settings.examtype=t;
+    localStorage.setItem('examora_settings',JSON.stringify(settings));
+    document.getElementById('examTypeSub').textContent=t;
+    document.getElementById('examTypeSheet').classList.remove('open');
+    toast('Default exam set to '+t,'success');
+  }
+
+  function setFontSize(size,el){
+    settings.fontsize=size;
+    localStorage.setItem('examora_settings',JSON.stringify(settings));
+    var sizes={small:'0.85rem',normal:'1rem',large:'1.1rem'};
+    document.documentElement.style.fontSize=sizes[size];
+    document.querySelectorAll('.font-opt').forEach(b=>{
+      b.style.border='1.5px solid var(--border)';
+      b.style.background='var(--bg-input)';
+      b.style.color='';
+    });
+    el.style.border='1.5px solid var(--c-brand)';
+    el.style.background='var(--c-brand-pale)';
+    el.style.color='var(--c-brand)';
+    document.getElementById('fontSizeSub').textContent={small:'Small',normal:'Normal',large:'Large'}[size];
+    toast('Text size changed','success');
+  }
+
+  function exportData(){
+    var data={
+      profile:JSON.parse(localStorage.getItem('examora_user_display')||'null'),
+      plan:localStorage.getItem('examora_plan'),
+      notes:JSON.parse(localStorage.getItem('examora_notes')||'[]'),
+      flashcards:JSON.parse(localStorage.getItem('examora_flashdecks')||'[]'),
+      studyPlan:JSON.parse(localStorage.getItem('examora_study_plan')||'{}'),
+      settings,prefs,
+      exported:new Date().toISOString()
+    };
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='examora-data-'+Date.now()+'.json';
+    a.click();
+    toast('Data exported successfully','success');
+  }
+
+  function clearLocalData(){
+    if(!confirm('This will remove offline packs, notes, flashcards, and planner data. Continue?')) return;
+    var keep=['examora_theme','examora_plan','examora_ai_keys','examora_settings','examora_notif_prefs','examora_user_display','examora_uid'];
+    Object.keys(localStorage).forEach(k=>{if(!keep.includes(k)&&k.startsWith('examora'))localStorage.removeItem(k);});
+    toast('Local data cleared','success');
+  }
+
+  function sendFeedback(){
+    window.open('mailto:support@examora.com.ng?subject=EXAMORA Feedback','_blank');
+  }
+  function rateApp(){
+    window.open('https://examora.com.ng','_blank');
+    toast('Thanks for the love! 🙏','success');
+  }
+  function signOutConfirm(){
+    if(confirm('Sign out of EXAMORA?')) window.location.href='login.html';
+  }
+  function deleteAccountConfirm(){
+    if(confirm('DELETE your account? This cannot be undone.')) window.location.href='profile.html';
+  }
+
+  init();
+</script>
+
+<script type="module">
+  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const app=initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+  const auth=getAuth(app);
+  onAuthStateChanged(auth,user=>{if(!user)window.location.href='login.html';});
+  window._doSignOut=async()=>{await signOut(auth);window.location.href='login.html';};
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

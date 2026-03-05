@@ -221,7 +221,10 @@
       color:var(--c-brand);font-weight:700;text-decoration:none;
       white-space:nowrap;font-size:0.73rem;
     }
-  </style>
+  
+  .prompt-chip{padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg-card);font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.18s;}
+  .prompt-chip:hover{border-color:var(--c-brand);color:var(--c-brand);background:var(--c-brand-pale);}
+</style>
 </head>
 <body>
 
@@ -264,7 +267,7 @@
   <div class="msg-row bot" id="welcomeRow">
     <div class="msg-av">🤖</div>
     <div class="msg-wrap">
-      <div class="msg-bubble">Hey! I'm your EXAMORA AI Tutor 👋<br/>Ask me anything — concepts, past questions, exam tips, or just revision help. What are you studying today? 📚</div>
+      <div class="msg-bubble">👋 Hey! I'm <strong>NOVA</strong>, your personal AI study companion from EXAMORA.<br/><br/>I'm built to help you ace <strong>JAMB, WAEC, NECO, Post-UTME</strong> and any other exam. I can:<br/>📖 Explain any concept clearly<br/>🔢 Solve problems step by step<br/>❓ Give hints without spoiling answers<br/>📝 Generate practice questions<br/>📅 Build your study plan<br/><br/>What are we tackling today? 🔥</div>
       <div class="msg-time" id="welcomeTime"></div>
     </div>
   </div>
@@ -425,8 +428,16 @@
 
       // Replace typing with real response
       typingRef.bubble.className = 'msg-bubble';
-      typingRef.bubble.innerHTML = res.text
+      // Render response with formatting
+      var formatted = res.text
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
+        .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
+        .replace(/`([^`]+)`/g,'<code style="background:rgba(99,102,241,0.1);padding:2px 5px;border-radius:4px;font-size:0.85em;">$1</code>')
+        .replace(/\n(\d+\.\s)/g,'<br><br><strong>$1</strong>')
+        .replace(/\n•\s/g,'<br>• ')
+        .replace(/\n/g,'<br>');
+      typingRef.bubble.innerHTML = formatted
         .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
         .replace(/\n/g,'<br/>');
       typingRef.timeEl.textContent = nowTime();
@@ -459,8 +470,21 @@
     _history = [];
     _lastSender = null;
     document.getElementById('suggestionsRow').style.display = 'flex';
-    addBubble('bot', 'Chat cleared! What would you like to study? 📚');
+    addBubble('bot', 'Chat cleared! 🔄 I\'m NOVA — ready to help. What topic should we tackle? 🎯');
   }
+
+  function usePrompt(btn) {
+    var text = btn.textContent.replace(/^[^a-zA-Z]+/, '').trim();
+    document.getElementById('msgInput').value = text;
+    document.getElementById('suggestedPrompts').style.display = 'none';
+    document.getElementById('msgInput').focus();
+  }
+  // Hide prompts once user sends first message
+  var _origSend = window.sendMessage;
+  window.sendMessage = function() {
+    document.getElementById('suggestedPrompts').style.display = 'none';
+    if (_origSend) _origSend();
+  };
 </script>
 
 <script type="module">

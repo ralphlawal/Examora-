@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vocabulary Builder — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.app-container{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:30px;}
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;flex-shrink:0;color:var(--text-2);}
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px;}
+.topic-btn{background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;padding:16px 14px;text-align:center;cursor:pointer;transition:all 0.18s;}
+.topic-btn:hover{border-color:var(--c-brand);transform:scale(1.02);}
+.topic-btn .t-icon{font-size:1.6rem;margin-bottom:6px;}
+.topic-btn .t-name{font-family:var(--font-display);font-weight:700;font-size:0.78rem;color:var(--text);}
+.topic-btn .t-count{font-size:0.64rem;color:var(--text-3);margin-top:2px;}
+.vocab-card{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:20px;margin:0 16px 12px;animation:fadeUp 0.3s ease;}
+.word-text{font-family:var(--font-display);font-weight:900;font-size:1.3rem;color:var(--text);margin-bottom:4px;}
+.word-type{font-size:0.7rem;font-weight:700;color:var(--c-brand);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.word-def{font-size:0.85rem;line-height:1.7;color:var(--text-2);margin-bottom:12px;}
+.word-example{background:rgba(99,102,241,0.06);border-left:3px solid var(--c-brand);padding:10px 14px;border-radius:0 10px 10px 0;font-size:0.8rem;line-height:1.65;color:var(--text-2);font-style:italic;margin-bottom:12px;}
+.memory-hook{background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:12px 14px;}
+.hook-label{font-size:0.64rem;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:var(--c-gold);margin-bottom:4px;}
+.hook-text{font-size:0.8rem;color:var(--text-2);line-height:1.6;}
+.vocab-actions{display:flex;gap:8px;margin-top:14px;}
+.action-btn{flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-input);font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.18s;text-align:center;}
+.action-btn.primary{background:var(--c-brand);color:white;border-color:var(--c-brand);}
+.action-btn:hover{border-color:var(--c-brand);color:var(--c-brand);}
+.action-btn.primary:hover{opacity:0.9;}
+.mastered-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,0.1);color:var(--c-green);padding:3px 9px;border-radius:100px;font-size:0.66rem;font-weight:700;}
+.progress-bar-wrap{margin:0 16px 8px;background:var(--bg-input);border-radius:100px;height:5px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--c-brand),var(--c-brand-light));border-radius:100px;transition:width 0.5s ease;}
+.empty-state{padding:48px 20px;text-align:center;}
+.search-wrap{padding:12px 16px 0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title" id="pageTitle">Vocabulary Builder</div>
+    <button class="icon-btn" id="saveBtn" style="display:none;" onclick="saveCurrentToNotes()" title="Save to Notes"><span class="material-symbols-rounded">bookmark</span></button>
+  </div>
+
+  <!-- Input view -->
+  <div id="inputView">
+    <div style="padding:16px;">
+      <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:18px;margin-bottom:16px;border:1px solid rgba(99,102,241,0.3);">
+        <div style="font-size:1.4rem;margin-bottom:8px;">📖</div>
+        <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:white;margin-bottom:4px;">AI Vocabulary Builder</div>
+        <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);line-height:1.6;">NOVA generates exam-targeted vocabulary with definitions, examples, and memory tricks — so words actually stick.</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label" style="display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;">Topic or Subject</label>
+        <input class="form-input" style="width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;box-sizing:border-box;" id="topicInput" placeholder="e.g. Cell Biology, Economic Terms, Grammar..."/>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" style="display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;">Number of words</label>
+        <select class="form-select" style="width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;appearance:none;" id="wordCount">
+          <option value="5">5 words</option>
+          <option value="10" selected>10 words</option>
+          <option value="15">15 words</option>
+          <option value="20">20 words</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="buildBtn" onclick="buildVocab()">
+        <span class="material-symbols-rounded" style="font-size:1rem;">auto_awesome</span>
+        Build Vocabulary List
+      </button>
+    </div>
+
+    <div style="padding:0 16px;font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">Quick Topics</div>
+    <div class="topic-grid">
+      <div class="topic-btn" onclick="quickTopic('JAMB English Comprehension')"><div class="t-icon">📝</div><div class="t-name">JAMB English</div><div class="t-count">Comprehension vocab</div></div>
+      <div class="topic-btn" onclick="quickTopic('Cell Biology for WAEC')"><div class="t-icon">🔬</div><div class="t-name">Cell Biology</div><div class="t-count">WAEC Biology</div></div>
+      <div class="topic-btn" onclick="quickTopic('Economics terminology JAMB WAEC')"><div class="t-icon">📊</div><div class="t-name">Economics</div><div class="t-count">Key terms</div></div>
+      <div class="topic-btn" onclick="quickTopic('Physics mechanics and motion')"><div class="t-icon">⚡</div><div class="t-name">Physics</div><div class="t-count">Mechanics terms</div></div>
+      <div class="topic-btn" onclick="quickTopic('Chemistry bonding and reactions')"><div class="t-icon">🧪</div><div class="t-name">Chemistry</div><div class="t-count">Bonding vocab</div></div>
+      <div class="topic-btn" onclick="quickTopic('Government and civic education Nigeria')"><div class="t-icon">🏛️</div><div class="t-name">Government</div><div class="t-count">Civics terms</div></div>
+      <div class="topic-btn" onclick="quickTopic('Literary devices and figures of speech')"><div class="t-icon">📚</div><div class="t-name">Literature</div><div class="t-count">Literary devices</div></div>
+      <div class="topic-btn" onclick="quickTopic('Mathematics and algebra terms')"><div class="t-icon">🔢</div><div class="t-name">Mathematics</div><div class="t-count">Algebra terms</div></div>
+    </div>
+  </div>
+
+  <!-- Results view -->
+  <div id="resultsView" style="display:none;">
+    <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:var(--text);" id="topicLabel"></div>
+        <div style="font-size:0.72rem;color:var(--text-3);margin-top:2px;"><span id="masteredCount">0</span> / <span id="totalCount">0</span> mastered</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="saveAllToNotes()" style="padding:7px 14px;border-radius:100px;background:var(--bg-input);border:1.5px solid var(--border);font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;">📝 Save All</button>
+        <button onclick="resetView()" style="padding:7px 14px;border-radius:100px;background:var(--c-brand-pale);border:1.5px solid rgba(99,102,241,0.2);font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--c-brand);cursor:pointer;">← New Topic</button>
+      </div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="masteryBar" style="width:0%"></div></div>
+    <div id="vocabList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script src="ai-engine.js"></script>
+<script>
+var _theme = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _theme);
+var _words = [], _mastered = new Set(), _currentTopic = '';
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type]||'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + (type||'info');
+  setTimeout(function(){t.className='toast';}, 3200);
+}
+
+function quickTopic(topic) {
+  document.getElementById('topicInput').value = topic;
+  buildVocab();
+}
+
+function resetView() {
+  document.getElementById('inputView').style.display = 'block';
+  document.getElementById('resultsView').style.display = 'none';
+  document.getElementById('saveBtn').style.display = 'none';
+  document.getElementById('pageTitle').textContent = 'Vocabulary Builder';
+}
+
+async function buildVocab() {
+  var topic = document.getElementById('topicInput').value.trim();
+  var count = document.getElementById('wordCount').value;
+  if (!topic) { toast('Enter a topic first', 'warning'); return; }
+
+  var btn = document.getElementById('buildBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:1rem;animation:spin 1s linear infinite;">refresh</span> NOVA is building...';
+
+  try {
+    var res = await EXAMORA_AI.buildVocabulary(topic, parseInt(count));
+    _words = parseVocabResponse(res.text, topic, count);
+    _currentTopic = topic;
+    _mastered.clear();
+    renderWords();
+    document.getElementById('inputView').style.display = 'none';
+    document.getElementById('resultsView').style.display = 'block';
+    document.getElementById('saveBtn').style.display = 'flex';
+    document.getElementById('pageTitle').textContent = topic.slice(0, 25) + (topic.length > 25 ? '…' : '');
+    document.getElementById('topicLabel').textContent = topic;
+    document.getElementById('totalCount').textContent = _words.length;
+    document.getElementById('masteredCount').textContent = 0;
+  } catch(e) {
+    toast('Failed to build vocabulary. Check connection.', 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:1rem;">auto_awesome</span> Build Vocabulary List';
+}
+
+function parseVocabResponse(text, topic, count) {
+  // Parse numbered word list from NOVA response
+  var lines = text.split('\n').filter(function(l){return l.trim();});
+  var words = [];
+  var current = null;
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    // Match numbered word: "1. Word" or "**Word**" or "Word (noun)"
+    var wordMatch = line.match(/^(\d+[\.\)]\s*)?(\*\*)?([A-Za-z\s\-]+)(\*\*)?\s*[\(\-:]/);
+    if (wordMatch && line.length < 80) {
+      if (current) words.push(current);
+      current = { word: wordMatch[3].trim(), type: '', def: '', example: '', hook: '' };
+      // Extract type if present
+      var typeM = line.match(/\(([a-z]+\.?)\)/);
+      if (typeM) current.type = typeM[1];
+    } else if (current) {
+      var low = line.toLowerCase();
+      if (low.includes('definition:') || low.includes('meaning:') || low.includes('def:')) {
+        current.def = line.replace(/^(definition|meaning|def)[:\s]*/i, '').replace(/\*\*/g,'');
+      } else if (low.includes('example:') || low.includes('sentence:')) {
+        current.example = line.replace(/^(example|sentence)[:\s]*/i, '').replace(/\*\*/g,'');
+      } else if (low.includes('memory') || low.includes('trick') || low.includes('hook') || low.includes('remember')) {
+        current.hook = line.replace(/^(memory trick|memory hook|trick|hook|remember)[:\s]*/i, '').replace(/\*\*/g,'');
+      } else if (!current.def && line.length > 15) {
+        current.def += (current.def ? ' ' : '') + line.replace(/\*\*/g,'');
+      }
+    }
+  }
+  if (current) words.push(current);
+
+  // If parsing failed, create basic entries from raw text
+  if (words.length === 0) {
+    var fallback = text.split('\n').filter(function(l){ return l.trim() && l.length > 5; });
+    words = fallback.slice(0, parseInt(count)).map(function(l, i) {
+      return { word: 'Word ' + (i+1), type: '', def: l.replace(/\*\*/g,'').replace(/^\d+[\.\)]\s*/,''), example: '', hook: '' };
+    });
+  }
+
+  return words;
+}
+
+function renderWords() {
+  var html = _words.map(function(w, i) {
+    var mastered = _mastered.has(i);
+    return '<div class="vocab-card" id="card-'+i+'">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
+        '<div>' +
+          '<div class="word-text">' + escHtml(w.word) + '</div>' +
+          (w.type ? '<div class="word-type">' + escHtml(w.type) + '</div>' : '') +
+        '</div>' +
+        (mastered ? '<span class="mastered-badge">✅ Mastered</span>' : '') +
+      '</div>' +
+      (w.def ? '<div class="word-def">' + escHtml(w.def) + '</div>' : '') +
+      (w.example ? '<div class="word-example">"' + escHtml(w.example) + '"</div>' : '') +
+      (w.hook ? '<div class="memory-hook"><div class="hook-label">🧠 Memory Hook</div><div class="hook-text">' + escHtml(w.hook) + '</div></div>' : '') +
+      '<div class="vocab-actions">' +
+        '<div class="action-btn" onclick="practiceWord(' + i + ')">🔁 Quiz Me</div>' +
+        '<div class="action-btn primary" onclick="masterWord(' + i + ')">' + (mastered ? '✅ Mastered' : 'Got It ✓') + '</div>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('vocabList').innerHTML = html;
+}
+
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function masterWord(i) {
+  if (_mastered.has(i)) { _mastered.delete(i); } else { _mastered.add(i); }
+  renderWords();
+  var mc = _mastered.size, tc = _words.length;
+  document.getElementById('masteredCount').textContent = mc;
+  document.getElementById('masteryBar').style.width = (tc > 0 ? Math.round((mc/tc)*100) : 0) + '%';
+  if (mc === tc && tc > 0) toast('🎉 All words mastered! Great work!', 'success');
+}
+
+function practiceWord(i) {
+  var w = _words[i];
+  if (!w) return;
+  // Simple quiz: hide definition, reveal on click
+  var card = document.getElementById('card-' + i);
+  var defEl = card.querySelector('.word-def');
+  if (defEl) {
+    if (defEl.dataset.hidden === '1') {
+      defEl.style.opacity = '1';
+      defEl.dataset.hidden = '0';
+    } else {
+      defEl.style.opacity = '0.1';
+      defEl.dataset.hidden = '1';
+      toast('Try to recall the meaning, then tap again to reveal', 'info');
+    }
+  }
+}
+
+function saveCurrentToNotes() { saveAllToNotes(); }
+
+function saveAllToNotes() {
+  if (!_words.length) return;
+  var text = '# Vocabulary: ' + _currentTopic + '\n\n';
+  _words.forEach(function(w, i) {
+    text += '**' + w.word + '**' + (w.type ? ' (' + w.type + ')' : '') + '\n';
+    if (w.def) text += w.def + '\n';
+    if (w.example) text += 'Example: ' + w.example + '\n';
+    if (w.hook) text += '🧠 ' + w.hook + '\n';
+    text += '\n';
+  });
+  var notes = [];
+  try { notes = JSON.parse(localStorage.getItem('examora_notes') || '[]'); } catch(_) {}
+  notes.unshift({ title: 'Vocab: ' + _currentTopic, body: text, color: '#8b5cf6', subject: _currentTopic, created: Date.now(), updated: Date.now() });
+  localStorage.setItem('examora_notes', JSON.stringify(notes));
+  toast('Saved ' + _words.length + ' words to Notes ✓', 'success');
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app = initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+const auth = getAuth(app), db = getFirestore(app);
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  try {
+    const s = await getDoc(doc(db, 'settings', 'ai'));
+    if (s.exists()) { const k = s.data().openRouterKeys||[]; if(k.length) localStorage.setItem('examora_ai_keys', JSON.stringify(k)); }
+  } catch(_) {}
+});
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});</script>
+</body>
+</html>

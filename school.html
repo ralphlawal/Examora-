@@ -1,371 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>School Dashboard — EXAMORA</title>
-  <link rel="manifest" href="/manifest.json"/>
-  <link rel="stylesheet" href="style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
-  <style>
-    .school-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto;scrollbar-width:none;}
-    .school-tabs::-webkit-scrollbar{display:none;}
-    .school-tab{flex-shrink:0;padding:11px 16px;font-size:0.78rem;font-weight:600;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);}
-    .school-tab.active{color:var(--c-brand);border-bottom-color:var(--c-brand);}
-    .school-panel{display:none;} .school-panel.active{display:block;}
-    .student-row{
-      display:flex;align-items:center;gap:10px;
-      padding:11px 14px;background:var(--bg-card);border:1px solid var(--border);
-      border-radius:var(--radius-md);margin-bottom:8px;
-    }
-    .student-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--c-brand),#7c3aed);display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:white;font-weight:700;flex-shrink:0;}
-    .student-name{font-weight:600;font-size:0.82rem;color:var(--text);}
-    .student-meta{font-size:0.67rem;color:var(--text-3);}
-    .student-score{font-family:var(--font-display);font-weight:800;font-size:0.9rem;}
-    .class-code-card{background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:var(--radius-lg);padding:22px;text-align:center;margin-bottom:16px;}
-    .class-code{font-family:var(--font-display);font-weight:900;font-size:2rem;color:white;letter-spacing:6px;margin:10px 0;}
-    .class-code-sub{font-size:0.72rem;color:rgba(255,255,255,0.5);}
-    .join-banner{background:var(--c-brand-pale);border:1px solid rgba(99,102,241,0.2);border-radius:var(--radius-md);padding:14px;margin-bottom:16px;font-size:0.78rem;color:var(--text-2);line-height:1.6;}
-    .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
-    .stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 8px;text-align:center;}
-    .stat-box-val{font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--text);}
-    .stat-box-lbl{font-size:0.63rem;color:var(--text-3);margin-top:2px;}
-    .assign-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:8px;}
-    .assign-title{font-family:var(--font-display);font-weight:700;font-size:0.85rem;margin-bottom:4px;}
-    .assign-meta{font-size:0.7rem;color:var(--text-3);}
-    .assign-bar{height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden;margin-top:8px;}
-    .assign-fill{height:100%;background:var(--c-brand);border-radius:3px;}
-    .premium-wall{text-align:center;padding:32px 20px;}
-    .premium-wall-icon{font-size:3rem;margin-bottom:12px;}
-    .premium-wall h3{font-family:var(--font-display);font-weight:800;font-size:1.1rem;margin-bottom:6px;}
-    .premium-wall p{font-size:0.78rem;color:var(--text-3);line-height:1.6;margin-bottom:18px;max-width:280px;margin-left:auto;margin-right:auto;}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>School Mode — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.page-wrapper{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:30px;}
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;flex-shrink:0;color:var(--text-2);}
+.icon-btn span{font-size:1.1rem;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 16px 8px;}
+.stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center;}
+.stat-box.accent{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-color:transparent;}
+.stat-num{font-family:var(--font-display);font-weight:800;font-size:1.4rem;color:var(--text);}
+.stat-box.accent .stat-num{color:white;}
+.stat-lbl{font-size:0.6rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.stat-box.accent .stat-lbl{color:rgba(255,255,255,0.65);}
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 16px;}
+.stab{padding:12px 14px;font-family:var(--font-display);font-weight:700;font-size:0.78rem;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.18s;}
+.stab.on{color:var(--c-brand);border-color:var(--c-brand);}
+.panel{display:none;padding:16px;}
+.panel.on{display:block;}
+.sec-hd{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.student-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.stu-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:white;flex-shrink:0;}
+.stu-body{flex:1;}
+.stu-name{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.stu-sub{font-size:0.7rem;color:var(--text-3);margin-top:2px;}
+.stu-score{font-family:var(--font-display);font-weight:800;font-size:0.9rem;}
+.assign-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;}
+.assign-title{font-family:var(--font-display);font-weight:700;font-size:0.86rem;color:var(--text);}
+.assign-meta{font-size:0.7rem;color:var(--text-3);margin-top:4px;}
+.assign-progress{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.prog-bar{flex:1;height:5px;background:var(--bg-input);border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--c-brand),var(--c-brand-light));border-radius:100px;transition:width 0.6s ease;}
+.code-box{background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:18px;text-align:center;margin-bottom:16px;}
+.code-val{font-family:monospace;font-size:1.8rem;font-weight:800;color:white;letter-spacing:4px;margin:8px 0;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.sheet{background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1);}
+.sh-handle{width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;}
+.sh-title{font-family:var(--font-display);font-weight:800;font-size:0.95rem;margin-bottom:16px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;}
+.form-input{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;box-sizing:border-box;transition:all 0.18s;}
+.form-input:focus{border-color:var(--c-brand);}
+.form-select{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;appearance:none;box-sizing:border-box;}
+.join-wall{padding:32px 20px;text-align:center;}
+.rank-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.rank-pos{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text-3);width:28px;text-align:center;flex-shrink:0;}
+.rank-pos.gold{color:#f59e0b;}
+.rank-pos.silver{color:#94a3b8;}
+.rank-pos.bronze{color:#cd7f32;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
 </head>
 <body>
-<div class="app-container">
+<div class="page-wrapper">
   <div class="page-header">
     <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
-    <div class="page-title">School Dashboard</div>
-    <div></div>
+    <div class="page-title">School Mode</div>
+    <button class="icon-btn" id="roleToggleBtn" onclick="toggleRoleView()" title="Switch view"><span class="material-symbols-rounded">swap_horiz</span></button>
   </div>
 
-  <!-- FREE / NON-TEACHER WALL -->
-  <div id="accessWall" style="display:none;padding:16px;">
-    <div class="premium-wall">
-      <div class="premium-wall-icon">🏫</div>
-      <h3>School Accounts</h3>
-      <p>Manage students, assign mock exams, track class performance, and generate reports. Contact us to set up your school account.</p>
-      <a href="mailto:support@examora.com.ng" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 28px;margin-bottom:10px;">📧 Contact Sales</a>
-      <div style="font-size:0.72rem;color:var(--text-3);"><a href="mailto:support@examora.com.ng" class="__cf_email__" data-cfemail="9deefef5f2f2f1eeddf8e5fcf0f2effcb3fef2f0b3f3fa">[email&#160;protected]</a></div>
-    </div>
+  <!-- ACCESS WALL (loading) -->
+  <div id="accessWall" style="padding:40px 20px;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:8px;">🏫</div>
+    <div style="font-family:var(--font-display);font-weight:700;color:var(--text);">Loading School Mode...</div>
   </div>
 
   <!-- TEACHER DASHBOARD -->
-  <div id="teacherDash" style="display:none;padding:16px;">
-
+  <div id="teacherDash" style="display:none;">
     <!-- Class code -->
-    <div class="class-code-card">
-      <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">Your Class Code</div>
-      <div class="class-code" id="classCode">------</div>
-      <div class="class-code-sub">Share with students to join your class</div>
-      <button onclick="copyCode()" style="margin-top:10px;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:7px 18px;font-size:0.74rem;font-weight:700;cursor:pointer;">📋 Copy Code</button>
+    <div style="padding:16px 16px 0;">
+      <div class="code-box">
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Your Class Code</div>
+        <div class="code-val" id="classCode">——</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);margin-bottom:12px;">Share this with your students</div>
+        <button onclick="copyCode()" style="padding:8px 20px;border-radius:100px;background:rgba(255,255,255,0.15);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">Copy Code</button>
+      </div>
     </div>
 
     <!-- Stats -->
     <div class="stat-row" id="classStats">
-      <div class="stat-box"><div class="stat-box-val" id="statStudents">0</div><div class="stat-box-lbl">Students</div></div>
-      <div class="stat-box"><div class="stat-box-val" id="statAvg">0%</div><div class="stat-box-lbl">Class Avg</div></div>
-      <div class="stat-box"><div class="stat-box-val" id="statExams">0</div><div class="stat-box-lbl">Exams Done</div></div>
+      <div class="stat-box accent"><div class="stat-num" id="statStudents">0</div><div class="stat-lbl">Students</div></div>
+      <div class="stat-box"><div class="stat-num" id="statAvg">—</div><div class="stat-lbl">Class Avg</div></div>
+      <div class="stat-box"><div class="stat-num" id="statExams">0</div><div class="stat-lbl">Exams Done</div></div>
     </div>
 
     <!-- Tabs -->
-    <div class="school-tabs">
-      <div class="school-tab active" onclick="switchTab('students',this)">👥 Students</div>
-      <div class="school-tab" onclick="switchTab('assign',this)">📋 Assign</div>
-      <div class="school-tab" onclick="switchTab('leaderboard',this)">🏆 Rankings</div>
+    <div class="tabs">
+      <div class="stab on" id="tab-students" onclick="switchTab('students')">Students</div>
+      <div class="stab" id="tab-assign" onclick="switchTab('assign')">Assignments</div>
+      <div class="stab" id="tab-ranks" onclick="switchTab('ranks')">Rankings</div>
     </div>
 
     <!-- Students panel -->
-    <div class="school-panel active" id="panel-students">
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <input type="text" class="form-input" style="flex:1;" id="searchStudents" placeholder="Search students..." oninput="filterStudents()"/>
-        <button class="btn btn-ghost" onclick="refreshStudents()">↻</button>
-      </div>
-      <div id="studentList">
-        <div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">Loading students...</div>
-      </div>
+    <div class="panel on" id="panel-students">
+      <div class="sec-hd">Class Members</div>
+      <input class="form-input" id="searchStudents" placeholder="Search students..." oninput="filterStudents(this.value)" style="margin-bottom:12px;"/>
+      <div id="studentList"><div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.82rem;">No students yet. Share your class code.</div></div>
     </div>
 
-    <!-- Assign panel -->
-    <div class="school-panel" id="panel-assign">
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:14px;">
-        <div style="font-family:var(--font-display);font-weight:700;font-size:0.88rem;margin-bottom:12px;">📋 New Assignment</div>
-        <div style="display:grid;gap:10px;">
-          <div>
-            <label class="form-label">Assignment Title</label>
-            <input type="text" class="form-input" id="assignTitle" placeholder="e.g. JAMB Biology Practice Test"/>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div>
-              <label class="form-label">Exam Category</label>
-              <select class="form-select" id="assignCat">
-                <option value="JAMB">JAMB</option>
-                <option value="WAEC">WAEC</option>
-                <option value="NECO">NECO</option>
-                <option value="Post-UTME">Post-UTME</option>
-              </select>
-            </div>
-            <div>
-              <label class="form-label">Due Date</label>
-              <input type="date" class="form-input" id="assignDue"/>
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="createAssignment()">Send Assignment to Class</button>
-        </div>
+    <!-- Assignments panel -->
+    <div class="panel" id="panel-assign">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="sec-hd" style="margin:0;">Assignments</div>
+        <button onclick="openSheet('assignSheet')" style="padding:6px 14px;border-radius:100px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.74rem;cursor:pointer;">+ New</button>
       </div>
-      <div id="assignList">
-        <div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.8rem;">No assignments yet</div>
-      </div>
+      <div id="assignList"><div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.82rem;">No assignments yet.</div></div>
     </div>
 
     <!-- Rankings panel -->
-    <div class="school-panel" id="panel-leaderboard">
-      <div id="classRankings">
-        <div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">Loading rankings...</div>
+    <div class="panel" id="panel-ranks">
+      <div class="sec-hd">Class Leaderboard</div>
+      <div id="rankList"></div>
+    </div>
+  </div>
+
+  <!-- STUDENT VIEW -->
+  <div id="studentView" style="display:none;">
+    <div style="padding:16px;">
+      <!-- Not in a class -->
+      <div id="noClassView">
+        <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:20px;padding:24px;text-align:center;margin-bottom:16px;">
+          <div style="font-size:2rem;margin-bottom:8px;">🏫</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:1.05rem;color:white;margin-bottom:6px;">Join Your Class</div>
+          <div style="font-size:0.76rem;color:rgba(255,255,255,0.5);margin-bottom:16px;">Ask your teacher for the 6-digit class code</div>
+          <input class="form-input" id="joinCodeInput" placeholder="Enter class code e.g. ABC123" style="text-align:center;font-size:1rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;" maxlength="6" oninput="this.value=this.value.toUpperCase()"/>
+          <button class="btn btn-primary" onclick="joinClass()">Join Class</button>
+        </div>
+      </div>
+
+      <!-- In a class -->
+      <div id="inClassView" style="display:none;">
+        <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:20px;padding:20px;margin-bottom:16px;">
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Your Class</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:white;margin-top:4px;" id="myClassName">—</div>
+          <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);margin-top:4px;" id="myClassCode">Code: —</div>
+          <button onclick="leaveClass()" style="margin-top:12px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:none;font-size:0.7rem;font-weight:700;cursor:pointer;">Leave Class</button>
+        </div>
+
+        <div class="sec-hd">Assignments from Teacher</div>
+        <div id="myAssignList"><div style="text-align:center;padding:20px;color:var(--text-3);font-size:0.82rem;">No assignments yet.</div></div>
+
+        <div class="sec-hd" style="margin-top:16px;">Class Rankings</div>
+        <div id="myRankList"></div>
       </div>
     </div>
-
   </div>
-
-  <!-- STUDENT VIEW (member of a class) -->
-  <div id="studentView" style="display:none;padding:16px;">
-    <div class="join-banner">
-      👋 You're in <strong id="studentClassName">a class</strong>. Your teacher can see your exam scores and progress.
-    </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-box-val" id="myRank">#—</div><div class="stat-box-lbl">Class Rank</div></div>
-      <div class="stat-box"><div class="stat-box-val" id="myAvg">—%</div><div class="stat-box-lbl">My Avg</div></div>
-      <div class="stat-box"><div class="stat-box-val" id="myExams">0</div><div class="stat-box-lbl">Exams</div></div>
-    </div>
-    <div style="font-family:var(--font-display);font-weight:700;font-size:0.88rem;margin-bottom:10px;">📋 Assignments</div>
-    <div id="myAssignments">
-      <div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.8rem;">No assignments yet</div>
-    </div>
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-      <button class="btn btn-ghost" style="width:100%;color:var(--c-red);" onclick="leaveClass()">Leave Class</button>
-    </div>
-  </div>
-
-  <!-- JOIN CLASS (no class yet) -->
-  <div id="joinClassUI" style="display:none;padding:16px;">
-    <div style="text-align:center;padding:16px 0 24px;">
-      <div style="font-size:2.5rem;margin-bottom:10px;">🏫</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:6px;">Join Your Class</div>
-      <div style="font-size:0.78rem;color:var(--text-3);line-height:1.6;margin-bottom:20px;">Ask your teacher for the class code, then enter it below to join.</div>
-    </div>
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;">
-      <label class="form-label">Class Code</label>
-      <input type="text" class="form-input" id="joinCodeInput" placeholder="Enter 6-letter code" maxlength="6"
-        style="text-align:center;font-family:var(--font-display);font-weight:800;font-size:1.3rem;letter-spacing:6px;text-transform:uppercase;"
-        oninput="this.value=this.value.toUpperCase()"/>
-      <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="joinClass()">Join Class</button>
-    </div>
-  </div>
-
 </div>
-<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<!-- Assign sheet -->
+<div class="overlay" id="assignSheet" onclick="if(event.target===this)closeSheet('assignSheet')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div class="sh-title">New Assignment</div>
+    <div class="form-group"><label class="form-label">Assignment Title</label><input class="form-input" id="assignTitle" placeholder="e.g. JAMB Practice — Chemistry"/></div>
+    <div class="form-group">
+      <label class="form-label">Subject / Category</label>
+      <select class="form-select" id="assignCat">
+        <option value="JAMB">JAMB</option><option value="WAEC">WAEC</option><option value="NECO">NECO</option>
+        <option value="Mathematics">Mathematics</option><option value="English Language">English</option>
+        <option value="Physics">Physics</option><option value="Chemistry">Chemistry</option><option value="Biology">Biology</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date" id="assignDue"/></div>
+    <div class="form-group"><label class="form-label">Number of Questions</label><input class="form-input" type="number" id="assignQCount" value="20" min="5" max="60"/></div>
+    <button class="btn btn-primary" onclick="createAssignment()">Create Assignment</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <script>
-  const _t=localStorage.getItem('examora_theme')||'light';
-  document.documentElement.setAttribute('data-theme',_t);
-  function toast(msg,type){
-    var t=document.getElementById('toast');
-    var icons={success:'✅',error:'❌',warning:'⚠️'};
-    document.getElementById('toastIcon').textContent=icons[type]||'ℹ️';
-    document.getElementById('toastMsg').textContent=msg;
-    t.className='toast show '+(type||'');
-    setTimeout(()=>t.className='toast',3000);
+const _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+
+var _uid, _classId, _isTeacher = false, _students = [], _assignments = [];
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type] || 'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + (type || 'info');
+  setTimeout(function() { t.className = 'toast'; }, 3200);
+}
+
+function openSheet(id) { document.getElementById(id).classList.add('open'); }
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+
+function switchTab(name) {
+  ['students','assign','ranks'].forEach(function(n) {
+    document.getElementById('tab-'+n).classList.toggle('on', n===name);
+    document.getElementById('panel-'+n).classList.toggle('on', n===name);
+  });
+}
+
+function copyCode() {
+  var code = document.getElementById('classCode').textContent;
+  if (code && code !== '——') {
+    navigator.clipboard.writeText(code).then(function() { toast('Class code copied!','success'); });
   }
-  function switchTab(name,el){
-    document.querySelectorAll('.school-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.school-panel').forEach(p=>p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('panel-'+name).classList.add('active');
-    if(name==='leaderboard') renderRankings();
+}
+
+function filterStudents(q) {
+  var cards = document.querySelectorAll('.student-card');
+  cards.forEach(function(c) {
+    c.style.display = c.textContent.toLowerCase().includes(q.toLowerCase()) ? 'flex' : 'none';
+  });
+}
+
+function renderStudents(students) {
+  if (!students.length) {
+    document.getElementById('studentList').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.82rem;">No students yet. Share your class code!</div>';
+    return;
   }
-  function generateCode(uid){ return uid.slice(0,6).toUpperCase(); }
-  function copyCode(){
-    var code=document.getElementById('classCode').textContent;
-    navigator.clipboard.writeText(code).then(()=>toast('Code copied!','success'));
+  var html = students.map(function(s, i) {
+    var avg = s.totalQuestions > 0 ? Math.round((s.totalCorrect/s.totalQuestions)*100) : 0;
+    var col = avg >= 70 ? 'var(--c-green)' : avg >= 50 ? 'var(--c-gold)' : 'var(--c-red)';
+    return '<div class="student-card">' +
+      '<div class="stu-av">' + (s.displayName||'?')[0].toUpperCase() + '</div>' +
+      '<div class="stu-body"><div class="stu-name">' + (s.displayName||'Unknown') + '</div>' +
+      '<div class="stu-sub">' + (s.totalExams||0) + ' exams · ' + (s.streak||0) + ' day streak</div></div>' +
+      '<div class="stu-score" style="color:' + col + ';">' + avg + '%</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('studentList').innerHTML = html;
+  document.getElementById('statStudents').textContent = students.length;
+  var totalAvg = students.length ? Math.round(students.reduce(function(a,s){ return a+(s.totalQuestions>0?Math.round((s.totalCorrect/s.totalQuestions)*100):0); },0)/students.length) : 0;
+  document.getElementById('statAvg').textContent = totalAvg + '%';
+  document.getElementById('statExams').textContent = students.reduce(function(a,s){ return a+(s.totalExams||0); },0);
+
+  // Rankings
+  var sorted = [...students].sort(function(a,b){
+    var aa = a.totalQuestions>0?Math.round((a.totalCorrect/a.totalQuestions)*100):0;
+    var bb = b.totalQuestions>0?Math.round((b.totalCorrect/b.totalQuestions)*100):0;
+    return bb-aa;
+  });
+  var rankHtml = sorted.map(function(s,i){
+    var avg2 = s.totalQuestions>0?Math.round((s.totalCorrect/s.totalQuestions)*100):0;
+    var cls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    return '<div class="rank-row">' +
+      '<div class="rank-pos '+ cls +'">'+(medal||'#'+(i+1))+'</div>' +
+      '<div class="stu-av" style="width:32px;height:32px;font-size:0.8rem;">'+(s.displayName||'?')[0].toUpperCase()+'</div>' +
+      '<div style="flex:1;font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);">'+(s.displayName||'Unknown')+'</div>' +
+      '<div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--c-brand);">'+avg2+'%</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('rankList').innerHTML = rankHtml || '<div style="color:var(--text-3);text-align:center;padding:20px;">No data yet</div>';
+}
+
+function renderAssignments(assigns, isTeacher) {
+  var listId = isTeacher ? 'assignList' : 'myAssignList';
+  if (!assigns.length) {
+    document.getElementById(listId).innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.82rem;">No assignments yet.</div>';
+    return;
   }
-  function filterStudents(){
-    var q=document.getElementById('searchStudents').value.toLowerCase();
-    document.querySelectorAll('.student-row').forEach(r=>{
-      r.style.display=r.textContent.toLowerCase().includes(q)?'flex':'none';
-    });
-  }
-  var _classStudents=[], _classResults=[];
-  function renderStudents(students, results){
-    _classStudents=students; _classResults=results;
-    if(!students.length){
-      document.getElementById('studentList').innerHTML=
-        '<div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">No students yet. Share your class code!</div>';
-      return;
-    }
-    var html=students.map(function(s,i){
-      var sResults=results.filter(r=>r.userId===s.uid);
-      var avg=sResults.length?Math.round(sResults.reduce((a,r)=>a+(r.percent||0),0)/sResults.length):null;
-      var scoreCol=avg===null?'var(--text-3)':avg>=70?'var(--c-green)':avg>=50?'var(--c-gold)':'var(--c-red)';
-      return '<div class="student-row">'
-        +'<div class="student-av">'+(s.displayName||'?')[0].toUpperCase()+'</div>'
-        +'<div style="flex:1;min-width:0;">'
-          +'<div class="student-name">'+(s.displayName||s.email||'Student')+'</div>'
-          +'<div class="student-meta">'+sResults.length+' exam'+(sResults.length!==1?'s':'')+'</div>'
-        +'</div>'
-        +'<div class="student-score" style="color:'+scoreCol+'">'+(avg!==null?avg+'%':'—')+'</div>'
-        +'</div>';
-    }).join('');
-    document.getElementById('studentList').innerHTML=html;
-    document.getElementById('statStudents').textContent=students.length;
-    var allAvgs=students.map(s=>{var r=results.filter(x=>x.userId===s.uid);return r.length?Math.round(r.reduce((a,x)=>a+(x.percent||0),0)/r.length):null;}).filter(a=>a!==null);
-    document.getElementById('statAvg').textContent=allAvgs.length?Math.round(allAvgs.reduce((a,b)=>a+b,0)/allAvgs.length)+'%':'—';
-    document.getElementById('statExams').textContent=results.length;
-  }
-  function renderRankings(){
-    if(!_classStudents.length){ document.getElementById('classRankings').innerHTML='<div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">No students yet</div>'; return; }
-    var ranked=_classStudents.map(function(s){
-      var r=_classResults.filter(x=>x.userId===s.uid);
-      var avg=r.length?Math.round(r.reduce((a,x)=>a+(x.percent||0),0)/r.length):0;
-      return {name:s.displayName||s.email||'Student',avg,exams:r.length};
-    }).sort((a,b)=>b.avg-a.avg);
-    var medals=['🥇','🥈','🥉'];
-    var html=ranked.map(function(s,i){
-      var c=s.avg>=70?'var(--c-green)':s.avg>=50?'var(--c-gold)':'var(--c-red)';
-      return '<div class="student-row">'
-        +'<div style="font-size:1.2rem;width:24px;flex-shrink:0;">'+(medals[i]||'#'+(i+1))+'</div>'
-        +'<div style="flex:1;min-width:0;"><div class="student-name">'+s.name+'</div><div class="student-meta">'+s.exams+' exams</div></div>'
-        +'<div class="student-score" style="color:'+c+'">'+s.avg+'%</div>'
-        +'</div>';
-    }).join('');
-    document.getElementById('classRankings').innerHTML=html;
-  }
-  function refreshStudents(){ if(window._loadClassData) window._loadClassData(); }
-  async function createAssignment(){
-    var title=document.getElementById('assignTitle').value.trim();
-    var cat=document.getElementById('assignCat').value;
-    var due=document.getElementById('assignDue').value;
-    if(!title){toast('Enter assignment title','warning');return;}
-    if(window._createAssignment) await window._createAssignment({title,category:cat,due,createdAt:new Date().toISOString()});
-  }
-  async function joinClass(){
-    var code=document.getElementById('joinCodeInput').value.trim().toUpperCase();
-    if(code.length!==6){toast('Enter the full 6-letter code','warning');return;}
-    if(window._joinClass) await window._joinClass(code);
-  }
-  function leaveClass(){
-    if(!confirm('Leave this class?')) return;
-    if(window._leaveClass) window._leaveClass();
-  }
+  var html = assigns.map(function(a) {
+    var due = a.due ? new Date(a.due).toLocaleDateString('en-NG',{day:'numeric',month:'short'}) : 'No deadline';
+    var completed = a.completedBy ? a.completedBy.length : 0;
+    var total = _students.length || 1;
+    var pct = Math.round((completed/total)*100);
+    return '<div class="assign-card">' +
+      '<div class="assign-title">' + a.title + '</div>' +
+      '<div class="assign-meta">📚 ' + a.category + ' · 🗓 Due: ' + due + ' · ' + a.qcount + ' questions</div>' +
+      '<div class="assign-progress">' +
+        '<div class="prog-bar"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
+        '<span style="font-size:0.68rem;color:var(--text-3);flex-shrink:0;">' + (isTeacher ? completed+'/'+total+' done' : (a.completedBy&&a.completedBy.includes(_uid)?'✅ Completed':'Start')) + '</span>' +
+      '</div>' +
+      (!isTeacher && !(a.completedBy&&a.completedBy.includes(_uid)) ?
+        '<button onclick="startAssignment(\''+a.id+'\')" style="margin-top:10px;width:100%;padding:9px;border-radius:10px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.78rem;cursor:pointer;">Start Assignment</button>' : '') +
+      '</div>';
+  }).join('');
+  document.getElementById(listId).innerHTML = html;
+}
+
+function startAssignment(id) {
+  var a = _assignments.find(function(x){return x.id===id;});
+  if (!a) return;
+  var params = new URLSearchParams({category:a.category,count:a.qcount,assignmentId:id,classId:_classId});
+  window.location.href = 'exam.html?' + params.toString();
+}
+
+async function createAssignment() {
+  if (!window._createAssign) { toast('Loading...','info'); return; }
+  var title = document.getElementById('assignTitle').value.trim();
+  var cat   = document.getElementById('assignCat').value;
+  var due   = document.getElementById('assignDue').value;
+  var qc    = parseInt(document.getElementById('assignQCount').value);
+  if (!title) { toast('Enter assignment title','warning'); return; }
+  try {
+    await window._createAssign({title, category:cat, due, qcount:qc, classId:_classId, createdBy:_uid, completedBy:[], createdAt:new Date().toISOString()});
+    closeSheet('assignSheet');
+    toast('Assignment created!','success');
+  } catch(e) { toast('Failed to create assignment','error'); }
+}
+
+async function joinClass() {
+  var code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if (code.length < 4) { toast('Enter a valid class code','warning'); return; }
+  if (!window._joinClass) { toast('Loading...','info'); return; }
+  try {
+    var result = await window._joinClass(code, _uid);
+    if (!result) { toast('Class not found. Check the code.','error'); return; }
+    document.getElementById('noClassView').style.display   = 'none';
+    document.getElementById('inClassView').style.display   = 'block';
+    document.getElementById('myClassName').textContent     = result.name || 'My Class';
+    document.getElementById('myClassCode').textContent     = 'Code: ' + code;
+    _classId = result.id;
+    toast('Joined class successfully!','success');
+  } catch(e) { toast('Failed to join class: '+(e.message||''),'error'); }
+}
+
+async function leaveClass() {
+  if (!confirm('Leave this class?')) return;
+  if (!window._leaveClass) return;
+  try {
+    await window._leaveClass(_uid);
+    document.getElementById('noClassView').style.display  = 'block';
+    document.getElementById('inClassView').style.display  = 'none';
+    _classId = null;
+    toast('Left the class','info');
+  } catch(e) { toast('Failed to leave class','error'); }
+}
+
+function toggleRoleView() {
+  _isTeacher = !_isTeacher;
+  document.getElementById('teacherDash').style.display  = _isTeacher ? 'block' : 'none';
+  document.getElementById('studentView').style.display  = _isTeacher ? 'none'  : 'block';
+  document.getElementById('accessWall').style.display   = 'none';
+  toast(_isTeacher ? 'Teacher view' : 'Student view', 'info');
+}
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteField,
-           collection, query, where, orderBy }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField,
+         collection, query, where, getDocs, addDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app = initializeApp({
-    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
-    authDomain:"cbt-app-5907f.firebaseapp.com",
-    projectId:"cbt-app-5907f",
-    storageBucket:"cbt-app-5907f.appspot.com",
-    messagingSenderId:"705323924101",
-    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
-  });
-  const auth=getAuth(app), db=getFirestore(app);
-  let uid=null, userData={};
+const app = initializeApp({
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com",
+  projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101",
+  appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+});
+const auth = getAuth(app), db = getFirestore(app);
 
-  onAuthStateChanged(auth, async user=>{
-    if(!user){window.location.href='login.html';return;}
-    uid=user.uid;
-    try{
-      const snap=await getDoc(doc(db,'users',uid));
-      userData=snap.data()||{};
-      localStorage.setItem('examora_plan',userData.plan||'free');
-    }catch(_){}
+window._joinClass = async (code, uid) => {
+  const snap = await getDocs(query(collection(db,'classes'), where('code','==',code)));
+  if (snap.empty) return null;
+  const cls = snap.docs[0];
+  await updateDoc(doc(db,'users',uid), {classId:cls.id, classCode:code});
+  await updateDoc(doc(db,'classes',cls.id), {memberCount:(cls.data().memberCount||0)+1});
+  return {id:cls.id, name:cls.data().name||'Class '+code};
+};
 
-    const role=userData.role;
-    const classId=userData.classId;
-    const isTeacher=role==='teacher'||role==='admin'||role==='superadmin';
+window._leaveClass = async uid => {
+  await updateDoc(doc(db,'users',uid), {classId:deleteField(), classCode:deleteField()});
+};
 
-    if(isTeacher){
-      // Teacher view
-      document.getElementById('teacherDash').style.display='block';
-      var code=generateCode(uid);
-      document.getElementById('classCode').textContent=code;
-      window._loadClassData=async function(){
-        try{
-          const studSnap=await getDocs(query(collection(db,'users'),where('classId','==',uid)));
-          const students=[];
-          studSnap.forEach(d=>students.push({uid:d.id,...d.data()}));
-          const resSnap=await getDocs(query(collection(db,'results'),where('classId','==',uid)));
-          const results=[];
-          resSnap.forEach(d=>results.push(d.data()));
-          renderStudents(students,results);
-        }catch(e){document.getElementById('studentList').innerHTML='<div style="text-align:center;padding:24px;color:var(--c-red);font-size:0.8rem;">Error loading: '+e.message+'</div>';}
-      };
-      window._loadClassData();
-      window._createAssignment=async function(data){
-        try{
-          await addDoc(collection(db,'assignments'),{...data,teacherId:uid,classId:uid});
-          toast('Assignment sent to class ✓','success');
-          document.getElementById('assignTitle').value='';
-        }catch(e){toast('Error: '+e.message,'error');}
-      };
+window._createAssign = async (data) => {
+  await addDoc(collection(db,'assignments'), Object.assign(data, {createdAt:serverTimestamp()}));
+};
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  window._uid = user.uid;
+  _uid = user.uid;
+
+  let ud = {};
+  try { const snap = await getDoc(doc(db,'users',user.uid)); if(snap.exists()) ud = snap.data(); } catch(e) {}
+
+  const isTeacher = ud.role === 'teacher' || ud.role === 'admin' || ud.role === 'superadmin';
+  _isTeacher = isTeacher;
+
+  document.getElementById('accessWall').style.display  = 'none';
+  document.getElementById('teacherDash').style.display  = isTeacher ? 'block' : 'none';
+  document.getElementById('studentView').style.display  = isTeacher ? 'none'  : 'block';
+
+  if (isTeacher) {
+    // Load or create class
+    let classData = null;
+    try {
+      const cSnap = await getDocs(query(collection(db,'classes'), where('createdBy','==',user.uid)));
+      if (cSnap.empty) {
+        // Create class
+        const code = Math.random().toString(36).slice(-6).toUpperCase();
+        const cRef = await addDoc(collection(db,'classes'), {
+          name: (ud.displayName||'Teacher') + "'s Class",
+          code, createdBy:user.uid, createdAt:serverTimestamp(), memberCount:0
+        });
+        classData = {id:cRef.id, code};
+      } else {
+        classData = {id:cSnap.docs[0].id, ...cSnap.docs[0].data()};
+      }
+    } catch(e) {}
+
+    if (classData) {
+      _classId = classData.id;
+      document.getElementById('classCode').textContent = classData.code || '——';
+
+      // Load students
+      try {
+        const sSnap = await getDocs(query(collection(db,'users'), where('classId','==',classData.id)));
+        _students = sSnap.docs.map(d => d.data());
+        renderStudents(_students);
+      } catch(e) {}
+
       // Load assignments
-      try{
-        const aSnap=await getDocs(query(collection(db,'assignments'),where('teacherId','==',uid),orderBy('createdAt','desc')));
-        if(!aSnap.empty){
-          var aHtml=[];
-          aSnap.forEach(d=>{
-            var a=d.data();
-            aHtml.push('<div class="assign-card"><div class="assign-title">'+a.title+'</div><div class="assign-meta">'+a.category+(a.due?' · Due '+a.due:'')+'</div></div>');
-          });
-          document.getElementById('assignList').innerHTML=aHtml.join('');
-        }
-      }catch(_){}
-    } else if(classId){
-      // Student in a class
-      document.getElementById('studentView').style.display='block';
-      try{
-        const teachSnap=await getDoc(doc(db,'users',classId));
-        const tName=teachSnap.data()?.displayName||'your teacher';
-        document.getElementById('studentClassName').textContent=tName+"'s Class";
-        // Load my results vs class
-        const myRes=await getDocs(query(collection(db,'results'),where('userId','==',uid)));
-        var myResults=[]; myRes.forEach(d=>myResults.push(d.data()));
-        var myAvg=myResults.length?Math.round(myResults.reduce((a,r)=>a+(r.percent||0),0)/myResults.length):null;
-        document.getElementById('myAvg').textContent=myAvg!==null?myAvg+'%':'—';
-        document.getElementById('myExams').textContent=myResults.length;
-        // Load assignments
-        const aSnap=await getDocs(query(collection(db,'assignments'),where('classId','==',classId)));
-        if(!aSnap.empty){
-          var aHtml=[];
-          aSnap.forEach(d=>{var a=d.data(); aHtml.push('<div class="assign-card"><div class="assign-title">'+a.title+'</div><div class="assign-meta">'+a.category+(a.due?' · Due '+a.due:'')+'</div><button class="btn btn-primary" style="margin-top:10px;padding:8px 18px;font-size:0.78rem;" onclick="window.location.href=\'exam.html?cat='+a.category+'\'">Start Practice →</button></div>');});
-          document.getElementById('myAssignments').innerHTML=aHtml.join('');
-        }
-      }catch(e){console.error(e);}
-      window._leaveClass=async function(){
-      await updateDoc(doc(db,"users",uid),{classId:deleteField()});
-      toast("Left class","success");
-      setTimeout(()=>location.reload(),1000);
-    };
-  });
+      try {
+        const aSnap = await getDocs(query(collection(db,'assignments'), where('classId','==',classData.id)));
+        _assignments = aSnap.docs.map(d => ({id:d.id,...d.data()}));
+        renderAssignments(_assignments, true);
+      } catch(e) {}
+    }
+  } else {
+    // Student view
+    if (ud.classId) {
+      _classId = ud.classId;
+      document.getElementById('noClassView').style.display  = 'none';
+      document.getElementById('inClassView').style.display  = 'block';
+      document.getElementById('myClassCode').textContent    = 'Code: ' + (ud.classCode||'—');
+
+      // Class info
+      try {
+        const cSnap = await getDoc(doc(db,'classes',ud.classId));
+        if (cSnap.exists()) document.getElementById('myClassName').textContent = cSnap.data().name || 'My Class';
+      } catch(e) {}
+
+      // Assignments for this class
+      try {
+        const aSnap = await getDocs(query(collection(db,'assignments'), where('classId','==',ud.classId)));
+        _assignments = aSnap.docs.map(d => ({id:d.id,...d.data()}));
+        renderAssignments(_assignments, false);
+      } catch(e) {}
+
+      // Class rankings (get all students in class)
+      try {
+        const sSnap = await getDocs(query(collection(db,'users'), where('classId','==',ud.classId)));
+        _students = sSnap.docs.map(d => d.data());
+        const sorted = [..._students].sort((a,b)=>{
+          const aa=a.totalQuestions>0?Math.round((a.totalCorrect/a.totalQuestions)*100):0;
+          const bb=b.totalQuestions>0?Math.round((b.totalCorrect/b.totalQuestions)*100):0;
+          return bb-aa;
+        });
+        document.getElementById('myRankList').innerHTML = sorted.slice(0,10).map((s,i)=>{
+          const avg=s.totalQuestions>0?Math.round((s.totalCorrect/s.totalQuestions)*100):0;
+          const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+          return '<div class="rank-row"><div class="rank-pos">'+(i<3?medal:'#'+(i+1))+'</div>'+
+            '<div style="flex:1;font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);">'+(s.displayName||'Student')+(s.email===user.email?' (You)':'')+'</div>'+
+            '<div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--c-brand);">'+avg+'%</div>'+
+            '</div>';
+        }).join('') || '<div style="color:var(--text-3);text-align:center;padding:20px;">No data yet</div>';
+      } catch(e) {}
+    }
+  }
+});
 </script>
 <script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>

@@ -619,20 +619,7 @@
 
 <!-- ── AI Chat FAB ─────────────────────────────────────────── -->
 <a href="chat.html" class="ai-chat-fab" title="AI Tutor" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">🤖</a>
-<div class="ai-chat-panel" id="aiChatPanel">
-  <div class="ai-chat-header">
-    <div class="ai-chat-logo">🤖</div>
-    <div><div class="ai-chat-name">AI Study Buddy</div><div class="ai-chat-status">Powered by NexaCore Labs</div></div>
-    <button class="ai-chat-close" onclick="toggleAIChat()">✕</button>
-  </div>
-  <div class="ai-chat-messages" id="aiChatMessages">
-    <div class="ai-chat-msg bot">Hi! Ask me anything — powered by NexaCore Labs 🤖 📚</div>
-  </div>
-  <div class="ai-chat-footer">
-    <input class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendAIChat()"/>
-    <button class="ai-chat-send" id="aiChatSend" onclick="sendAIChat()">➤</button>
-  </div>
-</div>
+
 <script src="ai-engine.js"></script>
 <script>
   var _chatHistory=[];

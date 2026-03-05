@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Help & FAQ — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.wrap{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:40px;}
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;flex-shrink:0;color:var(--text-2);}
+.hero{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:24px 20px;text-align:center;}
+.search-wrap{padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);}
+.search-box{width:100%;padding:10px 14px 10px 40px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.86rem;outline:none;box-sizing:border-box;position:relative;}
+.search-box:focus{border-color:var(--c-brand);}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:1rem;pointer-events:none;}
+.search-rel{position:relative;}
+.sec-label{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;padding:16px 16px 8px;}
+.faq-item{border-bottom:1px solid var(--border);}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background 0.15s;}
+.faq-q:hover{background:var(--bg-input);}
+.faq-q-text{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);flex:1;padding-right:10px;}
+.faq-arrow{font-size:1rem;color:var(--text-3);transition:transform 0.2s;flex-shrink:0;}
+.faq-a{display:none;padding:0 16px 14px;font-size:0.82rem;color:var(--text-2);line-height:1.75;}
+.faq-item.open .faq-a{display:block;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.contact-card{margin:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:20px;}
+.contact-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity 0.18s;}
+.contact-row:hover{opacity:0.75;}
+.contact-row:last-child{border-bottom:none;}
+.c-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.c-body{flex:1;}
+.c-title{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.c-sub{font-size:0.7rem;color:var(--text-3);margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-header">
+    <button class="icon-btn" onclick="history.back()"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div class="page-title">Help & FAQ</div>
+  </div>
+
+  <div class="hero">
+    <div style="font-size:2rem;margin-bottom:8px;">❓</div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:white;margin-bottom:4px;">How can we help?</div>
+    <div style="font-size:0.76rem;color:rgba(255,255,255,0.45);">Find answers below or contact our support team</div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-rel">
+      <span class="material-symbols-rounded search-icon">search</span>
+      <input class="search-box" id="searchBox" placeholder="Search FAQ..." oninput="filterFaq(this.value)" style="padding-left:40px;"/>
+    </div>
+  </div>
+
+  <!-- Getting Started -->
+  <div class="sec-label">Getting Started</div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I create an account?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Tap "Create Account" on the login screen. Enter your email and password (6+ characters). Check your email for a verification link — click it, then sign in. You can also sign in instantly with Google.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">What exams does EXAMORA cover?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">EXAMORA covers JAMB UTME, WAEC SSCE, NECO SSCE, Post-UTME, and many subject-specific tests. The AI tutor NOVA also helps with SAT, IELTS, GRE, A-Levels, and professional certifications.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I start a practice exam?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Tap "Exam" on the bottom navigation. Select your exam type (e.g. JAMB), subject, difficulty, and number of questions. Tap "Start Exam" and begin! After finishing, you'll see a detailed result breakdown.</div>
+  </div>
+
+  <!-- AI Tutor -->
+  <div class="sec-label">AI Tutor (NOVA)</div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">Who is NOVA?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">NOVA is EXAMORA's AI study companion. She can explain any concept, solve maths step-by-step, give exam hints, generate practice questions, build your study plan, and check your essay answers. Access NOVA from the chat icon on any screen.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">Why is NOVA slow sometimes?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">NOVA uses free AI models via the internet. Response time depends on your connection speed and server load. Free users share server capacity — Premium users get faster responses. Try refreshing if NOVA takes more than 30 seconds.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I use the Problem Solver?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Go to Home → Problem Solver. Type any maths, physics, or chemistry question. NOVA will show a full step-by-step solution. You can save solutions to your Notes or ask NOVA follow-up questions in chat.</div>
+  </div>
+
+  <!-- Premium -->
+  <div class="sec-label">Premium & Billing</div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">What does Premium include?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Premium gives you: unlimited AI sessions with NOVA, all 60,000+ past questions, full offline mode, unlimited mock exams, advanced analytics, AI flashcard generation, essay checking, step-by-step solver, and priority support.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">Can I get a free trial?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Yes! New users get a 7-day free trial with full Premium access — no payment card required. Go to the Upgrade page and tap "Start Free Trial."</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I cancel my subscription?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Email us at billing@examora.com.ng with your account email and we'll cancel your subscription. You keep Premium access until the end of your current billing period.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">Do you offer refunds?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Yes. We offer a 7-day money-back guarantee for new Premium subscribers. If you're not satisfied, email billing@examora.com.ng within 7 days of your first payment and we'll refund you in full.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I apply a promo code?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">On the Upgrade page, scroll down to the price card. You'll see a "Promo code" field below the payment button. Enter your code and tap Apply. Valid codes include JAMB2025 (30% off) and WAEC50 (50% off).</div>
+  </div>
+
+  <!-- Account & Data -->
+  <div class="sec-label">Account & Data</div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I reset my password?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">On the login screen, tap "Forgot password?" Enter your email address and we'll send a password reset link. Check your spam folder if you don't see it within a few minutes.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I change my profile photo?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Go to your Profile page. Tap your avatar photo — a crop tool will appear. Choose and position your photo, then tap "Use Photo." It will upload automatically to your account.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How does offline mode work?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Install EXAMORA as a PWA (tap "Add to Home Screen" in your browser). Premium users can access previously loaded questions and their saved notes, flashcards, and study plan offline. AI features require internet.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I delete my account?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Go to Profile → scroll to the bottom → tap "Delete Account." Confirm the action. All your data will be permanently deleted within 30 days. This action cannot be undone.</div>
+  </div>
+
+  <!-- School Mode -->
+  <div class="sec-label">School Mode</div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I join my teacher's class?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Go to Home → School Mode. Tap "Join Class" and enter the 6-digit code your teacher gave you. Once joined, you can see class assignments and your ranking among classmates.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q"><span class="faq-q-text">How do I set up a class as a teacher?</span><span class="material-symbols-rounded faq-arrow">expand_more</span></div>
+    <div class="faq-a">Contact us at support@examora.com.ng to get teacher access. Once enabled, go to School Mode — a class is created automatically with a unique 6-digit code to share with students.</div>
+  </div>
+
+  <!-- Contact -->
+  <div class="sec-label">Still Need Help?</div>
+  <div class="contact-card">
+    <div class="contact-row" onclick="window.open('mailto:support@examora.com.ng','_blank')">
+      <div class="c-icon" style="background:rgba(99,102,241,0.1);">✉️</div>
+      <div class="c-body"><div class="c-title">Email Support</div><div class="c-sub">support@examora.com.ng · Reply within 24hrs</div></div>
+    </div>
+    <div class="contact-row" onclick="window.open('https://examora.com.ng','_blank')">
+      <div class="c-icon" style="background:rgba(16,185,129,0.1);">🌐</div>
+      <div class="c-body"><div class="c-title">Visit Website</div><div class="c-sub">examora.com.ng</div></div>
+    </div>
+    <div class="contact-row" onclick="window.open('https://wa.me/2348000000000','_blank')">
+      <div class="c-icon" style="background:rgba(37,211,102,0.1);">💬</div>
+      <div class="c-body"><div class="c-title">WhatsApp Support</div><div class="c-sub">Chat with us directly</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+
+function toggleFaq(el) {
+  var isOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(x) { x.classList.remove('open'); });
+  if (!isOpen) el.classList.add('open');
+}
+
+function filterFaq(q) {
+  var items = document.querySelectorAll('.faq-item');
+  var labels = document.querySelectorAll('.sec-label');
+  if (!q) {
+    items.forEach(function(el) { el.style.display = ''; });
+    labels.forEach(function(el) { el.style.display = ''; });
+    return;
+  }
+  q = q.toLowerCase();
+  items.forEach(function(el) {
+    var text = el.textContent.toLowerCase();
+    el.style.display = text.includes(q) ? '' : 'none';
+  });
+  labels.forEach(function(el) { el.style.display = 'none'; });
+}
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});</script>
+</body>
+</html>

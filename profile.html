@@ -1,392 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EXAMORA — Profile</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="logo.png"/>
-  <link rel="apple-touch-icon" href="logo.png"/>
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="theme-color" content="#0f172a"/>
-  <style>
-    .profile-hero {
-      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
-      padding: 32px 20px 28px; text-align: center;
-      position: relative; overflow: hidden;
-    }
-    .profile-hero::before { content:''; position:absolute; top:-60px; right:-60px; width:180px; height:180px; border-radius:50%; background:rgba(99,102,241,0.12); pointer-events:none; }
-    .profile-hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:120px; height:120px; border-radius:50%; background:rgba(16,185,129,0.08); pointer-events:none; }
-
-    .p-avatar-wrap { position:relative; display:inline-block; margin-bottom:14px; cursor:pointer; }
-    .p-avatar {
-      width:80px; height:80px; border-radius:50%;
-      background:linear-gradient(135deg,var(--c-brand),#8b5cf6);
-      display:flex; align-items:center; justify-content:center;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:2rem; color:white;
-      border:3px solid rgba(255,255,255,0.15); box-shadow:0 8px 24px rgba(99,102,241,0.45);
-      position:relative; z-index:1; overflow:hidden; transition:filter 0.2s ease;
-    }
-    .p-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-    .p-avatar-wrap:hover .p-avatar { filter:brightness(0.75); }
-    .p-avatar-ring { position:absolute; inset:-6px; border-radius:50%; border:2px dashed rgba(99,102,241,0.4); animation:spin 12s linear infinite; }
-    .p-avatar-edit { position:absolute; bottom:0; right:-2px; z-index:3; width:26px; height:26px; border-radius:50%; background:var(--c-brand); border:2px solid #0f172a; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(99,102,241,0.5); }
-    .p-premium-crown { position:absolute; bottom:-2px; left:-2px; z-index:3; width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#f97316); display:none; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(245,158,11,0.5); border:2px solid #0f172a; }
-    .upload-progress-ring { display:none; position:absolute; inset:0; border-radius:50%; align-items:center; justify-content:center; z-index:4; background:rgba(15,23,42,0.7); }
-    .upload-progress-ring.show { display:flex; }
-    .upr-text { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:0.75rem; color:white; }
-    .p-cover { width:100%; height:80px; object-fit:cover; position:absolute; top:0; left:0; right:0; opacity:0.35; pointer-events:none; display:none; }
-    .p-cover-btn { position:absolute; top:12px; right:16px; z-index:2; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:100px; padding:5px 12px; cursor:pointer; font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:4px; backdrop-filter:blur(4px); }
-    .p-name { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.4rem; color:white; letter-spacing:-0.5px; margin-bottom:3px; position:relative; z-index:1; }
-    .p-email { font-size:0.74rem; color:rgba(255,255,255,0.4); margin-bottom:12px; position:relative; z-index:1; }
-    .p-tags-row { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; position:relative; z-index:1; }
-    .p-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:100px; font-size:0.67rem; font-weight:700; letter-spacing:0.3px; }
-    .p-tag-exam   { background:rgba(99,102,241,0.2);  color:#818cf8; border:1px solid rgba(99,102,241,0.25); }
-    .p-tag-state  { background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.2); }
-    .p-tag-school { background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.2); }
-    .p-tag-prem   { background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(249,115,22,0.3)); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
-
-    .p-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
-    .p-stat { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:12px 8px; text-align:center; box-shadow:var(--shadow-xs); }
-    .p-stat-n { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.2rem; display:block; margin-bottom:3px; line-height:1; }
-    .p-stat-l { font-size:0.58rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
-
-    .target-strip { background:linear-gradient(135deg,#0f172a,#1e1b4b); border-radius:16px; padding:16px; margin-bottom:14px; border:1px solid rgba(99,102,241,0.2); }
-    .ts-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-    .ts-title { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.82rem; color:white; }
-    .ts-value { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:0.8rem; color:#818cf8; }
-    .ts-bar-bg { height:8px; background:rgba(255,255,255,0.08); border-radius:100px; overflow:hidden; margin-bottom:6px; }
-    .ts-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--c-brand),var(--c-green)); transition:width 1s ease; }
-    .ts-foot { display:flex; justify-content:space-between; font-size:0.65rem; color:rgba(255,255,255,0.35); font-weight:600; }
-
-    .badges-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:4px; }
-    .badge-tile { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:12px 8px; text-align:center; box-shadow:var(--shadow-xs); }
-    .badge-tile.earned { border-color:rgba(245,158,11,0.3); background:linear-gradient(135deg,rgba(245,158,11,0.06),var(--bg-card)); }
-    .badge-tile.locked { opacity:0.38; }
-    .badge-tile .bt-icon { font-size:1.5rem; display:block; margin-bottom:5px; }
-    .badge-tile .bt-name { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.6rem; color:var(--text-2); line-height:1.3; }
-    .badge-tile.earned .bt-name { color:var(--c-gold); }
-
-    .settings-list { display:flex; flex-direction:column; gap:2px; margin-bottom:14px; }
-    .setting-row { display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:12px; background:var(--bg-card); border:1px solid var(--border); cursor:pointer; transition:all 0.18s ease; box-shadow:var(--shadow-xs); text-decoration:none; }
-    .setting-row:active { transform:scale(0.99); background:var(--bg-input); }
-    .setting-icon { width:36px; height:36px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-    .setting-icon .material-symbols-rounded { font-size:1.1rem; font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20; }
-    .setting-content { flex:1; min-width:0; }
-    .setting-label { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.84rem; color:var(--text); }
-    .setting-value { font-size:0.72rem; color:var(--text-3); font-weight:600; margin-top:1px; }
-    .setting-arrow { color:var(--text-3); font-size:1rem; flex-shrink:0; }
-    .setting-row.danger .setting-label { color:var(--c-red); }
-
-    .toggle-row { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; background:var(--bg-card); border:1px solid var(--border); margin-bottom:2px; }
-    .toggle-label { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.84rem; color:var(--text); flex:1; }
-
-    .overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; }
-    .overlay.show { display:flex; animation:fadeIn 0.2s ease; }
-    .edit-sheet { background:var(--bg-card); border-radius:24px 24px 0 0; padding:24px 20px 40px; width:100%; max-width:var(--max-width); animation:fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1); max-height:85vh; overflow-y:auto; }
-    .sheet-handle { width:36px; height:4px; border-radius:100px; background:var(--border); margin:0 auto 20px; }
-    .sheet-title { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1rem; color:var(--text); margin-bottom:18px; }
-
-    .referral-card { background:linear-gradient(135deg,#0f172a,#1e1b4b); border-radius:18px; padding:18px; margin-bottom:14px; border:1px solid rgba(99,102,241,0.25); }
-    .referral-card h4 { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:0.9rem; color:white; margin-bottom:4px; }
-    .referral-card p { font-size:0.72rem; color:rgba(255,255,255,0.4); line-height:1.5; margin-bottom:14px; }
-    .referral-link-row { display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.06); border-radius:10px; padding:10px 12px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.1); }
-    .referral-link-text { flex:1; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.72rem; color:#818cf8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .referral-copy-btn { background:var(--c-brand); color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.65rem; padding:6px 12px; border-radius:8px; border:none; cursor:pointer; flex-shrink:0; }
-    .referral-share-row { display:flex; gap:8px; }
-    .ref-share-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.7rem; border:1.5px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.7); transition:all 0.18s ease; }
-    .ref-share-btn:active { transform:scale(0.96); }
-
-    .danger-zone { border:1.5px solid rgba(244,63,94,0.2); border-radius:16px; padding:16px; margin-bottom:20px; background:rgba(244,63,94,0.03); }
-    .danger-zone h4 { font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.78rem; color:var(--c-red); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
-
-    .crop-modal { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px; }
-    .crop-modal.show { display:flex; animation:fadeIn 0.2s ease; }
-    .crop-box { background:var(--bg-card); border-radius:20px; padding:20px; width:100%; max-width:380px; }
-    .crop-canvas-wrap { width:240px; height:240px; border-radius:50%; overflow:hidden; margin:0 auto 14px; border:3px solid var(--c-brand); position:relative; background:#000; cursor:move; }
-    #cropCanvas { position:absolute; top:0; left:0; touch-action:none; }
-    .crop-zoom { width:100%; margin-bottom:16px; accent-color:var(--c-brand); }
-    .crop-actions { display:flex; gap:8px; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Profile — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+:root{--max-width:480px;}
+.page-wrapper{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:80px;}
+/* Cover + Avatar */
+.cover-area{position:relative;height:130px;background:linear-gradient(135deg,#1e1b4b,#312e81,#4338ca);overflow:hidden;cursor:pointer;}
+.cover-img{width:100%;height:100%;object-fit:cover;display:none;}
+.cover-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.0);transition:background 0.2s;}
+.cover-area:hover .cover-overlay{background:rgba(0,0,0,0.25);}
+.cover-edit-hint{color:rgba(255,255,255,0.7);font-size:0.72rem;font-weight:600;opacity:0;transition:opacity 0.2s;}
+.cover-area:hover .cover-edit-hint{opacity:1;}
+.profile-hero{padding:0 16px 0;position:relative;margin-top:-44px;}
+.avatar-wrap{position:relative;display:inline-block;margin-bottom:10px;}
+.p-avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:2rem;color:white;border:3px solid var(--bg-card);cursor:pointer;overflow:hidden;position:relative;}
+.avatar-badge{position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;background:var(--c-brand);border:2px solid var(--bg-card);display:flex;align-items:center;justify-content:center;font-size:0.6rem;}
+.upload-progress-ring{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:none;align-items:center;justify-content:center;}
+.upload-progress-ring.show{display:flex;}
+.upr-text{color:white;font-family:var(--font-display);font-weight:800;font-size:0.75rem;}
+.p-crown{display:none;position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);align-items:center;justify-content:center;font-size:0.65rem;border:2px solid var(--bg-card);}
+.p-name{font-family:var(--font-display);font-weight:900;font-size:1.25rem;color:var(--text);line-height:1.1;}
+.p-email{font-size:0.74rem;color:var(--text-3);margin-top:2px;}
+.p-tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.p-tag{padding:4px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;}
+.p-tag-exam{background:rgba(99,102,241,0.1);color:var(--c-brand);}
+.p-tag-state{background:rgba(16,185,129,0.1);color:var(--c-green);}
+.p-tag-school{background:rgba(245,158,11,0.1);color:var(--c-gold);}
+.p-tag-prem{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;}
+.edit-profile-btn{position:absolute;top:0;right:16px;padding:7px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:100px;font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.18s;}
+.edit-profile-btn:hover{border-color:var(--c-brand);color:var(--c-brand);}
+/* Stats row */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:16px;}
+.s-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;}
+.s-val{font-family:var(--font-display);font-weight:800;font-size:1.2rem;color:var(--text);}
+.s-lbl{font-size:0.6rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+/* Target strip */
+.target-strip{margin:0 16px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px;display:none;}
+.ts-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ts-label{font-family:var(--font-display);font-weight:700;font-size:0.8rem;color:var(--text);}
+.ts-vals{font-size:0.72rem;color:var(--text-3);}
+.ts-bar{height:6px;background:var(--bg-input);border-radius:100px;overflow:hidden;}
+.ts-fill{height:100%;background:linear-gradient(90deg,var(--c-brand),var(--c-brand-light));border-radius:100px;width:0;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
+/* Section */
+.sec{padding:0 16px;margin-bottom:16px;}
+.sec-hd{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+/* Settings rows */
+.srow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all 0.18s;}
+.srow:hover{border-color:var(--c-brand);}
+.srow-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.srow-body{flex:1;}
+.srow-title{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.srow-sub{font-size:0.7rem;color:var(--text-3);margin-top:2px;}
+.srow-right{color:var(--text-3);font-family:var(--font-display);font-weight:600;font-size:0.78rem;}
+/* Badges */
+.badges-row{display:flex;flex-wrap:wrap;gap:8px;}
+.bdg{display:flex;flex-direction:column;align-items:center;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;min-width:70px;text-align:center;}
+.bdg-icon{font-size:1.4rem;margin-bottom:4px;}
+.bdg-name{font-size:0.64rem;font-weight:700;color:var(--text-2);}
+.bdg.locked{opacity:0.35;filter:grayscale(1);}
+/* Upgrade strip */
+.upgrade-strip{margin:0 16px 12px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform 0.18s;}
+.upgrade-strip:hover{transform:scale(1.01);}
+/* Overlay / sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.sheet{background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1);}
+.sh-handle{width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;}
+.sh-title{font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:var(--text);margin-bottom:16px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;}
+.form-input{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;transition:all 0.18s;outline:none;box-sizing:border-box;}
+.form-input:focus{border-color:var(--c-brand);}
+.form-select{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;appearance:none;box-sizing:border-box;}
+.sel-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.sel-chip{padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg-input);font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.15s;}
+.sel-chip.sel-on{background:var(--c-brand);color:white;border-color:var(--c-brand);}
+/* Crop modal */
+.crop-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.crop-modal.show{display:flex;}
+.crop-wrap{width:240px;height:240px;border-radius:50%;overflow:hidden;background:#111;position:relative;cursor:grab;border:3px solid rgba(255,255,255,0.3);}
+.crop-canvas{width:100%;height:100%;}
+.crop-controls{display:flex;gap:12px;margin-top:20px;align-items:center;}
+.crop-zoom{flex:1;-webkit-appearance:none;height:4px;border-radius:100px;background:rgba(255,255,255,0.2);outline:none;}
+.crop-zoom::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:white;cursor:pointer;}
+/* Referral */
+.ref-card{background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.05));border:1.5px solid rgba(99,102,241,0.2);border-radius:18px;padding:16px;}
+.ref-code{font-family:monospace;font-size:1rem;font-weight:700;background:var(--bg-card);border:1.5px dashed var(--c-brand);padding:10px 16px;border-radius:10px;color:var(--c-brand);text-align:center;margin:10px 0;}
+/* Toggle */
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:100px;cursor:pointer;transition:all 0.2s;}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:all 0.2s;}
+.toggle-switch input:checked + .toggle-slider{background:var(--c-brand);}
+.toggle-switch input:checked + .toggle-slider::before{transform:translateX(20px);}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
 </head>
 <body>
-
-<header class="app-header">
-  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
-    <img class="app-logo-img" src="logo.png" alt="EXAMORA" style="width:34px;height:34px;border-radius:10px;object-fit:contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
-    <div class="app-logo-icon" style="display:none;">EX</div>
-    <div><div class="app-logo-name">EXAMORA</div></div>
-  </a>
-  <div class="header-actions">
-    <button class="header-btn" id="themeBtn" title="Toggle theme">
-      <span class="material-symbols-rounded" id="themeBtnIcon">dark_mode</span>
-    </button>
-  </div>
-</header>
-
-<!-- Profile Hero -->
-<div class="profile-hero animate-in">
-  <img id="pCover" class="p-cover" src="" alt=""/>
-  <button class="p-cover-btn" onclick="document.getElementById('coverInput').click()">
-    <span class="material-symbols-rounded" style="font-size:0.85rem;">photo_camera</span> Cover
-  </button>
-  <input type="file" id="coverInput" accept="image/*" style="display:none;" onchange="handleCoverPick(event)"/>
-  <div class="p-avatar-wrap" onclick="document.getElementById('avatarInput').click()">
-    <div class="p-avatar" id="pAvatar">
-      <div class="upload-progress-ring" id="avatarProgressRing">
-        <span class="upr-text" id="avatarProgressPct">0%</span>
-      </div>
-    </div>
-    <div class="p-avatar-ring"></div>
-    <div class="p-avatar-edit">
-      <span class="material-symbols-rounded" style="font-size:0.75rem;color:white;">photo_camera</span>
-    </div>
-    <div class="p-premium-crown" id="pCrown">
-      <span class="material-symbols-rounded" style="font-size:0.75rem;color:white;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">workspace_premium</span>
-    </div>
-  </div>
-  <input type="file" id="avatarInput" accept="image/*" capture="user" style="display:none;" onchange="handleAvatarPick(event)"/>
-  <div class="p-name" id="pName">Loading...</div>
-  <div class="p-email" id="pEmail"></div>
-  <div class="p-tags-row" id="pTagsRow"></div>
-</div>
-
-<!-- Crop Modal -->
-<div class="crop-modal" id="cropModal">
-  <div class="crop-box">
-    <div class="sheet-title" style="text-align:center;">Crop Photo</div>
-    <div class="crop-canvas-wrap" id="cropWrap"
-      onmousedown="startDrag(event)" ontouchstart="startDrag(event)"
-      onmousemove="onDrag(event)"   ontouchmove="onDrag(event)"
-      onmouseup="endDrag()"         ontouchend="endDrag()">
-      <canvas id="cropCanvas"></canvas>
-    </div>
-    <p style="text-align:center;font-size:0.72rem;color:var(--text-3);margin-bottom:12px;">Drag to reposition · Slide to zoom</p>
-    <input type="range" class="crop-zoom" id="cropZoom" min="0.5" max="3" step="0.05" value="1" oninput="onZoom(this.value)"/>
-    <div class="crop-actions">
-      <button class="btn btn-ghost" onclick="closeCrop()" style="flex:1;">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCrop()" style="flex:2;" id="saveCropBtn">Use Photo</button>
-    </div>
-  </div>
-</div>
-
 <div class="page-wrapper">
 
-  <!-- Stats -->
-  <div class="p-stats animate-in animate-in-delay-1">
-    <div class="p-stat"><span class="p-stat-n" id="psExams" style="color:var(--c-brand);">—</span><span class="p-stat-l">Exams</span></div>
-    <div class="p-stat"><span class="p-stat-n" id="psAvg"   style="color:var(--c-green);">—</span><span class="p-stat-l">Average</span></div>
-    <div class="p-stat"><span class="p-stat-n" id="psStreak" style="color:var(--c-gold);">—</span><span class="p-stat-l">Streak</span></div>
-    <div class="p-stat"><span class="p-stat-n" id="psXP"    style="color:#a855f7;">—</span><span class="p-stat-l">XP</span></div>
+  <!-- Cover -->
+  <div class="cover-area" onclick="document.getElementById('coverInput').click()">
+    <img id="pCover" class="cover-img"/>
+    <div class="cover-overlay"><span class="cover-edit-hint">📷 Change cover</span></div>
+    <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="pickPhoto(event,'cover')"/>
   </div>
 
-  <!-- Target progress -->
-  <div class="target-strip animate-in animate-in-delay-1" id="targetStrip" style="display:none;">
-    <div class="ts-header">
-      <div class="ts-title">Target Score Progress</div>
-      <div class="ts-value" id="tsValue">— / 400</div>
+  <!-- Hero -->
+  <div class="profile-hero">
+    <div class="avatar-wrap">
+      <div class="p-avatar" id="pAvatar" onclick="document.getElementById('avatarInput').click()">?
+        <div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>
+      </div>
+      <div class="p-crown" id="pCrown">👑</div>
+      <div class="avatar-badge">📷</div>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="pickPhoto(event,'avatar')"/>
     </div>
-    <div class="ts-bar-bg"><div class="ts-bar-fill" id="tsBarFill" style="width:0%;"></div></div>
-    <div class="ts-foot"><span>Current: <span id="tsCurrent">—</span></span><span id="tsPct">—% of goal</span></div>
+    <button class="edit-profile-btn" onclick="openSheet('editOverlay')">✏️ Edit</button>
+    <div class="p-name" id="pName">Loading...</div>
+    <div class="p-email" id="pEmail"></div>
+    <div class="p-tags-row" id="pTagsRow"></div>
   </div>
 
-  <!-- Achievements -->
-  <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">workspace_premium</div>
-    <h3>Achievements</h3>
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="s-box"><div class="s-val" id="psExams">—</div><div class="s-lbl">Exams</div></div>
+    <div class="s-box"><div class="s-val" id="psAvg">—</div><div class="s-lbl">Avg Score</div></div>
+    <div class="s-box"><div class="s-val" id="psStreak">—</div><div class="s-lbl">🔥 Streak</div></div>
+    <div class="s-box"><div class="s-val" id="psXP">—</div><div class="s-lbl">⚡ XP</div></div>
   </div>
-  <div class="badges-grid animate-in animate-in-delay-2" id="badgesGrid"></div>
+
+  <!-- Target -->
+  <div class="target-strip" id="targetStrip">
+    <div class="ts-row">
+      <span class="ts-label">🎯 Target Score</span>
+      <span class="ts-vals"><span id="tsCurrent">0%</span> → <span id="tsValue">—</span></span>
+    </div>
+    <div class="ts-bar"><div class="ts-fill" id="tsBarFill"></div></div>
+    <div style="font-size:0.68rem;color:var(--text-3);margin-top:6px;" id="tsPct"></div>
+  </div>
+
+  <!-- Badges -->
+  <div class="sec">
+    <div class="sec-hd">Achievements</div>
+    <div class="badges-row" id="badgesRow">
+      <div class="bdg locked"><div class="bdg-icon">🏆</div><div class="bdg-name">100 Exams</div></div>
+      <div class="bdg locked"><div class="bdg-icon">💯</div><div class="bdg-name">Perfect Score</div></div>
+      <div class="bdg locked"><div class="bdg-icon">🔥</div><div class="bdg-name">7-Day Streak</div></div>
+      <div class="bdg locked"><div class="bdg-icon">⭐</div><div class="bdg-name">High Scorer</div></div>
+    </div>
+  </div>
+
+  <!-- Upgrade strip (shown if free) -->
+  <div class="upgrade-strip" id="upgradeStrip" onclick="window.location.href='upgrade.html'">
+    <div style="font-size:1.6rem;">⚡</div>
+    <div style="flex:1;">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:white;">Go Premium</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:2px;">Unlimited AI, all exams, offline mode</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.5);font-size:1rem;">›</div>
+  </div>
+
+  <!-- Quick access -->
+  <div class="sec">
+    <div class="sec-hd">Quick Access</div>
+    <div class="srow" onclick="window.location.href='chat.html'">
+      <div class="srow-icon" style="background:rgba(99,102,241,0.1);">🤖</div>
+      <div class="srow-body"><div class="srow-title">AI Tutor — NOVA</div><div class="srow-sub">Chat, explain, solve</div></div>
+      <div class="srow-right">›</div>
+    </div>
+    <div class="srow" onclick="window.location.href='flashcards.html'">
+      <div class="srow-icon" style="background:rgba(168,85,247,0.1);">🃏</div>
+      <div class="srow-body"><div class="srow-title">Flashcards</div><div class="srow-sub">Spaced repetition study</div></div>
+      <div class="srow-right">›</div>
+    </div>
+    <div class="srow" onclick="window.location.href='planner.html'">
+      <div class="srow-icon" style="background:rgba(20,184,166,0.1);">📅</div>
+      <div class="srow-body"><div class="srow-title">Study Planner</div><div class="srow-sub">AI-generated 7-day plans</div></div>
+      <div class="srow-right">›</div>
+    </div>
+    <div class="srow" onclick="window.location.href='solver.html'">
+      <div class="srow-icon" style="background:rgba(16,185,129,0.1);">🔢</div>
+      <div class="srow-body"><div class="srow-title">Problem Solver</div><div class="srow-sub">Step-by-step solutions</div></div>
+      <div class="srow-right">›</div>
+    </div>
+    <div class="srow" onclick="window.location.href='essay-check.html'">
+      <div class="srow-icon" style="background:rgba(245,158,11,0.1);">📝</div>
+      <div class="srow-body"><div class="srow-title">Answer Checker</div><div class="srow-sub">AI marks your essay/theory</div></div>
+      <div class="srow-right">›</div>
+    </div>
+    <div class="srow" onclick="window.location.href='notifications.html'">
+      <div class="srow-icon" style="background:rgba(244,63,94,0.1);">🔔</div>
+      <div class="srow-body"><div class="srow-title">Notifications</div><div class="srow-sub">Alerts and reminders</div></div>
+      <div class="srow-right">›</div>
+    </div>
+    <div class="srow" id="adminLink" style="display:none;" onclick="window.location.href='admin.html'">
+      <div class="srow-icon" style="background:rgba(244,63,94,0.1);">🛡️</div>
+      <div class="srow-body"><div class="srow-title">Admin Panel</div><div class="srow-sub">Manage questions & users</div></div>
+      <div class="srow-right">›</div>
+    </div>
+  </div>
 
   <!-- Settings -->
-  <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
-    <div class="section-icon">settings</div>
-    <h3>Settings</h3>
-  </div>
-  <div class="settings-list animate-in animate-in-delay-3">
-    <div class="setting-row" onclick="openEditProfile()">
-      <div class="setting-icon" style="background:var(--c-brand-pale);"><span class="material-symbols-rounded">edit</span></div>
-      <div class="setting-content"><div class="setting-label">Edit Profile</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+  <div class="sec">
+    <div class="sec-hd">Study Settings</div>
+    <div class="srow" onclick="openSheet('targetOverlay')">
+      <div class="srow-icon" style="background:rgba(99,102,241,0.1);">🎯</div>
+      <div class="srow-body"><div class="srow-title">Target Score</div><div class="srow-sub">Set your exam goal</div></div>
+      <div class="srow-right" id="targetVal">Not set</div>
     </div>
-    <div class="setting-row" onclick="openTargetSheet()">
-      <div class="setting-icon" style="background:rgba(16,185,129,0.1);"><span class="material-symbols-rounded">track_changes</span></div>
-      <div class="setting-content"><div class="setting-label">Target Score</div><div class="setting-value" id="targetVal">Not set</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    <div class="srow" onclick="openSheet('subjOverlay')">
+      <div class="srow-icon" style="background:rgba(16,185,129,0.1);">📚</div>
+      <div class="srow-body"><div class="srow-title">My Subjects</div><div class="srow-sub">Subjects you're studying</div></div>
+      <div class="srow-right" id="subjectsVal">Not set</div>
     </div>
-    <div class="setting-row" onclick="openSubjectsSheet()">
-      <div class="setting-icon" style="background:rgba(245,158,11,0.1);"><span class="material-symbols-rounded">menu_book</span></div>
-      <div class="setting-content"><div class="setting-label">My Subjects</div><div class="setting-value" id="subjectsVal">Not set</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
+    <div class="srow" onclick="window.location.href='settings.html'">
+      <div class="srow-icon" style="background:rgba(99,102,241,0.1);">⚙️</div>
+      <div class="srow-body"><div class="srow-title">App Settings</div><div class="srow-sub">Notifications, theme, data</div></div>
+      <div class="srow-right">›</div>
     </div>
-    <div class="setting-row" id="adminLink" style="display:none;" onclick="window.location.href='admin.html'">
-      <div class="setting-icon" style="background:rgba(168,85,247,0.1);"><span class="material-symbols-rounded">admin_panel_settings</span></div>
-      <div class="setting-content"><div class="setting-label" style="color:#c084fc;">Admin Panel</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="toggle-row">
-      <div class="setting-icon" style="background:rgba(148,163,184,0.1);"><span class="material-symbols-rounded" id="themeRowIcon">dark_mode</span></div>
-      <div class="toggle-label">Dark Mode</div>
-      <label class="toggle-wrap">
-        <input type="checkbox" class="toggle-input" id="themeCheckbox"/>
-        <div class="toggle-slider"></div>
-        <div class="toggle-knob"></div>
+    <div class="srow" onclick="toggleTheme()">
+      <div class="srow-icon" style="background:rgba(245,158,11,0.1);">🌙</div>
+      <div class="srow-body"><div class="srow-title" id="themeRowTitle">Dark Mode</div><div class="srow-sub" id="themeRowSub">Currently light</div></div>
+      <label class="toggle-switch" onclick="event.stopPropagation()">
+        <input type="checkbox" id="themeCheckbox" onchange="toggleTheme()"/>
+        <span class="toggle-slider"></span>
       </label>
     </div>
   </div>
 
-  <!-- Upgrade strip -->
-  <div id="upgradeStrip" style="display:none;" class="animate-in animate-in-delay-3">
-    <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.2);">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#f59e0b,#f97316);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(245,158,11,0.4);">
-          <span class="material-symbols-rounded" style="color:white;font-size:1.2rem;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">workspace_premium</span>
-        </div>
-        <div style="flex:1;">
-          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.88rem;color:white;margin-bottom:3px;">Go Premium</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);">AI explanations · Deep analytics · Unlimited bookmarks</div>
-        </div>
-        <a href="upgrade.html" style="background:linear-gradient(135deg,#f59e0b,#f97316);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.7rem;padding:8px 14px;border-radius:100px;text-decoration:none;white-space:nowrap;box-shadow:0 3px 10px rgba(245,158,11,0.4);">From ₦2k</a>
+  <!-- Referral -->
+  <div class="sec">
+    <div class="sec-hd">Refer Friends</div>
+    <div class="ref-card">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);">🎁 Earn 7 free days per referral</div>
+      <div style="font-size:0.76rem;color:var(--text-3);margin-top:4px;">Share your code — both you and your friend get rewards.</div>
+      <div class="ref-code" id="refCode">Loading...</div>
+      <div style="font-size:0.72rem;color:var(--text-3);margin-bottom:8px;text-align:center;"><span id="refCount">0</span> referrals · <span id="refDaysEarned">0</span> bonus days earned</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="copyRef()" style="flex:1;padding:9px;border-radius:10px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">Copy Link</button>
+        <button onclick="shareRef()" style="flex:1;padding:9px;border-radius:10px;background:var(--bg-input);color:var(--text-2);border:1.5px solid var(--border);font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">Share</button>
       </div>
     </div>
   </div>
 
-  <!-- Refer Friends -->
-  <div class="section-header animate-in animate-in-delay-3" style="margin-top:20px;">
-    <div class="section-icon">card_giftcard</div>
-    <h3>Refer Friends</h3>
-  </div>
-  <div class="referral-card animate-in animate-in-delay-3">
-    <h4>Invite friends to EXAMORA</h4>
-    <p>Share your personal link. Every student you bring helps grow the community!</p>
-    <div class="referral-link-row">
-      <div class="referral-link-text" id="referralLinkText">examora.com.ng/join?ref=...</div>
-      <button class="referral-copy-btn" onclick="copyReferralLink()">Copy</button>
+  <!-- Account -->
+  <div class="sec">
+    <div class="sec-hd">Account</div>
+    <div class="srow" onclick="confirmSignOut()" style="border-color:rgba(244,63,94,0.2);">
+      <div class="srow-icon" style="background:rgba(244,63,94,0.08);">🚪</div>
+      <div class="srow-body"><div class="srow-title" style="color:var(--c-red);">Sign Out</div></div>
     </div>
-    <div class="referral-share-row">
-      <div class="ref-share-btn" onclick="shareRef('whatsapp')"><span style="font-size:1rem;">💬</span> WhatsApp</div>
-      <div class="ref-share-btn" onclick="shareRef('twitter')"><span style="font-size:1rem;">🐦</span> Twitter</div>
+    <div class="srow" onclick="confirmDeleteAccount()" style="border-color:rgba(244,63,94,0.2);">
+      <div class="srow-icon" style="background:rgba(244,63,94,0.08);">❌</div>
+      <div class="srow-body"><div class="srow-title" style="color:var(--c-red);">Delete Account</div><div class="srow-sub">Permanently removes all data</div></div>
     </div>
   </div>
 
-  <!-- Support -->
-  <div class="section-header animate-in animate-in-delay-4" style="margin-top:20px;">
-    <div class="section-icon">support_agent</div>
-    <h3>Support</h3>
-  </div>
-  <div class="settings-list animate-in animate-in-delay-4">
-    <a href="mailto:support@examora.com.ng" style="color:var(--c-brand);font-weight:700;text-decoration:none;">support@examora.com.ng</a>
-    <div class="setting-row" onclick="toast('Version 1.0.0 · Build 2025','info')">
-      <div class="setting-icon" style="background:rgba(99,102,241,0.1);"><span class="material-symbols-rounded">smartphone</span></div>
-      <div class="setting-content"><div class="setting-label">App Version</div><div class="setting-value">v1.0.0 · 2025</div></div>
-    </div>
-  </div>
-
-  <!-- Quick Access Links -->
-  <div class="section-header animate-in animate-in-delay-4" style="margin-top:20px;">
-    <div class="section-icon">apps</div>
-    <h3>Quick Access</h3>
-  </div>
-  <div class="settings-list animate-in animate-in-delay-4">
-    <div class="setting-row" onclick="window.location.href='mock.html'">
-      <div class="setting-icon" style="background:rgba(244,63,94,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">timer</span></div>
-      <div class="setting-content"><div class="setting-label">Mock Exams</div><div class="setting-value">Timed full exam simulation</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='offline.html'">
-      <div class="setting-icon" style="background:rgba(16,185,129,0.1);"><span class="material-symbols-rounded" style="color:var(--c-green);">download_for_offline</span></div>
-      <div class="setting-content"><div class="setting-label">Offline Packs</div><div class="setting-value">Study without internet</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='school.html'">
-      <div class="setting-icon" style="background:rgba(245,158,11,0.1);"><span class="material-symbols-rounded" style="color:var(--c-gold);">school</span></div>
-      <div class="setting-content"><div class="setting-label">School / Class</div><div class="setting-value">Join or manage a class</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='chat.html'">
-      <div class="setting-icon" style="background:rgba(99,102,241,0.1);"><span class="material-symbols-rounded" style="color:var(--c-brand);">smart_toy</span></div>
-      <div class="setting-content"><div class="setting-label">AI Tutor Chat</div><div class="setting-value">Ask anything, get explanations</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='flashcards.html'">
-      <div class="setting-icon" style="background:rgba(168,85,247,0.1);"><span class="material-symbols-rounded" style="color:#a855f7;">style</span></div>
-      <div class="setting-content"><div class="setting-label">Flashcards</div><div class="setting-value">AI-generated study decks</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='planner.html'">
-      <div class="setting-icon" style="background:rgba(20,184,166,0.1);"><span class="material-symbols-rounded" style="color:#14b8a6;">calendar_month</span></div>
-      <div class="setting-content"><div class="setting-label">Study Planner</div><div class="setting-value">Daily tasks & AI study plan</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='notes.html'">
-      <div class="setting-icon" style="background:rgba(245,158,11,0.1);"><span class="material-symbols-rounded" style="color:var(--c-gold);">edit_note</span></div>
-      <div class="setting-content"><div class="setting-label">Study Notes</div><div class="setting-value">Write and AI-summarise notes</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-    <div class="setting-row" onclick="window.location.href='notifications.html'">
-      <div class="setting-icon" style="background:rgba(244,63,94,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">notifications</span></div>
-      <div class="setting-content"><div class="setting-label">Notifications</div><div class="setting-value">Reminders and alerts</div></div>
-      <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-    </div>
-  </div>
-
-  <!-- Referral Rewards -->
-  <div class="section-header animate-in animate-in-delay-4" style="margin-top:20px;">
-    <div class="section-icon">card_giftcard</div>
-    <h3>Refer & Earn</h3>
-  </div>
-  <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;border:1px solid rgba(99,102,241,0.25);" class="animate-in animate-in-delay-4">
-    <div style="font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:white;margin-bottom:4px;">🎁 Get 7 Days Premium Free</div>
-    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:14px;">Share EXAMORA with friends. When they sign up and practice, you both get 7 days Premium free.</div>
-    <!-- Stats -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--c-brand);" id="refCount">0</div>
-        <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);">Friends Joined</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-family:var(--font-display);font-weight:800;font-size:1.3rem;color:var(--c-green);" id="refDaysEarned">0</div>
-        <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);">Days Earned</div>
-      </div>
-    </div>
-    <!-- Link row -->
-    <div style="display:flex;gap:8px;align-items:center;background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.08);">
-      <div style="flex:1;font-size:0.72rem;color:#818cf8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-display);font-weight:600;" id="referralLinkText">examora.com.ng/join?ref=...</div>
-      <button onclick="copyReferralLink()" style="background:var(--c-brand);color:white;font-weight:700;font-size:0.65rem;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;flex-shrink:0;">Copy</button>
-    </div>
-    <!-- Share buttons -->
-    <div style="display:flex;gap:8px;">
-      <button onclick="shareRef('whatsapp')" style="flex:1;background:rgba(37,211,102,0.15);color:#25d366;border:1px solid rgba(37,211,102,0.25);border-radius:100px;padding:9px;font-size:0.74rem;font-weight:700;cursor:pointer;">📱 WhatsApp</button>
-      <button onclick="shareRef('twitter')" style="flex:1;background:rgba(29,161,242,0.1);color:#1da1f2;border:1px solid rgba(29,161,242,0.2);border-radius:100px;padding:9px;font-size:0.74rem;font-weight:700;cursor:pointer;">🐦 Twitter</button>
-    </div>
-  </div>
-
-  <!-- Danger zone -->
-  <div class="danger-zone animate-in animate-in-delay-4">
-    <h4>Danger Zone</h4>
-    <div class="settings-list" style="margin-bottom:0;">
-      <div class="setting-row danger" onclick="confirmSignOut()">
-        <div class="setting-icon" style="background:rgba(244,63,94,0.08);"><span class="material-symbols-rounded" style="color:var(--c-red);">logout</span></div>
-        <div class="setting-content"><div class="setting-label">Sign Out</div></div>
-        <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-      </div>
-      <div class="setting-row danger" onclick="confirmDeleteAccount()">
-        <div class="setting-icon" style="background:rgba(244,63,94,0.08);"><span class="material-symbols-rounded" style="color:var(--c-red);">delete_forever</span></div>
-        <div class="setting-content"><div class="setting-label">Delete Account</div></div>
-        <span class="material-symbols-rounded setting-arrow">chevron_right</span>
-      </div>
-    </div>
-  </div>
-
-  <p style="text-align:center;font-size:0.68rem;color:var(--text-3);margin-bottom:24px;">EXAMORA v1.0 · Made with ❤️ in Nigeria</p>
 </div>
 
-<!-- Edit Profile Sheet -->
+<!-- Edit Profile sheet -->
 <div class="overlay" id="editOverlay" onclick="if(event.target===this)closeSheet('editOverlay')">
-  <div class="edit-sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Edit Profile</div>
-    <div class="form-group"><label class="form-label">Display Name</label><input type="text" class="form-input" id="editName" placeholder="Your full name"/></div>
-    <div class="form-group"><label class="form-label">School / University</label><input type="text" class="form-input" id="editSchool" placeholder="e.g. University of Lagos"/></div>
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Edit Profile</div>
+    <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" id="editName" placeholder="Your name"/></div>
+    <div class="form-group"><label class="form-label">School / Institution</label><input class="form-input" id="editSchool" placeholder="e.g. Lagos State University"/></div>
     <div class="form-group">
       <label class="form-label">State</label>
       <select class="form-select" id="editState">
@@ -395,427 +281,407 @@
       </select>
     </div>
     <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
-    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeSheet('editOverlay')">Cancel</button>
   </div>
 </div>
 
-<!-- Target Score Sheet -->
+<!-- Target sheet -->
 <div class="overlay" id="targetOverlay" onclick="if(event.target===this)closeSheet('targetOverlay')">
-  <div class="edit-sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Set Target Score</div>
-    <div style="text-align:center;margin-bottom:20px;">
-      <div id="targetSliderNum" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:3rem;letter-spacing:-2px;background:linear-gradient(135deg,var(--c-brand),var(--c-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">250</div>
-      <div style="font-size:0.74rem;color:var(--text-3);">out of 400</div>
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Set Target Score</div>
+    <div style="text-align:center;padding:8px 0 16px;">
+      <div style="font-family:var(--font-display);font-weight:900;font-size:2.5rem;color:var(--c-brand);" id="sliderDisplay">75</div>
+      <div style="font-size:0.74rem;color:var(--text-3);">target percentage</div>
     </div>
-    <input type="range" min="140" max="400" step="5" value="250" id="targetSlider" oninput="document.getElementById('targetSliderNum').textContent=this.value" style="margin-bottom:16px;"/>
-    <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-3);margin-bottom:20px;"><span>140</span><span>200</span><span>250</span><span>300</span><span>400</span></div>
-    <button class="btn btn-primary" onclick="saveTarget()">Save Target</button>
-    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeSheet('targetOverlay')">Cancel</button>
+    <input type="range" id="targetSlider" min="40" max="100" value="75" step="5" style="width:100%;margin-bottom:16px;" oninput="document.getElementById('sliderDisplay').textContent=this.value"/>
+    <button class="btn btn-primary" onclick="saveTarget()">Set Target</button>
   </div>
 </div>
 
-<!-- Subjects Sheet -->
+<!-- Subjects sheet -->
 <div class="overlay" id="subjOverlay" onclick="if(event.target===this)closeSheet('subjOverlay')">
-  <div class="edit-sheet" onclick="event.stopPropagation()">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">My Subjects</div>
-    <div id="subjChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"></div>
-    <button class="btn btn-primary" onclick="saveSubjects()">Save</button>
-    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeSheet('subjOverlay')">Cancel</button>
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div class="sh-title">My Subjects</div>
+    <div style="font-size:0.75rem;color:var(--text-3);margin-bottom:12px;">Select all subjects you're preparing for</div>
+    <div class="sel-chips" id="subjChips">
+      <div class="sel-chip" data-subj="Mathematics" onclick="toggleSubj(this)">Mathematics</div>
+      <div class="sel-chip" data-subj="English Language" onclick="toggleSubj(this)">English</div>
+      <div class="sel-chip" data-subj="Physics" onclick="toggleSubj(this)">Physics</div>
+      <div class="sel-chip" data-subj="Chemistry" onclick="toggleSubj(this)">Chemistry</div>
+      <div class="sel-chip" data-subj="Biology" onclick="toggleSubj(this)">Biology</div>
+      <div class="sel-chip" data-subj="Economics" onclick="toggleSubj(this)">Economics</div>
+      <div class="sel-chip" data-subj="Government" onclick="toggleSubj(this)">Government</div>
+      <div class="sel-chip" data-subj="History" onclick="toggleSubj(this)">History</div>
+      <div class="sel-chip" data-subj="Geography" onclick="toggleSubj(this)">Geography</div>
+      <div class="sel-chip" data-subj="Commerce" onclick="toggleSubj(this)">Commerce</div>
+      <div class="sel-chip" data-subj="Literature in English" onclick="toggleSubj(this)">Literature</div>
+      <div class="sel-chip" data-subj="Agricultural Science" onclick="toggleSubj(this)">Agriculture</div>
+      <div class="sel-chip" data-subj="Computer Studies" onclick="toggleSubj(this)">Computer</div>
+      <div class="sel-chip" data-subj="Further Mathematics" onclick="toggleSubj(this)">Further Maths</div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSubjects()">Save Subjects</button>
   </div>
 </div>
 
-<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+<!-- Crop modal -->
+<div class="crop-modal" id="cropModal">
+  <div style="color:white;font-family:var(--font-display);font-weight:700;font-size:0.9rem;margin-bottom:16px;">Drag to position</div>
+  <div class="crop-wrap" id="cropWrap"
+    ontouchstart="startDrag(event)" ontouchmove="onDrag(event)" ontouchend="endDrag()"
+    onmousedown="startDrag(event)" onmousemove="onDrag(event)" onmouseup="endDrag()">
+    <canvas class="crop-canvas" id="cropCanvas"></canvas>
+  </div>
+  <div class="crop-controls">
+    <span style="color:white;font-size:0.8rem;">🔍</span>
+    <input type="range" class="crop-zoom" id="cropZoomSlider" min="0.5" max="3" step="0.05" value="1" oninput="onZoom(this.value)"/>
+    <span style="color:white;font-size:0.9rem;">🔍</span>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button onclick="closeCrop()" style="flex:1;padding:12px;border-radius:12px;background:rgba(255,255,255,0.1);color:white;border:none;font-family:var(--font-display);font-weight:700;cursor:pointer;">Cancel</button>
+    <button id="saveCropBtn" onclick="saveCrop()" style="flex:1;padding:12px;border-radius:12px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;cursor:pointer;">Use Photo</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html"        class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html"   class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
   <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item active"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+  <a href="profile.html" class="nav-item active"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
-<!-- ═══════════════════════════════════════
-  SCRIPTS — ALL window.* so module can read
-═══════════════════════════════════════ -->
 <script>
-  // Theme
-  const _t = localStorage.getItem("examora_theme") || "light";
-  document.documentElement.setAttribute("data-theme", _t);
+// Theme
+var _curTheme = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _curTheme);
+var _isDark = _curTheme === 'dark';
+document.getElementById('themeCheckbox').checked = _isDark;
+document.getElementById('themeRowSub').textContent = _isDark ? 'Currently dark' : 'Currently light';
 
-  function _applyTheme(t) {
-    document.documentElement.setAttribute("data-theme", t);
-    localStorage.setItem("examora_theme", t);
-    const dark = t === "dark";
-    document.getElementById("themeBtnIcon").textContent = dark ? "light_mode" : "dark_mode";
-    document.getElementById("themeRowIcon").textContent = dark ? "light_mode" : "dark_mode";
-    document.getElementById("themeCheckbox").checked   = dark;
-  }
-  _applyTheme(_t);
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type] || 'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + (type || 'info');
+  setTimeout(function() { t.className = 'toast'; }, 3200);
+}
+window.toast = toast;
 
-  document.getElementById("themeBtn").addEventListener("click", () =>
-    _applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
-  document.getElementById("themeCheckbox").addEventListener("change", e =>
-    _applyTheme(e.target.checked ? "dark" : "light"));
+function toggleTheme() {
+  _curTheme = _curTheme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('examora_theme', _curTheme);
+  document.documentElement.setAttribute('data-theme', _curTheme);
+  _isDark = _curTheme === 'dark';
+  document.getElementById('themeCheckbox').checked = _isDark;
+  document.getElementById('themeRowSub').textContent = _isDark ? 'Currently dark' : 'Currently light';
+}
 
-  // Toast — full version with type support
-  function toast(msg, type, dur) {
-    type = type || ""; dur = dur || 3200;
-    const el  = document.getElementById("toast");
-    const ico = document.getElementById("toastIcon");
-    const txt = document.getElementById("toastMsg");
-    const icons = { success:"✓", error:"✕", info:"i", warning:"!" };
-    el.className = "toast" + (type ? " toast-"+type : "");
-    ico.textContent = icons[type] || ""; ico.style.display = type ? "flex" : "none";
-    txt.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(el._tid);
-    el._tid = setTimeout(function(){ el.classList.remove("show"); }, dur);
-  }
+function openSheet(id) { document.getElementById(id).classList.add('open'); }
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+window.closeSheet = closeSheet;
 
-  function closeSheet(id) { document.getElementById(id).classList.remove("show"); }
+function toggleSubj(el) { el.classList.toggle('sel-on'); }
+window.toggleSubj = toggleSubj;
 
-  // ── Shared state on window so ES module can write to it ──
-  window._pd  = {};   // profile data
-  window._sub = [];   // subjects
-  window._uid = null;
+function confirmSignOut() {
+  if (confirm('Sign out of EXAMORA?')) window._doSignOut && window._doSignOut();
+}
+function confirmDeleteAccount() {
+  if (confirm('DELETE your account? This cannot be undone. All your data will be lost.'))
+    window._doDelete && window._doDelete();
+}
 
-  const ALL_BADGES = [
-    {id:"first_exam",  icon:"🎓", name:"First Exam"},
-    {id:"streak_3",    icon:"🔥", name:"3-Day Streak"},
-    {id:"streak_7",    icon:"💫", name:"Week Warrior"},
-    {id:"streak_30",   icon:"⚡", name:"Iron Will"},
-    {id:"perfect",     icon:"💯", name:"Perfect Score"},
-    {id:"top_10",      icon:"🏆", name:"Top 10"},
-    {id:"100_exams",   icon:"📝", name:"Century"},
-    {id:"dc_7",        icon:"⚡", name:"Daily Devotee"},
-    {id:"high_scorer", icon:"🌟", name:"High Scorer"},
-    {id:"bookworm",    icon:"🔖", name:"Bookworm"},
-    {id:"speed_demon", icon:"⏩", name:"Speed Demon"},
-    {id:"premium",     icon:"👑", name:"Premium"},
+// Referral
+window.buildReferralLink = function(uid) {
+  var code = uid.slice(-8).toUpperCase();
+  var link = 'https://examora.com.ng?ref=' + code;
+  document.getElementById('refCode').textContent = link;
+  window._refLink = link;
+};
+function copyRef() {
+  if (!window._refLink) return;
+  navigator.clipboard.writeText(window._refLink).then(function() { toast('Referral link copied!', 'success'); });
+}
+function shareRef() {
+  if (!window._refLink) return;
+  if (navigator.share) {
+    navigator.share({ title: 'Join EXAMORA', text: 'Ace your exams with AI! Use my link:', url: window._refLink });
+  } else { copyRef(); }
+}
+
+// Badges renderer
+function renderBadges(badges) {
+  var defs = [
+    { id:'premium', icon:'⭐', name:'Premium' },
+    { id:'perfect', icon:'💯', name:'Perfect Score' },
+    { id:'100_exams', icon:'🏆', name:'100 Exams' },
+    { id:'high_scorer', icon:'🎯', name:'High Scorer' },
+    { id:'streak_7', icon:'🔥', name:'7-Day Streak' },
+    { id:'streak_30', icon:'⚡', name:'30-Day Streak' }
   ];
+  var html = defs.map(function(d) {
+    var unlocked = badges.includes(d.id);
+    return '<div class="bdg' + (unlocked ? '' : ' locked') + '">' +
+      '<div class="bdg-icon">' + d.icon + '</div>' +
+      '<div class="bdg-name">' + d.name + '</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('badgesRow').innerHTML = html;
+}
+window.renderBadges = renderBadges;
 
-  function renderBadges(earned) {
-    document.getElementById("badgesGrid").innerHTML = ALL_BADGES.map(function(b) {
-      var e = earned.indexOf(b.id) >= 0;
-      return '<div class="badge-tile ' + (e?"earned":"locked") + '">'
-        + '<span class="bt-icon">' + b.icon + '</span>'
-        + '<div class="bt-name">' + b.name + '</div>'
-        + '</div>';
-    }).join("");
-  }
+// Photo crop
+var cropImg = null, cropX = 0, cropY = 0, cropZoom = 1, dragStart = null, imgSX = 0, imgSY = 0, cropMode = 'avatar';
 
-  function openEditProfile() {
-    var d = window._pd;
-    document.getElementById("editName").value   = d.displayName || "";
-    document.getElementById("editSchool").value = d.school || "";
-    document.getElementById("editState").value  = d.state  || "";
-    document.getElementById("editOverlay").classList.add("show");
-  }
-  function openTargetSheet() {
-    var v = window._pd.targetScore || 250;
-    document.getElementById("targetSlider").value          = v;
-    document.getElementById("targetSliderNum").textContent = v;
-    document.getElementById("targetOverlay").classList.add("show");
-  }
-  function openSubjectsSheet() {
-    var ALL_SUBJ = ["Mathematics","English Language","Physics","Chemistry","Biology",
-      "Economics","Government","Literature in English","Geography","Commerce",
-      "Agricultural Science","Accounting","Further Mathematics","Civic Education",
-      "Use of English","General Studies","Financial Accounting"];
-    var sel = window._sub;
-    document.getElementById("subjChips").innerHTML = ALL_SUBJ.map(function(s) {
-      var on = sel.indexOf(s) >= 0;
-      var bg  = on ? "var(--c-brand)" : "var(--bg-card)";
-      var col = on ? "white" : "var(--text-2)";
-      var brd = on ? "var(--c-brand)" : "var(--border)";
-      return '<div data-subj="' + s + '" class="subj-item' + (on?" sel-on":"") + '"'
-        + ' style="padding:8px 14px;border-radius:100px;cursor:pointer;font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700;font-size:0.72rem;'
-        + 'border:1.5px solid ' + brd + ';background:' + bg + ';color:' + col + ';transition:all 0.18s;"'
-        + ' onclick="toggleSubj(this)">' + s + '</div>';
-    }).join("");
-    document.getElementById("subjOverlay").classList.add("show");
-  }
-  function toggleSubj(el) {
-    var on = el.classList.toggle("sel-on");
-    el.style.background   = on ? "var(--c-brand)" : "var(--bg-card)";
-    el.style.color        = on ? "white" : "var(--text-2)";
-    el.style.borderColor  = on ? "var(--c-brand)" : "var(--border)";
-  }
-  function confirmSignOut() {
-    if (!confirm("Sign out of EXAMORA?")) return;
-    // Try module-set handler first, fallback to direct Firebase import
-    if (typeof window._doSignOut === "function") {
-      window._doSignOut();
+function pickPhoto(e, mode) {
+  var f = e.target.files[0]; if (!f) return;
+  cropMode = mode;
+  var r = new FileReader();
+  r.onload = function(ev) {
+    cropImg = new Image();
+    cropImg.onload = function() { cropX = 0; cropY = 0; cropZoom = 1; document.getElementById('cropZoomSlider').value = 1; drawCrop(); document.getElementById('cropModal').classList.add('show'); };
+    cropImg.src = ev.target.result;
+  };
+  r.readAsDataURL(f);
+}
+
+function closeCrop() { document.getElementById('cropModal').classList.remove('show'); }
+function drawCrop() {
+  if (!cropImg) return;
+  var wrap = document.getElementById('cropWrap'), size = wrap.offsetWidth || 240;
+  var canvas = document.getElementById('cropCanvas'); canvas.width = size; canvas.height = size;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, size, size);
+  ctx.drawImage(cropImg, cropX, cropY, cropImg.naturalWidth * cropZoom, cropImg.naturalHeight * cropZoom);
+}
+function onZoom(v) { cropZoom = parseFloat(v); drawCrop(); }
+function startDrag(e) {
+  e.preventDefault();
+  var pt = e.touches ? e.touches[0] : e;
+  dragStart = { x: pt.clientX, y: pt.clientY }; imgSX = cropX; imgSY = cropY;
+}
+function onDrag(e) {
+  if (!dragStart) return; e.preventDefault();
+  var pt = e.touches ? e.touches[0] : e;
+  cropX = imgSX + (pt.clientX - dragStart.x); cropY = imgSY + (pt.clientY - dragStart.y); drawCrop();
+}
+function endDrag() { dragStart = null; }
+function saveCrop() {
+  var btn = document.getElementById('saveCropBtn'); btn.disabled = true; btn.textContent = 'Saving...';
+  var wrap = document.getElementById('cropWrap'), size = wrap.offsetWidth || 240;
+  var out = document.createElement('canvas');
+  out.width = cropMode === 'avatar' ? 400 : 1200; out.height = 400;
+  var ctx = out.getContext('2d'), sx = out.width / size, sy = out.height / size;
+  ctx.drawImage(cropImg, cropX * sx, cropY * sy, cropImg.naturalWidth * cropZoom * sx, cropImg.naturalHeight * cropZoom * sy);
+  out.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    if (cropMode === 'avatar') {
+      document.getElementById('pAvatar').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/><div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>';
     } else {
-      // Fallback: clear local state and redirect
-      localStorage.removeItem("examora_plan");
-      localStorage.removeItem("examora_user_display");
-      window.location.href = "login.html";
+      var cov = document.getElementById('pCover'); cov.src = url; cov.style.display = 'block';
     }
-  }
-  function confirmDeleteAccount(){ if (confirm("Delete your account?\nAll your data will be permanently lost.")) window._doDelete && window._doDelete(); }
+    closeCrop(); btn.disabled = false; btn.textContent = 'Use Photo';
+    window._uploadPhoto && window._uploadPhoto(blob, cropMode);
+  }, 'image/jpeg', 0.85);
+}
+</script>
 
-  function buildReferralLink(uid) {
-    var link = "https://examora.com.ng/join?ref=" + uid.slice(0,8);
-    document.getElementById("referralLinkText").textContent = link;
-    return link;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, deleteUser }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc,
+         collection, query, where, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com",
+  projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101",
+  appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+});
+const auth = getAuth(app), db = getFirestore(app), storage = getStorage(app);
+
+window._doSignOut = async () => { await signOut(auth); window.location.href = 'login.html'; };
+window._doDelete  = async () => {
+  const uid = window._uid; if (!uid) return;
+  try { await deleteDoc(doc(db,'users',uid)); await deleteUser(auth.currentUser); window.location.href = 'login.html'; }
+  catch(e) { toast('Please re-login and try again.', 'error'); }
+};
+
+window._uploadPhoto = (blob, mode) => {
+  const uid = window._uid; if (!uid) return;
+  const task = uploadBytesResumable(ref(storage, `${mode==='avatar'?'avatars':'covers'}/${uid}.jpg`), blob, {contentType:'image/jpeg'});
+  const ring = document.getElementById('avatarProgressRing'), pctEl = document.getElementById('avatarProgressPct');
+  if (ring) ring.classList.add('show');
+  task.on('state_changed',
+    s => { if (pctEl) pctEl.textContent = Math.round(s.bytesTransferred/s.totalBytes*100)+'%'; },
+    () => { toast('Upload failed','error'); if (ring) ring.classList.remove('show'); },
+    async () => {
+      const url = await getDownloadURL(task.snapshot.ref);
+      if (ring) ring.classList.remove('show');
+      await updateDoc(doc(db,'users',uid), {[mode==='avatar'?'photoURL':'coverURL']: url}).catch(()=>{});
+      toast(mode==='avatar'?'Photo updated!':'Cover updated!','success');
+    }
+  );
+};
+
+window.saveProfile = async () => {
+  const uid = window._uid; if (!uid) return;
+  const name   = document.getElementById('editName').value.trim();
+  const school = document.getElementById('editSchool').value.trim();
+  const state  = document.getElementById('editState').value;
+  if (!name) { toast('Name cannot be empty','error'); return; }
+  try {
+    await updateDoc(doc(db,'users',uid), {displayName:name, school, state, updatedAt:new Date().toISOString()});
+    document.getElementById('pName').textContent = name;
+    closeSheet('editOverlay'); toast('Profile updated!','success');
+  } catch(e) { toast('Save failed. Try again.','error'); }
+};
+
+window.saveTarget = async () => {
+  const uid = window._uid; if (!uid) return;
+  const val = parseInt(document.getElementById('targetSlider').value);
+  try {
+    await updateDoc(doc(db,'users',uid), {targetScore:val});
+    document.getElementById('targetVal').textContent = val+'pts';
+    document.getElementById('targetStrip').style.display = 'block';
+    document.getElementById('tsValue').textContent = val+'pts';
+    closeSheet('targetOverlay'); toast('Target set to '+val+'!','success');
+  } catch(e) { toast('Save failed.','error'); }
+};
+
+window.saveSubjects = async () => {
+  const uid = window._uid; if (!uid) return;
+  const sel = [...document.querySelectorAll('#subjChips .sel-on')].map(c => c.dataset.subj || c.textContent.trim());
+  if (!sel.length) { toast('Select at least one subject','error'); return; }
+  try {
+    await updateDoc(doc(db,'users',uid), {subjects:sel});
+    window._sub = sel;
+    document.getElementById('subjectsVal').textContent = sel.slice(0,2).join(', ') + (sel.length>2 ? ` +${sel.length-2}` : '');
+    closeSheet('subjOverlay'); toast('Subjects saved!','success');
+  } catch(e) { toast('Save failed.','error'); }
+};
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  window._uid = user.uid;
+
+  let ud = {};
+  try {
+    const snap = await getDoc(doc(db,'users',user.uid));
+    if (!snap.exists()) {
+      ud = {displayName:user.email.split('@')[0],email:user.email,plan:'free',streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[],xp:0};
+      await setDoc(doc(db,'users',user.uid), ud, {merge:true});
+    } else ud = snap.data();
+  } catch(e) {
+    ud = {displayName:user.email.split('@')[0],email:user.email,plan:'free',streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[]};
   }
-  function copyReferralLink() {
-    var link = document.getElementById("referralLinkText").textContent;
-    navigator.clipboard && navigator.clipboard.writeText(link).then(function(){
-      var btn = document.querySelector(".referral-copy-btn");
-      btn.textContent = "Copied ✓";
-      setTimeout(function(){ btn.textContent = "Copy"; }, 2000);
-      toast("Referral link copied!", "success");
+  window._pd = ud; window._sub = ud.subjects || [];
+
+  const name   = ud.displayName || user.email.split('@')[0];
+  const plan   = ud.plan || 'free';
+  const streak = ud.streak || 0;
+  const total  = ud.totalExams || 0;
+  const tq     = ud.totalQuestions || 0;
+  const tc     = ud.totalCorrect || 0;
+  const avg    = tq > 0 ? Math.round((tc/tq)*100) : 0;
+  const xp     = ud.xp || (total*10+tc);
+
+  localStorage.setItem('examora_plan', plan);
+  localStorage.setItem('examora_user_display', name);
+  localStorage.setItem('examora_uid', user.uid);
+
+  // Avatar
+  const av = document.getElementById('pAvatar');
+  if (ud.photoURL) av.innerHTML = `<img src="${ud.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='${name[0].toUpperCase()}'"/><div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>`;
+  else av.textContent = name[0].toUpperCase();
+  if (ud.coverURL) { const cv = document.getElementById('pCover'); cv.src = ud.coverURL; cv.style.display = 'block'; }
+
+  // Basic info
+  document.getElementById('pName').textContent  = name;
+  document.getElementById('pEmail').textContent = user.email;
+  if (plan === 'premium') document.getElementById('pCrown').style.display = 'flex';
+  if (ud.role === 'admin' || ud.role === 'superadmin') document.getElementById('adminLink').style.display = 'flex';
+  if (plan === 'premium') document.getElementById('upgradeStrip').style.display = 'none';
+
+  // Tags
+  const tags = [];
+  if (ud.examType) tags.push(`<span class="p-tag p-tag-exam">${ud.examType}</span>`);
+  if (ud.state)    tags.push(`<span class="p-tag p-tag-state">${ud.state}</span>`);
+  if (ud.school)   tags.push(`<span class="p-tag p-tag-school">${ud.school}</span>`);
+  if (plan === 'premium') tags.push(`<span class="p-tag p-tag-prem">Premium</span>`);
+  document.getElementById('pTagsRow').innerHTML = tags.join('');
+
+  // Stats
+  document.getElementById('psExams').textContent  = total;
+  document.getElementById('psAvg').textContent    = avg+'%';
+  document.getElementById('psStreak').textContent = streak;
+  document.getElementById('psXP').textContent     = xp;
+
+  // Edit prefill
+  document.getElementById('editName').value   = name;
+  document.getElementById('editSchool').value = ud.school || '';
+  document.getElementById('editState').value  = ud.state  || '';
+
+  // Target
+  if (ud.targetScore) {
+    const t = ud.targetScore, p = Math.min(Math.round((avg/t)*100), 100);
+    document.getElementById('targetStrip').style.display = 'block';
+    document.getElementById('tsValue').textContent   = t+'pts';
+    document.getElementById('tsCurrent').textContent = avg+'%';
+    document.getElementById('tsPct').textContent     = p+'% of goal';
+    document.getElementById('targetVal').textContent = t+'pts';
+    document.getElementById('targetSlider').value    = t;
+    document.getElementById('sliderDisplay').textContent = t;
+    setTimeout(() => { document.getElementById('tsBarFill').style.width = p+'%'; }, 300);
+  }
+
+  // Subjects
+  if (window._sub.length > 0) {
+    document.getElementById('subjectsVal').textContent = window._sub.slice(0,2).join(', ') + (window._sub.length>2?` +${window._sub.length-2}`:'');
+    document.querySelectorAll('#subjChips .sel-chip').forEach(el => {
+      if (window._sub.includes(el.dataset.subj)) el.classList.add('sel-on');
     });
   }
-  function shareRef(channel) {
-    var link = document.getElementById("referralLinkText").textContent;
-    var name = (window._pd.displayName || "I").split(" ")[0];
-    var text = name + " invited you to EXAMORA — Nigeria's best JAMB, WAEC & NECO prep app! " + link;
-    if (channel === "whatsapp") window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
-    else window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent("Prepping with EXAMORA for JAMB & WAEC! Join me free 🎓 " + link + " #JAMB2025 #WAEC2025"), "_blank");
-  }
-</script>
 
-<!-- Crop -->
+  // Badges
+  let results = [];
+  try { const rs = await getDocs(query(collection(db,'results'), where('userId','==',user.uid))); rs.forEach(d => results.push(d.data())); } catch(_) {}
+  const badges = [...(ud.badges||[])];
+  if (plan==='premium'&&!badges.includes('premium')) badges.push('premium');
+  if (results.some(r=>r.percent===100)&&!badges.includes('perfect')) badges.push('perfect');
+  if (total>=100&&!badges.includes('100_exams')) badges.push('100_exams');
+  if (avg>=80&&total>=5&&!badges.includes('high_scorer')) badges.push('high_scorer');
+  if (streak>=7&&!badges.includes('streak_7')) badges.push('streak_7');
+  if (streak>=30&&!badges.includes('streak_30')) badges.push('streak_30');
+  try { if (badges.length>(ud.badges||[]).length) await updateDoc(doc(db,'users',user.uid),{badges}); } catch(_) {}
+  renderBadges(badges);
+
+  // Referral count
+  try {
+    const rs = await getDocs(query(collection(db,'users'), where('referredBy','==',user.uid)));
+    document.getElementById('refCount').textContent     = rs.size;
+    document.getElementById('refDaysEarned').textContent = rs.size * 7;
+  } catch(_) {}
+  buildReferralLink(user.uid);
+
+  // AI keys
+  try {
+    const s = await getDoc(doc(db,'settings','ai'));
+    if (s.exists()) { const k = s.data().openRouterKeys||[]; if (k.length) localStorage.setItem('examora_ai_keys', JSON.stringify(k)); }
+  } catch(_) {}
+});
+</script>
 <script>
-  var cropImg=null, cropX=0, cropY=0, cropZoom=1, dragStart=null, imgStartX=0, imgStartY=0, cropMode="avatar";
-  function handleAvatarPick(e){ var f=e.target.files[0]; if(!f) return; cropMode="avatar"; openCropModal(f); e.target.value=""; }
-  function handleCoverPick(e) { var f=e.target.files[0]; if(!f) return; cropMode="cover";  openCropModal(f); e.target.value=""; }
-  function openCropModal(file){
-    var r=new FileReader();
-    r.onload=function(ev){ cropImg=new Image(); cropImg.onload=function(){ cropX=0;cropY=0;cropZoom=1;document.getElementById("cropZoom").value=1;drawCrop();document.getElementById("cropModal").classList.add("show"); }; cropImg.src=ev.target.result; };
-    r.readAsDataURL(file);
-  }
-  function closeCrop(){ document.getElementById("cropModal").classList.remove("show"); cropImg=null; }
-  function drawCrop(){
-    if(!cropImg) return;
-    var wrap=document.getElementById("cropWrap"), size=wrap.offsetWidth||240;
-    var c=document.getElementById("cropCanvas"); c.width=size; c.height=size;
-    var ctx=c.getContext("2d"); ctx.clearRect(0,0,size,size);
-    ctx.drawImage(cropImg,cropX,cropY,cropImg.naturalWidth*cropZoom,cropImg.naturalHeight*cropZoom);
-  }
-  function onZoom(v){ cropZoom=parseFloat(v); drawCrop(); }
-  function startDrag(e){ e.preventDefault(); var pt=e.touches?e.touches[0]:e; dragStart={x:pt.clientX,y:pt.clientY}; imgStartX=cropX; imgStartY=cropY; }
-  function onDrag(e){ if(!dragStart) return; e.preventDefault(); var pt=e.touches?e.touches[0]:e; cropX=imgStartX+(pt.clientX-dragStart.x); cropY=imgStartY+(pt.clientY-dragStart.y); drawCrop(); }
-  function endDrag(){ dragStart=null; }
-  function saveCrop(){
-    var btn=document.getElementById("saveCropBtn"); btn.disabled=true; btn.textContent="Processing...";
-    var wrap=document.getElementById("cropWrap"), size=wrap.offsetWidth||240;
-    var out=document.createElement("canvas");
-    out.width=cropMode==="avatar"?400:1200; out.height=400;
-    var ctx=out.getContext("2d"), sx=out.width/size, sy=out.height/size;
-    ctx.drawImage(cropImg,cropX*sx,cropY*sy,cropImg.naturalWidth*cropZoom*sx,cropImg.naturalHeight*cropZoom*sy);
-    out.toBlob(function(blob){
-      var url=URL.createObjectURL(blob);
-      if(cropMode==="avatar"){
-        document.getElementById("pAvatar").innerHTML='<img src="'+url+'" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>'
-          +'<div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>';
-      } else {
-        var cov=document.getElementById("pCover"); cov.src=url; cov.style.display="block";
-      }
-      closeCrop(); btn.disabled=false; btn.textContent="Use Photo";
-      window._uploadPhoto && window._uploadPhoto(blob, cropMode);
-    },"image/jpeg",0.85);
-  }
-</script>
-
-<!-- Firebase module — writes to window.* -->
-<script type="module">
-  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut, deleteUser }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc,
-           collection, query, where, getDocs }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-  const app = initializeApp({
-    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
-    authDomain:"cbt-app-5907f.firebaseapp.com",
-    projectId:"cbt-app-5907f",
-    storageBucket:"cbt-app-5907f.firebasestorage.app",
-    messagingSenderId:"705323924101",
-    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
-  });
-  const auth=getAuth(app), db=getFirestore(app), storage=getStorage(app);
-
-  // Photo upload
-  window._uploadPhoto = (blob, mode) => {
-    const uid=window._uid; if(!uid) return;
-    const task=uploadBytesResumable(ref(storage,`${mode==="avatar"?"avatars":"covers"}/${uid}.jpg`),blob,{contentType:"image/jpeg"});
-    const ring=document.getElementById("avatarProgressRing"), pctEl=document.getElementById("avatarProgressPct");
-    if(ring) ring.classList.add("show");
-    task.on("state_changed",
-      s=>{ if(pctEl) pctEl.textContent=Math.round(s.bytesTransferred/s.totalBytes*100)+"%"; },
-      err=>{ toast("Upload failed: "+err.message,"error"); if(ring) ring.classList.remove("show"); },
-      async()=>{
-        const url=await getDownloadURL(task.snapshot.ref);
-        if(ring) ring.classList.remove("show");
-        try{
-          await updateDoc(doc(db,"users",uid),{[mode==="avatar"?"photoURL":"coverURL"]:url});
-          window._pd[mode==="avatar"?"photoURL":"coverURL"]=url;
-          toast(mode==="avatar"?"Profile photo updated!":"Cover updated!","success");
-          if(mode==="avatar") document.getElementById("pAvatar").innerHTML=
-            `<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
-             <div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>`;
-        }catch(e){ toast("Could not save photo","error"); }
-      }
-    );
-  };
-
-  window._doSignOut = async()=>{ await signOut(auth); window.location.href="login.html"; };
-  window._doDelete  = async()=>{
-    const uid=window._uid; if(!uid) return;
-    try{ await deleteDoc(doc(db,"users",uid)); await deleteUser(auth.currentUser); window.location.href="login.html"; }
-    catch(e){ toast("Could not delete. Re-login and try again.","error"); }
-  };
-
-  window.saveProfile = async()=>{
-    const uid=window._uid; if(!uid) return;
-    const name=document.getElementById("editName").value.trim();
-    const school=document.getElementById("editSchool").value.trim();
-    const state=document.getElementById("editState").value;
-    if(!name){ toast("Name cannot be empty","error"); return; }
-    try{
-      await updateDoc(doc(db,"users",uid),{displayName:name,school,state,updatedAt:new Date().toISOString()});
-      window._pd.displayName=name; window._pd.school=school; window._pd.state=state;
-      document.getElementById("pName").textContent=name;
-      // Only reset avatar to initial letter if NO photo exists
-      if(!window._pd.photoURL) document.getElementById("pAvatar").textContent=name[0].toUpperCase();
-      closeSheet("editOverlay");
-      toast("Profile updated!","success");
-    }catch(e){ toast("Save failed. Try again.","error"); }
-  };
-
-  window.saveTarget = async()=>{
-    const uid=window._uid; if(!uid) return;
-    const val=parseInt(document.getElementById("targetSlider").value);
-    try{
-      await updateDoc(doc(db,"users",uid),{targetScore:val});
-      window._pd.targetScore=val;
-      document.getElementById("targetVal").textContent=val+"pts";
-      document.getElementById("targetStrip").style.display="block";
-      document.getElementById("tsValue").textContent=val+"pts";
-      closeSheet("targetOverlay");
-      toast("Target set to "+val+"!","success");
-    }catch(e){ toast("Save failed.","error"); }
-  };
-
-  window.saveSubjects = async()=>{
-    const uid=window._uid; if(!uid) return;
-    const selected=[...document.querySelectorAll("#subjChips .sel-on")].map(c=>c.dataset.subj||c.textContent.trim());
-    if(!selected.length){ toast("Select at least one subject","error"); return; }
-    try{
-      await updateDoc(doc(db,"users",uid),{subjects:selected});
-      window._sub=selected;
-      document.getElementById("subjectsVal").textContent=selected.slice(0,2).join(", ")+(selected.length>2?` +${selected.length-2}`:"");
-      closeSheet("subjOverlay");
-      toast("Subjects saved!","success");
-    }catch(e){ toast("Save failed.","error"); }
-  };
-
-  // Main auth listener
-  onAuthStateChanged(auth, async user=>{
-    if(!user){ window.location.href="login.html"; return; }
-    window._uid=user.uid;
-
-    let ud={};
-    try{
-      const snap=await getDoc(doc(db,"users",user.uid));
-      if(!snap.exists()){
-        // Create doc rather than boot user out
-        ud={displayName:user.email.split("@")[0],email:user.email,plan:"free",streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[],onboarded:true};
-        await setDoc(doc(db,"users",user.uid),ud,{merge:true});
-      } else { ud=snap.data(); }
-    }catch(e){
-      toast("Could not load profile","error");
-      ud={displayName:user.email.split("@")[0],email:user.email,plan:"free",streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[]};
-    }
-
-    window._pd  = ud;
-    window._sub = ud.subjects||[];
-    buildReferralLink(user.uid);
-    // Load referral count
-    try {
-      const { getDocs: _gd2, collection: _col2, query: _q2, where: _w2 } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-      const refSnap = await _gd2(_q2(_col2(db,"users"),_w2("referredBy","==",user.uid)));
-      const rc = refSnap.size;
-      document.getElementById("refCount").textContent = rc;
-      document.getElementById("refDaysEarned").textContent = rc * 7;
-    } catch(_) {}
-
-    const name   = ud.displayName||user.email.split("@")[0];
-    const plan   = ud.plan||"free";
-    const streak = ud.streak||0;
-
-    // Show admin link if user has admin role
-    if (ud.role === "admin" || ud.role === "superadmin") {
-      const adminEl = document.getElementById("adminLink");
-      if (adminEl) adminEl.style.display = "flex";
-    }
-    const total  = ud.totalExams||0;
-    const tq     = ud.totalQuestions||0;
-    const tc     = ud.totalCorrect||0;
-    const avg    = tq>0?Math.round((tc/tq)*100):0;
-    const xp     = ud.xp||(total*10+tc);
-
-    // Avatar
-    const av=document.getElementById("pAvatar");
-    if(ud.photoURL){
-      av.innerHTML=`<img src="${ud.photoURL}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='${name[0].toUpperCase()}'"/>
-        <div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>`;
-    } else { av.textContent=name[0].toUpperCase(); }
-
-    if(ud.coverURL){ const c=document.getElementById("pCover"); c.src=ud.coverURL; c.style.display="block"; }
-
-    document.getElementById("pName").textContent =name;
-    document.getElementById("pEmail").textContent=user.email;
-    if(plan==="premium") document.getElementById("pCrown").style.display="flex";
-
-    const tags=[];
-    if(ud.examType) tags.push(`<span class="p-tag p-tag-exam">${ud.examType}</span>`);
-    if(ud.state)    tags.push(`<span class="p-tag p-tag-state">${ud.state}</span>`);
-    if(ud.school)   tags.push(`<span class="p-tag p-tag-school">${ud.school}</span>`);
-    if(plan==="premium") tags.push(`<span class="p-tag p-tag-prem">Premium</span>`);
-    document.getElementById("pTagsRow").innerHTML=tags.join("");
-
-    document.getElementById("psExams").textContent =total;
-    document.getElementById("psAvg").textContent   =avg+"%";
-    document.getElementById("psStreak").textContent=streak;
-    document.getElementById("psXP").textContent    =xp;
-
-    if(ud.targetScore){
-      const t=ud.targetScore, p=Math.min(Math.round((avg/t)*100),100);
-      document.getElementById("targetStrip").style.display="block";
-      document.getElementById("tsValue").textContent   =t+"pts";
-      document.getElementById("tsCurrent").textContent =avg+"%";
-      document.getElementById("tsPct").textContent     =p+"% of goal";
-      document.getElementById("targetVal").textContent =t+"pts";
-      setTimeout(()=>document.getElementById("tsBarFill").style.width=p+"%",300);
-    }
-    if(window._sub.length>0){
-      document.getElementById("subjectsVal").textContent=window._sub.slice(0,2).join(", ")+(window._sub.length>2?` +${window._sub.length-2}`:"");
-    }
-
-    let results=[];
-    try{ const rs=await getDocs(query(collection(db,"results"),where("userId","==",user.uid))); rs.forEach(d=>results.push(d.data())); }catch(_){}
-
-    const badges=[...(ud.badges||[])];
-    if(plan==="premium"&&!badges.includes("premium")) badges.push("premium");
-    if(results.some(r=>r.percent===100)&&!badges.includes("perfect")) badges.push("perfect");
-    if(total>=100&&!badges.includes("100_exams")) badges.push("100_exams");
-    if(avg>=80&&total>=5&&!badges.includes("high_scorer")) badges.push("high_scorer");
-    if(total>=50&&!badges.includes("50_exams")) badges.push("50_exams");
-    if(badg
-</script>
-
-<script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>

@@ -613,6 +613,17 @@
 
   function openShare(){ document.getElementById("shareModal").classList.add("open"); }
   function closeShare(){ document.getElementById("shareModal").classList.remove("open"); }
+  function openBeautifulShare(){
+    const rd=resultData||{};
+    const pct=rd.percent||(rd.total>0?Math.round((rd.score/rd.total)*100):0);
+    localStorage.setItem("examora_share_data",JSON.stringify({
+      pct,correct:rd.score||0,wrong:(rd.total||0)-(rd.score||0),
+      total:rd.total||0,category:rd.category||"Practice",
+      timeTaken:rd.timeTaken||0,subjectMap:rd.subjectMap||{},
+      studentName:localStorage.getItem("examora_user_display")||"EXAMORA Student"
+    }));
+    window.location.href="share-result.html";
+  }
 
   function shareVia(channel){
     const text=buildShareText();
