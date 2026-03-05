@@ -879,6 +879,7 @@
   }
 </script>
 
+window.toast = toast;
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -970,7 +971,7 @@
           </td>
         </tr>`).join("");
       if(qs.length>50) document.getElementById("qTableNote").textContent=`Showing first 50 of ${qs.length}`;
-    }catch(e){toast("Could not load questions: "+e.message);}
+    }catch(e){window.toast("Could not load questions: "+e.message);}
   };
   window.loadQuestions=window._loadQuestions;
 
@@ -985,7 +986,7 @@
     const subj=document.getElementById("qSubj").value;
     const year=parseInt(document.getElementById("qYear").value)||new Date().getFullYear();
     const exp=document.getElementById("qExp").value.trim();
-    if(!text||!a||!b||!c||!d){toast("Fill in question text and all 4 options");return;}
+    if(!text||!a||!b||!c||!d){window.toast("Fill in question text and all 4 options");return;}
     const btn=document.getElementById("addQBtn");
     btn.disabled=true; btn.textContent="Adding...";
     try{
@@ -994,12 +995,12 @@
         category:cat,subject:subj,year,explanation:exp,
         createdAt:new Date().toISOString()
       });
-      toast("✅ Question added!");
+      window.toast("✅ Question added!");
       ["qText","qOptA","qOptB","qOptC","qOptD","qExp"].forEach(id=>document.getElementById(id).value="");
       document.getElementById("qPreview").style.display="none";
       window._loadQuestions();
       loadDashboardStats();
-    }catch(e){toast("Error: "+e.message);}
+    }catch(e){window.toast("Error: "+e.message);}
     btn.disabled=false; btn.textContent="➕ Add Question";
   };
 
@@ -1041,25 +1042,25 @@
     };
     try{
       await updateDoc(doc(db,"questions",id),data);
-      toast("✅ Question updated!");
+      window.toast("✅ Question updated!");
       document.getElementById("editOverlay").classList.remove("show");
       window._loadQuestions();
-    }catch(e){toast("Error: "+e.message);}
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   window.deleteQ=async function(id){
     if(!confirm("Delete this question?")) return;
     try{
       await deleteDoc(doc(db,"questions",id));
-      toast("🗑 Question deleted");
+      window.toast("🗑 Question deleted");
       window._loadQuestions();
       loadDashboardStats();
-    }catch(e){toast("Error: "+e.message);}
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   // ── CSV Upload ──
   window.uploadCSV=async function(){
-    if(!parsedCSV||parsedCSV.length===0){toast("No CSV parsed yet");return;}
+    if(!parsedCSV||parsedCSV.length===0){window.toast("No CSV parsed yet");return;}
     const btn=document.getElementById("confirmUploadBtn");
     btn.disabled=true;
     document.getElementById("uploadProgress").style.display="block";
@@ -1085,14 +1086,14 @@
           createdAt:new Date().toISOString()
         });
       });
-      try{await batch.commit();}catch(e){toast("Batch error at row "+i+": "+e.message);break;}
+      try{await batch.commit();}catch(e){window.toast("Batch error at row "+i+": "+e.message);break;}
       done+=chunk.length;
       const pct=Math.round((done/total)*100);
       document.getElementById("upBar").style.width=pct+"%";
       document.getElementById("upPct").textContent=pct+"%";
       document.getElementById("upLabel").textContent=`Uploading... ${done}/${total}`;
     }
-    toast(`✅ ${done} questions uploaded!`);
+    window.toast(`✅ ${done} questions uploaded!`);
     cancelCSV();
     document.getElementById("uploadProgress").style.display="none";
     btn.disabled=false;
@@ -1134,25 +1135,25 @@
           </td>
         </tr>`;
       }).join("");
-    }catch(e){toast("Could not load users");}
+    }catch(e){window.toast("Could not load users");}
   };
 
   window.grantPremium=async function(id){
     if(!confirm("Grant Premium to this user?")) return;
     try{
       await updateDoc(doc(db,"users",id),{plan:"premium",premiumGrantedBy:"admin",premiumSince:new Date().toISOString()});
-      toast("👑 Premium granted!");
+      window.toast("👑 Premium granted!");
       window._loadUsers();
-    }catch(e){toast("Error: "+e.message);}
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   window.deleteUser=async function(id,name){
     if(!confirm(`Delete user "${name}"? This only removes their Firestore data.`)) return;
     try{
       await deleteDoc(doc(db,"users",id));
-      toast("🗑 User removed");
+      window.toast("🗑 User removed");
       window._loadUsers();
-    }catch(e){toast("Error: "+e.message);}
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   // ── Flags ──
@@ -1182,17 +1183,17 @@
             <button class="tbl-btn tbl-btn-delete"  onclick="deleteFlag('${f.id}')">🗑 Delete</button>
           </div>
         </div>`).join("");
-    }catch(e){toast("Could not load flags");}
+    }catch(e){window.toast("Could not load flags");}
   };
 
   window.resolveFlag=async function(id){
-    try{await updateDoc(doc(db,"flags",id),{status:"resolved"});toast("✅ Flag resolved");window._loadFlags();}
-    catch(e){toast("Error");}
+    try{await updateDoc(doc(db,"flags",id),{status:"resolved"});window.toast("✅ Flag resolved");window._loadFlags();}
+    catch(e){window.toast("Error");}
   };
   window.deleteFlag=async function(id){
     if(!confirm("Delete this flag report?")) return;
-    try{await deleteDoc(doc(db,"flags",id));toast("🗑 Flag deleted");window._loadFlags();}
-    catch(e){toast("Error");}
+    try{await deleteDoc(doc(db,"flags",id));window.toast("🗑 Flag deleted");window._loadFlags();}
+    catch(e){window.toast("Error");}
   };
 
   // ── Settings ──
@@ -1252,8 +1253,8 @@
     const msg=document.getElementById("annMessage").value.trim();
     try{
       await setDoc(doc(db,"settings","announcement"),{message:msg,type:annType,updatedAt:new Date().toISOString()});
-      toast(msg?"📢 Announcement saved!":"Announcement cleared");
-    }catch(e){toast("Error: "+e.message);}
+      window.toast(msg?"📢 Announcement saved!":"Announcement cleared");
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   window.saveTimers=async function(){
@@ -1264,8 +1265,8 @@
         "Cert Prep":parseFloat(document.getElementById("timerCertPrep").value)||1.5,
         "Custom":parseFloat(document.getElementById("timerPostUTME").value)||1.5
       });
-      toast("⏱️ Timer settings saved!");
-    }catch(e){toast("Error: "+e.message);}
+      window.toast("⏱️ Timer settings saved!");
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   // ── AI Key management ──
@@ -1309,10 +1310,10 @@
         updatedBy: uid || 'admin'
       }, { merge: true });
       statusEl.innerHTML = '<span style="color:var(--c-green);">✅ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved to cloud — AI is ready. Click 🧪 Test AI to verify.</span>';
-      toast('AI keys saved to cloud ✅', 'success');
+      window.toast('AI keys saved to cloud ✅', 'success');
     } catch(e) {
       statusEl.innerHTML = '<span style="color:var(--c-gold);">⚠️ Saved to this device only (cloud sync failed: ' + e.message.slice(0,50) + '). AI will work on this device.</span>';
-      toast('Keys saved locally', 'warning');
+      window.toast('Keys saved locally', 'warning');
     }
   };
 
@@ -1332,11 +1333,11 @@
       statusEl.innerHTML = '<span style="color:var(--c-gold);">🧪 Calling OpenRouter with ' + status.keys + ' key(s)...</span>';
       var r = await EXAMORA_AI.chat('Reply with exactly: "NexaCore Labs AI is working!"', '', []);
       statusEl.innerHTML = '<span style="color:var(--c-green);">✅ AI working! Response: ' + (r.text||'').slice(0,80) + '</span>';
-      toast('AI connection successful ✅', 'success');
+      window.toast('AI connection successful ✅', 'success');
     } catch(e) {
       var msg = (e.message||'').slice(0,120);
       statusEl.innerHTML = '<span style="color:var(--c-red);">❌ Test failed: ' + msg + '</span>';
-      toast('AI test failed — check your key', 'error');
+      window.toast('AI test failed — check your key', 'error');
     }
   };
 
@@ -1347,8 +1348,8 @@
         allowRegistrations:document.getElementById("regToggle").checked,
         updatedAt:new Date().toISOString()
       });
-      toast("✅ App settings saved!");
-    }catch(e){toast("Error: "+e.message);}
+      window.toast("✅ App settings saved!");
+    }catch(e){window.toast("Error: "+e.message);}
   };
 
   window._deleteAllQuestions=async function(){
@@ -1361,10 +1362,10 @@
         arr.slice(i,i+BATCH).forEach(ref=>b.delete(ref));
         await b.commit();
       }
-      toast("🗑 All questions deleted");
+      window.toast("🗑 All questions deleted");
       loadDashboardStats();
       window._loadQuestions();
-    }catch(e){toast("Error: "+e.message);}
+    }catch(e){window.toast("Error: "+e.message);}
   };
 </script>
 

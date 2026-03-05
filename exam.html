@@ -715,7 +715,8 @@
   window.submitFlag=function(reason){
     flagged.add(currentIdx);
     hideFlagSheet();
-    toast("⚑ Question reported");
+    window.toast("⚑ Question reported — thanks for helping us improve!", "success");
+    // Write to Firestore via window._reportFlag set by module script
     window._reportFlag&&window._reportFlag(examQuestions[currentIdx],reason);
     renderQuestion();
   };
@@ -860,6 +861,12 @@
 
 </script>
 
+window.toast = toast;
+window.buildSubjectDropdowns = buildSubjectDropdowns;
+window.startTimer = startTimer;
+window.renderQuestion = renderQuestion;
+window.updateSubjects = updateSubjects;
+window.updateAvailCount = updateAvailCount;
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -913,12 +920,12 @@
             document.getElementById("setupScreen").style.display="none";
             document.getElementById("examScreen").style.display="block";
             document.querySelector(".bottom-nav").style.display="none";
-            renderQuestion();
-            startTimer(examQuestions.length);
-            toast(`📚 Practising ${examQuestions.length} bookmarked questions`);
+            window.renderQuestion();
+            window.startTimer(examQuestions.length);
+            window.toast(`📚 Practising ${examQuestions.length} bookmarked questions`);
             return; // skip normal question loading
           }
-        }catch(_){ toast("Could not load bookmarks"); }
+        }catch(_){ window.toast("Could not load bookmarks"); }
       }
     }
 
@@ -927,20 +934,20 @@
       const snap=await getDocs(collection(db,"questions"));
       allQuestions=[];
       snap.forEach(d=>allQuestions.push({id:d.id,...d.data()}));
-      buildSubjectDropdowns();
+      window.buildSubjectDropdowns();
       // Apply URL params if coming from weak areas card
       if(window._urlCat||window._urlSubj){
         const cs=document.getElementById("catSelect");
         const ss=document.getElementById("subjSelect");
         if(window._urlCat && cs) cs.value=window._urlCat;
-        updateSubjects();
+        window.updateSubjects();
         if(window._urlSubj && ss){
           // Try to select the subject option
           for(let o of ss.options){ if(o.value===window._urlSubj){ss.value=window._urlSubj;break;} }
         }
         window._urlCat=null; window._urlSubj=null;
       }
-      updateAvailCount();
+      window.updateAvailCount();
     } catch(e){
       document.getElementById("qAvailNum").textContent="Could not load questions";
     }
@@ -962,7 +969,7 @@
     let pool=allQuestions.filter(q=>
       (!cat||q.category===cat)&&(!subj||q.subject===subj)&&(!year||String(q.year)===year));
 
-    if(pool.length===0){toast("No questions match. Try different filters.");return;}
+    if(pool.length===0){window.toast("No questions match. Try different filters.");return;}
 
     // Spaced repetition mode — sort by priority
     if(examMode==="spaced") {
@@ -977,13 +984,13 @@
     document.getElementById("examScreen").style.display="block";
     document.querySelector(".bottom-nav").style.display="none";
 
-    renderQuestion();
+    window.renderQuestion();
 
     // Timer for exam mode
     if(examMode==="exam"){
       const timers=window._timers||{};
       const minsPerQ=timers[cat||"JAMB"]||1.5;
-      startTimer(Math.round(minsPerQ*60*examQuestions.length));
+      window.startTimer(Math.round(minsPerQ*60*examQuestions.length));
     }
   };
 

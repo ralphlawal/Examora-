@@ -445,12 +445,81 @@
       <div class="quick-icon-wrap"><span class="material-symbols-rounded">emoji_events</span></div>
       <div class="quick-label">Leader<br/>board</div>
     </a>
+    <a href="topic-practice.html"  class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(139,92,246,0.12);"><span class="material-symbols-rounded" style="color:#8b5cf6;">auto_awesome</span></div>
+      <div class="quick-label">AI Topic<br/>Practice</div>
+    </a>
+    <a href="calculator.html"      class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(59,130,246,0.12);"><span class="material-symbols-rounded" style="color:#3b82f6;">calculate</span></div>
+      <div class="quick-label">Scientific<br/>Calculator</div>
+    </a>
+    <a href="formula-sheet.html"   class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">menu_book</span></div>
+      <div class="quick-label">Formula<br/>Sheet</div>
+    </a>
+    <a href="streak.html"           class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(239,68,68,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">local_fire_department</span></div>
+      <div class="quick-label">Study<br/>Streak</div>
+    </a>
+    <a href="notifications-setup.html" class="quick-card">
+      <div class="quick-icon-wrap" style="background:rgba(16,185,129,0.1);"><span class="material-symbols-rounded" style="color:var(--c-green);">notifications</span></div>
+      <div class="quick-label">Notifications<br/>Setup</div>
+    </a>
     <a href="upgrade.html"         class="quick-card" id="upgradeCard">
       <div class="quick-icon-wrap"><span class="material-symbols-rounded">workspace_premium</span></div>
       <div class="quick-label">Go<br/>Premium</div>
     </a>
   </div>
 
+  <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
+  <div id="countdownWidget" style="display:none; margin-bottom:18px;">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px 18px;border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,0.15);"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Countdown to</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:0.92rem;color:white;" id="cdExamLabel">My Exam</div>
+        </div>
+        <button onclick="openCountdownSetup()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,0.6);font-size:0.68rem;font-weight:700;cursor:pointer;">Edit</button>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <div id="cdDays"   style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdDaysNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">DAYS</div>
+        </div>
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdHrsNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">HRS</div>
+        </div>
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdMinsNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">MINS</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);" id="cdDateLabel"></div>
+        <a href="exam.html" style="font-size:0.72rem;font-weight:700;color:#a78bfa;text-decoration:none;">Start practising →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Countdown setup bottom sheet -->
+  <div class="overlay" id="cdOverlay" onclick="closeCountdownSetup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;"></div>
+  <div id="cdSheet" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg-card);border-radius:24px 24px 0 0;padding:20px 20px 40px;z-index:201;border-top:1px solid var(--border);">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:100px;margin:0 auto 18px;"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:16px;">📅 Set Exam Countdown</div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Name</label>
+      <input id="cdNameInput" type="text" placeholder="e.g. JAMB 2025, WAEC May/June" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;" oninput="document.getElementById('cdExamName').value=this.value"/>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Date</label>
+      <input id="cdDateInput" type="date" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;"/>
+    </div>
+    <button onclick="saveCountdown()" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;">Save Countdown</button>
+    <button onclick="clearCountdown()" style="width:100%;padding:10px;border:none;background:none;color:var(--c-red);font-size:0.8rem;font-weight:600;cursor:pointer;margin-top:6px;">Remove countdown</button>
+  </div>
+  <input type="hidden" id="cdExamName"/>
 
   <!-- ── EXAM CATEGORIES ───────────────────────────────────── -->
   <div class="section-header animate-in animate-in-delay-2">
@@ -696,6 +765,7 @@
 
 </script>
 
+window.toast = toast;
 <script type="module">
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged }
@@ -924,7 +994,7 @@
         if (results.some(r=>r.percent===100) && !badges.includes("perfect")) nb.push("perfect");
         if (nb.length > 0) {
           await updateDoc(doc(db,"users",user.uid), { badges:[...badges,...nb] });
-          toast("🏅 New badge unlocked: " + nb[0].replace(/_/g," "));
+          window.toast("🏅 New badge unlocked: " + nb[0].replace(/_/g," "));
         }
       } catch(_){}
     } catch(e) {
@@ -1059,6 +1129,61 @@
     document.getElementById('comingSoonOverlay').style.display='none';
     localStorage.setItem('cs_dismissed_v2','1');
   }
+
+  // ── EXAM COUNTDOWN WIDGET ──────────────────────────────────
+  (function initCountdown(){
+    var cd = JSON.parse(localStorage.getItem('examora_countdown') || 'null');
+    if (!cd || !cd.date) return;
+    var widget = document.getElementById('countdownWidget');
+    if (!widget) return;
+    widget.style.display = '';
+    document.getElementById('cdExamLabel').textContent = cd.name || 'My Exam';
+    document.getElementById('cdDateLabel').textContent = new Date(cd.date).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'});
+    function tick(){
+      var now = Date.now(), target = new Date(cd.date).getTime();
+      var diff = target - now;
+      if (diff <= 0) {
+        document.getElementById('cdDaysNum').textContent = '0';
+        document.getElementById('cdHrsNum').textContent = '0';
+        document.getElementById('cdMinsNum').textContent = '0';
+        document.getElementById('cdExamLabel').textContent = (cd.name||'Your exam') + ' — Today! 🎯';
+        return;
+      }
+      var d = Math.floor(diff/86400000);
+      var h = Math.floor((diff%86400000)/3600000);
+      var m = Math.floor((diff%3600000)/60000);
+      document.getElementById('cdDaysNum').textContent = d;
+      document.getElementById('cdHrsNum').textContent = String(h).padStart(2,'0');
+      document.getElementById('cdMinsNum').textContent = String(m).padStart(2,'0');
+    }
+    tick();
+    setInterval(tick, 60000);
+  })();
+
+  window.openCountdownSetup = function(){
+    var cd = JSON.parse(localStorage.getItem('examora_countdown') || '{}');
+    if (cd.name) document.getElementById('cdNameInput').value = cd.name;
+    if (cd.date) document.getElementById('cdDateInput').value = cd.date;
+    document.getElementById('cdOverlay').style.display = '';
+    document.getElementById('cdSheet').style.display = '';
+  };
+  window.closeCountdownSetup = function(){
+    document.getElementById('cdOverlay').style.display = 'none';
+    document.getElementById('cdSheet').style.display = 'none';
+  };
+  window.saveCountdown = function(){
+    var name = document.getElementById('cdNameInput').value.trim() || 'My Exam';
+    var date = document.getElementById('cdDateInput').value;
+    if (!date) { alert('Please pick an exam date.'); return; }
+    localStorage.setItem('examora_countdown', JSON.stringify({name:name, date:date}));
+    window.closeCountdownSetup();
+    location.reload();
+  };
+  window.clearCountdown = function(){
+    localStorage.removeItem('examora_countdown');
+    window.closeCountdownSetup();
+    document.getElementById('countdownWidget').style.display = 'none';
+  };
 </script>
 
 </body>

@@ -280,8 +280,101 @@
     document.getElementById('certMeta').innerHTML = examLabel + '<br/>' + new Date().toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}) + '<br/>Powered by EXAMORA';
   }
 
-  function shareCertificate() {
+    function downloadCertificate() {
     var score   = document.getElementById('certScore').textContent;
+    var name    = document.getElementById('certName').textContent;
+    var metaEl  = document.getElementById('certMeta');
+    var lines   = metaEl ? metaEl.textContent.split('\n').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var subject = lines[0] || 'Practice Exam';
+    var date    = lines[1] || new Date().toLocaleDateString();
+
+    var W = 800, H = 560;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // Background gradient
+    var grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, '#0f172a');
+    grad.addColorStop(0.5, '#1e1b4b');
+    grad.addColorStop(1, '#0f2d1e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Border
+    ctx.strokeStyle = 'rgba(99,102,241,0.4)';
+    ctx.lineWidth = 2;
+    ctx.roundRect ? ctx.roundRect(16, 16, W-32, H-32, 20) : ctx.rect(16, 16, W-32, H-32);
+    ctx.stroke();
+
+    // Inner glow border
+    ctx.strokeStyle = 'rgba(99,102,241,0.15)';
+    ctx.lineWidth = 1;
+    ctx.roundRect ? ctx.roundRect(26, 26, W-52, H-52, 16) : ctx.rect(26, 26, W-52, H-52);
+    ctx.stroke();
+
+    // Trophy
+    ctx.font = '56px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🏆', W/2, 100);
+
+    // Certificate of Achievement
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '500 16px sans-serif';
+    ctx.letterSpacing = '3px';
+    ctx.fillText('CERTIFICATE OF ACHIEVEMENT', W/2, 148);
+
+    // Name
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 38px serif';
+    ctx.fillText(name, W/2, 210);
+
+    // "scored" text
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '16px sans-serif';
+    ctx.fillText('achieved a score of', W/2, 248);
+
+    // Score big
+    var scoreGrad = ctx.createLinearGradient(W/2-80, 0, W/2+80, 0);
+    scoreGrad.addColorStop(0, '#6366f1');
+    scoreGrad.addColorStop(1, '#10b981');
+    ctx.fillStyle = scoreGrad;
+    ctx.font = 'bold 72px sans-serif';
+    ctx.fillText(score, W/2, 330);
+
+    // Subject and date
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '15px sans-serif';
+    ctx.fillText(subject, W/2, 368);
+    ctx.fillText(date, W/2, 392);
+
+    // Divider line
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W/2 - 200, 416); ctx.lineTo(W/2 + 200, 416);
+    ctx.stroke();
+
+    // Powered by EXAMORA
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText('EXAMORA  ·  examora.com.ng', W/2, 446);
+
+    // Star decorations
+    ctx.fillStyle = 'rgba(245,158,11,0.6)';
+    ctx.font = '18px serif';
+    ctx.fillText('★', 80, 280); ctx.fillText('★', W-80, 280);
+    ctx.font = '12px serif';
+    ctx.fillText('★', 60, 310); ctx.fillText('★', W-60, 310);
+
+    // Download
+    var link = document.createElement('a');
+    link.download = 'EXAMORA-Certificate-' + name.replace(/\s+/g,'-') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  function shareCertificate() {   var score   = document.getElementById('certScore').textContent;
     var name    = document.getElementById('certName').textContent;
     var subject = document.getElementById('certMeta').textContent.split("
 ")[0] || 'exam';
@@ -379,6 +472,7 @@
       <div class="cert-score" id="certScore">0%</div>
       <div class="cert-meta" id="certMeta"></div>
       <button class="cert-share-btn" onclick="shareCertificate()">📤 Share Achievement</button>
+      <button class="cert-share-btn" onclick="downloadCertificate()" style="background:rgba(16,185,129,0.2);border-color:rgba(16,185,129,0.4);margin-top:8px;">📥 Download Certificate</button>
     </div>
   </div>
 

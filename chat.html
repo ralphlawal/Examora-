@@ -475,16 +475,29 @@
 
   function usePrompt(btn) {
     var text = btn.textContent.replace(/^[^a-zA-Z]+/, '').trim();
-    document.getElementById('msgInput').value = text;
+    document.getElementById('chatInput').value = text;
     document.getElementById('suggestedPrompts').style.display = 'none';
-    document.getElementById('msgInput').focus();
+    document.getElementById('chatInput').focus();
   }
-  // Hide prompts once user sends first message
-  var _origSend = window.sendMessage;
-  window.sendMessage = function() {
-    document.getElementById('suggestedPrompts').style.display = 'none';
-    if (_origSend) _origSend();
-  };
+  // Hide prompts when any message is sent - use event delegation on send button
+  document.addEventListener('DOMContentLoaded', function() {
+    var sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      sendBtn.addEventListener('click', function() {
+        var sp = document.getElementById('suggestedPrompts');
+        if (sp) sp.style.display = 'none';
+      }, true); // capture phase to run before onclick
+    }
+    var chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+      chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          var sp = document.getElementById('suggestedPrompts');
+          if (sp) sp.style.display = 'none';
+        }
+      }, true);
+    }
+  });
 </script>
 
 <script type="module">

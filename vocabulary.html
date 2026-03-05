@@ -146,7 +146,9 @@ async function buildVocab() {
 
   try {
     var res = await EXAMORA_AI.buildVocabulary(topic, parseInt(count));
-    _words = parseVocabResponse(res.text, topic, count);
+    if (res.words && Array.isArray(res.words)) {
+        _words = res.words.map(function(w){ return {word:w.word||'',type:w.type||'',def:w.definition||w.def||'',example:w.example||'',hook:w.tip||w.hook||\'\'}; });
+      } else { _words = parseVocabResponse(res.rawText||'', topic, count); }
     _currentTopic = topic;
     _mastered.clear();
     renderWords();

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Formula Sheet</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    .fs-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .icon-btn { width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);flex-shrink:0; }
+    .fs-title { font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1; }
+
+    /* Search */
+    .search-wrap { padding: 12px 16px; }
+    .search-box {
+      width: 100%; padding: 11px 14px 11px 40px;
+      background: var(--bg-input); border: 1.5px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 0.88rem;
+      font-family: var(--font-body); outline: none; box-sizing: border-box;
+      transition: border-color 0.18s;
+    }
+    .search-box:focus { border-color: var(--c-brand); }
+    .search-wrap { position: relative; padding: 12px 16px; }
+    .search-ico { position: absolute; left: 28px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; font-size: 1.1rem; }
+
+    /* Subject tabs */
+    .subject-tabs { display: flex; gap: 8px; padding: 0 16px 12px; overflow-x: auto; }
+    .subject-tabs::-webkit-scrollbar { display: none; }
+    .stab {
+      padding: 7px 16px; border-radius: 100px; border: 1.5px solid var(--border);
+      background: var(--bg-input); font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem; color: var(--text-2); cursor: pointer; white-space: nowrap; transition: all 0.15s;
+    }
+    .stab.on { background: var(--c-brand); color: white; border-color: var(--c-brand); }
+
+    /* Formula sections */
+    .section { margin: 0 16px 20px; }
+    .sec-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 16px 16px 0 0;
+      cursor: pointer; user-select: none;
+    }
+    .sec-icon { font-size: 1.2rem; }
+    .sec-name { font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; color: var(--text); flex: 1; }
+    .sec-count { font-size: 0.68rem; color: var(--text-3); font-weight: 600; }
+    .sec-arrow { color: var(--text-3); font-size: 1rem; transition: transform 0.2s; }
+    .sec-header.open .sec-arrow { transform: rotate(90deg); }
+
+    .formula-list { display: none; border: 1px solid var(--border); border-top: none; border-radius: 0 0 16px 16px; overflow: hidden; }
+    .formula-list.open { display: block; }
+
+    .formula-item {
+      padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--bg-card);
+      transition: background 0.15s; cursor: pointer;
+    }
+    .formula-item:last-child { border-bottom: none; }
+    .formula-item:hover { background: var(--bg-input); }
+    .formula-item.saved { background: rgba(16,185,129,0.05); }
+    .fml-name { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; color: var(--text); margin-bottom: 5px; }
+    .fml-eq {
+      font-family: 'Courier New', monospace; font-size: 1rem; font-weight: 700;
+      color: var(--c-brand); background: var(--c-brand-pale);
+      padding: 5px 10px; border-radius: 8px; display: inline-block; margin-bottom: 6px;
+    }
+    .fml-desc { font-size: 0.75rem; color: var(--text-3); line-height: 1.5; }
+    .fml-vars { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+    .fml-var {
+      font-size: 0.65rem; padding: 2px 8px; border-radius: 100px;
+      background: var(--bg-input); color: var(--text-2); font-weight: 600;
+    }
+    .fml-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .fml-btn {
+      padding: 5px 12px; border-radius: 8px; border: 1.5px solid var(--border);
+      font-size: 0.68rem; font-weight: 700; color: var(--text-2); background: var(--bg-input);
+      cursor: pointer; font-family: var(--font-display);
+    }
+    .fml-btn.saved-btn { color: var(--c-green); border-color: var(--c-green); background: var(--c-green-pale); }
+
+    /* No results */
+    .no-results { text-align: center; padding: 50px 20px; color: var(--text-3); }
+    .no-results .nr-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;padding-bottom:80px;">
+
+  <div class="fs-header">
+    <button class="icon-btn" onclick="history.back()">
+      <span class="material-symbols-rounded">arrow_back</span>
+    </button>
+    <div class="fs-title">📋 Formula Sheet</div>
+    <button class="icon-btn" onclick="showSaved()" title="Saved formulas">
+      <span class="material-symbols-rounded">bookmark</span>
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <span class="material-symbols-rounded search-ico" style="position:absolute;left:28px;top:50%;transform:translateY(-50%);">search</span>
+    <input class="search-box" type="text" id="searchInput" placeholder="Search formulas... e.g. velocity, quadratic"
+      oninput="filterFormulas(this.value)" style="padding-left:40px;"/>
+  </div>
+
+  <!-- Subject tabs -->
+  <div class="subject-tabs" id="subjectTabs">
+    <div class="stab on" data-subj="all" onclick="filterSubject(this)">All</div>
+    <div class="stab" data-subj="mathematics" onclick="filterSubject(this)">Mathematics</div>
+    <div class="stab" data-subj="physics" onclick="filterSubject(this)">Physics</div>
+    <div class="stab" data-subj="chemistry" onclick="filterSubject(this)">Chemistry</div>
+    <div class="stab" data-subj="biology" onclick="filterSubject(this)">Biology</div>
+  </div>
+
+  <div id="formulaContainer"></div>
+  <div id="noResults" class="no-results" style="display:none;">
+    <div class="nr-icon">🔍</div>
+    <div style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;color:var(--text);">No formulas found</div>
+    <div style="font-size:0.75rem;margin-top:4px;">Try a different search term</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script>
+document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme') || 'light');
+var _saved = JSON.parse(localStorage.getItem('examora_saved_formulas') || '[]');
+var _currentSubj = 'all', _currentSearch = '';
+
+var FORMULAS = [
+  // ── MATHEMATICS ──────────────────────────────────────────────
+  { id:'m1', subj:'mathematics', section:'Algebra', icon:'🔢', name:'Quadratic Formula', eq:'x = (-b ± √(b²-4ac)) / 2a', desc:'Roots of a quadratic equation ax² + bx + c = 0', vars:['a: coefficient of x²','b: coefficient of x','c: constant'] },
+  { id:'m2', subj:'mathematics', section:'Algebra', icon:'🔢', name:'Difference of Two Squares', eq:'a² - b² = (a+b)(a-b)', desc:'Factoring shortcut for difference of squares', vars:[] },
+  { id:'m3', subj:'mathematics', section:'Algebra', icon:'🔢', name:'Sum of Arithmetic Sequence', eq:'Sₙ = n/2(2a + (n-1)d)', desc:'Sum of the first n terms of an AP', vars:['a: first term','d: common difference','n: number of terms'] },
+  { id:'m4', subj:'mathematics', section:'Algebra', icon:'🔢', name:'nth Term of AP', eq:'Tₙ = a + (n-1)d', desc:'The nth term of an arithmetic progression', vars:['a: first term','d: common difference','n: term number'] },
+  { id:'m5', subj:'mathematics', section:'Algebra', icon:'🔢', name:'Sum of Geometric Series', eq:'Sₙ = a(rⁿ - 1) / (r - 1)', desc:'Sum of n terms of a geometric progression (r ≠ 1)', vars:['a: first term','r: common ratio','n: number of terms'] },
+  { id:'m6', subj:'mathematics', section:'Algebra', icon:'🔢', name:'Sum to Infinity (GP)', eq:'S∞ = a / (1 - r)', desc:'Sum to infinity when |r| < 1', vars:['a: first term','r: common ratio (|r|<1)'] },
+  { id:'m7', subj:'mathematics', section:'Trigonometry', icon:'📐', name:'Sine Rule', eq:'a/sin A = b/sin B = c/sin C', desc:'Relates sides and angles of any triangle', vars:['a,b,c: sides','A,B,C: opposite angles'] },
+  { id:'m8', subj:'mathematics', section:'Trigonometry', icon:'📐', name:'Cosine Rule', eq:'a² = b² + c² - 2bc·cos A', desc:'Generalisation of Pythagorean theorem', vars:['a: side opposite angle A','b,c: other sides'] },
+  { id:'m9', subj:'mathematics', section:'Trigonometry', icon:'📐', name:'Area of Triangle', eq:'Area = ½ab·sin C', desc:'Area using two sides and included angle', vars:['a,b: two sides','C: included angle'] },
+  { id:'m10', subj:'mathematics', section:'Trigonometry', icon:'📐', name:'Pythagorean Identity', eq:'sin²θ + cos²θ = 1', desc:'Fundamental trig identity', vars:[] },
+  { id:'m11', subj:'mathematics', section:'Trigonometry', icon:'📐', name:'Double Angle (sin)', eq:'sin 2θ = 2 sin θ cos θ', desc:'Double angle formula for sine', vars:[] },
+  { id:'m12', subj:'mathematics', section:'Trigonometry', icon:'📐', name:'Double Angle (cos)', eq:'cos 2θ = cos²θ - sin²θ', desc:'Double angle formula for cosine', vars:[] },
+  { id:'m13', subj:'mathematics', section:'Calculus', icon:'∫', name:'Power Rule (Differentiation)', eq:"d/dx (xⁿ) = nxⁿ⁻¹", desc:'Differentiate a power of x', vars:['n: any real number'] },
+  { id:'m14', subj:'mathematics', section:'Calculus', icon:'∫', name:'Power Rule (Integration)', eq:'∫xⁿ dx = xⁿ⁺¹/(n+1) + C', desc:'Integrate a power of x (n ≠ -1)', vars:['n: exponent (≠ -1)','C: constant of integration'] },
+  { id:'m15', subj:'mathematics', section:'Statistics', icon:'📊', name:'Mean (Arithmetic)', eq:'x̄ = Σx / n', desc:'Average of a data set', vars:['Σx: sum of all values','n: number of values'] },
+  { id:'m16', subj:'mathematics', section:'Statistics', icon:'📊', name:'Standard Deviation', eq:'σ = √(Σ(x - x̄)² / n)', desc:'Measure of spread of data', vars:['x: each value','x̄: mean','n: number of values'] },
+  { id:'m17', subj:'mathematics', section:'Mensuration', icon:'📏', name:'Area of Circle', eq:'A = πr²', desc:'Area enclosed by a circle', vars:['r: radius'] },
+  { id:'m18', subj:'mathematics', section:'Mensuration', icon:'📏', name:'Circumference of Circle', eq:'C = 2πr', desc:'Perimeter/circumference of a circle', vars:['r: radius'] },
+  { id:'m19', subj:'mathematics', section:'Mensuration', icon:'📏', name:'Volume of Sphere', eq:'V = 4/3 πr³', desc:'Volume of a sphere', vars:['r: radius'] },
+  { id:'m20', subj:'mathematics', section:'Mensuration', icon:'📏', name:'Volume of Cylinder', eq:'V = πr²h', desc:'Volume of a cylinder', vars:['r: radius','h: height'] },
+  { id:'m21', subj:'mathematics', section:'Mensuration', icon:'📏', name:'Volume of Cone', eq:'V = 1/3 πr²h', desc:'Volume of a cone', vars:['r: base radius','h: height'] },
+  { id:'m22', subj:'mathematics', section:'Mensuration', icon:'📏', name:'Surface Area of Sphere', eq:'SA = 4πr²', desc:'Total surface area of a sphere', vars:['r: radius'] },
+
+  // ── PHYSICS ──────────────────────────────────────────────────
+  { id:'p1', subj:'physics', section:'Mechanics', icon:'⚡', name:"Newton's Second Law", eq:'F = ma', desc:'Force equals mass times acceleration', vars:['F: force (N)','m: mass (kg)','a: acceleration (m/s²)'] },
+  { id:'p2', subj:'physics', section:'Mechanics', icon:'⚡', name:'Work Done', eq:'W = Fd cos θ', desc:'Work done by a force over a displacement', vars:['F: force (N)','d: displacement (m)','θ: angle between F and d'] },
+  { id:'p3', subj:'physics', section:'Mechanics', icon:'⚡', name:'Kinetic Energy', eq:'KE = ½mv²', desc:'Energy of motion', vars:['m: mass (kg)','v: velocity (m/s)'] },
+  { id:'p4', subj:'physics', section:'Mechanics', icon:'⚡', name:'Gravitational PE', eq:'PE = mgh', desc:'Potential energy due to height', vars:['m: mass (kg)','g: gravity (9.8 m/s²)','h: height (m)'] },
+  { id:'p5', subj:'physics', section:'Mechanics', icon:'⚡', name:'SUVAT: v = u + at', eq:'v = u + at', desc:'Velocity after time t (uniform acceleration)', vars:['u: initial velocity','a: acceleration','t: time'] },
+  { id:'p6', subj:'physics', section:'Mechanics', icon:'⚡', name:'SUVAT: s = ut + ½at²', eq:'s = ut + ½at²', desc:'Displacement under uniform acceleration', vars:['s: displacement','u: initial velocity','a: acceleration','t: time'] },
+  { id:'p7', subj:'physics', section:'Mechanics', icon:'⚡', name:'SUVAT: v² = u² + 2as', eq:'v² = u² + 2as', desc:'Velocity-displacement relation', vars:['v: final velocity','u: initial velocity','a: acceleration','s: displacement'] },
+  { id:'p8', subj:'physics', section:'Mechanics', icon:'⚡', name:'Momentum', eq:'p = mv', desc:'Linear momentum of an object', vars:['m: mass (kg)','v: velocity (m/s)'] },
+  { id:'p9', subj:'physics', section:'Waves', icon:'🌊', name:'Wave Speed', eq:'v = fλ', desc:'Relationship between speed, frequency and wavelength', vars:['v: wave speed (m/s)','f: frequency (Hz)','λ: wavelength (m)'] },
+  { id:'p10', subj:'physics', section:'Waves', icon:'🌊', name:'Period and Frequency', eq:'T = 1/f', desc:'Period is the reciprocal of frequency', vars:['T: period (s)','f: frequency (Hz)'] },
+  { id:'p11', subj:'physics', section:'Electricity', icon:'🔌', name:"Ohm's Law", eq:'V = IR', desc:'Voltage, current and resistance relationship', vars:['V: voltage (V)','I: current (A)','R: resistance (Ω)'] },
+  { id:'p12', subj:'physics', section:'Electricity', icon:'🔌', name:'Electrical Power', eq:'P = IV = I²R = V²/R', desc:'Power dissipated in a resistor', vars:['P: power (W)','I: current (A)','V: voltage (V)','R: resistance (Ω)'] },
+  { id:'p13', subj:'physics', section:'Electricity', icon:'🔌', name:'Charge and Current', eq:'Q = It', desc:'Charge is current multiplied by time', vars:['Q: charge (C)','I: current (A)','t: time (s)'] },
+  { id:'p14', subj:'physics', section:'Electricity', icon:'🔌', name:'Resistors in Series', eq:'R_total = R₁ + R₂ + R₃', desc:'Total resistance of series circuit', vars:[] },
+  { id:'p15', subj:'physics', section:'Electricity', icon:'🔌', name:'Resistors in Parallel', eq:'1/R = 1/R₁ + 1/R₂ + 1/R₃', desc:'Total resistance of parallel circuit', vars:[] },
+  { id:'p16', subj:'physics', section:'Thermodynamics', icon:'🌡️', name:'Charles\' Law', eq:'V₁/T₁ = V₂/T₂', desc:'Volume-temperature relationship at constant pressure', vars:['V: volume','T: temperature (K)'] },
+  { id:'p17', subj:'physics', section:'Thermodynamics', icon:'🌡️', name:"Boyle's Law", eq:'P₁V₁ = P₂V₂', desc:'Pressure-volume relationship at constant temperature', vars:['P: pressure','V: volume'] },
+  { id:'p18', subj:'physics', section:'Thermodynamics', icon:'🌡️', name:'Ideal Gas Law', eq:'PV = nRT', desc:'Combined gas law for ideal gases', vars:['P: pressure','V: volume','n: moles','R: 8.314 J/mol·K','T: temperature (K)'] },
+  { id:'p19', subj:'physics', section:'Light & Optics', icon:'🔭', name:"Snell's Law", eq:'n₁ sin θ₁ = n₂ sin θ₂', desc:'Refraction of light at a boundary', vars:['n₁,n₂: refractive indices','θ₁,θ₂: angles to normal'] },
+  { id:'p20', subj:'physics', section:'Light & Optics', icon:'🔭', name:'Lens Formula', eq:'1/f = 1/v - 1/u', desc:'Thin lens equation', vars:['f: focal length','v: image distance','u: object distance'] },
+  { id:'p21', subj:'physics', section:'Nuclear Physics', icon:'☢️', name:'Mass-Energy Equivalence', eq:'E = mc²', desc:"Einstein's mass-energy relation", vars:['E: energy (J)','m: mass (kg)','c: 3×10⁸ m/s'] },
+
+  // ── CHEMISTRY ─────────────────────────────────────────────────
+  { id:'c1', subj:'chemistry', section:'Stoichiometry', icon:'🧪', name:'Mole Calculation', eq:'n = m / M', desc:'Number of moles from mass and molar mass', vars:['n: moles (mol)','m: mass (g)','M: molar mass (g/mol)'] },
+  { id:'c2', subj:'chemistry', section:'Stoichiometry', icon:'🧪', name:'Avogadro\'s Number', eq:'N = n × Nₐ', desc:'Number of particles from moles', vars:['N: number of particles','n: moles','Nₐ: 6.022×10²³'] },
+  { id:'c3', subj:'chemistry', section:'Stoichiometry', icon:'🧪', name:'Concentration', eq:'C = n / V', desc:'Molar concentration of a solution', vars:['C: concentration (mol/L)','n: moles (mol)','V: volume (L)'] },
+  { id:'c4', subj:'chemistry', section:'Stoichiometry', icon:'🧪', name:'Dilution Formula', eq:'C₁V₁ = C₂V₂', desc:'Conservation of moles during dilution', vars:['C₁,C₂: initial/final concentration','V₁,V₂: initial/final volume'] },
+  { id:'c5', subj:'chemistry', section:'Stoichiometry', icon:'🧪', name:'Empirical Formula (% to mole)', eq:'% / Ar → ratio → simplify', desc:'Find simplest ratio of atoms from % composition', vars:['Ar: relative atomic mass'] },
+  { id:'c6', subj:'chemistry', section:'Thermochemistry', icon:'🔥', name:'Enthalpy Change', eq:'ΔH = Hproducts - Hreactants', desc:'Enthalpy change of a reaction', vars:['ΔH < 0: exothermic','ΔH > 0: endothermic'] },
+  { id:'c7', subj:'chemistry', section:'Thermochemistry', icon:'🔥', name:'Hess\'s Law', eq:'ΔH_reaction = ΣΔHf(products) - ΣΔHf(reactants)', desc:'Total enthalpy change is path-independent', vars:['ΔHf: standard enthalpy of formation'] },
+  { id:'c8', subj:'chemistry', section:'Electrochemistry', icon:'⚡', name:'Faraday\'s 1st Law', eq:'m = (Q × M) / (n × F)', desc:'Mass deposited in electrolysis', vars:['Q: charge (C)','M: molar mass','n: valency','F: 96500 C/mol'] },
+  { id:'c9', subj:'chemistry', section:'Electrochemistry', icon:'⚡', name:'Faraday\'s 2nd Law', eq:'m₁/m₂ = E₁/E₂', desc:'Masses deposited proportional to equivalent masses', vars:['E: electrochemical equivalent'] },
+  { id:'c10', subj:'chemistry', section:'Acid-Base', icon:'⚗️', name:'pH Definition', eq:'pH = -log₁₀[H⁺]', desc:'pH from hydrogen ion concentration', vars:['[H⁺]: hydrogen ion concentration (mol/L)'] },
+  { id:'c11', subj:'chemistry', section:'Acid-Base', icon:'⚗️', name:'pKa and Ka', eq:'pKa = -log₁₀(Ka)', desc:'Acid dissociation constant relationship', vars:['Ka: acid dissociation constant'] },
+  { id:'c12', subj:'chemistry', section:'Acid-Base', icon:'⚗️', name:'pH + pOH', eq:'pH + pOH = 14 (at 25°C)', desc:'Relationship between pH and pOH in water', vars:[] },
+
+  // ── BIOLOGY ───────────────────────────────────────────────────
+  { id:'b1', subj:'biology', section:'Genetics', icon:'🧬', name:'Hardy-Weinberg Equation', eq:'p² + 2pq + q² = 1  and  p + q = 1', desc:'Allele frequency equilibrium in a population', vars:['p: frequency of dominant allele','q: frequency of recessive allele'] },
+  { id:'b2', subj:'biology', section:'Ecology', icon:'🌿', name:'Population Growth Rate', eq:'r = (Births - Deaths) / N', desc:'Per capita rate of population change', vars:['r: growth rate','N: population size'] },
+  { id:'b3', subj:'biology', section:'Ecology', icon:'🌿', name:'Net Productivity', eq:'NPP = GPP - Respiration', desc:'Net primary productivity of an ecosystem', vars:['GPP: gross primary productivity','NPP: net primary productivity'] },
+];
+
+// Group by section within subject
+function groupBySection(items) {
+  var groups = {};
+  items.forEach(function(f) {
+    if (!groups[f.section]) groups[f.section] = [];
+    groups[f.section].push(f);
+  });
+  return groups;
+}
+
+function renderFormulas(items) {
+  var container = document.getElementById('formulaContainer');
+  var noRes = document.getElementById('noResults');
+
+  if (items.length === 0) {
+    container.innerHTML = '';
+    noRes.style.display = '';
+    return;
+  }
+  noRes.style.display = 'none';
+
+  var groups = groupBySection(items);
+  var sectionIcons = {
+    'Algebra':'🔢','Trigonometry':'📐','Calculus':'∫','Statistics':'📊','Mensuration':'📏',
+    'Mechanics':'⚡','Waves':'🌊','Electricity':'🔌','Thermodynamics':'🌡️','Light & Optics':'🔭','Nuclear Physics':'☢️',
+    'Stoichiometry':'🧪','Thermochemistry':'🔥','Electrochemistry':'⚡','Acid-Base':'⚗️',
+    'Genetics':'🧬','Ecology':'🌿'
+  };
+
+  container.innerHTML = Object.keys(groups).map(function(sec) {
+    var fmls = groups[sec];
+    var icon = sectionIcons[sec] || '📋';
+    var open = _currentSearch.length > 0;
+    return '<div class="section" data-section="'+esc(sec)+'">' +
+      '<div class="sec-header'+(open?' open':'')+'" onclick="toggleSection(this)">' +
+        '<span class="sec-icon">'+icon+'</span>' +
+        '<span class="sec-name">'+esc(sec)+'</span>' +
+        '<span class="sec-count">'+fmls.length+' formulas</span>' +
+        '<span class="material-symbols-rounded sec-arrow">chevron_right</span>' +
+      '</div>' +
+      '<div class="formula-list'+(open?' open':'')+'">' +
+        fmls.map(function(f) {
+          var isSaved = _saved.includes(f.id);
+          return '<div class="formula-item'+(isSaved?' saved':'')+'" id="fi-'+f.id+'">' +
+            '<div class="fml-name">'+esc(f.name)+'</div>' +
+            '<div class="fml-eq">'+esc(f.eq)+'</div>' +
+            '<div class="fml-desc">'+esc(f.desc)+'</div>' +
+            (f.vars.length > 0 ? '<div class="fml-vars">'+f.vars.map(function(v){ return '<span class="fml-var">'+esc(v)+'</span>'; }).join('')+'</div>' : '') +
+            '<div class="fml-actions">' +
+              '<button class="fml-btn'+(isSaved?' saved-btn':'')+'" onclick="toggleSave(\''+f.id+'\',event)">'+(isSaved?'✅ Saved':'🔖 Save')+'</button>' +
+              '<button class="fml-btn" onclick="copyFormula(\''+esc(f.eq)+'\',event)">📋 Copy</button>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleSection(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+
+function filterSubject(tab) {
+  document.querySelectorAll('.stab').forEach(function(t){ t.classList.remove('on'); });
+  tab.classList.add('on');
+  _currentSubj = tab.dataset.subj;
+  applyFilters();
+}
+
+function filterFormulas(q) {
+  _currentSearch = q.trim().toLowerCase();
+  applyFilters();
+}
+
+function applyFilters() {
+  var items = FORMULAS.filter(function(f) {
+    var subjOk = _currentSubj === 'all' || f.subj === _currentSubj;
+    if (!subjOk) return false;
+    if (!_currentSearch) return true;
+    return (f.name+f.eq+f.desc+f.section+f.vars.join('')).toLowerCase().includes(_currentSearch);
+  });
+  renderFormulas(items);
+}
+
+function toggleSave(id, e) {
+  e.stopPropagation();
+  var idx = _saved.indexOf(id);
+  if (idx >= 0) { _saved.splice(idx,1); } else { _saved.push(id); }
+  localStorage.setItem('examora_saved_formulas', JSON.stringify(_saved));
+  applyFilters();
+  toast(_saved.includes(id) ? 'Formula saved! 🔖' : 'Removed from saved', _saved.includes(id) ? 'success' : 'info');
+}
+
+function copyFormula(eq, e) {
+  e.stopPropagation();
+  navigator.clipboard.writeText(eq).then(function() {
+    toast('Formula copied! 📋', 'success');
+  }).catch(function() {
+    toast(eq, 'info');
+  });
+}
+
+function showSaved() {
+  _currentSubj = 'all';
+  _currentSearch = '';
+  document.querySelectorAll('.stab').forEach(function(t){ t.classList.remove('on'); });
+  document.querySelector('.stab[data-subj="all"]').classList.add('on');
+  document.getElementById('searchInput').value = '';
+  var saved = FORMULAS.filter(function(f){ return _saved.includes(f.id); });
+  if (saved.length === 0) { toast('No saved formulas yet. Tap 🔖 to save any formula.', 'info'); return; }
+  renderFormulas(saved);
+}
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type]||'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show '+(type||'info');
+  setTimeout(function(){ t.className='toast'; }, 3000);
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Init
+applyFilters();
+// Open first section by default
+setTimeout(function() {
+  var first = document.querySelector('.sec-header');
+  if (first) { first.classList.add('open'); first.nextElementSibling.classList.add('open'); }
+}, 50);
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

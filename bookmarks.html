@@ -531,6 +531,7 @@
   };
 </script>
 
+window.toast = toast;
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -609,8 +610,8 @@
       await batch.commit();
       allBookmarks=[]; selectedIds.clear();
       window._onBookmarksLoaded([]);
-      toast("All bookmarks cleared");
-    }catch(e){toast("Could not clear bookmarks");}
+      window.toast("All bookmarks cleared");
+    }catch(e){window.toast("Could not clear bookmarks");}
   };
 </script>
 <script>

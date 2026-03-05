@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Notifications Setup</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    .n-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+    .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);}
+    .n-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+    .hero{margin:20px 16px;padding:24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:20px;border:1px solid rgba(99,102,241,0.25);text-align:center;}
+    .hero-icon{font-size:3rem;margin-bottom:10px;}
+    .hero-title{font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:white;margin-bottom:6px;}
+    .hero-sub{font-size:0.78rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:18px;}
+    .btn-enable{display:block;padding:13px 24px;border:none;border-radius:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,0.4);width:100%;transition:all 0.2s;}
+    .btn-enable:hover{transform:translateY(-1px);}
+    .btn-enable:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+    .status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:0.72rem;font-weight:700;margin-bottom:12px;}
+    .status-granted{background:rgba(16,185,129,0.12);color:var(--c-green);border:1px solid rgba(16,185,129,0.25);}
+    .status-denied{background:rgba(244,63,94,0.1);color:var(--c-red);border:1px solid rgba(244,63,94,0.2);}
+    .status-default{background:rgba(245,158,11,0.1);color:var(--c-gold);border:1px solid rgba(245,158,11,0.2);}
+
+    .prefs-section{margin:0 16px 20px;}
+    .pref-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
+    .pref-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;margin-bottom:8px;}
+    .pref-left{display:flex;align-items:center;gap:12px;}
+    .pref-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .pref-info{}
+    .pref-name{font-family:var(--font-display);font-weight:700;font-size:0.85rem;color:var(--text);}
+    .pref-sub{font-size:0.68rem;color:var(--text-3);margin-top:2px;}
+    /* Toggle */
+    .toggle{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-track{position:absolute;inset:0;border-radius:100px;background:var(--bg-input);border:1.5px solid var(--border);transition:all 0.2s;}
+    .toggle input:checked + .toggle-track{background:var(--c-green);border-color:var(--c-green);}
+    .toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-3);transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+    .toggle input:checked ~ .toggle-thumb{left:22px;background:white;}
+
+    /* Schedule section */
+    .schedule-card{margin:0 16px 20px;background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:16px;}
+    .sched-title{font-family:var(--font-display);font-weight:800;font-size:0.85rem;color:var(--text);margin-bottom:12px;}
+    .time-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .time-label{font-size:0.8rem;color:var(--text-2);font-weight:600;}
+    .time-input{padding:7px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.85rem;font-family:var(--font-body);outline:none;}
+    .time-input:focus{border-color:var(--c-brand);}
+    .save-btn{width:100%;padding:12px;border:none;border-radius:12px;background:var(--c-brand);color:white;font-family:var(--font-display);font-weight:800;font-size:0.88rem;cursor:pointer;transition:all 0.18s;}
+    .save-btn:hover{background:#4f46e5;}
+
+    /* Test notification */
+    .test-card{margin:0 16px 80px;background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:16px;}
+  </style>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;">
+
+  <div class="n-header">
+    <button class="icon-btn" onclick="history.back()">
+      <span class="material-symbols-rounded">arrow_back</span>
+    </button>
+    <div class="n-title">🔔 Push Notifications</div>
+  </div>
+
+  <!-- Hero / Permission -->
+  <div class="hero">
+    <div class="hero-icon">🔔</div>
+    <div id="permBadge" class="status-badge status-default">⏳ Not yet enabled</div>
+    <div class="hero-title">Stay on track every day</div>
+    <div class="hero-sub">Get daily study reminders, streak alerts, and daily challenge notifications — even when EXAMORA is closed.</div>
+    <button class="btn-enable" id="enableBtn" onclick="requestPermission()">Enable Push Notifications</button>
+    <div id="deniedMsg" style="display:none;margin-top:12px;font-size:0.72rem;color:rgba(255,255,255,0.45);">
+      Notifications blocked in your browser. Please go to browser settings → site permissions → allow notifications for this site.
+    </div>
+  </div>
+
+  <!-- Notification preferences -->
+  <div class="prefs-section">
+    <div class="pref-title">Notification Types</div>
+    <div class="pref-row">
+      <div class="pref-left">
+        <div class="pref-icon" style="background:rgba(99,102,241,0.1);">📚</div>
+        <div class="pref-info">
+          <div class="pref-name">Daily Study Reminder</div>
+          <div class="pref-sub">Reminds you to study at your chosen time</div>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pref_daily" checked onchange="savePrefs()"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+    <div class="pref-row">
+      <div class="pref-left">
+        <div class="pref-icon" style="background:rgba(245,158,11,0.1);">🔥</div>
+        <div class="pref-info">
+          <div class="pref-name">Streak Alerts</div>
+          <div class="pref-sub">Alert if you're about to lose your streak</div>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pref_streak" checked onchange="savePrefs()"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+    <div class="pref-row">
+      <div class="pref-left">
+        <div class="pref-icon" style="background:rgba(16,185,129,0.1);">⚡</div>
+        <div class="pref-info">
+          <div class="pref-name">Daily Challenge</div>
+          <div class="pref-sub">Notified when today's challenge is ready</div>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pref_challenge" checked onchange="savePrefs()"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+    <div class="pref-row">
+      <div class="pref-left">
+        <div class="pref-icon" style="background:rgba(244,63,94,0.1);">🏆</div>
+        <div class="pref-info">
+          <div class="pref-name">Leaderboard Updates</div>
+          <div class="pref-sub">Know when someone overtakes your rank</div>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pref_leaderboard" onchange="savePrefs()"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+    <div class="pref-row">
+      <div class="pref-left">
+        <div class="pref-icon" style="background:rgba(139,92,246,0.1);">📅</div>
+        <div class="pref-info">
+          <div class="pref-name">Exam Countdown Reminders</div>
+          <div class="pref-sub">Alerts at 30, 14, 7 and 1 day before exam</div>
+        </div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pref_countdown" checked onchange="savePrefs()"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Schedule -->
+  <div class="schedule-card">
+    <div class="sched-title">⏰ Reminder Schedule</div>
+    <div class="time-row">
+      <div class="time-label">Morning reminder</div>
+      <input class="time-input" type="time" id="timeAM" value="07:00" onchange="savePrefs()"/>
+    </div>
+    <div class="time-row" style="margin-bottom:14px;">
+      <div class="time-label">Evening reminder</div>
+      <input class="time-input" type="time" id="timePM" value="19:00" onchange="savePrefs()"/>
+    </div>
+    <button class="save-btn" onclick="saveAndConfirm()">💾 Save Schedule</button>
+  </div>
+
+  <!-- Test notification -->
+  <div class="test-card">
+    <div class="sched-title">🧪 Test Your Notifications</div>
+    <p style="font-size:0.78rem;color:var(--text-3);margin-bottom:12px;">Send a test notification right now to make sure everything is working.</p>
+    <button class="save-btn" style="background:var(--bg-input);color:var(--text-2);border:1.5px solid var(--border);" onclick="sendTestNotification()">Send Test Notification</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script>
+document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme') || 'light');
+var _prefs = JSON.parse(localStorage.getItem('examora_notif_prefs') || '{}');
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type]||'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show '+(type||'info');
+  setTimeout(function(){ t.className='toast'; }, 3500);
+}
+
+function updatePermUI() {
+  var perm = Notification ? Notification.permission : 'default';
+  var badge = document.getElementById('permBadge');
+  var btn = document.getElementById('enableBtn');
+  var denied = document.getElementById('deniedMsg');
+
+  if (perm === 'granted') {
+    badge.className = 'status-badge status-granted';
+    badge.textContent = '✅ Notifications Enabled';
+    btn.textContent = '✅ Notifications are ON';
+    btn.disabled = true;
+    denied.style.display = 'none';
+  } else if (perm === 'denied') {
+    badge.className = 'status-badge status-denied';
+    badge.textContent = '❌ Notifications Blocked';
+    btn.textContent = 'Unblock in Browser Settings';
+    btn.disabled = true;
+    denied.style.display = '';
+  } else {
+    badge.className = 'status-badge status-default';
+    badge.textContent = '⏳ Not Yet Enabled';
+    btn.disabled = false;
+    denied.style.display = 'none';
+  }
+}
+
+function loadPrefs() {
+  document.getElementById('pref_daily').checked     = _prefs.daily     !== false;
+  document.getElementById('pref_streak').checked    = _prefs.streak    !== false;
+  document.getElementById('pref_challenge').checked = _prefs.challenge !== false;
+  document.getElementById('pref_leaderboard').checked = !!_prefs.leaderboard;
+  document.getElementById('pref_countdown').checked = _prefs.countdown !== false;
+  if (_prefs.timeAM) document.getElementById('timeAM').value = _prefs.timeAM;
+  if (_prefs.timePM) document.getElementById('timePM').value = _prefs.timePM;
+}
+
+function savePrefs() {
+  _prefs = {
+    daily:       document.getElementById('pref_daily').checked,
+    streak:      document.getElementById('pref_streak').checked,
+    challenge:   document.getElementById('pref_challenge').checked,
+    leaderboard: document.getElementById('pref_leaderboard').checked,
+    countdown:   document.getElementById('pref_countdown').checked,
+    timeAM:      document.getElementById('timeAM').value,
+    timePM:      document.getElementById('timePM').value,
+  };
+  localStorage.setItem('examora_notif_prefs', JSON.stringify(_prefs));
+}
+
+function saveAndConfirm() {
+  savePrefs();
+  toast('Schedule saved! 🎉', 'success');
+}
+
+async function requestPermission() {
+  if (!('Notification' in window)) {
+    toast('Your browser doesn\'t support push notifications', 'error'); return;
+  }
+  var perm = await Notification.requestPermission();
+  updatePermUI();
+  if (perm === 'granted') {
+    toast('🎉 Notifications enabled! You\'ll never miss a study day.', 'success');
+    // Register with service worker for background notifications
+    if ('serviceWorker' in navigator) {
+      var reg = await navigator.serviceWorker.ready;
+      // Schedule local reminder using SW messaging
+      reg.active && reg.active.postMessage({
+        type: 'SCHEDULE_REMINDERS',
+        prefs: _prefs
+      });
+    }
+  } else if (perm === 'denied') {
+    toast('Notifications blocked. Enable in browser settings.', 'warning');
+  }
+}
+
+function sendTestNotification() {
+  if (Notification.permission !== 'granted') {
+    toast('Enable notifications first!', 'warning'); return;
+  }
+  var n = new Notification('EXAMORA 🎯', {
+    body: "You're on a 🔥 streak! Today's daily challenge is waiting for you.",
+    icon: 'logo.png',
+    badge: 'logo.png',
+    tag: 'test-notification',
+    requireInteraction: false,
+  });
+  n.onclick = function() { window.focus(); n.close(); };
+  toast('Test notification sent! ✅', 'success');
+}
+
+// Init
+updatePermUI();
+loadPrefs();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com", projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101", appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+});
+const auth = getAuth(app), db = getFirestore(app);
+window.toast = window.toast || function(){};
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  // Save notification prefs to Firestore so they sync across devices
+  window.savePrefs = (function(orig) {
+    return function() {
+      orig();
+      var prefs = JSON.parse(localStorage.getItem('examora_notif_prefs') || '{}');
+      updateDoc(doc(db,'users',user.uid), { notifPrefs: prefs }).catch(()=>{});
+    };
+  })(window.savePrefs);
+});
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

@@ -439,6 +439,7 @@
   renderStep();
 </script>
 
+window.toast = toast;
 <script type="module">
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged }
@@ -464,7 +465,7 @@
   });
 
   window.saveAndFinish = async () => {
-    if (!currentUser) { toast("Not logged in. Redirecting..."); window.location.href = "login.html"; return; }
+    if (!currentUser) { window.toast("Not logged in. Redirecting..."); window.location.href = "login.html"; return; }
 
     const btn = document.getElementById("nextBtn");
     btn.disabled = true;
@@ -490,7 +491,7 @@
       // Don't block the user if Firestore fails - log and continue
       console.warn("Onboarding save error (non-fatal):", e.message);
     }
-    toast("Profile saved! Let's go 🎉");
+    window.toast("Profile saved! Let's go 🎉");
     setTimeout(() => window.location.href = "index.html", 900);
   };
 </script>

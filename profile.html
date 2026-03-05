@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+<!DOC
+    <div class="qa-card" onclick="window.location.href='streak.html'">
+      <span class="material-symbols-rounded qa-icon" style="color:#ef4444;">local_fire_department</span>
+      <div class="qa-label">My Streak</div>
+    </div>TYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -135,6 +139,26 @@
     <div class="s-box"><div class="s-val" id="psAvg">—</div><div class="s-lbl">Avg Score</div></div>
     <div class="s-box"><div class="s-val" id="psStreak">—</div><div class="s-lbl">🔥 Streak</div></div>
     <div class="s-box"><div class="s-val" id="psXP">—</div><div class="s-lbl">⚡ XP</div></div>
+  </div>
+
+  <!-- XP Level Bar -->
+  <div id="xpLevelCard" style="margin:0 16px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:16px 18px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="xpLevelBadge" style="font-size:1.4rem;">🥉</span>
+        <div>
+          <div id="xpLevelName" style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);">Bronze Scholar</div>
+          <div id="xpLevelSub" style="font-size:0.65rem;color:var(--text-3);margin-top:1px;">Level 1</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div id="xpDisplay" style="font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:var(--c-brand);">0 XP</div>
+        <div id="xpNextLabel" style="font-size:0.62rem;color:var(--text-3);">Next: 100 XP</div>
+      </div>
+    </div>
+    <div style="background:var(--bg-input);border-radius:100px;height:8px;overflow:hidden;">
+      <div id="xpProgressBar" style="height:100%;border-radius:100px;background:linear-gradient(90deg,var(--c-brand),#8b5cf6);width:0%;transition:width 0.8s ease;"></div>
+    </div>
   </div>
 
   <!-- Target -->
@@ -361,6 +385,30 @@ var _isDark = _curTheme === 'dark';
 document.getElementById('themeCheckbox').checked = _isDark;
 document.getElementById('themeRowSub').textContent = _isDark ? 'Currently dark' : 'Currently light';
 
+// XP Level system
+var XP_LEVELS = [
+  { level:1,  name:'Bronze Scholar',    badge:'🥉', min:0,    max:100  },
+  { level:2,  name:'Silver Student',    badge:'🥈', min:100,  max:250  },
+  { level:3,  name:'Gold Learner',      badge:'🥇', min:250,  max:500  },
+  { level:4,  name:'Platinum Thinker',  badge:'💎', min:500,  max:1000 },
+  { level:5,  name:'Diamond Scholar',   badge:'👑', min:1000, max:2000 },
+  { level:6,  name:'Master of Exams',   badge:'🏆', min:2000, max:5000 },
+  { level:7,  name:'NOVA Legend',       badge:'⚡', min:5000, max:Infinity },
+];
+function renderXPLevel(xp) {
+  xp = parseInt(xp) || 0;
+  var lvl = XP_LEVELS.find(function(l){ return xp >= l.min && xp < l.max; }) || XP_LEVELS[XP_LEVELS.length-1];
+  var next = xp >= lvl.max ? null : lvl.max;
+  var pct = lvl.max === Infinity ? 100 : Math.round(((xp - lvl.min) / (lvl.max - lvl.min)) * 100);
+  document.getElementById('xpLevelBadge').textContent = lvl.badge;
+  document.getElementById('xpLevelName').textContent  = lvl.name;
+  document.getElementById('xpLevelSub').textContent   = 'Level ' + lvl.level;
+  document.getElementById('xpDisplay').textContent    = xp.toLocaleString() + ' XP';
+  document.getElementById('xpNextLabel').textContent  = next ? 'Next: ' + next.toLocaleString() + ' XP' : 'Max Level! 🏆';
+  setTimeout(function(){ document.getElementById('xpProgressBar').style.width = pct + '%'; }, 400);
+}
+window.renderXPLevel = renderXPLevel;
+
 function toast(msg, type) {
   var t = document.getElementById('toast');
   document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type] || 'ℹ️';
@@ -513,7 +561,7 @@ window._doSignOut = async () => { await signOut(auth); window.location.href = 'l
 window._doDelete  = async () => {
   const uid = window._uid; if (!uid) return;
   try { await deleteDoc(doc(db,'users',uid)); await deleteUser(auth.currentUser); window.location.href = 'login.html'; }
-  catch(e) { toast('Please re-login and try again.', 'error'); }
+  catch(e) { window.toast('Please re-login and try again.', 'error'); }
 };
 
 window._uploadPhoto = (blob, mode) => {
@@ -523,12 +571,12 @@ window._uploadPhoto = (blob, mode) => {
   if (ring) ring.classList.add('show');
   task.on('state_changed',
     s => { if (pctEl) pctEl.textContent = Math.round(s.bytesTransferred/s.totalBytes*100)+'%'; },
-    () => { toast('Upload failed','error'); if (ring) ring.classList.remove('show'); },
+    () => { window.toast('Upload failed','error'); if (ring) ring.classList.remove('show'); },
     async () => {
       const url = await getDownloadURL(task.snapshot.ref);
       if (ring) ring.classList.remove('show');
       await updateDoc(doc(db,'users',uid), {[mode==='avatar'?'photoURL':'coverURL']: url}).catch(()=>{});
-      toast(mode==='avatar'?'Photo updated!':'Cover updated!','success');
+      window.toast(mode==='avatar'?'Photo updated!':'Cover updated!','success');
     }
   );
 };
@@ -538,12 +586,12 @@ window.saveProfile = async () => {
   const name   = document.getElementById('editName').value.trim();
   const school = document.getElementById('editSchool').value.trim();
   const state  = document.getElementById('editState').value;
-  if (!name) { toast('Name cannot be empty','error'); return; }
+  if (!name) { window.toast('Name cannot be empty','error'); return; }
   try {
     await updateDoc(doc(db,'users',uid), {displayName:name, school, state, updatedAt:new Date().toISOString()});
     document.getElementById('pName').textContent = name;
-    closeSheet('editOverlay'); toast('Profile updated!','success');
-  } catch(e) { toast('Save failed. Try again.','error'); }
+    window.closeSheet('editOverlay'); window.toast('Profile updated!','success');
+  } catch(e) { window.toast('Save failed. Try again.','error'); }
 };
 
 window.saveTarget = async () => {
@@ -554,20 +602,20 @@ window.saveTarget = async () => {
     document.getElementById('targetVal').textContent = val+'pts';
     document.getElementById('targetStrip').style.display = 'block';
     document.getElementById('tsValue').textContent = val+'pts';
-    closeSheet('targetOverlay'); toast('Target set to '+val+'!','success');
-  } catch(e) { toast('Save failed.','error'); }
+    window.closeSheet('targetOverlay'); window.toast('Target set to '+val+'!','success');
+  } catch(e) { window.toast('Save failed.','error'); }
 };
 
 window.saveSubjects = async () => {
   const uid = window._uid; if (!uid) return;
   const sel = [...document.querySelectorAll('#subjChips .sel-on')].map(c => c.dataset.subj || c.textContent.trim());
-  if (!sel.length) { toast('Select at least one subject','error'); return; }
+  if (!sel.length) { window.toast('Select at least one subject','error'); return; }
   try {
     await updateDoc(doc(db,'users',uid), {subjects:sel});
     window._sub = sel;
     document.getElementById('subjectsVal').textContent = sel.slice(0,2).join(', ') + (sel.length>2 ? ` +${sel.length-2}` : '');
-    closeSheet('subjOverlay'); toast('Subjects saved!','success');
-  } catch(e) { toast('Save failed.','error'); }
+    window.closeSheet('subjOverlay'); window.toast('Subjects saved!','success');
+  } catch(e) { window.toast('Save failed.','error'); }
 };
 
 onAuthStateChanged(auth, async user => {
@@ -625,6 +673,7 @@ onAuthStateChanged(auth, async user => {
   document.getElementById('psAvg').textContent    = avg+'%';
   document.getElementById('psStreak').textContent = streak;
   document.getElementById('psXP').textContent     = xp;
+  window.renderXPLevel(xp);
 
   // Edit prefill
   document.getElementById('editName').value   = name;
@@ -663,7 +712,7 @@ onAuthStateChanged(auth, async user => {
   if (streak>=7&&!badges.includes('streak_7')) badges.push('streak_7');
   if (streak>=30&&!badges.includes('streak_30')) badges.push('streak_30');
   try { if (badges.length>(ud.badges||[]).length) await updateDoc(doc(db,'users',user.uid),{badges}); } catch(_) {}
-  renderBadges(badges);
+  window.renderBadges(badges);
 
   // Referral count
   try {

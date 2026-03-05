@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Study Streak</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    .sk-header {
+      display:flex;align-items:center;gap:12px;padding:14px 16px;
+      background:var(--bg-card);border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:50;
+    }
+    .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);}
+    .sk-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+
+    /* Hero stats */
+    .streak-hero {
+      margin:16px;padding:20px;
+      background:linear-gradient(135deg,#1e1b4b,#312e81);
+      border-radius:20px;border:1px solid rgba(99,102,241,0.25);
+    }
+    .sh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .sh-flame{font-size:2.4rem;line-height:1;}
+    .sh-streak{font-family:var(--font-display);font-weight:900;font-size:2.8rem;color:white;line-height:1;}
+    .sh-label{font-size:0.7rem;color:rgba(255,255,255,0.45);font-weight:600;margin-top:2px;}
+    .sh-best{text-align:right;}
+    .sh-best-num{font-family:var(--font-display);font-weight:800;font-size:1.4rem;color:rgba(255,255,255,0.8);}
+    .sh-best-lbl{font-size:0.65rem;color:rgba(255,255,255,0.35);font-weight:600;}
+    .sh-stats{display:flex;gap:10px;}
+    .sh-stat{flex:1;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;}
+    .sh-stat-n{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:white;}
+    .sh-stat-l{font-size:0.6rem;color:rgba(255,255,255,0.35);font-weight:600;margin-top:2px;}
+
+    /* Calendar grid */
+    .calendar-section{margin:0 16px 20px;}
+    .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .cal-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);}
+    .cal-nav{display:flex;gap:4px;}
+    .cal-nav-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text-2);cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+
+    /* Grid */
+    .month-label{font-size:0.62rem;font-weight:700;color:var(--text-3);letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase;}
+    .day-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;}
+    .day-label{font-size:0.56rem;color:var(--text-3);text-align:center;font-weight:600;}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+    .cal-cell{
+      aspect-ratio:1;border-radius:4px;background:var(--bg-input);
+      cursor:pointer;transition:transform 0.1s;position:relative;
+    }
+    .cal-cell:hover{transform:scale(1.15);z-index:2;}
+    .cal-cell.empty{background:transparent;cursor:default;}
+    .cal-cell.today{box-shadow:0 0 0 2px var(--c-brand);}
+    .cal-cell.future{opacity:0.25;cursor:default;}
+    /* Activity levels */
+    .cal-cell.l0{background:var(--bg-input);}
+    .cal-cell.l1{background:rgba(99,102,241,0.2);}
+    .cal-cell.l2{background:rgba(99,102,241,0.45);}
+    .cal-cell.l3{background:rgba(99,102,241,0.7);}
+    .cal-cell.l4{background:#6366f1;}
+    .cal-cell.l5{background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 0 6px rgba(99,102,241,0.5);}
+
+    /* Tooltip */
+    .cal-cell .tip{
+      display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+      background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
+      padding:5px 9px;white-space:nowrap;font-size:0.64rem;color:var(--text);font-weight:600;z-index:10;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);pointer-events:none;
+    }
+    .cal-cell:hover .tip{display:block;}
+
+    /* Legend */
+    .legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-bottom:16px;}
+    .legend-label{font-size:0.62rem;color:var(--text-3);}
+    .legend-cell{width:12px;height:12px;border-radius:3px;}
+
+    /* Month breakdown */
+    .month-bar-wrap{margin:0 16px 20px;}
+    .mb-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
+    .mb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .mb-month{font-size:0.72rem;color:var(--text-2);font-weight:600;width:36px;flex-shrink:0;}
+    .mb-track{flex:1;height:8px;background:var(--bg-input);border-radius:100px;overflow:hidden;}
+    .mb-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#6366f1,#8b5cf6);transition:width 0.6s ease;}
+    .mb-count{font-size:0.68rem;color:var(--text-3);font-weight:600;width:32px;text-align:right;flex-shrink:0;}
+
+    /* Achievement badges */
+    .badges-section{margin:0 16px 80px;}
+    .bs-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
+    .badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .badge-card{
+      background:var(--bg-card);border:1px solid var(--border);border-radius:16px;
+      padding:14px 12px;display:flex;gap:12px;align-items:center;
+    }
+    .badge-card.earned{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.05);}
+    .badge-icon{font-size:1.8rem;flex-shrink:0;}
+    .badge-info{}
+    .badge-name{font-family:var(--font-display);font-weight:800;font-size:0.78rem;color:var(--text);}
+    .badge-req{font-size:0.62rem;color:var(--text-3);margin-top:2px;}
+    .badge-lock{font-size:1.4rem;opacity:0.3;flex-shrink:0;}
+  </style>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;">
+
+  <div class="sk-header">
+    <button class="icon-btn" onclick="history.back()">
+      <span class="material-symbols-rounded">arrow_back</span>
+    </button>
+    <div class="sk-title">📆 Study Streak</div>
+    <button class="icon-btn" onclick="shareStreak()" title="Share">
+      <span class="material-symbols-rounded">share</span>
+    </button>
+  </div>
+
+  <!-- Streak hero -->
+  <div class="streak-hero" id="streakHero">
+    <div class="sh-top">
+      <div>
+        <div class="sh-flame" id="streakFlame">🔥</div>
+        <div class="sh-streak" id="streakNum">0</div>
+        <div class="sh-label">day streak</div>
+      </div>
+      <div class="sh-best">
+        <div class="sh-best-num" id="bestStreakNum">0</div>
+        <div class="sh-best-lbl">Best Streak</div>
+      </div>
+    </div>
+    <div class="sh-stats">
+      <div class="sh-stat"><div class="sh-stat-n" id="totalDaysNum">0</div><div class="sh-stat-l">Days Studied</div></div>
+      <div class="sh-stat"><div class="sh-stat-n" id="thisMonthNum">0</div><div class="sh-stat-l">This Month</div></div>
+      <div class="sh-stat"><div class="sh-stat-n" id="totalQNum">0</div><div class="sh-stat-l">Total Questions</div></div>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="calendar-section">
+    <div class="cal-header">
+      <div class="cal-title" id="calTitle">Activity Grid — 2025</div>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeYear(-1)">‹</button>
+        <button class="cal-nav-btn" onclick="changeYear(1)">›</button>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="legend-label">Less</span>
+      <div class="legend-cell l0"></div>
+      <div class="legend-cell l1"></div>
+      <div class="legend-cell l3"></div>
+      <div class="legend-cell l4"></div>
+      <div class="legend-cell l5"></div>
+      <span class="legend-label">More</span>
+    </div>
+    <div id="calendarGrid"></div>
+  </div>
+
+  <!-- Monthly breakdown -->
+  <div class="month-bar-wrap">
+    <div class="mb-title">Monthly Activity</div>
+    <div id="monthBars"></div>
+  </div>
+
+  <!-- Streak badges -->
+  <div class="badges-section">
+    <div class="bs-title">Streak Badges</div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script>
+document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme') || 'light');
+
+var _year = new Date().getFullYear();
+var _activity = {}; // { 'YYYY-MM-DD': { questions: n, sessions: n } }
+var _currentStreak = 0, _bestStreak = 0;
+
+var STREAK_BADGES = [
+  { id:'s3',  icon:'🌱', name:'Getting Started',  req:'3-day streak',  days:3 },
+  { id:'s7',  icon:'🔥', name:'Week Warrior',      req:'7-day streak',  days:7 },
+  { id:'s14', icon:'💪', name:'Two Week Strong',   req:'14-day streak', days:14 },
+  { id:'s30', icon:'⚡', name:'Monthly Legend',    req:'30-day streak', days:30 },
+  { id:'s60', icon:'🏆', name:'Iron Student',      req:'60-day streak', days:60 },
+  { id:'s100',icon:'💎', name:'Diamond Scholar',   req:'100-day streak',days:100 },
+];
+
+function loadActivity() {
+  // Load from localStorage (written by exam.html, daily-challenge, topic-practice etc.)
+  try {
+    var raw = localStorage.getItem('examora_study_activity');
+    if (raw) _activity = JSON.parse(raw);
+  } catch(_) { _activity = {}; }
+
+  // Also check result history for activity data
+  try {
+    var hist = JSON.parse(localStorage.getItem('examora_results') || '[]');
+    hist.forEach(function(r) {
+      if (!r.date) return;
+      var d = r.date.split('T')[0];
+      if (!_activity[d]) _activity[d] = { questions:0, sessions:0 };
+      _activity[d].questions += (r.total || 0);
+      _activity[d].sessions += 1;
+    });
+  } catch(_) {}
+
+  // Check topic practice performance
+  try {
+    var tp = JSON.parse(localStorage.getItem('examora_topic_practice') || '{}');
+    var today = new Date().toISOString().split('T')[0];
+    var totalTP = 0;
+    Object.values(tp).forEach(function(v){ totalTP += (v.correct||0) + (v.wrong||0); });
+    if (totalTP > 0 && !_activity[today]) {
+      _activity[today] = { questions: totalTP, sessions: 1 };
+    }
+  } catch(_) {}
+}
+
+function calcStreak() {
+  var today = new Date();
+  var d = new Date(today);
+  _currentStreak = 0;
+
+  // Check backward from today
+  while (true) {
+    var key = d.toISOString().split('T')[0];
+    if (_activity[key] && _activity[key].questions > 0) {
+      _currentStreak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  // Calc best streak
+  var days = Object.keys(_activity).filter(function(k){ return _activity[k] && _activity[k].questions > 0; }).sort();
+  var cur = 0; _bestStreak = 0;
+  for (var i = 0; i < days.length; i++) {
+    if (i === 0) { cur = 1; }
+    else {
+      var prev = new Date(days[i-1]), curr = new Date(days[i]);
+      var diff = (curr - prev) / 86400000;
+      cur = diff === 1 ? cur + 1 : 1;
+    }
+    _bestStreak = Math.max(_bestStreak, cur);
+  }
+}
+
+function renderHero() {
+  document.getElementById('streakNum').textContent = _currentStreak;
+  document.getElementById('bestStreakNum').textContent = _bestStreak;
+
+  var flames = ['','🌱','🔥','🔥','⚡','💎'];
+  var fi = Math.min(Math.floor(_currentStreak / 7) + (_currentStreak > 0 ? 1 : 0), flames.length - 1);
+  document.getElementById('streakFlame').textContent = _currentStreak === 0 ? '💤' : flames[Math.max(1, fi)];
+
+  var totalDays = Object.keys(_activity).filter(function(k){ return _activity[k] && _activity[k].questions > 0; }).length;
+  document.getElementById('totalDaysNum').textContent = totalDays;
+
+  var now = new Date();
+  var monthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  var thisMonth = Object.keys(_activity).filter(function(k){
+    return k.startsWith(monthKey) && _activity[k] && _activity[k].questions > 0;
+  }).length;
+  document.getElementById('thisMonthNum').textContent = thisMonth;
+
+  var totalQ = Object.values(_activity).reduce(function(sum,v){ return sum + (v ? v.questions||0 : 0); }, 0);
+  document.getElementById('totalQNum').textContent = totalQ >= 1000 ? (totalQ/1000).toFixed(1)+'K' : totalQ;
+}
+
+function renderCalendar() {
+  var today = new Date();
+  var container = document.getElementById('calendarGrid');
+  container.innerHTML = '';
+  document.getElementById('calTitle').textContent = 'Activity Grid — ' + _year;
+
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  MONTHS.forEach(function(mn, mi) {
+    var firstDay = new Date(_year, mi, 1);
+    var daysInMonth = new Date(_year, mi + 1, 0).getDate();
+    var startDow = firstDay.getDay(); // 0=Sun
+
+    var wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '14px';
+
+    var label = document.createElement('div');
+    label.className = 'month-label';
+    label.textContent = mn;
+    wrapper.appendChild(label);
+
+    var dayLabels = document.createElement('div');
+    dayLabels.className = 'day-labels';
+    DAYS_SHORT.forEach(function(dl) {
+      var dlEl = document.createElement('div');
+      dlEl.className = 'day-label';
+      dlEl.textContent = dl[0];
+      dayLabels.appendChild(dlEl);
+    });
+    wrapper.appendChild(dayLabels);
+
+    var grid = document.createElement('div');
+    grid.className = 'cal-grid';
+
+    // Blank cells
+    for (var b = 0; b < startDow; b++) {
+      var blank = document.createElement('div');
+      blank.className = 'cal-cell empty';
+      grid.appendChild(blank);
+    }
+
+    // Day cells
+    for (var d = 1; d <= daysInMonth; d++) {
+      var date = new Date(_year, mi, d);
+      var key = _year + '-' + String(mi+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      var act = _activity[key];
+      var q = act ? act.questions || 0 : 0;
+      var isToday = date.toDateString() === today.toDateString();
+      var isFuture = date > today;
+
+      var level = 0;
+      if (!isFuture && q > 0) {
+        level = q >= 50 ? 5 : q >= 30 ? 4 : q >= 15 ? 3 : q >= 5 ? 2 : 1;
+      }
+
+      var cell = document.createElement('div');
+      cell.className = 'cal-cell l' + level + (isToday ? ' today' : '') + (isFuture ? ' future' : '');
+
+      var tip = document.createElement('div');
+      tip.className = 'tip';
+      if (isFuture) { tip.textContent = mn + ' ' + d; }
+      else if (q === 0) { tip.textContent = mn + ' ' + d + ': No activity'; }
+      else { tip.textContent = mn + ' ' + d + ': ' + q + ' questions'; }
+      cell.appendChild(tip);
+      grid.appendChild(cell);
+    }
+
+    wrapper.appendChild(grid);
+    container.appendChild(wrapper);
+  });
+}
+
+function renderMonthBars() {
+  var el = document.getElementById('monthBars');
+  var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var now = new Date();
+  var monthCounts = MONTHS_SHORT.map(function(mn, mi) {
+    var year = now.getFullYear();
+    var count = Object.keys(_activity).filter(function(k) {
+      return k.startsWith(year + '-' + String(mi+1).padStart(2,'0')) && _activity[k] && _activity[k].questions > 0;
+    }).length;
+    return { mn: mn, count: count };
+  });
+  var max = Math.max.apply(null, monthCounts.map(function(m){ return m.count; })) || 1;
+  el.innerHTML = monthCounts.map(function(m) {
+    var pct = Math.round((m.count / max) * 100);
+    return '<div class="mb-row">' +
+      '<div class="mb-month">'+m.mn+'</div>' +
+      '<div class="mb-track"><div class="mb-fill" style="width:'+pct+'%"></div></div>' +
+      '<div class="mb-count">'+m.count+'d</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderBadges() {
+  var el = document.getElementById('badgeGrid');
+  el.innerHTML = STREAK_BADGES.map(function(b) {
+    var earned = _bestStreak >= b.days;
+    return '<div class="badge-card'+(earned?' earned':'')+'">' +
+      '<div class="badge-icon">'+b.icon+'</div>' +
+      '<div class="badge-info">' +
+        '<div class="badge-name">'+b.name+'</div>' +
+        '<div class="badge-req">'+b.req+'</div>' +
+      '</div>' +
+      (earned ? '' : '<div class="badge-lock">🔒</div>') +
+    '</div>';
+  }).join('');
+}
+
+function changeYear(delta) {
+  _year += delta;
+  renderCalendar();
+}
+
+function shareStreak() {
+  var text = '🔥 ' + _currentStreak + '-day study streak on EXAMORA! I\'ve studied ' +
+    Object.keys(_activity).filter(function(k){ return _activity[k] && _activity[k].questions>0; }).length +
+    ' days total. #EXAMORA #StudySmart';
+  if (navigator.share) {
+    navigator.share({ title: 'My EXAMORA Streak', text: text });
+  } else {
+    navigator.clipboard.writeText(text).then(function(){ toast('Copied! Share it 🔥', 'success'); });
+  }
+}
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️';
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show '+(type||'info');
+  setTimeout(function(){ t.className='toast'; }, 3000);
+}
+
+// Init
+loadActivity();
+calcStreak();
+renderHero();
+renderCalendar();
+renderMonthBars();
+renderBadges();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com", projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101", appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+});
+const auth = getAuth(app), db = getFirestore(app);
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  try {
+    const snap = await getDoc(doc(db,'users',user.uid));
+    if (snap.exists()) {
+      const ud = snap.data();
+      // Merge Firestore activity into local
+      if (ud.studyActivity) {
+        Object.assign(window._activity||{}, ud.studyActivity);
+        localStorage.setItem('examora_study_activity', JSON.stringify(window._activity||{}));
+        // Re-render with merged data
+        window.calcStreak && window.calcStreak();
+        window.renderHero && window.renderHero();
+        window.renderCalendar && window.renderCalendar();
+        window.renderMonthBars && window.renderMonthBars();
+        window.renderBadges && window.renderBadges();
+      }
+    }
+  } catch(_){}
+});
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

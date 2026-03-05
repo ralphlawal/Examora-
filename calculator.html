@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Calculator</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    body { background: var(--bg); }
+    .calc-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: none;
+      background: var(--bg-input); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: var(--text-2);
+    }
+    .calc-title { font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--text); flex: 1; }
+
+    /* Tab switch */
+    .mode-tabs {
+      display: flex; gap: 6px; padding: 12px 16px 0;
+    }
+    .mode-tab {
+      flex: 1; padding: 8px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--bg-input); font-family: var(--font-display); font-weight: 700;
+      font-size: 0.75rem; color: var(--text-2); cursor: pointer; text-align: center;
+      transition: all 0.18s;
+    }
+    .mode-tab.on { background: var(--c-brand); color: white; border-color: var(--c-brand); }
+
+    /* Display */
+    .calc-display {
+      margin: 14px 16px 0;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 16px 18px; min-height: 90px;
+      display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;
+    }
+    .disp-expr {
+      font-size: 0.78rem; color: var(--text-3); font-family: 'Courier New', monospace;
+      min-height: 20px; word-break: break-all; text-align: right;
+    }
+    .disp-value {
+      font-family: var(--font-display); font-weight: 900; font-size: 2.2rem;
+      color: var(--text); word-break: break-all; text-align: right;
+      line-height: 1.1; transition: color 0.15s;
+    }
+    .disp-value.error { color: var(--c-red); font-size: 1.2rem; }
+
+    /* Angle mode */
+    .angle-row {
+      display: flex; gap: 8px; padding: 10px 16px 0; justify-content: flex-end;
+    }
+    .angle-btn {
+      padding: 4px 12px; border-radius: 100px; border: 1.5px solid var(--border);
+      font-family: var(--font-display); font-weight: 700; font-size: 0.68rem;
+      background: var(--bg-input); color: var(--text-3); cursor: pointer;
+    }
+    .angle-btn.on { background: var(--c-green-pale); color: var(--c-green); border-color: var(--c-green); }
+
+    /* Keypad */
+    .keypad { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .key-row { display: grid; gap: 8px; }
+    .key-row.sci { grid-template-columns: repeat(5, 1fr); }
+    .key-row.std { grid-template-columns: repeat(4, 1fr); }
+    .key-row.wide { grid-template-columns: 1fr 1fr 1fr 2fr; }
+
+    .key {
+      padding: 0; height: 52px; border-radius: 14px; border: none;
+      font-family: var(--font-display); font-weight: 700; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+    }
+    .key:active { transform: scale(0.93); }
+    .key.num { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); font-size: 1rem; }
+    .key.op { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: var(--c-brand); }
+    .key.fn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-2); font-size: 0.75rem; }
+    .key.eq { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 3px 12px rgba(99,102,241,0.35); font-size: 1.2rem; }
+    .key.clr { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--c-red); }
+    .key.gold { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: var(--c-gold); }
+    .key.span2 { grid-column: span 2; }
+
+    /* History panel */
+    .history-panel { display: none; padding: 12px 16px 80px; }
+    .history-panel.show { display: block; }
+    .hist-title { font-family: var(--font-display); font-weight: 800; font-size: 0.88rem; color: var(--text); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .hist-clear { font-size: 0.72rem; color: var(--c-red); font-weight: 700; cursor: pointer; }
+    .hist-empty { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 0.82rem; }
+    .hist-item {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s;
+    }
+    .hist-item:hover { border-color: var(--c-brand); }
+    .hist-expr { font-size: 0.72rem; color: var(--text-3); font-family: 'Courier New', monospace; margin-bottom: 3px; }
+    .hist-val { font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--text); }
+  </style>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;">
+
+  <div class="calc-header">
+    <button class="icon-btn" onclick="history.back()">
+      <span class="material-symbols-rounded">arrow_back</span>
+    </button>
+    <div class="calc-title">🧮 Calculator</div>
+    <button class="icon-btn" onclick="toggleHistory()" title="History">
+      <span class="material-symbols-rounded">history</span>
+    </button>
+  </div>
+
+  <!-- Mode tabs -->
+  <div class="mode-tabs">
+    <div class="mode-tab on" id="tabCalc" onclick="showCalc()">Calculator</div>
+    <div class="mode-tab" id="tabHist" onclick="showHistory()">History</div>
+  </div>
+
+  <!-- Calculator view -->
+  <div id="calcView">
+    <!-- Angle mode -->
+    <div class="angle-row">
+      <button class="angle-btn on" id="btnDeg" onclick="setAngle('deg')">DEG</button>
+      <button class="angle-btn" id="btnRad" onclick="setAngle('rad')">RAD</button>
+    </div>
+
+    <!-- Display -->
+    <div class="calc-display">
+      <div class="disp-expr" id="dispExpr"></div>
+      <div class="disp-value" id="dispVal">0</div>
+    </div>
+
+    <!-- Keypad: Scientific row 1 -->
+    <div class="keypad">
+      <div class="key-row sci">
+        <button class="key fn" onclick="inputFn('sin(')">sin</button>
+        <button class="key fn" onclick="inputFn('cos(')">cos</button>
+        <button class="key fn" onclick="inputFn('tan(')">tan</button>
+        <button class="key fn" onclick="inputFn('log(')">log</button>
+        <button class="key fn" onclick="inputFn('ln(')">ln</button>
+      </div>
+      <div class="key-row sci">
+        <button class="key fn" onclick="inputFn('asin(')">sin⁻¹</button>
+        <button class="key fn" onclick="inputFn('acos(')">cos⁻¹</button>
+        <button class="key fn" onclick="inputFn('atan(')">tan⁻¹</button>
+        <button class="key fn" onclick="inputFn('sqrt(')">√</button>
+        <button class="key fn" onclick="inputFn('^')">xʸ</button>
+      </div>
+      <div class="key-row sci">
+        <button class="key gold" onclick="inputFn('pi')">π</button>
+        <button class="key gold" onclick="inputFn('e')">e</button>
+        <button class="key fn" onclick="inputFn('abs(')">|x|</button>
+        <button class="key fn" onclick="inputFn('(')">(</button>
+        <button class="key fn" onclick="inputFn(')')">)</button>
+      </div>
+      <!-- Standard keys -->
+      <div class="key-row std">
+        <button class="key clr" onclick="clearAll()">AC</button>
+        <button class="key clr" onclick="clearEntry()">CE</button>
+        <button class="key op" onclick="inputFn('%')">%</button>
+        <button class="key op" onclick="inputFn('/')">÷</button>
+      </div>
+      <div class="key-row std">
+        <button class="key num" onclick="inputDigit('7')">7</button>
+        <button class="key num" onclick="inputDigit('8')">8</button>
+        <button class="key num" onclick="inputDigit('9')">9</button>
+        <button class="key op" onclick="inputFn('*')">×</button>
+      </div>
+      <div class="key-row std">
+        <button class="key num" onclick="inputDigit('4')">4</button>
+        <button class="key num" onclick="inputDigit('5')">5</button>
+        <button class="key num" onclick="inputDigit('6')">6</button>
+        <button class="key op" onclick="inputFn('-')">−</button>
+      </div>
+      <div class="key-row std">
+        <button class="key num" onclick="inputDigit('1')">1</button>
+        <button class="key num" onclick="inputDigit('2')">2</button>
+        <button class="key num" onclick="inputDigit('3')">3</button>
+        <button class="key op" onclick="inputFn('+')">+</button>
+      </div>
+      <div class="key-row wide">
+        <button class="key num" onclick="toggleSign()">+/−</button>
+        <button class="key num" onclick="inputDigit('0')">0</button>
+        <button class="key num" onclick="inputDigit('.')">.</button>
+        <button class="key eq" onclick="calculate()">＝</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History view -->
+  <div id="histView" class="history-panel">
+    <div class="hist-title">
+      <span>Calculation History</span>
+      <span class="hist-clear" onclick="clearHistory()">Clear all</span>
+    </div>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<script>
+const _th = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _th);
+
+var _expr = '', _result = '0', _angleMode = 'deg', _justCalc = false;
+var _history = JSON.parse(localStorage.getItem('examora_calc_history') || '[]');
+
+function showCalc() {
+  document.getElementById('calcView').style.display = '';
+  document.getElementById('histView').classList.remove('show');
+  document.getElementById('tabCalc').classList.add('on');
+  document.getElementById('tabHist').classList.remove('on');
+}
+function showHistory() {
+  document.getElementById('calcView').style.display = 'none';
+  document.getElementById('histView').classList.add('show');
+  document.getElementById('tabCalc').classList.remove('on');
+  document.getElementById('tabHist').classList.add('on');
+  renderHistory();
+}
+function toggleHistory() {
+  if (document.getElementById('histView').classList.contains('show')) showCalc(); else showHistory();
+}
+
+function setAngle(mode) {
+  _angleMode = mode;
+  document.getElementById('btnDeg').classList.toggle('on', mode === 'deg');
+  document.getElementById('btnRad').classList.toggle('on', mode === 'rad');
+}
+
+function updateDisplay() {
+  document.getElementById('dispExpr').textContent = _expr;
+  var dv = document.getElementById('dispVal');
+  dv.textContent = _result || '0';
+  dv.className = 'disp-value' + (_result === 'Error' ? ' error' : '');
+}
+
+function inputDigit(d) {
+  if (_justCalc) { _expr = ''; _result = '0'; _justCalc = false; }
+  if (d === '.' && _expr.endsWith('.')) return;
+  _expr += d; _result = _expr;
+  updateDisplay();
+}
+
+function inputFn(fn) {
+  if (_justCalc && fn !== '^' && fn !== '%' && fn !== '+' && fn !== '-' && fn !== '*' && fn !== '/') {
+    // Allow chaining result into functions
+    if ('+-*/^%'.includes(fn)) { /* keep */ } else { _expr = _result; }
+    _justCalc = false;
+  }
+  _expr += fn;
+  _result = _expr.replace(/\*/g, '×').replace(/\//g, '÷');
+  updateDisplay();
+}
+
+function clearAll() { _expr = ''; _result = '0'; _justCalc = false; updateDisplay(); }
+function clearEntry() {
+  if (_expr.length > 0) {
+    _expr = _expr.slice(0, -1);
+    _result = _expr || '0';
+    updateDisplay();
+  }
+}
+function toggleSign() {
+  if (_result !== '0' && _result !== 'Error') {
+    if (_result.startsWith('-')) { _result = _result.slice(1); _expr = _result; }
+    else { _result = '-' + _result; _expr = _result; }
+    updateDisplay();
+  }
+}
+
+function calculate() {
+  if (!_expr.trim()) return;
+  var exprToSolve = _expr;
+  var displayExpr = exprToSolve;
+  try {
+    // Replace constants
+    var e = exprToSolve
+      .replace(/pi/gi, '(' + Math.PI + ')')
+      .replace(/\be\b/g, '(' + Math.E + ')')
+      .replace(/\^/g, '**');
+
+    // Replace trig functions (respect angle mode)
+    if (_angleMode === 'deg') {
+      var D = Math.PI / 180;
+      e = e
+        .replace(/asin\(/g, 'ASIN(')
+        .replace(/acos\(/g, 'ACOS(')
+        .replace(/atan\(/g, 'ATAN(')
+        .replace(/sin\(/g, '(x=>Math.sin(x*' + D + '))(')
+        .replace(/cos\(/g, '(x=>Math.cos(x*' + D + '))(')
+        .replace(/tan\(/g, '(x=>Math.tan(x*' + D + '))(')
+        .replace(/ASIN\(/g, '(x=>Math.asin(x)/' + D + ')(')
+        .replace(/ACOS\(/g, '(x=>Math.acos(x)/' + D + ')(')
+        .replace(/ATAN\(/g, '(x=>Math.atan(x)/' + D + ')(');
+    } else {
+      e = e
+        .replace(/sin\(/g, 'Math.sin(')
+        .replace(/cos\(/g, 'Math.cos(')
+        .replace(/tan\(/g, 'Math.tan(')
+        .replace(/asin\(/g, 'Math.asin(')
+        .replace(/acos\(/g, 'Math.acos(')
+        .replace(/atan\(/g, 'Math.atan(');
+    }
+
+    e = e
+      .replace(/sqrt\(/g, 'Math.sqrt(')
+      .replace(/log\(/g, 'Math.log10(')
+      .replace(/ln\(/g, 'Math.log(')
+      .replace(/abs\(/g, 'Math.abs(')
+      .replace(/(%)/g, '/100');
+
+    // Sanitize - only allow safe chars
+    if (/[^0-9+\-*/().MathsincotagbqrtlpeABCDEFGHIJKLMNOPQRSTUVWXYZ_\s,=>]/.test(e)) throw new Error('Invalid');
+
+    var result = Function('"use strict"; return (' + e + ')')();
+    if (!isFinite(result)) throw new Error('Math Error');
+
+    // Format nicely
+    var formatted;
+    if (Number.isInteger(result) && Math.abs(result) < 1e15) {
+      formatted = result.toString();
+    } else {
+      formatted = parseFloat(result.toPrecision(10)).toString();
+    }
+
+    // Save to history
+    _history.unshift({ expr: displayExpr, result: formatted, time: Date.now() });
+    if (_history.length > 50) _history.pop();
+    localStorage.setItem('examora_calc_history', JSON.stringify(_history));
+
+    _expr = formatted;
+    _result = formatted;
+    document.getElementById('dispExpr').textContent = displayExpr + ' =';
+    document.getElementById('dispVal').textContent = formatted;
+    document.getElementById('dispVal').className = 'disp-value';
+    _justCalc = true;
+  } catch(err) {
+    _result = 'Error';
+    updateDisplay();
+  }
+}
+
+function renderHistory() {
+  var el = document.getElementById('histList');
+  if (_history.length === 0) {
+    el.innerHTML = '<div class="hist-empty">📋 No calculations yet.<br/>Your history appears here.</div>';
+    return;
+  }
+  el.innerHTML = _history.slice(0, 20).map(function(h) {
+    return '<div class="hist-item" onclick="useFromHistory(\'' + h.result.replace(/'/g,"\\'") + '\')">' +
+      '<div class="hist-expr">' + escHtml(h.expr) + ' =</div>' +
+      '<div class="hist-val">' + escHtml(h.result) + '</div>' +
+    '</div>';
+  }).join('');
+}
+function clearHistory() {
+  _history = [];
+  localStorage.removeItem('examora_calc_history');
+  renderHistory();
+}
+function useFromHistory(val) {
+  _expr = val; _result = val; _justCalc = true;
+  showCalc();
+  updateDisplay();
+}
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Keyboard support
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('histView').classList.contains('show')) return;
+  var k = e.key;
+  if ('0123456789.'.includes(k)) { inputDigit(k); return; }
+  if (['+','-','*','/'].includes(k)) { inputFn(k); return; }
+  if (k === 'Enter' || k === '=') { calculate(); return; }
+  if (k === 'Backspace') { clearEntry(); return; }
+  if (k === 'Escape') { clearAll(); return; }
+  if (k === '(') { inputFn('('); return; }
+  if (k === ')') { inputFn(')'); return; }
+  if (k === '^') { inputFn('^'); return; }
+});
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

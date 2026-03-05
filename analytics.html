@@ -320,6 +320,15 @@
     <div id="readinessSummary" style="margin-top:12px;"></div>
   </div>
 
+  <!-- Radar / Spider Chart -->
+  <div class="chart-card animate-in animate-in-delay-2" id="radarCard" style="display:none;">
+    <div style="margin-bottom:12px;">
+      <div class="chart-title">📡 Performance Radar</div>
+      <div class="chart-sub">Your score distribution across subjects</div>
+    </div>
+    <canvas id="radarCanvas" width="320" height="320" style="display:block;margin:0 auto;max-width:100%;"></canvas>
+  </div>
+
   <!-- Category Doughnut -->
   <div class="chart-card animate-in animate-in-delay-3">
     <div class="chart-title">Exams by Category</div>
@@ -746,7 +755,101 @@
           +'<div style="font-size:0.62rem;color:var(--text-3);">Needs Work</div></div>'
         +'</div>';
     }
+    // Render radar chart
+    window.renderRadarChart(subjects);
   }
+
+  window.renderRadarChart = function(subjects) {
+    if (!subjects || subjects.length < 3) { document.getElementById('radarCard').style.display='none'; return; }
+    document.getElementById('radarCard').style.display = '';
+    var canvas = document.getElementById('radarCanvas');
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height, cx = W/2, cy = H/2;
+    var R = Math.min(W,H)/2 - 40;
+    var n = Math.min(subjects.length, 8); // max 8 subjects
+    var data = subjects.slice(0, n);
+    var labels = data.map(function(s){ return s.subject || s.name || 'Sub'; });
+    var values = data.map(function(s){ return Math.min((s.pct||s.accuracy||0), 100); });
+
+    ctx.clearRect(0, 0, W, H);
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+    var labelColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+    var fillColor = 'rgba(99,102,241,0.2)';
+    var strokeColor = '#6366f1';
+
+    // Draw grid rings (5 rings = 20%, 40%, 60%, 80%, 100%)
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    for (var ring = 1; ring <= 5; ring++) {
+      var rr = R * ring / 5;
+      ctx.beginPath();
+      for (var i = 0; i < n; i++) {
+        var angle = (i / n) * 2 * Math.PI - Math.PI/2;
+        var x = cx + rr * Math.cos(angle);
+        var y = cy + rr * Math.sin(angle);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.stroke();
+      // Ring label
+      ctx.fillStyle = labelColor;
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(String(ring*20)+'%', cx + 4, cy - rr + 3);
+    }
+
+    // Draw axis lines
+    ctx.strokeStyle = gridColor;
+    for (var i = 0; i < n; i++) {
+      var angle = (i / n) * 2 * Math.PI - Math.PI/2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + R * Math.cos(angle), cy + R * Math.sin(angle));
+      ctx.stroke();
+    }
+
+    // Draw data polygon
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var angle = (i / n) * 2 * Math.PI - Math.PI/2;
+      var r = R * values[i] / 100;
+      var x = cx + r * Math.cos(angle);
+      var y = cy + r * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fillColor; ctx.fill();
+    ctx.strokeStyle = strokeColor; ctx.lineWidth = 2; ctx.stroke();
+
+    // Draw data points
+    for (var i = 0; i < n; i++) {
+      var angle = (i / n) * 2 * Math.PI - Math.PI/2;
+      var r = R * values[i] / 100;
+      var x = cx + r * Math.cos(angle);
+      var y = cy + r * Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, 2*Math.PI);
+      ctx.fillStyle = strokeColor; ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    // Draw labels
+    ctx.lineWidth = 1;
+    for (var i = 0; i < n; i++) {
+      var angle = (i / n) * 2 * Math.PI - Math.PI/2;
+      var lx = cx + (R + 22) * Math.cos(angle);
+      var ly = cy + (R + 22) * Math.sin(angle);
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = Math.abs(Math.cos(angle)) < 0.3 ? 'center' : Math.cos(angle) > 0 ? 'left' : 'right';
+      var lbl = (labels[i]||'').slice(0,9);
+      ctx.fillText(lbl, lx, ly + 4);
+      // Score under label
+      ctx.fillStyle = strokeColor;
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText(values[i]+'%', lx, ly + 15);
+    }
+  };
 
   function buildCatChart(results){
     const map={};
@@ -902,6 +1005,7 @@
   }
 </script>
 
+window.toast = toast;
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -931,7 +1035,7 @@
       window._buildAnalytics(results,userData);
     } catch(e){
       console.error("Analytics load error:",e);
-      toast("Could not load analytics data");
+      window.toast("Could not load analytics data");
     }
   });
 </script>
