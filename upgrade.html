@@ -299,7 +299,7 @@ function startPayment() {
   var amount = Math.round(PRICES[_plan] * (1 - _discount/100)) * 100; // kobo
   if (typeof PaystackPop === 'undefined') { toast('Payment system not loaded. Check internet.','error'); return; }
   var handler = PaystackPop.setup({
-    key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // replace with real key
+    key: localStorage.getItem('examora_paystack_pub_key') || 'pk_live_REPLACE_WITH_LIVE_KEY', // Set in Firebase settings/paystack doc
     email: _userEmail,
     amount: amount,
     currency: 'NGN',
