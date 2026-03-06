@@ -289,9 +289,12 @@ async function signInWithGoogle() {
   try {
     var cred = await window._googleSignIn();
     localStorage.setItem('examora_user_display', cred.user.displayName || cred.user.email.split('@')[0]);
-    // Create Firestore doc BEFORE navigating — index.html must find it
+    // Create Firestore doc BEFORE navigating — index.html must find it.
+    // Keep _signingIn = true until navigation actually starts so that the
+    // onAuthStateChanged listener doesn't fire a second redirect here.
     await window._createDoc(cred.user);
     window.location.href = 'index.html';
+    // _signingIn intentionally stays true — the page is navigating away.
   } catch(e) {
     window._signingIn = false;
     busyBtn('googleBtn', false, 'Continue with Google');
@@ -384,10 +387,12 @@ provider.setCustomParameters({ prompt: 'select_account' });
 // During signInWithPopup the auth state fires before we finish creating the
 // Firestore doc — if we redirect immediately, index.html won't find the doc
 // and will bounce the user back here, creating an infinite loop.
-let _signingIn = false;  // set true during active sign-in, prevents premature redirect
+// IMPORTANT: use window._signingIn so the plain <script> block and this module
+// share the same flag (module-scope `let` is invisible to plain scripts).
+window._signingIn = window._signingIn || false;
 
 onAuthStateChanged(auth, user => {
-  if (user && !_signingIn) window.location.href = 'index.html';
+  if (user && !window._signingIn) window.location.href = 'index.html';
 });
 
 // ── Handle redirect result (for browsers that blocked the popup) ─────────

@@ -746,8 +746,31 @@ window.toast = toast;
     let ud = {};
     try {
       const snap = await getDoc(doc(db, "users", user.uid));
-      if (!snap.exists()) { window.location.href = "login.html"; return; }
-      ud = snap.data();
+      if (!snap.exists()) {
+        // Doc doesn't exist yet — login.html may still be writing it (race).
+        // Wait briefly and retry once before creating ourselves.
+        await new Promise(r => setTimeout(r, 1200));
+        const snap2 = await getDoc(doc(db, "users", user.uid));
+        if (!snap2.exists()) {
+          // Still missing — create it now (e.g. first email/password user)
+          const { setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+          await setDoc(doc(db, "users", user.uid), {
+            displayName:    user.displayName || user.email.split("@")[0],
+            email:          user.email || "",
+            photoURL:       user.photoURL || "",
+            plan:           "free", streak: 0, totalExams: 0,
+            totalCorrect:   0, totalQuestions: 0,
+            badges:         [], xp: 0,
+            createdAt:      serverTimestamp(),
+            onboarded:      false
+          }, { merge: true });
+          ud = { onboarded: false, plan: "free", streak: 0 };
+        } else {
+          ud = snap2.data();
+        }
+      } else {
+        ud = snap.data();
+      }
       // Store plan for AI gate checks across pages
       localStorage.setItem('examora_plan', ud.plan||'free');
       // Sync AI keys from Firestore into localStorage so ai-engine.js can use them
@@ -760,7 +783,10 @@ window.toast = toast;
       } catch(_) {}
     } catch(e) {}
 
-    if (ud.onboarded === false) { window.location.href = "onboarding.html"; return; }
+    if (ud.onboarded === false && !sessionStorage.getItem('examora_onboarding_sent')) {
+      sessionStorage.setItem('examora_onboarding_sent', '1');
+      window.location.href = "onboarding.html"; return;
+    }
 
     // Email verification banner
     if (!user.emailVerified && user.providerData[0]?.providerId === "password") {
