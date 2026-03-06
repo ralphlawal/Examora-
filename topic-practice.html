@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — AI Topic Practice</title>
   <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     .tp-header {
       display: flex; align-items: center; gap: 12px;
       padding: 14px 16px;
@@ -16,7 +22,7 @@
       border-bottom: 1px solid var(--border);
       position: sticky; top: 0; z-index: 50;
     }
-    .tp-title { font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--text); flex: 1; }
+    .tp-title { font-family: var(--fd, 'Sora', sans-serif); font-weight: 800; font-size: 1rem; color: var(--text); flex: 1; }
     .icon-btn {
       width: 36px; height: 36px; border-radius: 10px; border: none;
       background: var(--bg-input); display: flex; align-items: center;
@@ -31,7 +37,7 @@
       border: 1px solid rgba(99,102,241,0.3);
     }
     .hero-icon { font-size: 2.4rem; margin-bottom: 10px; }
-    .hero-title { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; color: white; margin-bottom: 6px; }
+    .hero-title { font-family: var(--fd, 'Sora', sans-serif); font-weight: 900; font-size: 1.1rem; color: white; margin-bottom: 6px; }
     .hero-sub { font-size: 0.78rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
 
     .form-label { display: block; font-weight: 700; font-size: 0.76rem; color: var(--text-2); margin-bottom: 7px; letter-spacing: 0.3px; }
@@ -39,7 +45,7 @@
     .fi {
       width: 100%; padding: 12px 14px; background: var(--bg-input);
       border: 1.5px solid var(--border); border-radius: 12px;
-      color: var(--text); font-family: var(--font-body); font-size: 0.88rem;
+      color: var(--text); font-family: var(--fb, 'Outfit', sans-serif); font-size: 0.88rem;
       outline: none; box-sizing: border-box; transition: border-color 0.18s;
     }
     .fi:focus { border-color: var(--c-brand); box-shadow: 0 0 0 3px var(--c-brand-pale); }
@@ -51,7 +57,7 @@
     .chip {
       padding: 6px 13px; border-radius: 100px;
       border: 1.5px solid var(--border); background: var(--bg-input);
-      font-family: var(--font-display); font-weight: 700; font-size: 0.73rem;
+      font-family: var(--fd, 'Sora', sans-serif); font-weight: 700; font-size: 0.73rem;
       color: var(--text-2); cursor: pointer; transition: all 0.15s;
     }
     .chip.on { background: var(--c-brand); color: white; border-color: var(--c-brand); }
@@ -62,7 +68,7 @@
     .count-btn {
       flex: 1; padding: 10px 6px; border-radius: 12px; text-align: center;
       border: 1.5px solid var(--border); background: var(--bg-input);
-      font-family: var(--font-display); font-weight: 800; font-size: 0.9rem;
+      font-family: var(--fd, 'Sora', sans-serif); font-weight: 800; font-size: 0.9rem;
       color: var(--text-2); cursor: pointer; transition: all 0.15s;
     }
     .count-btn.on { background: var(--c-brand); color: white; border-color: var(--c-brand); }
@@ -72,7 +78,7 @@
     .btn-generate {
       width: 100%; padding: 14px; border: none; border-radius: 14px;
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white; font-family: var(--font-display); font-weight: 800;
+      color: white; font-family: var(--fd, 'Sora', sans-serif); font-weight: 800;
       font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
       box-shadow: 0 4px 16px rgba(99,102,241,0.35);
       display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -104,13 +110,13 @@
       padding: 12px 16px; background: var(--bg-card);
       border-bottom: 1px solid var(--border); position: sticky; top: 57px; z-index: 40;
     }
-    .progress-text { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; color: var(--text-2); }
+    .progress-text { font-family: var(--fd, 'Sora', sans-serif); font-weight: 700; font-size: 0.82rem; color: var(--text-2); }
     .progress-track { flex: 1; height: 5px; background: var(--bg-input); border-radius: 100px; overflow: hidden; margin: 0 12px; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, var(--c-brand), var(--c-brand-light)); border-radius: 100px; transition: width 0.4s ease; }
     .score-pill {
       padding: 4px 12px; border-radius: 100px;
       background: var(--c-green-pale); color: var(--c-green);
-      font-family: var(--font-display); font-weight: 800; font-size: 0.76rem;
+      font-family: var(--fd, 'Sora', sans-serif); font-weight: 800; font-size: 0.76rem;
     }
 
     /* Question card */
@@ -143,7 +149,7 @@
     .opt-letter {
       width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
       background: var(--bg-input); display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: var(--text-2);
+      font-family: var(--fd, 'Sora', sans-serif); font-weight: 800; font-size: 0.78rem; color: var(--text-2);
     }
     .opt.correct .opt-letter { background: var(--c-green); color: white; }
     .opt.wrong .opt-letter { background: var(--c-red); color: white; }
@@ -165,14 +171,14 @@
     .btn-next {
       flex: 1; padding: 13px; border: none; border-radius: 12px;
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white; font-family: var(--font-display); font-weight: 800;
+      color: white; font-family: var(--fd, 'Sora', sans-serif); font-weight: 800;
       font-size: 0.88rem; cursor: pointer; display: none; transition: all 0.18s;
     }
     .btn-next.show { display: block; }
     .btn-hint {
       padding: 13px 16px; border-radius: 12px; border: 1.5px solid var(--border);
       background: var(--bg-input); color: var(--text-2);
-      font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; cursor: pointer;
+      font-family: var(--fd, 'Sora', sans-serif); font-weight: 700; font-size: 0.8rem; cursor: pointer;
     }
 
     /* Results screen */
@@ -189,18 +195,18 @@
       background: var(--bg-card); display: flex; flex-direction: column;
       align-items: center; justify-content: center;
     }
-    .score-pct { font-family: var(--font-display); font-weight: 900; font-size: 1.8rem; color: var(--text); line-height: 1; }
+    .score-pct { font-family: var(--fd, 'Sora', sans-serif); font-weight: 900; font-size: 1.8rem; color: var(--text); line-height: 1; }
     .score-label { font-size: 0.65rem; color: var(--text-3); font-weight: 600; margin-top: 2px; }
-    .result-grade { font-family: var(--font-display); font-weight: 900; font-size: 1.3rem; margin-bottom: 8px; }
+    .result-grade { font-family: var(--fd, 'Sora', sans-serif); font-weight: 900; font-size: 1.3rem; margin-bottom: 8px; }
     .result-sub { font-size: 0.82rem; color: var(--text-3); margin-bottom: 24px; }
     .result-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
     .rs-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 8px; text-align: center; }
-    .rs-num { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; color: var(--text); }
+    .rs-num { font-family: var(--fd, 'Sora', sans-serif); font-weight: 800; font-size: 1.2rem; color: var(--text); }
     .rs-lbl { font-size: 0.62rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
     .result-actions { display: flex; flex-direction: column; gap: 10px; }
 
     /* Suggested topics */
-    .sug-label { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .sug-label { font-family: var(--fd, 'Sora', sans-serif); font-weight: 700; font-size: 0.72rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
     .sug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
     .sug-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
@@ -208,7 +214,7 @@
     }
     .sug-card:hover { border-color: var(--c-brand); transform: translateY(-1px); }
     .sug-icon { font-size: 1.4rem; margin-bottom: 6px; }
-    .sug-name { font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; color: var(--text); }
+    .sug-name { font-family: var(--fd, 'Sora', sans-serif); font-weight: 700; font-size: 0.78rem; color: var(--text); }
     .sug-sub { font-size: 0.65rem; color: var(--text-3); margin-top: 2px; }
   </style>
 </head>
@@ -351,7 +357,7 @@
   <!-- ── LOADING SCREEN ── -->
   <div id="loadingScreen" class="loading-screen">
     <div class="loading-spinner"></div>
-    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:6px;">NOVA is crafting your questions</div>
+    <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:6px;">NOVA is crafting your questions</div>
     <div style="font-size:0.78rem;color:var(--text-3);" id="loadingTopic">Generating questions on...</div>
     <div class="loading-dots"><span></span><span></span><span></span></div>
   </div>
@@ -555,7 +561,7 @@ function renderQuestion() {
     '</div>' +
     '<div class="q-actions">' +
       '<button class="btn-hint" onclick="getHint()" id="hintBtn">💡 Hint</button>' +
-      '<button class="btn-next show" id="nextBtn" onclick="nextQuestion()" style="display:none!important; flex:1; padding:13px; border:none; border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; font-family:var(--font-display); font-weight:800; font-size:0.88rem; cursor:pointer; transition:all 0.18s;">Next →</button>' +
+      '<button class="btn-next show" id="nextBtn" onclick="nextQuestion()" style="display:none!important; flex:1; padding:13px; border:none; border-radius:12px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; font-family:var(--fd, 'Sora', sans-serif); font-weight:800; font-size:0.88rem; cursor:pointer; transition:all 0.18s;">Next →</button>' +
     '</div>' +
   '</div>';
 
@@ -592,7 +598,7 @@ function answer(letter) {
 
   // Show next button
   var nb = document.getElementById('nextBtn');
-  if (nb) { nb.style.display = ''; nb.style.removeProperty('display'); nb.style.cssText = 'display:block;flex:1;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--font-display);font-weight:800;font-size:0.88rem;cursor:pointer;'; }
+  if (nb) { nb.style.display = ''; nb.style.removeProperty('display'); nb.style.cssText = 'display:block;flex:1;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;cursor:pointer;'; }
 
   // Update score
   document.getElementById('scorePill').textContent = _correct + ' / ' + (_current + 1);
@@ -735,12 +741,12 @@ onAuthStateChanged(auth, async user => {
 });
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item active"><span class="nav-icon ms-fill">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>

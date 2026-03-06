@@ -6,13 +6,19 @@
 <title>Problem Solver — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
 <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
 :root{--max-width:480px;}
 .app-container{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:30px;}
 .page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
-.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.page-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
 .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s ease;flex-shrink:0;color:var(--text-2);}
 .icon-btn span{font-size:1.15rem;}
 .subject-chips{display:flex;gap:7px;overflow-x:auto;padding:14px 16px 0;scrollbar-width:none;}
@@ -20,19 +26,19 @@
 .chip{flex-shrink:0;padding:7px 14px;border-radius:100px;font-size:0.76rem;font-weight:700;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-2);cursor:pointer;transition:all 0.18s;}
 .chip.active{background:var(--c-brand);color:white;border-color:var(--c-brand);}
 .solution-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:18px;margin:16px;animation:fadeInUp 0.35s ease;}
-.solution-card h4{font-family:var(--font-display);font-weight:800;font-size:0.9rem;margin-bottom:12px;color:var(--text);}
+.solution-card h4{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.9rem;margin-bottom:12px;color:var(--text);}
 .step-block{display:flex;gap:12px;margin-bottom:14px;}
-.step-num{width:26px;height:26px;border-radius:50%;background:var(--c-brand);color:white;font-family:var(--font-display);font-weight:800;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--c-brand);color:white;font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
 .step-content{flex:1;font-size:0.83rem;line-height:1.65;color:var(--text-2);}
 .step-content strong{color:var(--text);}
 .answer-box{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.05));border:2px solid rgba(16,185,129,0.3);border-radius:14px;padding:14px 16px;margin-top:8px;}
 .answer-box .answer-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--c-green);margin-bottom:4px;}
-.answer-box .answer-val{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text);}
+.answer-box .answer-val{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--text);}
 .tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px;}
 .tool-btn{background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;padding:16px 14px;text-align:center;cursor:pointer;transition:all 0.18s;}
 .tool-btn:hover{border-color:var(--c-brand);box-shadow:0 4px 16px rgba(99,102,241,0.1);}
 .tool-btn .tb-icon{font-size:1.6rem;margin-bottom:6px;}
-.tool-btn .tb-name{font-family:var(--font-display);font-weight:700;font-size:0.78rem;color:var(--text);}
+.tool-btn .tb-name{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.78rem;color:var(--text);}
 .tool-btn .tb-sub{font-size:0.65rem;color:var(--text-3);margin-top:2px;}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -65,7 +71,7 @@
   </div>
 
   <!-- Quick tools -->
-  <div style="padding:0 16px;font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Quick Tools</div>
+  <div style="padding:0 16px;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Quick Tools</div>
   <div class="tool-grid">
     <div class="tool-btn" onclick="quickTool('formula')"><div class="tb-icon">📐</div><div class="tb-name">Formula Recall</div><div class="tb-sub">Get key formulas for any topic</div></div>
     <div class="tool-btn" onclick="quickTool('convert')"><div class="tb-icon">🔄</div><div class="tb-name">Unit Converter</div><div class="tb-sub">Convert between units</div></div>
@@ -172,8 +178,8 @@ async function solveProblem(){
         '<h4>📐 Solution'+((_subject)?' · '+_subject:'')+'</h4>'+
         '<div id="solutionSteps">'+formatSolution(res.text)+'</div>'+
         '<div style="display:flex;gap:8px;margin-top:14px;">'+
-          '<button onclick="saveToNotes()" style="flex:1;padding:9px;border-radius:10px;background:var(--c-brand-pale);color:var(--c-brand);border:1px solid rgba(99,102,241,0.2);font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">📝 Save to Notes</button>'+
-          '<button onclick="shareToChat()" style="flex:1;padding:9px;border-radius:10px;background:var(--bg-input);color:var(--text-2);border:1px solid var(--border);font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">💬 Ask NOVA more</button>'+
+          '<button onclick="saveToNotes()" style="flex:1;padding:9px;border-radius:10px;background:var(--c-brand-pale);color:var(--c-brand);border:1px solid rgba(99,102,241,0.2);font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.76rem;cursor:pointer;">📝 Save to Notes</button>'+
+          '<button onclick="shareToChat()" style="flex:1;padding:9px;border-radius:10px;background:var(--bg-input);color:var(--text-2);border:1px solid var(--border);font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.76rem;cursor:pointer;">💬 Ask NOVA more</button>'+
         '</div>'+
       '</div>';
     window._lastSolution={problem:problem,solution:res.text};
@@ -237,12 +243,12 @@ onAuthStateChanged(auth,async user=>{
 });
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>

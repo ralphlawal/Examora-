@@ -1,8 +1,4 @@
-<!DOC
-    <div class="qa-card" onclick="window.location.href='streak.html'">
-      <span class="material-symbols-rounded qa-icon" style="color:#ef4444;">local_fire_department</span>
-      <div class="qa-label">My Streak</div>
-    </div>TYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -10,9 +6,15 @@
 <title>Profile — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
 <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
 :root{--max-width:480px;}
 .page-wrapper{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:80px;}
 /* Cover + Avatar */
@@ -24,13 +26,13 @@
 .cover-area:hover .cover-edit-hint{opacity:1;}
 .profile-hero{padding:0 16px 0;position:relative;margin-top:-44px;}
 .avatar-wrap{position:relative;display:inline-block;margin-bottom:10px;}
-.p-avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:2rem;color:white;border:3px solid var(--bg-card);cursor:pointer;overflow:hidden;position:relative;}
+.p-avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:2rem;color:white;border:3px solid var(--bg-card);cursor:pointer;overflow:hidden;position:relative;}
 .avatar-badge{position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;background:var(--c-brand);border:2px solid var(--bg-card);display:flex;align-items:center;justify-content:center;font-size:0.6rem;}
 .upload-progress-ring{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:none;align-items:center;justify-content:center;}
 .upload-progress-ring.show{display:flex;}
-.upr-text{color:white;font-family:var(--font-display);font-weight:800;font-size:0.75rem;}
+.upr-text{color:white;font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.75rem;}
 .p-crown{display:none;position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);align-items:center;justify-content:center;font-size:0.65rem;border:2px solid var(--bg-card);}
-.p-name{font-family:var(--font-display);font-weight:900;font-size:1.25rem;color:var(--text);line-height:1.1;}
+.p-name{font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:1.25rem;color:var(--text);line-height:1.1;}
 .p-email{font-size:0.74rem;color:var(--text-3);margin-top:2px;}
 .p-tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .p-tag{padding:4px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;}
@@ -38,31 +40,31 @@
 .p-tag-state{background:rgba(16,185,129,0.1);color:var(--c-green);}
 .p-tag-school{background:rgba(245,158,11,0.1);color:var(--c-gold);}
 .p-tag-prem{background:linear-gradient(135deg,#f59e0b,#d97706);color:white;}
-.edit-profile-btn{position:absolute;top:0;right:16px;padding:7px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:100px;font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.18s;}
+.edit-profile-btn{position:absolute;top:0;right:16px;padding:7px 14px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:100px;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.18s;}
 .edit-profile-btn:hover{border-color:var(--c-brand);color:var(--c-brand);}
 /* Stats row */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:16px;}
 .s-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;}
-.s-val{font-family:var(--font-display);font-weight:800;font-size:1.2rem;color:var(--text);}
+.s-val{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.2rem;color:var(--text);}
 .s-lbl{font-size:0.6rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
 /* Target strip */
 .target-strip{margin:0 16px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px;display:none;}
 .ts-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.ts-label{font-family:var(--font-display);font-weight:700;font-size:0.8rem;color:var(--text);}
+.ts-label{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.8rem;color:var(--text);}
 .ts-vals{font-size:0.72rem;color:var(--text-3);}
 .ts-bar{height:6px;background:var(--bg-input);border-radius:100px;overflow:hidden;}
 .ts-fill{height:100%;background:linear-gradient(90deg,var(--c-brand),var(--c-brand-light));border-radius:100px;width:0;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
 /* Section */
 .sec{padding:0 16px;margin-bottom:16px;}
-.sec-hd{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.sec-hd{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
 /* Settings rows */
 .srow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all 0.18s;}
 .srow:hover{border-color:var(--c-brand);}
 .srow-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;}
 .srow-body{flex:1;}
-.srow-title{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.srow-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.84rem;color:var(--text);}
 .srow-sub{font-size:0.7rem;color:var(--text-3);margin-top:2px;}
-.srow-right{color:var(--text-3);font-family:var(--font-display);font-weight:600;font-size:0.78rem;}
+.srow-right{color:var(--text-3);font-family:var(--fd, 'Sora', sans-serif);font-weight:600;font-size:0.78rem;}
 /* Badges */
 .badges-row{display:flex;flex-wrap:wrap;gap:8px;}
 .bdg{display:flex;flex-direction:column;align-items:center;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;min-width:70px;text-align:center;}
@@ -77,14 +79,14 @@
 .overlay.open{display:flex;}
 .sheet{background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1);}
 .sh-handle{width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;}
-.sh-title{font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:var(--text);margin-bottom:16px;}
+.sh-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.95rem;color:var(--text);margin-bottom:16px;}
 .form-group{margin-bottom:14px;}
 .form-label{display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;}
-.form-input{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;transition:all 0.18s;outline:none;box-sizing:border-box;}
+.form-input{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--fb, 'Outfit', sans-serif);font-size:0.88rem;transition:all 0.18s;outline:none;box-sizing:border-box;}
 .form-input:focus{border-color:var(--c-brand);}
-.form-select{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;appearance:none;box-sizing:border-box;}
+.form-select{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--fb, 'Outfit', sans-serif);font-size:0.88rem;outline:none;appearance:none;box-sizing:border-box;}
 .sel-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
-.sel-chip{padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg-input);font-family:var(--font-display);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.15s;}
+.sel-chip{padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg-input);font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.74rem;color:var(--text-2);cursor:pointer;transition:all 0.15s;}
 .sel-chip.sel-on{background:var(--c-brand);color:white;border-color:var(--c-brand);}
 /* Crop modal */
 .crop-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
@@ -147,12 +149,12 @@
       <div style="display:flex;align-items:center;gap:8px;">
         <span id="xpLevelBadge" style="font-size:1.4rem;">🥉</span>
         <div>
-          <div id="xpLevelName" style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);">Bronze Scholar</div>
+          <div id="xpLevelName" style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--text);">Bronze Scholar</div>
           <div id="xpLevelSub" style="font-size:0.65rem;color:var(--text-3);margin-top:1px;">Level 1</div>
         </div>
       </div>
       <div style="text-align:right;">
-        <div id="xpDisplay" style="font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:var(--c-brand);">0 XP</div>
+        <div id="xpDisplay" style="font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:1.1rem;color:var(--c-brand);">0 XP</div>
         <div id="xpNextLabel" style="font-size:0.62rem;color:var(--text-3);">Next: 100 XP</div>
       </div>
     </div>
@@ -186,7 +188,7 @@
   <div class="upgrade-strip" id="upgradeStrip" onclick="window.location.href='upgrade.html'">
     <div style="font-size:1.6rem;">⚡</div>
     <div style="flex:1;">
-      <div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:white;">Go Premium</div>
+      <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:white;">Go Premium</div>
       <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:2px;">Unlimited AI, all exams, offline mode</div>
     </div>
     <div style="color:rgba(255,255,255,0.5);font-size:1rem;">›</div>
@@ -264,13 +266,13 @@
   <div class="sec">
     <div class="sec-hd">Refer Friends</div>
     <div class="ref-card">
-      <div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);">🎁 Earn 7 free days per referral</div>
+      <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--text);">🎁 Earn 7 free days per referral</div>
       <div style="font-size:0.76rem;color:var(--text-3);margin-top:4px;">Share your code — both you and your friend get rewards.</div>
       <div class="ref-code" id="refCode">Loading...</div>
       <div style="font-size:0.72rem;color:var(--text-3);margin-bottom:8px;text-align:center;"><span id="refCount">0</span> referrals · <span id="refDaysEarned">0</span> bonus days earned</div>
       <div style="display:flex;gap:8px;">
-        <button onclick="copyRef()" style="flex:1;padding:9px;border-radius:10px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">Copy Link</button>
-        <button onclick="shareRef()" style="flex:1;padding:9px;border-radius:10px;background:var(--bg-input);color:var(--text-2);border:1.5px solid var(--border);font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">Share</button>
+        <button onclick="copyRef()" style="flex:1;padding:9px;border-radius:10px;background:var(--c-brand);color:white;border:none;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.76rem;cursor:pointer;">Copy Link</button>
+        <button onclick="shareRef()" style="flex:1;padding:9px;border-radius:10px;background:var(--bg-input);color:var(--text-2);border:1.5px solid var(--border);font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.76rem;cursor:pointer;">Share</button>
       </div>
     </div>
   </div>
@@ -314,7 +316,7 @@
     <div class="sh-handle"></div>
     <div class="sh-title">Set Target Score</div>
     <div style="text-align:center;padding:8px 0 16px;">
-      <div style="font-family:var(--font-display);font-weight:900;font-size:2.5rem;color:var(--c-brand);" id="sliderDisplay">75</div>
+      <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:2.5rem;color:var(--c-brand);" id="sliderDisplay">75</div>
       <div style="font-size:0.74rem;color:var(--text-3);">target percentage</div>
     </div>
     <input type="range" id="targetSlider" min="40" max="100" value="75" step="5" style="width:100%;margin-bottom:16px;" oninput="document.getElementById('sliderDisplay').textContent=this.value"/>
@@ -350,7 +352,7 @@
 
 <!-- Crop modal -->
 <div class="crop-modal" id="cropModal">
-  <div style="color:white;font-family:var(--font-display);font-weight:700;font-size:0.9rem;margin-bottom:16px;">Drag to position</div>
+  <div style="color:white;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.9rem;margin-bottom:16px;">Drag to position</div>
   <div class="crop-wrap" id="cropWrap"
     ontouchstart="startDrag(event)" ontouchmove="onDrag(event)" ontouchend="endDrag()"
     onmousedown="startDrag(event)" onmousemove="onDrag(event)" onmouseup="endDrag()">
@@ -362,20 +364,19 @@
     <span style="color:white;font-size:0.9rem;">🔍</span>
   </div>
   <div style="display:flex;gap:12px;margin-top:16px;">
-    <button onclick="closeCrop()" style="flex:1;padding:12px;border-radius:12px;background:rgba(255,255,255,0.1);color:white;border:none;font-family:var(--font-display);font-weight:700;cursor:pointer;">Cancel</button>
-    <button id="saveCropBtn" onclick="saveCrop()" style="flex:1;padding:12px;border-radius:12px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;cursor:pointer;">Use Photo</button>
+    <button onclick="closeCrop()" style="flex:1;padding:12px;border-radius:12px;background:rgba(255,255,255,0.1);color:white;border:none;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;cursor:pointer;">Cancel</button>
+    <button id="saveCropBtn" onclick="saveCrop()" style="flex:1;padding:12px;border-radius:12px;background:var(--c-brand);color:white;border:none;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;cursor:pointer;">Use Photo</button>
   </div>
 </div>
 
 <div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
-
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item active"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item active"><span class="nav-icon ms-fill">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <script>
 // Theme

@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     body { padding-bottom: 0; min-height: 100vh; background: var(--bg); }
 
     .ob-page {
@@ -43,7 +48,7 @@
       animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
     }
     .ob-hero h2 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 1.4rem; color: white;
       letter-spacing: -0.5px; margin-bottom: 6px;
       position: relative; z-index: 1;
@@ -94,7 +99,7 @@
       background: linear-gradient(135deg, var(--c-brand), #8b5cf6);
     }
     .ob-option-label {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 700; font-size: 0.9rem; color: var(--text);
       margin-bottom: 2px;
     }
@@ -117,7 +122,7 @@
     .subj-chip {
       padding: 8px 14px; border-radius: 100px;
       border: 1.5px solid var(--border); background: var(--bg-card);
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 700; font-size: 0.72rem; color: var(--text-2);
       cursor: pointer; transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
     }
@@ -132,7 +137,7 @@
       text-align: center; margin-bottom: 16px;
     }
     .score-big {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 3rem; letter-spacing: -2px;
       line-height: 1; margin-bottom: 4px;
       background: linear-gradient(135deg, var(--c-brand), var(--c-green));
@@ -343,7 +348,7 @@
                  : {label:"Getting Started 💪",col:"#94a3b8"};
       wrap.innerHTML = `
         <div class="card" style="margin-bottom:14px;">
-          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;
+          <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.82rem;
             color:var(--text);margin-bottom:14px;">🎯 Target performance level</div>
           <div class="score-display">
             <div class="score-big" id="scoreNum">${pct}%</div>
@@ -438,8 +443,9 @@
   // Init
   renderStep();
 </script>
-
+<script>
 window.toast = toast;
+</script>
 <script type="module">
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged }

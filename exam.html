@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     /* ── Setup screen ── */
     .setup-hero {
       background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
@@ -31,7 +36,7 @@
       background:rgba(16,185,129,0.08); pointer-events:none;
     }
     .setup-hero h1 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.5rem; color:white; letter-spacing:-0.5px;
       margin-bottom:6px; position:relative; z-index:1;
     }
@@ -44,7 +49,7 @@
     }
     .mode-btn {
       flex:1; padding:10px 8px; border-radius:9px; text-align:center;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.8rem; color:var(--text-3); cursor:pointer;
       transition:all 0.2s ease;
     }
@@ -66,7 +71,7 @@
     .count-chip {
       padding:8px 16px; border-radius:100px;
       border:1.5px solid var(--border); background:var(--bg-card);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.8rem; color:var(--text-2); cursor:pointer;
       transition:all 0.18s cubic-bezier(0.4,0,0.2,1);
     }
@@ -87,7 +92,7 @@
       box-shadow:var(--shadow-xs);
     }
     .q-counter {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.9rem; color:var(--text); white-space:nowrap;
     }
     .exam-progress {
@@ -103,7 +108,7 @@
       display:flex; align-items:center; gap:5px;
       background:var(--bg-input); border:1px solid var(--border);
       border-radius:100px; padding:5px 12px;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.82rem; color:var(--text); white-space:nowrap;
       transition:all 0.3s ease;
     }
@@ -124,7 +129,7 @@
     .q-tag-year { background:var(--bg-input); color:var(--text-3); border:1px solid var(--border); }
 
     .q-text {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:600;
+      font-family:'Sora',sans-serif; font-weight:600;
       font-size:1rem; color:var(--text); line-height:1.65;
       margin-bottom:18px; letter-spacing:-0.1px;
     }
@@ -136,7 +141,7 @@
     .q-action-btn {
       flex:1; min-width:100px; padding:9px 12px; border-radius:10px;
       border:1.5px solid var(--border); background:var(--bg-card);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.75rem; color:var(--text-2); cursor:pointer;
       transition:all 0.18s ease; display:flex; align-items:center;
       justify-content:center; gap:5px;
@@ -161,7 +166,7 @@
     .q-dot {
       width:28px; height:28px; border-radius:8px; flex-shrink:0;
       display:flex; align-items:center; justify-content:center;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.65rem; cursor:pointer; transition:all 0.15s ease;
       border:1.5px solid var(--border); background:var(--bg-card);
       color:var(--text-3);
@@ -187,7 +192,7 @@
       background:var(--border); margin:0 auto 20px;
     }
     .overlay-sheet h3 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.1rem; color:var(--text); text-align:center; margin-bottom:8px;
     }
     .submit-stats {
@@ -198,7 +203,7 @@
       border-radius:12px;
     }
     .submit-stat-n {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.3rem; display:block; margin-bottom:3px;
     }
     .submit-stat-l { font-size:0.65rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
@@ -342,7 +347,7 @@
       style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
       <span style="font-size:1.4rem;">📚</span>
       <div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);"
+        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);"
           id="qAvailNum">Loading questions...</div>
         <div style="font-size:0.7rem;color:var(--text-3);">available in your selection</div>
       </div>
@@ -395,7 +400,7 @@
     <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="Read question aloud">🔊</button>
     <button onclick="showSubmitSheet()" style="padding:6px 12px;border-radius:9px;
       background:var(--c-red-pale);color:var(--c-red);border:1.5px solid rgba(244,63,94,0.3);
-      font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer;white-space:nowrap;">
+      font-family:'Sora',sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer;white-space:nowrap;">
       End
     </button>
   </div>
@@ -458,13 +463,13 @@
 </div>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item active"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item active"><span class="nav-icon ms-fill">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <script>
   const _t = localStorage.getItem("examora_theme")||"light";
@@ -878,8 +883,14 @@
     }
   }
 </script>
-
-
+<script>
+window.toast = toast;
+window.buildSubjectDropdowns = buildSubjectDropdowns;
+window.startTimer = startTimer;
+window.renderQuestion = renderQuestion;
+window.updateSubjects = updateSubjects;
+window.updateAvailCount = updateAvailCount;
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1149,7 +1160,7 @@
     <div id="aiResponseArea">
       <div style="padding:20px;text-align:center;color:var(--text-3);">
         <span class="material-symbols-rounded ms-xl ms-fill" style="color:var(--c-brand-pale);display:block;margin-bottom:8px;">psychology</span>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:4px;">EXAMORA AI Tutor</div>
+        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:4px;">EXAMORA AI Tutor</div>
         <div style="font-size:0.75rem;line-height:1.6;">Powered by NexaCore Labs · Select an option above to get help with this question</div>
       </div>
     </div>

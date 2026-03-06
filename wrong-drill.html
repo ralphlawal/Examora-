@@ -6,22 +6,28 @@
 <title>Wrong Answer Drill — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
 <script src="ai-engine.js"></script>
 <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
 .page-header{padding:16px 16px 0;display:flex;align-items:center;gap:12px;}
 .back-btn{width:38px;height:38px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;flex-shrink:0;}
-.page-title{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text);}
+.page-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--text);}
 .page-sub{font-size:0.72rem;color:var(--text-3);}
 .content{padding:16px;}
 .hero{background:linear-gradient(135deg,rgba(244,63,94,.12),rgba(239,68,68,.06));border:1px solid rgba(244,63,94,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:16px;}
 .hero-icon{font-size:2.5rem;margin-bottom:8px;}
-.hero-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:4px;}
+.hero-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:4px;}
 .hero-sub{font-size:0.78rem;color:var(--text-3);}
 .stats-row{display:flex;gap:10px;margin-bottom:16px;}
 .stat-pill{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
-.stat-n{font-family:var(--font-display);font-weight:800;font-size:1.4rem;}
+.stat-n{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.4rem;}
 .stat-n.red{color:var(--c-red);}
 .stat-n.green{color:var(--c-green);}
 .stat-l{font-size:0.68rem;color:var(--text-3);margin-top:2px;}
@@ -39,7 +45,7 @@
 .drill-label.green{color:var(--c-green);}
 .drill-label.gold{color:#d97706;}
 .drill-text{font-size:0.81rem;color:var(--text-2);line-height:1.55;}
-.btn-ai{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:14px;font-family:var(--font-display);font-weight:800;font-size:.9rem;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-ai{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:14px;font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:.9rem;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-ai:hover{transform:translateY(-1px);}
 .btn-ai:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 .empty-state{text-align:center;padding:40px 20px;color:var(--text-3);}
@@ -64,13 +70,12 @@
   <div class="content">
     <div id="mainContent"></div>
   </div>
-
   <nav class="bottom-nav">
-    <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-    <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-    <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-    <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-    <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
   </nav>
 </div>
 

@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     /* ── Hero ── */
     .hist-hero {
       background: linear-gradient(160deg, #0f172a 0%, #0d1f0d 60%, #0f172a 100%);
@@ -26,7 +31,7 @@
       background:rgba(16,185,129,0.1); pointer-events:none;
     }
     .hist-hero-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.4rem; color:white; letter-spacing:-0.5px;
       margin-bottom:4px; position:relative; z-index:1;
     }
@@ -46,7 +51,7 @@
       box-shadow:var(--shadow-xs);
     }
     .hist-kpi-n {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.2rem; display:block; margin-bottom:3px; line-height:1;
     }
     .hist-kpi-l {
@@ -56,7 +61,7 @@
 
     /* ── Timeline group ── */
     .hist-group-label {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.72rem; color:var(--text-3); text-transform:uppercase;
       letter-spacing:0.8px; padding:8px 0 6px;
       display:flex; align-items:center; gap:8px;
@@ -90,7 +95,7 @@
     }
     .hist-info { flex:1; min-width:0; }
     .hist-subject {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.86rem; color:var(--text); margin-bottom:3px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
@@ -98,7 +103,7 @@
 
     .hist-score-wrap { text-align:right; flex-shrink:0; }
     .hist-pct {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1rem; display:block; line-height:1; margin-bottom:3px;
     }
     .hist-frac { font-size:0.65rem; color:var(--text-3); }
@@ -133,13 +138,13 @@
       align-items:center; justify-content:center;
     }
     .sheet-pct {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.9rem; line-height:1;
     }
     .sheet-frac { font-size:0.6rem; color:var(--text-3); }
 
     .sheet-meta-block h3 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1rem; color:var(--text); margin-bottom:5px; letter-spacing:-0.3px;
     }
     .sheet-tags { display:flex; gap:5px; flex-wrap:wrap; }
@@ -161,7 +166,7 @@
       padding:10px 6px; text-align:center;
     }
     .sheet-stat-n {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1rem; display:block; margin-bottom:2px;
     }
     .sheet-stat-l {
@@ -194,7 +199,7 @@
     }
     .hist-empty .ei { font-size:3rem; margin-bottom:14px; display:block; }
     .hist-empty h4 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.95rem; color:var(--text); margin-bottom:6px;
     }
     .hist-empty p { font-size:0.78rem; color:var(--text-3); line-height:1.6; margin-bottom:16px; }
@@ -338,13 +343,13 @@
 </div>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
@@ -582,11 +587,11 @@
 <div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:90%;margin:auto;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3);border:1px solid var(--border);animation:fadeInUp 0.3s ease;">
     <div style="font-size:2.6rem;margin-bottom:8px;">🚀</div>
-    <div id="csTitle" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
+    <div id="csTitle" style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
     <div id="csBody" style="font-size:0.82rem;color:var(--text-3);line-height:1.7;margin-bottom:20px;">We're building something exciting for you — stay tuned!</div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="csBadges"></div>
     <button onclick="document.getElementById('comingSoonOverlay').style.display='none'" 
-      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
+      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
       Can't Wait! 🎉
     </button>
     <button onclick="dismissCS()" style="margin-top:8px;background:none;border:none;color:var(--text-3);font-size:0.75rem;cursor:pointer;width:100%;">Don't show again</button>

@@ -6,25 +6,31 @@
 <title>Help & FAQ — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
 <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
 :root{--max-width:480px;}
 .wrap{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:40px;}
 .page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
-.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.page-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
 .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;flex-shrink:0;color:var(--text-2);}
 .hero{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:24px 20px;text-align:center;}
 .search-wrap{padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);}
-.search-box{width:100%;padding:10px 14px 10px 40px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.86rem;outline:none;box-sizing:border-box;position:relative;}
+.search-box{width:100%;padding:10px 14px 10px 40px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--fb, 'Outfit', sans-serif);font-size:0.86rem;outline:none;box-sizing:border-box;position:relative;}
 .search-box:focus{border-color:var(--c-brand);}
 .search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:1rem;pointer-events:none;}
 .search-rel{position:relative;}
-.sec-label{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;padding:16px 16px 8px;}
+.sec-label{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;padding:16px 16px 8px;}
 .faq-item{border-bottom:1px solid var(--border);}
 .faq-q{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background 0.15s;}
 .faq-q:hover{background:var(--bg-input);}
-.faq-q-text{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);flex:1;padding-right:10px;}
+.faq-q-text{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.84rem;color:var(--text);flex:1;padding-right:10px;}
 .faq-arrow{font-size:1rem;color:var(--text-3);transition:transform 0.2s;flex-shrink:0;}
 .faq-a{display:none;padding:0 16px 14px;font-size:0.82rem;color:var(--text-2);line-height:1.75;}
 .faq-item.open .faq-a{display:block;}
@@ -35,7 +41,7 @@
 .contact-row:last-child{border-bottom:none;}
 .c-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
 .c-body{flex:1;}
-.c-title{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.c-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.84rem;color:var(--text);}
 .c-sub{font-size:0.7rem;color:var(--text-3);margin-top:2px;}
 </style>
 </head>
@@ -48,7 +54,7 @@
 
   <div class="hero">
     <div style="font-size:2rem;margin-bottom:8px;">❓</div>
-    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:white;margin-bottom:4px;">How can we help?</div>
+    <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:white;margin-bottom:4px;">How can we help?</div>
     <div style="font-size:0.76rem;color:rgba(255,255,255,0.45);">Find answers below or contact our support team</div>
   </div>
 

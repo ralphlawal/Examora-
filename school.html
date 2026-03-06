@@ -6,36 +6,42 @@
 <title>School Mode — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
 <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
 :root{--max-width:480px;}
 .page-wrapper{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:30px;}
 .page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
-.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.page-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
 .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s;flex-shrink:0;color:var(--text-2);}
 .icon-btn span{font-size:1.1rem;}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 16px 8px;}
 .stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center;}
 .stat-box.accent{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-color:transparent;}
-.stat-num{font-family:var(--font-display);font-weight:800;font-size:1.4rem;color:var(--text);}
+.stat-num{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.4rem;color:var(--text);}
 .stat-box.accent .stat-num{color:white;}
 .stat-lbl{font-size:0.6rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
 .stat-box.accent .stat-lbl{color:rgba(255,255,255,0.65);}
 .tabs{display:flex;border-bottom:1px solid var(--border);padding:0 16px;}
-.stab{padding:12px 14px;font-family:var(--font-display);font-weight:700;font-size:0.78rem;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.18s;}
+.stab{padding:12px 14px;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.78rem;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.18s;}
 .stab.on{color:var(--c-brand);border-color:var(--c-brand);}
 .panel{display:none;padding:16px;}
 .panel.on{display:block;}
-.sec-hd{font-family:var(--font-display);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.sec-hd{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
 .student-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
-.stu-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:white;flex-shrink:0;}
+.stu-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.9rem;color:white;flex-shrink:0;}
 .stu-body{flex:1;}
-.stu-name{font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);}
+.stu-name{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.84rem;color:var(--text);}
 .stu-sub{font-size:0.7rem;color:var(--text-3);margin-top:2px;}
-.stu-score{font-family:var(--font-display);font-weight:800;font-size:0.9rem;}
+.stu-score{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.9rem;}
 .assign-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;}
-.assign-title{font-family:var(--font-display);font-weight:700;font-size:0.86rem;color:var(--text);}
+.assign-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.86rem;color:var(--text);}
 .assign-meta{font-size:0.7rem;color:var(--text-3);margin-top:4px;}
 .assign-progress{display:flex;align-items:center;gap:8px;margin-top:10px;}
 .prog-bar{flex:1;height:5px;background:var(--bg-input);border-radius:100px;overflow:hidden;}
@@ -46,15 +52,15 @@
 .overlay.open{display:flex;}
 .sheet{background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1);}
 .sh-handle{width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;}
-.sh-title{font-family:var(--font-display);font-weight:800;font-size:0.95rem;margin-bottom:16px;}
+.sh-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.95rem;margin-bottom:16px;}
 .form-group{margin-bottom:14px;}
 .form-label{display:block;font-weight:600;font-size:0.76rem;color:var(--text-2);margin-bottom:6px;}
-.form-input{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;box-sizing:border-box;transition:all 0.18s;}
+.form-input{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--fb, 'Outfit', sans-serif);font-size:0.88rem;outline:none;box-sizing:border-box;transition:all 0.18s;}
 .form-input:focus{border-color:var(--c-brand);}
-.form-select{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:0.88rem;outline:none;appearance:none;box-sizing:border-box;}
+.form-select{width:100%;padding:11px 13px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--fb, 'Outfit', sans-serif);font-size:0.88rem;outline:none;appearance:none;box-sizing:border-box;}
 .join-wall{padding:32px 20px;text-align:center;}
 .rank-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-.rank-pos{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text-3);width:28px;text-align:center;flex-shrink:0;}
+.rank-pos{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text-3);width:28px;text-align:center;flex-shrink:0;}
 .rank-pos.gold{color:#f59e0b;}
 .rank-pos.silver{color:#94a3b8;}
 .rank-pos.bronze{color:#cd7f32;}
@@ -72,7 +78,7 @@
   <!-- ACCESS WALL (loading) -->
   <div id="accessWall" style="padding:40px 20px;text-align:center;">
     <div style="font-size:2rem;margin-bottom:8px;">🏫</div>
-    <div style="font-family:var(--font-display);font-weight:700;color:var(--text);">Loading School Mode...</div>
+    <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:700;color:var(--text);">Loading School Mode...</div>
   </div>
 
   <!-- TEACHER DASHBOARD -->
@@ -83,7 +89,7 @@
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Your Class Code</div>
         <div class="code-val" id="classCode">——</div>
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);margin-bottom:12px;">Share this with your students</div>
-        <button onclick="copyCode()" style="padding:8px 20px;border-radius:100px;background:rgba(255,255,255,0.15);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.76rem;cursor:pointer;">Copy Code</button>
+        <button onclick="copyCode()" style="padding:8px 20px;border-radius:100px;background:rgba(255,255,255,0.15);color:white;border:none;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.76rem;cursor:pointer;">Copy Code</button>
       </div>
     </div>
 
@@ -112,7 +118,7 @@
     <div class="panel" id="panel-assign">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div class="sec-hd" style="margin:0;">Assignments</div>
-        <button onclick="openSheet('assignSheet')" style="padding:6px 14px;border-radius:100px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.74rem;cursor:pointer;">+ New</button>
+        <button onclick="openSheet('assignSheet')" style="padding:6px 14px;border-radius:100px;background:var(--c-brand);color:white;border:none;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.74rem;cursor:pointer;">+ New</button>
       </div>
       <div id="assignList"><div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.82rem;">No assignments yet.</div></div>
     </div>
@@ -131,7 +137,7 @@
       <div id="noClassView">
         <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:20px;padding:24px;text-align:center;margin-bottom:16px;">
           <div style="font-size:2rem;margin-bottom:8px;">🏫</div>
-          <div style="font-family:var(--font-display);font-weight:800;font-size:1.05rem;color:white;margin-bottom:6px;">Join Your Class</div>
+          <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.05rem;color:white;margin-bottom:6px;">Join Your Class</div>
           <div style="font-size:0.76rem;color:rgba(255,255,255,0.5);margin-bottom:16px;">Ask your teacher for the 6-digit class code</div>
           <input class="form-input" id="joinCodeInput" placeholder="Enter class code e.g. ABC123" style="text-align:center;font-size:1rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;" maxlength="6" oninput="this.value=this.value.toUpperCase()"/>
           <button class="btn btn-primary" onclick="joinClass()">Join Class</button>
@@ -142,7 +148,7 @@
       <div id="inClassView" style="display:none;">
         <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:20px;padding:20px;margin-bottom:16px;">
           <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Your Class</div>
-          <div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:white;margin-top:4px;" id="myClassName">—</div>
+          <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:white;margin-top:4px;" id="myClassName">—</div>
           <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);margin-top:4px;" id="myClassCode">Code: —</div>
           <button onclick="leaveClass()" style="margin-top:12px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:none;font-size:0.7rem;font-weight:700;cursor:pointer;">Leave Class</button>
         </div>
@@ -251,8 +257,8 @@ function renderStudents(students) {
     return '<div class="rank-row">' +
       '<div class="rank-pos '+ cls +'">'+(medal||'#'+(i+1))+'</div>' +
       '<div class="stu-av" style="width:32px;height:32px;font-size:0.8rem;">'+(s.displayName||'?')[0].toUpperCase()+'</div>' +
-      '<div style="flex:1;font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);">'+(s.displayName||'Unknown')+'</div>' +
-      '<div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--c-brand);">'+avg2+'%</div>' +
+      '<div style="flex:1;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.84rem;color:var(--text);">'+(s.displayName||'Unknown')+'</div>' +
+      '<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--c-brand);">'+avg2+'%</div>' +
       '</div>';
   }).join('');
   document.getElementById('rankList').innerHTML = rankHtml || '<div style="color:var(--text-3);text-align:center;padding:20px;">No data yet</div>';
@@ -277,7 +283,7 @@ function renderAssignments(assigns, isTeacher) {
         '<span style="font-size:0.68rem;color:var(--text-3);flex-shrink:0;">' + (isTeacher ? completed+'/'+total+' done' : (a.completedBy&&a.completedBy.includes(_uid)?'✅ Completed':'Start')) + '</span>' +
       '</div>' +
       (!isTeacher && !(a.completedBy&&a.completedBy.includes(_uid)) ?
-        '<button onclick="startAssignment(\''+a.id+'\')" style="margin-top:10px;width:100%;padding:9px;border-radius:10px;background:var(--c-brand);color:white;border:none;font-family:var(--font-display);font-weight:700;font-size:0.78rem;cursor:pointer;">Start Assignment</button>' : '') +
+        '<button onclick="startAssignment(\''+a.id+'\')" style="margin-top:10px;width:100%;padding:9px;border-radius:10px;background:var(--c-brand);color:white;border:none;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.78rem;cursor:pointer;">Start Assignment</button>' : '') +
       '</div>';
   }).join('');
   document.getElementById(listId).innerHTML = html;
@@ -340,10 +346,11 @@ function toggleRoleView() {
   toast(_isTeacher ? 'Teacher view' : 'Student view', 'info');
 }
 </script>
-
+<script>
 window.renderAssignments = renderAssignments;
 window.renderStudents = renderStudents;
 window.toast = toast;
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged }
@@ -464,8 +471,8 @@ onAuthStateChanged(auth, async user => {
           const avg=s.totalQuestions>0?Math.round((s.totalCorrect/s.totalQuestions)*100):0;
           const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
           return '<div class="rank-row"><div class="rank-pos">'+(i<3?medal:'#'+(i+1))+'</div>'+
-            '<div style="flex:1;font-family:var(--font-display);font-weight:700;font-size:0.84rem;color:var(--text);">'+(s.displayName||'Student')+(s.email===user.email?' (You)':'')+'</div>'+
-            '<div style="font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--c-brand);">'+avg+'%</div>'+
+            '<div style="flex:1;font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.84rem;color:var(--text);">'+(s.displayName||'Student')+(s.email===user.email?' (You)':'')+'</div>'+
+            '<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--c-brand);">'+avg+'%</div>'+
             '</div>';
         }).join('') || '<div style="color:var(--text-3);text-align:center;padding:20px;">No data yet</div>';
       } catch(e) {}
@@ -476,12 +483,12 @@ onAuthStateChanged(auth, async user => {
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item active"><span class="nav-icon ms-fill">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>

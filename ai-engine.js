@@ -347,6 +347,111 @@ Rules:
     }).sort((a,b) => b._priority - a._priority);
   }
 
+  // ── Summarise topic/notes into key points ─────────────────────
+  async function summariseTopic(topic, level) {
+    level = level || "JAMB/WAEC";
+    var msg = [
+      { role:"system", content: SYSTEM },
+      { role:"user", content:
+        "Summarise \"" + topic + "\" for a " + level + " student in Nigeria.\n\n"
+        + "Return ONLY a JSON object (no extra text):\n"
+        + '{"title":"string","keyfacts":["5-8 bullet strings"],'
+        + '"mnemonics":"memory trick string","examtips":"string"}' }
+    ];
+    var r = await call(msg, 700, 0.3);
+    try { return { json: cleanJson(r.text), model: r.model }; }
+    catch(_) { return { rawText: r.text, model: r.model }; }
+  }
+
+  // ── Generate mnemonics for hard topics ────────────────────────
+  async function generateMnemonic(topic, items) {
+    var itemsStr = Array.isArray(items) ? items.join(", ") : (items || "");
+    var msg = [
+      { role:"system", content: SYSTEM },
+      { role:"user", content:
+        "Create 3 creative mnemonics to help Nigerian students remember: \"" + topic + "\""
+        + (itemsStr ? "\nItems to remember: " + itemsStr : "") + "\n\n"
+        + "Return ONLY JSON (no extra text):\n"
+        + '{"topic":"string","mnemonics":[{"device":"ACRONYM|STORY|RHYME","text":"string","explanation":"string"}]}' }
+    ];
+    var r = await call(msg, 500, 0.6);
+    try { return { json: cleanJson(r.text), model: r.model }; }
+    catch(_) { return { rawText: r.text, model: r.model }; }
+  }
+
+  // ── Wrong answer deep-drill ───────────────────────────────────
+  async function drillWrongAnswers(wrongList) {
+    // wrongList: [{question, options, userAnswer, correctAnswer, subject}]
+    var qText = wrongList.slice(0,5).map((q,i) =>
+      (i+1)+". Q: "+q.question+"\n   Options: "+JSON.stringify(q.options||{})+
+      "\n   Student picked: "+q.userAnswer+"\n   Correct: "+q.correctAnswer
+    ).join("\n\n");
+    var msg = [
+      { role:"system", content: SYSTEM },
+      { role:"user", content:
+        "A Nigerian student got these questions wrong. For each one:\n"
+        + "1. Explain WHY their answer was wrong\n"
+        + "2. Explain WHY the correct answer is right (with working if needed)\n"
+        + "3. Give a quick memory tip to not repeat this mistake\n\n"
+        + qText + "\n\n"
+        + "Return ONLY JSON:\n"
+        + '{"analyses":[{"num":1,"whyWrong":"string","whyCorrect":"string","tip":"string"}]}' }
+    ];
+    var r = await call(msg, 900, 0.3);
+    try { return { json: cleanJson(r.text), model: r.model }; }
+    catch(_) { return { rawText: r.text, model: r.model }; }
+  }
+
+  // ── Model answer writer ───────────────────────────────────────
+  async function writeModelAnswer(question, subject, exam) {
+    exam = exam || "WAEC";
+    var msg = [
+      { role:"system", content: SYSTEM },
+      { role:"user", content:
+        "Write a perfect model answer for this " + exam + " " + subject + " question:\n\n"
+        + "\"" + question + "\"\n\n"
+        + "Format: clear paragraphs, show all working for calculations, "
+        + "use correct terminology, match the mark scheme style. "
+        + "End with a 'Key Points' summary." }
+    ];
+    return call(msg, 1000, 0.3);
+  }
+
+  // ── Exam readiness report ─────────────────────────────────────
+  async function examReadinessReport(stats) {
+    // stats: {subject, totalQ, correct, weakTopics:[], strongTopics:[]}
+    var msg = [
+      { role:"system", content: SYSTEM },
+      { role:"user", content:
+        "Generate a personalised exam readiness report for a Nigerian student.\n\n"
+        + "Stats: " + JSON.stringify(stats) + "\n\n"
+        + "Return ONLY JSON:\n"
+        + '{"overallScore":0-100,"readinessLevel":"Not Ready|Almost Ready|Ready|Exam-Ready",'
+        + '"strengths":["string"],"gaps":["string"],'
+        + '"weeklyPlan":["Day 1: string","Day 2: string","Day 3: string","Day 4: string","Day 5: string"],'
+        + '"motivationalNote":"short encouraging string in NOVA style"}' }
+    ];
+    var r = await call(msg, 800, 0.35);
+    try { return { json: cleanJson(r.text), model: r.model }; }
+    catch(_) { return { rawText: r.text, model: r.model }; }
+  }
+
+  // ── Translate exam question to simple English ─────────────────
+  async function simplifyQuestion(question, subject) {
+    var msg = [
+      { role:"system", content: SYSTEM },
+      { role:"user", content:
+        "A Nigerian student is confused by this " + (subject||"exam") + " question:\n\n"
+        + "\"" + question + "\"\n\n"
+        + "1. Rewrite it in simple plain English\n"
+        + "2. Identify exactly what is being asked\n"
+        + "3. List the key information given\n"
+        + "4. Suggest what formula/approach to use\n\n"
+        + "Be clear and encouraging." }
+    ];
+    return call(msg, 600, 0.3);
+  }
+
   function getStatus() {
     return {keys:validKeys().length, keyIndex:_keyIndex+1, brand:BRAND, persona:"NOVA"};
   }
@@ -359,6 +464,8 @@ Rules:
     generateQuestions, generateStudyPlan, predictScore,
     getSpacedRepetitionQueue, buildVocabulary, solveStepByStep,
     checkEssay, explainConcept, analysePastQuestion,
+    summariseTopic, generateMnemonic, drillWrongAnswers,
+    writeModelAnswer, examReadinessReport, simplifyQuestion,
     getStatus, BRAND, SYSTEM
   };
 })();

@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     /* ── Dashboard-only styles ── */
     .daily-card {
       background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
@@ -40,14 +45,14 @@
     }
     .dc-text { flex: 1; }
     .dc-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 0.92rem; color: white;
       margin-bottom: 2px; letter-spacing: -0.3px;
     }
     .dc-sub { font-size: 0.71rem; color: rgba(255,255,255,0.45); }
     .dc-cta {
       background: linear-gradient(135deg, #f59e0b, #f97316);
-      color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+      color: white; font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 0.68rem; padding: 7px 14px;
       border-radius: 100px; flex-shrink: 0; letter-spacing: 0.5px;
       box-shadow: 0 3px 10px rgba(245,158,11,0.45);
@@ -70,13 +75,13 @@
     }
     .result-meta { flex: 1; min-width: 0; }
     .result-title {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-family:'Sora', sans-serif; font-weight: 700;
       font-size: 0.82rem; color: var(--text); margin-bottom: 3px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .result-sub { font-size: 0.67rem; color: var(--text-3); }
     .result-score {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 1rem; flex-shrink: 0; text-align: right;
     }
 
@@ -96,7 +101,7 @@
       width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
       background: linear-gradient(135deg, var(--c-brand), #8b5cf6);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 0.78rem; color: white;
     }
     .leader-medal { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
@@ -110,13 +115,13 @@
       box-shadow: 0 4px 20px rgba(15,23,42,0.25);
     }
     .upgrade-strip-text h4 {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 0.85rem; color: white; margin-bottom: 2px; letter-spacing: -0.3px;
     }
     .upgrade-strip-text p { font-size: 0.69rem; color: rgba(255,255,255,0.45); line-height: 1.5; }
     .upgrade-gold-btn {
       background: linear-gradient(135deg, #f59e0b, #f97316);
-      color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+      color: white; font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 0.7rem; padding: 8px 14px;
       border-radius: 100px; white-space: nowrap; flex-shrink: 0;
       text-decoration: none; box-shadow: 0 3px 12px rgba(245,158,11,0.4);
@@ -126,7 +131,7 @@
     .hero-pill {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 7px 14px; border-radius: 100px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 700; font-size: 0.7rem; text-decoration: none;
     }
     .hero-pill-white {
@@ -161,7 +166,7 @@
     }
     .weak-text { flex: 1; }
     .weak-title {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 0.85rem; color: #fbbf24; margin-bottom: 2px;
     }
     [data-theme="light"] .weak-title { color: #92400e; }
@@ -169,7 +174,7 @@
     [data-theme="light"] .weak-sub { color: #b45309; }
     .weak-btn {
       background: linear-gradient(135deg, #f59e0b, #dc2626);
-      color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+      color: white; font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 0.65rem; padding: 7px 12px;
       border-radius: 100px; flex-shrink: 0; white-space: nowrap;
       box-shadow: 0 3px 10px rgba(245,158,11,0.4);
@@ -184,7 +189,7 @@
     .verify-banner-text { flex: 1; font-size: 0.75rem; color: #fbbf24; line-height: 1.5; font-weight: 600; }
     .verify-banner-btn {
       background: #f59e0b; color: white;
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-family:'Sora', sans-serif; font-weight: 700;
       font-size: 0.65rem; padding: 6px 12px; border-radius: 100px;
       white-space: nowrap; flex-shrink: 0; border: none; cursor: pointer;
     }
@@ -203,13 +208,13 @@
     .install-bar:active { transform:scale(0.99); }
     .install-bar-text { flex:1; }
     .install-bar-text strong {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.82rem; color:var(--text); display:block; margin-bottom:2px;
     }
     .install-bar-text span { font-size:0.7rem; color:var(--text-3); }
     .install-bar-btn {
       background:var(--c-brand); color:white;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.7rem; padding:7px 14px; border-radius:100px;
       border:none; cursor:pointer; flex-shrink:0;
       box-shadow:0 2px 8px rgba(99,102,241,0.35); white-space:nowrap;
@@ -231,10 +236,10 @@
     onerror="this.style.display='none';document.getElementById('splashFallback').style.display='flex'"/>
   <div id="splashFallback" style="display:none;width:64px;height:64px;border-radius:18px;
     background:linear-gradient(135deg,#6366f1,#8b5cf6);align-items:center;
-    justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;
+    justify-content:center;font-family:'Sora',sans-serif;
     font-weight:800;font-size:1.5rem;color:white;
     box-shadow:0 8px 32px rgba(99,102,241,0.5);">EX</div>
-  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+  <div style="font-family:'Sora',sans-serif;font-weight:800;
     font-size:1.3rem;color:white;letter-spacing:-0.5px;">EXAMORA</div>
   <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Loading your dashboard...</div>
   <div style="width:120px;height:3px;background:rgba(255,255,255,0.08);
@@ -381,109 +386,34 @@
     <h3>Quick Actions</h3>
   </div>
   <div class="quick-grid animate-in animate-in-delay-2">
-    <a href="exam.html"            class="quick-card">
-      <div class="quick-icon-wrap"><span class="material-symbols-rounded">edit_note</span></div>
-      <div class="quick-label">Practice<br/>Exam</div>
-    </a>
-    <a href="daily-challenge.html" class="quick-card">
-      <div class="quick-icon-wrap"><span class="material-symbols-rounded">bolt</span></div>
-      <div class="quick-label">Daily<br/>Challenge</div>
-    </a>
-    <a href="mock.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(244,63,94,0.12);"><span class="material-symbols-rounded" style="color:var(--c-red);">timer</span></div>
-      <div class="quick-label">Mock<br/>Exam</div>
-    </a>
-    <a href="offline.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(16,185,129,0.12);"><span class="material-symbols-rounded" style="color:var(--c-green);">download_for_offline</span></div>
-      <div class="quick-label">Offline<br/>Packs</div>
-    </a>
-    <a href="school.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">school</span></div>
-      <div class="quick-label">School<br/>Mode</div>
-    </a>
-    <a href="flashcards.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(168,85,247,0.12);"><span class="material-symbols-rounded" style="color:#a855f7;">style</span></div>
-      <div class="quick-label">Flash<br/>Cards</div>
-    </a>
-    <a href="planner.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(20,184,166,0.12);"><span class="material-symbols-rounded" style="color:#14b8a6;">calendar_month</span></div>
-      <div class="quick-label">Study<br/>Planner</div>
-    </a>
-    <a href="notes.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">edit_note</span></div>
-      <div class="quick-label">Study<br/>Notes</div>
-    </a>
-    <a href="bookmarks.html" class="quick-card">
-      <div class="quick-icon-wrap"><span class="material-symbols-rounded">bookmark</span></div>
-      <div class="quick-label">Saved<br/>Questions</div>
-    </a>
-    <a href="solver.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(16,185,129,0.12);"><span class="material-symbols-rounded" style="color:var(--c-green);">calculate</span></div>
-      <div class="quick-label">Problem<br/>Solver</div>
-    </a>
-    <a href="essay-check.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">rate_review</span></div>
-      <div class="quick-label">Answer<br/>Checker</div>
-    </a>
-    <a href="vocabulary.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(168,85,247,0.12);"><span class="material-symbols-rounded" style="color:#a855f7;">menu_book</span></div>
-      <div class="quick-label">Vocab<br/>Builder</div>
-    </a>
-    <a href="settings.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(99,102,241,0.12);"><span class="material-symbols-rounded" style="color:var(--c-brand);">settings</span></div>
-      <div class="quick-label">App<br/>Settings</div>
-    </a>
-    <a href="help.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(244,63,94,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">help</span></div>
-      <div class="quick-label">Help<br/>& FAQ</div>
-    </a>
-    <a href="analytics.html"       class="quick-card">
-      <div class="quick-icon-wrap"><span class="material-symbols-rounded">bar_chart</span></div>
-      <div class="quick-label">My<br/>Analytics</div>
-    </a>
-    <a href="leaderboard.html"     class="quick-card">
-      <div class="quick-icon-wrap"><span class="material-symbols-rounded">emoji_events</span></div>
-      <div class="quick-label">Leader<br/>board</div>
-    </a>
-    <a href="topic-practice.html"  class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(139,92,246,0.12);"><span class="material-symbols-rounded" style="color:#8b5cf6;">auto_awesome</span></div>
-      <div class="quick-label">AI Topic<br/>Practice</div>
-    </a>
-    <a href="calculator.html"      class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(59,130,246,0.12);"><span class="material-symbols-rounded" style="color:#3b82f6;">calculate</span></div>
-      <div class="quick-label">Scientific<br/>Calculator</div>
-    </a>
-    <a href="formula-sheet.html"   class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.12);"><span class="material-symbols-rounded" style="color:var(--c-gold);">menu_book</span></div>
-      <div class="quick-label">Formula<br/>Sheet</div>
-    </a>
-    <a href="streak.html"           class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(239,68,68,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">local_fire_department</span></div>
-      <div class="quick-label">Study<br/>Streak</div>
-    </a>
-    <a href="notifications-setup.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(16,185,129,0.1);"><span class="material-symbols-rounded" style="color:var(--c-green);">notifications</span></div>
-      <div class="quick-label">Notifications<br/>Setup</div>
-    </a>
-    <a href="summariser.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(139,92,246,0.1);"><span class="material-symbols-rounded" style="color:#8b5cf6;">auto_awesome</span></div>
-      <div class="quick-label">Smart<br/>Summariser</div>
-    </a>
-    <a href="wrong-drill.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(244,63,94,0.1);"><span class="material-symbols-rounded" style="color:var(--c-red);">manage_search</span></div>
-      <div class="quick-label">Wrong Answer<br/>Drill</div>
-    </a>
-    <a href="model-answer.html" class="quick-card">
-      <div class="quick-icon-wrap" style="background:rgba(245,158,11,0.1);"><span class="material-symbols-rounded" style="color:#d97706;">edit_document</span></div>
-      <div class="quick-label">Model<br/>Answers</div>
-    </a>
-    <a href="upgrade.html"         class="quick-card" id="upgradeCard">
-      <div class="quick-icon-wrap"><span class="material-symbols-rounded">workspace_premium</span></div>
-      <div class="quick-label">Go<br/>Premium</div>
-    </a>
+    <a href="exam.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#5b5ef4,#4338ca)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Practice Exam</div></a>
+    <a href="daily-challenge.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">bolt</span></div><div class="quick-label">Daily Challenge</div></a>
+    <a href="mock.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#e11d48)"><span class="material-symbols-rounded">timer</span></div><div class="quick-label">Mock Exam</div></a>
+    <a href="news.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><span class="material-symbols-rounded">newspaper</span></div><div class="quick-label">News Blog</div></a>
+    <a href="flashcards.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">style</span></div><div class="quick-label">Flash Cards</div></a>
+    <a href="topic-practice.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><span class="material-symbols-rounded">auto_awesome</span></div><div class="quick-label">AI Practice</div></a>
+    <a href="analytics.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><span class="material-symbols-rounded">bar_chart</span></div><div class="quick-label">Analytics</div></a>
+    <a href="planner.html"         class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><span class="material-symbols-rounded">calendar_month</span></div><div class="quick-label">Study Planner</div></a>
+    <a href="notes.html"           class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Study Notes</div></a>
+    <a href="bookmarks.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">bookmark</span></div><div class="quick-label">Saved Questions</div></a>
+    <a href="solver.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Problem Solver</div></a>
+    <a href="essay-check.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">rate_review</span></div><div class="quick-label">Answer Checker</div></a>
+    <a href="vocabulary.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Vocab Builder</div></a>
+    <a href="summariser.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#7c3aed)"><span class="material-symbols-rounded">auto_awesome</span></div><div class="quick-label">Smart Summariser</div></a>
+    <a href="wrong-drill.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">manage_search</span></div><div class="quick-label">Wrong Drill</div></a>
+    <a href="model-answer.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#b45309)"><span class="material-symbols-rounded">edit_document</span></div><div class="quick-label">Model Answers</div></a>
+    <a href="school.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#065f46)"><span class="material-symbols-rounded">school</span></div><div class="quick-label">School Mode</div></a>
+    <a href="streak.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ef4444,#b91c1c)"><span class="material-symbols-rounded">local_fire_department</span></div><div class="quick-label">Study Streak</div></a>
+    <a href="leaderboard.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#92400e)"><span class="material-symbols-rounded">emoji_events</span></div><div class="quick-label">Leaderboard</div></a>
+    <a href="calculator.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#1e40af)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Calculator</div></a>
+    <a href="formula-sheet.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#78350f)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Formula Sheet</div></a>
+    <a href="chat.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><span class="material-symbols-rounded">smart_toy</span></div><div class="quick-label">AI Chat Tutor</div></a>
+    <a href="settings.html"        class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#334155)"><span class="material-symbols-rounded">settings</span></div><div class="quick-label">Settings</div></a>
+    <a href="help.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#475569)"><span class="material-symbols-rounded">help</span></div><div class="quick-label">Help & FAQ</div></a>
+    <a href="upgrade.html"         class="quick-card" id="upgradeCard"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Go Premium</div></a>
   </div>
 
-  <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
+    <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
   <div id="countdownWidget" style="display:none; margin-bottom:18px;">
     <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px 18px;border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden;">
       <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,0.15);"></div>
@@ -653,13 +583,13 @@
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <!-- ── Bottom Nav ─────────────────────────────────────────── -->
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item active"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item active"><span class="nav-icon ms-fill">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
 <script src="ai-engine.js"></script>
@@ -776,8 +706,9 @@
   // AI Chat → see chat.html
 
 </script>
-
-
+<script>
+window.toast = toast;
+</script>
 <script type="module">
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged }
@@ -916,7 +847,7 @@
       if (results.length === 0) {
         rEl.innerHTML = `<div class="card" style="text-align:center;padding:28px;">
           <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
-          <p style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.88rem;color:var(--text);margin-bottom:6px;">No exams yet</p>
+          <p style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.88rem;color:var(--text);margin-bottom:6px;">No exams yet</p>
           <p style="font-size:0.78rem;color:var(--text-3);margin-bottom:16px;">Take your first exam to see results here</p>
           <a href="exam.html" class="btn btn-primary" style="max-width:200px;margin:0 auto;">📝 Start Practising</a>
         </div>`;
@@ -970,7 +901,7 @@
                   stroke-dasharray="${fill} ${circ-fill}" stroke-linecap="round"/>
               </svg>
               <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-                font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.72rem;color:${col};">${pct}%</div>
+                font-family:'Sora',sans-serif;font-weight:800;font-size:0.72rem;color:${col};">${pct}%</div>
             </div>
             <div style="font-size:0.6rem;font-weight:700;color:var(--text-3);text-align:center;line-height:1.3;max-width:58px;">${s}</div>
           </div>`;
@@ -1037,13 +968,13 @@
               <span class="leader-medal">${medals[i]}</span>
               <div class="leader-av">${n[0].toUpperCase()}</div>
               <div style="flex:1;min-width:0;">
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;
+                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.82rem;
                   color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                   ${n}${isMe?" <span style='color:var(--c-green);font-size:0.7rem;'>(You)</span>":""}${u.plan==="premium"?" 👑":""}
                 </div>
                 <div style="font-size:0.68rem;color:var(--text-3);">${u.totalCorrect||0} correct · ${u.state||"—"}</div>
               </div>
-              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.82rem;
+              <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.82rem;
                 color:var(--c-brand);">${u.totalExams||0} <span style="font-size:0.6rem;color:var(--text-3);">exams</span></div>
             </div>`;
           }).join("");
@@ -1086,11 +1017,11 @@
 <div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:90%;margin:auto;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3);border:1px solid var(--border);animation:fadeInUp 0.3s ease;">
     <div style="font-size:2.6rem;margin-bottom:8px;">🚀</div>
-    <div id="csTitle" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
+    <div id="csTitle" style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
     <div id="csBody" style="font-size:0.82rem;color:var(--text-3);line-height:1.7;margin-bottom:20px;">We're building something exciting for you — stay tuned!</div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="csBadges"></div>
     <button onclick="document.getElementById('comingSoonOverlay').style.display='none'" 
-      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
+      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
       Can't Wait! 🎉
     </button>
     <button onclick="dismissCS()" style="margin-top:8px;background:none;border:none;color:var(--text-3);font-size:0.75rem;cursor:pointer;width:100%;">Don't show again</button>

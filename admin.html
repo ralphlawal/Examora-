@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     /* ── Admin hero ── */
     .admin-hero {
       background: linear-gradient(160deg, #0f172a 0%, #1a0a1a 60%, #0f172a 100%);
@@ -32,7 +37,7 @@
       letter-spacing:0.8px; margin-bottom:10px; position:relative; z-index:1;
     }
     .admin-hero-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.4rem; color:white; letter-spacing:-0.5px;
       margin-bottom:4px; position:relative; z-index:1;
     }
@@ -58,7 +63,7 @@
     }
     .as-icon { font-size:1.3rem; display:block; margin-bottom:6px; }
     .as-num {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.5rem; color:var(--text); letter-spacing:-0.5px;
       display:block; line-height:1; margin-bottom:3px;
     }
@@ -77,7 +82,7 @@
     .admin-tabs::-webkit-scrollbar { display:none; }
     .admin-tab {
       flex:1; min-width:fit-content; padding:9px 12px;
-      border-radius:9px; font-family:'Plus Jakarta Sans',sans-serif;
+      border-radius:9px; font-family:'Sora',sans-serif;
       font-weight:700; font-size:0.72rem; color:var(--text-3);
       cursor:pointer; transition:all 0.2s ease; text-align:center;
       white-space:nowrap;
@@ -102,7 +107,7 @@
     }
     .admin-table thead th {
       background:var(--bg-input); padding:10px 12px;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.65rem; color:var(--text-3); text-align:left;
       text-transform:uppercase; letter-spacing:0.5px;
       border-bottom:1px solid var(--border);
@@ -114,7 +119,7 @@
     .admin-table tbody tr:last-child td { border-bottom:none; }
     .admin-table tbody tr:hover { background:var(--bg-input); }
     .admin-table .td-name {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       color:var(--text); max-width:120px;
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     }
@@ -122,7 +127,7 @@
     /* ── Action chips in table ── */
     .tbl-btn {
       padding:4px 10px; border-radius:7px;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.65rem; cursor:pointer; transition:all 0.15s ease;
       border:none; display:inline-flex; align-items:center; gap:4px;
       margin-right:4px;
@@ -140,7 +145,7 @@
       box-shadow:var(--shadow-sm);
     }
     .admin-form-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.9rem; color:var(--text); margin-bottom:14px;
       display:flex; align-items:center; gap:7px;
     }
@@ -157,7 +162,7 @@
     }
     .upload-zone .uz-icon { font-size:2rem; margin-bottom:8px; display:block; }
     .upload-zone h4 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.88rem; color:var(--text); margin-bottom:4px;
     }
     .upload-zone p { font-size:0.72rem; color:var(--text-3); }
@@ -203,7 +208,7 @@
     .ann-type-btn {
       flex:1; padding:8px; border-radius:9px;
       border:1.5px solid var(--border); background:var(--bg-input);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.72rem; color:var(--text-3); cursor:pointer;
       text-align:center; transition:all 0.15s ease;
     }
@@ -238,7 +243,7 @@
       border-radius:100px; margin:0 auto 20px;
     }
     .sheet-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1rem; color:var(--text); margin-bottom:18px;
     }
 
@@ -315,6 +320,7 @@
     <div class="admin-tab" onclick="showTab('users',this)">👥 Users</div>
     <div class="admin-tab" onclick="showTab('flags',this)">⚑ Flags</div>
     <div class="admin-tab" onclick="showTab('settings',this)">⚙️ Settings</div>
+    <div class="admin-tab" onclick="window.location.href='admin-news.html'">📰 News Blog</div>
   </div>
 
   <!-- ════ QUESTIONS TAB ════ -->
@@ -643,7 +649,7 @@
 
     <!-- AI Keys -->
     <div style="border:1.5px solid rgba(99,102,241,0.2);border-radius:16px;padding:16px;margin-bottom:16px;">
-      <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.82rem;
+      <h4 style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.82rem;
         color:var(--c-brand);margin-bottom:12px;">🤖 OpenRouter AI Keys</h4>
       <p style="font-size:0.75rem;color:var(--text-3);margin-bottom:12px;line-height:1.6;">
         Add your free OpenRouter keys here. Get keys at <strong>openrouter.ai/keys</strong>.
@@ -672,7 +678,7 @@
 
     <!-- Danger zone -->
     <div style="border:1.5px solid rgba(244,63,94,0.2);border-radius:16px;padding:16px;background:rgba(244,63,94,0.03);">
-      <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;
+      <h4 style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.78rem;
         color:var(--c-red);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">
         ⚠️ Danger Zone
       </h4>
@@ -940,8 +946,9 @@
     else window.toast && window.toast('Still loading… try again.','info');
   }
 </script>
-
-
+<script>
+window.toast = toast;
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1025,7 +1032,7 @@
           <td class="td-name" style="max-width:160px;">${(q.text||q.question||"").slice(0,60)}...</td>
           <td><span style="font-size:0.65rem;font-weight:700;color:var(--c-brand);">${q.category||""}</span></td>
           <td style="font-size:0.7rem;color:var(--text-3);">${(q.subject||"").split(" ")[0]}</td>
-          <td><span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.8rem;
+          <td><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.8rem;
             color:var(--c-green);">${q.answer||"?"}</span></td>
           <td>
             <button class="tbl-btn tbl-btn-edit" onclick="openEditQ('${q.id}')">✏️</button>
@@ -1434,12 +1441,12 @@
 <script>
   if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
 </script>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>

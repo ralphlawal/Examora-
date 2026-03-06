@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Formula Sheet</title>
   <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     .fs-header {
       display: flex; align-items: center; gap: 10px;
       padding: 14px 16px; background: var(--bg-card);
@@ -16,7 +22,7 @@
       position: sticky; top: 0; z-index: 50;
     }
     .icon-btn { width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);flex-shrink:0; }
-    .fs-title { font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1; }
+    .fs-title { font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);flex:1; }
 
     /* Search */
     .search-wrap { padding: 12px 16px; }
@@ -24,7 +30,7 @@
       width: 100%; padding: 11px 14px 11px 40px;
       background: var(--bg-input); border: 1.5px solid var(--border);
       border-radius: 12px; color: var(--text); font-size: 0.88rem;
-      font-family: var(--font-body); outline: none; box-sizing: border-box;
+      font-family: var(--fb, 'Outfit', sans-serif); outline: none; box-sizing: border-box;
       transition: border-color 0.18s;
     }
     .search-box:focus { border-color: var(--c-brand); }
@@ -36,7 +42,7 @@
     .subject-tabs::-webkit-scrollbar { display: none; }
     .stab {
       padding: 7px 16px; border-radius: 100px; border: 1.5px solid var(--border);
-      background: var(--bg-input); font-family: var(--font-display); font-weight: 700;
+      background: var(--bg-input); font-family: var(--fd, 'Sora', sans-serif); font-weight: 700;
       font-size: 0.75rem; color: var(--text-2); cursor: pointer; white-space: nowrap; transition: all 0.15s;
     }
     .stab.on { background: var(--c-brand); color: white; border-color: var(--c-brand); }
@@ -50,7 +56,7 @@
       cursor: pointer; user-select: none;
     }
     .sec-icon { font-size: 1.2rem; }
-    .sec-name { font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; color: var(--text); flex: 1; }
+    .sec-name { font-family: var(--fd, 'Sora', sans-serif); font-weight: 800; font-size: 0.9rem; color: var(--text); flex: 1; }
     .sec-count { font-size: 0.68rem; color: var(--text-3); font-weight: 600; }
     .sec-arrow { color: var(--text-3); font-size: 1rem; transition: transform 0.2s; }
     .sec-header.open .sec-arrow { transform: rotate(90deg); }
@@ -65,7 +71,7 @@
     .formula-item:last-child { border-bottom: none; }
     .formula-item:hover { background: var(--bg-input); }
     .formula-item.saved { background: rgba(16,185,129,0.05); }
-    .fml-name { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; color: var(--text); margin-bottom: 5px; }
+    .fml-name { font-family: var(--fd, 'Sora', sans-serif); font-weight: 700; font-size: 0.82rem; color: var(--text); margin-bottom: 5px; }
     .fml-eq {
       font-family: 'Courier New', monospace; font-size: 1rem; font-weight: 700;
       color: var(--c-brand); background: var(--c-brand-pale);
@@ -81,7 +87,7 @@
     .fml-btn {
       padding: 5px 12px; border-radius: 8px; border: 1.5px solid var(--border);
       font-size: 0.68rem; font-weight: 700; color: var(--text-2); background: var(--bg-input);
-      cursor: pointer; font-family: var(--font-display);
+      cursor: pointer; font-family: var(--fd, 'Sora', sans-serif);
     }
     .fml-btn.saved-btn { color: var(--c-green); border-color: var(--c-green); background: var(--c-green-pale); }
 
@@ -122,7 +128,7 @@
   <div id="formulaContainer"></div>
   <div id="noResults" class="no-results" style="display:none;">
     <div class="nr-icon">🔍</div>
-    <div style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;color:var(--text);">No formulas found</div>
+    <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:700;font-size:0.9rem;color:var(--text);">No formulas found</div>
     <div style="font-size:0.75rem;margin-top:4px;">Try a different search term</div>
   </div>
 </div>

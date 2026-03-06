@@ -8,12 +8,17 @@
   <link rel="icon" type="image/png" href="logo.png"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     body { min-height:100vh; display:flex; align-items:center; justify-content:center; }
     .notfound-wrap {
       text-align:center; padding:40px 24px; max-width:320px; margin:0 auto;
     }
     .nf-code {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:5rem; letter-spacing:-4px; line-height:1;
       background:linear-gradient(135deg,#6366f1,#8b5cf6);
       -webkit-background-clip:text; -webkit-text-fill-color:transparent;
@@ -21,7 +26,7 @@
     }
     .nf-icon { font-size:2.5rem; display:block; margin-bottom:12px; }
     .nf-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.2rem; color:var(--text); margin-bottom:8px;
     }
     .nf-sub { font-size:0.82rem; color:var(--text-3); line-height:1.6; margin-bottom:24px; }

@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     /* ── Score hero ── */
     .result-hero {
       background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 65%, #0f172a 100%);
@@ -49,7 +54,7 @@
       align-items: center; justify-content: center;
     }
     .score-pct {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 2rem; color: white;
       line-height: 1; letter-spacing: -1px;
     }
@@ -58,7 +63,7 @@
       font-weight: 600; margin-top: 2px;
     }
     .result-verdict {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 800; font-size: 1.5rem; color: white;
       letter-spacing: -0.5px; margin-bottom: 5px; position: relative; z-index: 1;
     }
@@ -78,7 +83,7 @@
       box-shadow: var(--shadow-xs);
     }
     .rs-num {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 1.2rem; display: block; margin-bottom: 3px;
     }
     .rs-lbl {
@@ -136,7 +141,7 @@
       color: var(--c-red); font-weight: 700;
     }
     .review-opt-letter {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 0.7rem; flex-shrink: 0; margin-top: 1px;
     }
 
@@ -172,7 +177,7 @@
       border: 1px solid rgba(99,102,241,0.2);
     }
     .share-card h4 {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 0.9rem; color: white; margin-bottom: 5px;
     }
     .share-card p { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-bottom: 14px; }
@@ -193,7 +198,7 @@
     .rf-tab {
       flex-shrink: 0; padding: 6px 14px; border-radius: 100px;
       border: 1.5px solid var(--border); background: var(--bg-card);
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family:'Sora', sans-serif;
       font-weight: 700; font-size: 0.7rem; color: var(--text-3);
       cursor: pointer; transition: all 0.18s ease; white-space: nowrap;
     }
@@ -212,7 +217,7 @@
       border-radius: 12px; padding: 10px 12px;
     }
     .subj-name {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-family:'Sora', sans-serif; font-weight: 700;
       font-size: 0.75rem; color: var(--text); min-width: 90px; flex-shrink: 0;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
@@ -221,7 +226,7 @@
     }
     .subj-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
     .subj-pct {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 0.72rem; min-width: 36px; text-align: right; flex-shrink: 0;
     }
     .subj-score-sm {
@@ -244,7 +249,7 @@
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .share-sheet h4 {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
+      font-family:'Sora', sans-serif; font-weight: 800;
       font-size: 1rem; color: var(--text); margin-bottom: 16px; text-align: center;
     }
     .share-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
@@ -257,13 +262,13 @@
     .share-opt:active { transform: scale(0.95); }
     .share-opt-icon { font-size: 1.6rem; }
     .share-opt-label {
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-family:'Sora', sans-serif; font-weight: 700;
       font-size: 0.65rem; color: var(--text-2); text-align: center;
     }
     .share-cancel {
       margin-top: 12px; width: 100%; padding: 12px;
       border-radius: var(--radius-sm); background: var(--bg-input);
-      border: 1.5px solid var(--border); font-family: 'Plus Jakarta Sans', sans-serif;
+      border: 1.5px solid var(--border); font-family:'Sora', sans-serif;
       font-weight: 700; font-size: 0.85rem; color: var(--text-3); cursor: pointer;
     }
   </style>
@@ -508,13 +513,13 @@
 </div>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item active"><span class="nav-icon ms-fill">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
@@ -598,7 +603,7 @@
     return `<div class="review-item ${status} animate-in" id="ri_${idx}">
       <div class="review-q-num">
         <div class="review-badge">${statusIcon}</div>
-        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.72rem;color:var(--text-3);">
+        <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.72rem;color:var(--text-3);">
           Q${idx+1} · ${q.category||""} ${q.subject?`· ${q.subject}`:""} ${q.year?`· ${q.year}`:""}
         </span>
       </div>
@@ -852,12 +857,12 @@
         <span class="material-symbols-rounded ms-fill" style="color:white;">psychology</span>
       </div>
       <div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.88rem;color:white;">Personalised Study Plan</div>
+        <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.88rem;color:white;">Personalised Study Plan</div>
         <div style="font-size:0.7rem;color:rgba(255,255,255,0.45);">Based on your exam performance</div>
       </div>
       <button onclick="generateAiStudyPlan()" id="genPlanBtn"
         style="margin-left:auto;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
-          border-radius:100px;padding:7px 14px;color:white;font-family:'Plus Jakarta Sans',sans-serif;
+          border-radius:100px;padding:7px 14px;color:white;font-family:'Sora',sans-serif;
           font-weight:700;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;">
         <span class="material-symbols-rounded ms-sm">auto_awesome</span> Generate
       </button>

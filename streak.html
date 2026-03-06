@@ -5,17 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Study Streak</title>
   <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="manifest" href="manifest.json"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     .sk-header {
       display:flex;align-items:center;gap:12px;padding:14px 16px;
       background:var(--bg-card);border-bottom:1px solid var(--border);
       position:sticky;top:0;z-index:50;
     }
     .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);}
-    .sk-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+    .sk-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
 
     /* Hero stats */
     .streak-hero {
@@ -25,20 +31,20 @@
     }
     .sh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
     .sh-flame{font-size:2.4rem;line-height:1;}
-    .sh-streak{font-family:var(--font-display);font-weight:900;font-size:2.8rem;color:white;line-height:1;}
+    .sh-streak{font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:2.8rem;color:white;line-height:1;}
     .sh-label{font-size:0.7rem;color:rgba(255,255,255,0.45);font-weight:600;margin-top:2px;}
     .sh-best{text-align:right;}
-    .sh-best-num{font-family:var(--font-display);font-weight:800;font-size:1.4rem;color:rgba(255,255,255,0.8);}
+    .sh-best-num{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.4rem;color:rgba(255,255,255,0.8);}
     .sh-best-lbl{font-size:0.65rem;color:rgba(255,255,255,0.35);font-weight:600;}
     .sh-stats{display:flex;gap:10px;}
     .sh-stat{flex:1;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 8px;text-align:center;}
-    .sh-stat-n{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:white;}
+    .sh-stat-n{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:white;}
     .sh-stat-l{font-size:0.6rem;color:rgba(255,255,255,0.35);font-weight:600;margin-top:2px;}
 
     /* Calendar grid */
     .calendar-section{margin:0 16px 20px;}
     .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-    .cal-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);}
+    .cal-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--text);}
     .cal-nav{display:flex;gap:4px;}
     .cal-nav-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text-2);cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
 
@@ -79,7 +85,7 @@
 
     /* Month breakdown */
     .month-bar-wrap{margin:0 16px 20px;}
-    .mb-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
+    .mb-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
     .mb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
     .mb-month{font-size:0.72rem;color:var(--text-2);font-weight:600;width:36px;flex-shrink:0;}
     .mb-track{flex:1;height:8px;background:var(--bg-input);border-radius:100px;overflow:hidden;}
@@ -88,7 +94,7 @@
 
     /* Achievement badges */
     .badges-section{margin:0 16px 80px;}
-    .bs-title{font-family:var(--font-display);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
+    .bs-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.88rem;color:var(--text);margin-bottom:12px;}
     .badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .badge-card{
       background:var(--bg-card);border:1px solid var(--border);border-radius:16px;
@@ -97,7 +103,7 @@
     .badge-card.earned{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.05);}
     .badge-icon{font-size:1.8rem;flex-shrink:0;}
     .badge-info{}
-    .badge-name{font-family:var(--font-display);font-weight:800;font-size:0.78rem;color:var(--text);}
+    .badge-name{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.78rem;color:var(--text);}
     .badge-req{font-size:0.62rem;color:var(--text-3);margin-top:2px;}
     .badge-lock{font-size:1.4rem;opacity:0.3;flex-shrink:0;}
   </style>
@@ -448,12 +454,12 @@ onAuthStateChanged(auth, async user => {
 });
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>

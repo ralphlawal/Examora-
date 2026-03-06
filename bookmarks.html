@@ -14,6 +14,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     /* ── Hero ── */
     .bm-hero {
       background: linear-gradient(160deg, #0f172a 0%, #0c2340 60%, #0f172a 100%);
@@ -31,7 +36,7 @@
       background:rgba(16,185,129,0.08); pointer-events:none;
     }
     .bm-hero-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.4rem; color:white; letter-spacing:-0.5px;
       margin-bottom:4px; position:relative; z-index:1;
     }
@@ -64,7 +69,7 @@
     }
     .bm-meta { flex:1; min-width:0; }
     .bm-subject {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.78rem; color:var(--text); margin-bottom:3px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
@@ -104,7 +109,7 @@
       color:var(--c-green); font-weight:700;
     }
     .bm-opt-letter {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.7rem; flex-shrink:0; margin-top:1px; min-width:12px;
     }
     .bm-exp {
@@ -122,7 +127,7 @@
     .bm-expand-btn {
       flex:1; padding:6px 10px; border-radius:9px;
       border:1.5px solid var(--border); background:var(--bg-input);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.72rem; color:var(--text-2); cursor:pointer;
       transition:all 0.15s ease; text-align:center;
     }
@@ -133,7 +138,7 @@
       padding:6px 14px; border-radius:9px;
       background:var(--c-brand-pale); color:var(--c-brand);
       border:1.5px solid rgba(99,102,241,0.25);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.72rem; cursor:pointer; transition:all 0.15s ease;
       text-decoration:none; white-space:nowrap;
     }
@@ -166,7 +171,7 @@
       box-shadow:var(--shadow-xs);
     }
     .bm-sum-n {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.1rem; display:block; margin-bottom:2px;
     }
     .bm-sum-l { font-size:0.6rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
@@ -177,7 +182,7 @@
     }
     .bm-empty .ei { font-size:3rem; margin-bottom:14px; display:block; }
     .bm-empty h4 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.95rem; color:var(--text); margin-bottom:6px;
     }
     .bm-empty p { font-size:0.78rem; color:var(--text-3); line-height:1.6; }
@@ -200,12 +205,12 @@
     }
     .practice-bar.visible { display:flex; }
     .pb-text {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.82rem; color:white; flex:1;
     }
     .pb-btn {
       background:white; color:var(--c-brand);
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.75rem; padding:7px 14px; border-radius:100px;
       border:none; cursor:pointer; flex-shrink:0;
     }
@@ -297,13 +302,13 @@
 </div>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";

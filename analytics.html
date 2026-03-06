@@ -31,6 +31,11 @@
   <meta name="application-name" content="EXAMORA"/>
   <meta name="theme-color" content="#0f172a"/>
   <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
     .analytics-hero {
       background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
       padding: 28px 20px 24px; position: relative; overflow: hidden;
@@ -41,7 +46,7 @@
       background:rgba(99,102,241,0.12); pointer-events:none;
     }
     .analytics-hero-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.4rem; color:white; letter-spacing:-0.5px;
       margin-bottom:4px; position:relative; z-index:1;
     }
@@ -70,7 +75,7 @@
       font-size:1.4rem; margin-bottom:8px; display:block;
     }
     .kpi-value {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:1.7rem; color:var(--text); letter-spacing:-1px;
       display:block; line-height:1; margin-bottom:4px;
     }
@@ -94,7 +99,7 @@
       box-shadow:var(--shadow-sm); margin-bottom:14px;
     }
     .chart-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.84rem; color:var(--text); margin-bottom:4px;
     }
     .chart-sub {
@@ -115,7 +120,7 @@
       display:flex; align-items:center; justify-content:center; font-size:0.88rem;
     }
     .subj-name {
-      flex:1; font-family:'Plus Jakarta Sans',sans-serif;
+      flex:1; font-family:'Sora',sans-serif;
       font-weight:700; font-size:0.82rem; color:var(--text);
     }
     .subj-bar-wrap {
@@ -127,7 +132,7 @@
       transition:width 0.8s cubic-bezier(0.4,0,0.2,1);
     }
     .subj-pct {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.8rem; width:38px; text-align:right; flex-shrink:0;
     }
 
@@ -142,11 +147,11 @@
       margin-bottom:14px;
     }
     .target-title {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.88rem; color:white;
     }
     .target-score-badge {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      font-family:'Sora',sans-serif; font-weight:800;
       font-size:0.78rem; padding:4px 12px; border-radius:100px;
       background:rgba(99,102,241,0.25); color:#818cf8;
     }
@@ -188,7 +193,7 @@
     }
     .period-tab {
       padding:5px 12px; border-radius:100px; cursor:pointer;
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.7rem; color:var(--text-3); border:1.5px solid var(--border);
       background:var(--bg-card); transition:all 0.18s ease;
     }
@@ -203,7 +208,7 @@
     }
     .empty-state .es-icon { font-size:2.5rem; margin-bottom:12px; }
     .empty-state h4 {
-      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-family:'Sora',sans-serif; font-weight:700;
       font-size:0.9rem; color:var(--text); margin-bottom:6px;
     }
     .empty-state p { font-size:0.78rem; color:var(--text-3); line-height:1.6; }
@@ -213,7 +218,7 @@
       display: flex; align-items: center; gap: 8px;
       background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
       border-radius: 100px; padding: 8px 16px; cursor: pointer;
-      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+      font-family:'Sora', sans-serif; font-weight: 700;
       font-size: 0.75rem; color: white; transition: all 0.2s ease;
       backdrop-filter: blur(4px); margin-top: 14px; width: fit-content;
     }
@@ -314,7 +319,7 @@
         <div class="chart-title">Subject Readiness</div>
         <div class="chart-sub">Your exam readiness score per subject</div>
       </div>
-      <div id="overallReadiness" style="font-family:var(--font-display);font-weight:900;font-size:1.4rem;color:var(--c-brand);"></div>
+      <div id="overallReadiness" style="font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:1.4rem;color:var(--c-brand);"></div>
     </div>
     <div id="subjBreakdown"></div>
     <div id="readinessSummary" style="margin-top:12px;"></div>
@@ -389,7 +394,7 @@
         <div class="predict-label">Predicted JAMB Score</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;color:rgba(255,255,255,0.7);" id="predictRange">—</div>
+        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.78rem;color:rgba(255,255,255,0.7);" id="predictRange">—</div>
         <div style="font-size:0.65rem;color:rgba(255,255,255,0.35);margin-top:2px;" id="predictConfidence">—</div>
       </div>
     </div>
@@ -407,7 +412,7 @@
     <div class="section-icon" style="background:rgba(16,185,129,0.12);color:var(--c-green);">calendar_month</div>
     <h3>7-Day Study Plan</h3>
     <button onclick="generateStudyPlanAnalytics()" id="genAnalyticsPlanBtn"
-      style="margin-left:auto;background:var(--c-brand);color:white;font-family:'Plus Jakarta Sans',sans-serif;
+      style="margin-left:auto;background:var(--c-brand);color:white;font-family:'Sora',sans-serif;
         font-weight:700;font-size:0.68rem;padding:5px 12px;border-radius:100px;border:none;cursor:pointer;
         display:flex;align-items:center;gap:4px;">
       <span class="material-symbols-rounded ms-sm">auto_awesome</span> Generate
@@ -573,13 +578,13 @@
 </script>
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item active"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
@@ -745,13 +750,13 @@
     if(summEl && subjects.length>0) {
       summEl.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;">'
         +'<div style="flex:1;min-width:80px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:8px;text-align:center;">'
-          +'<div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--c-green);">'+ready+'</div>'
+          +'<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-green);">'+ready+'</div>'
           +'<div style="font-size:0.62rem;color:var(--text-3);">Ready</div></div>'
         +'<div style="flex:1;min-width:80px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px;text-align:center;">'
-          +'<div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--c-gold);">'+(subjects.length-ready-needsWork)+'</div>'
+          +'<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-gold);">'+(subjects.length-ready-needsWork)+'</div>'
           +'<div style="font-size:0.62rem;color:var(--text-3);">In Progress</div></div>'
         +'<div style="flex:1;min-width:80px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:10px;padding:8px;text-align:center;">'
-          +'<div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--c-red);">'+needsWork+'</div>'
+          +'<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-red);">'+needsWork+'</div>'
           +'<div style="font-size:0.62rem;color:var(--text-3);">Needs Work</div></div>'
         +'</div>';
     }
@@ -883,7 +888,7 @@
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <div style="width:10px;height:10px;border-radius:3px;background:${CAT_COLORS[i]};flex-shrink:0;"></div>
         <div style="flex:1;">
-          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.75rem;color:var(--text);">${c}</div>
+          <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.75rem;color:var(--text);">${c}</div>
           <div style="font-size:0.65rem;color:var(--text-3);">${map[c]} exams · ${Math.round((map[c]/total)*100)}%</div>
         </div>
       </div>`).join("");
@@ -1004,8 +1009,9 @@
     window.location.href = "exam.html?" + params.toString();
   }
 </script>
-
+<script>
 window.toast = toast;
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1056,11 +1062,11 @@ window.toast = toast;
 <div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:90%;margin:auto;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3);border:1px solid var(--border);animation:fadeInUp 0.3s ease;">
     <div style="font-size:2.6rem;margin-bottom:8px;">🚀</div>
-    <div id="csTitle" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
+    <div id="csTitle" style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
     <div id="csBody" style="font-size:0.82rem;color:var(--text-3);line-height:1.7;margin-bottom:20px;">We're building something exciting for you — stay tuned!</div>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="csBadges"></div>
     <button onclick="document.getElementById('comingSoonOverlay').style.display='none'" 
-      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
+      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
       Can't Wait! 🎉
     </button>
     <button onclick="dismissCS()" style="margin-top:8px;background:none;border:none;color:var(--text-3);font-size:0.75rem;cursor:pointer;width:100%;">Don't show again</button>

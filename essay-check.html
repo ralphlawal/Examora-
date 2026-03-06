@@ -6,22 +6,28 @@
 <title>Essay Checker — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
 <link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
 <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
 :root{--max-width:480px;}
 .app-container{max-width:var(--max-width);margin:0 auto;min-height:100dvh;padding-bottom:30px;}
 .page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
-.page-title{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
+.page-title{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;color:var(--text);flex:1;}
 .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s ease;flex-shrink:0;color:var(--text-2);}
 .icon-btn span{font-size:1.15rem;}
 .score-ring-wrap{display:flex;flex-direction:column;align-items:center;padding:24px 16px 16px;}
 .score-ring{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;}
 .score-inner{width:76px;height:76px;border-radius:50%;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.score-num{font-family:var(--font-display);font-weight:900;font-size:1.5rem;line-height:1;}
+.score-num{font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:1.5rem;line-height:1;}
 .score-denom{font-size:0.6rem;color:var(--text-3);}
 .feedback-section{margin:0 16px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;}
-.feedback-section h4{font-family:var(--font-display);font-weight:800;font-size:0.82rem;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.feedback-section h4{font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.82rem;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
 .feedback-section p{font-size:0.81rem;line-height:1.7;color:var(--text-2);}
 .feedback-section ul{padding-left:18px;font-size:0.81rem;line-height:1.8;color:var(--text-2);}
 .improved-box{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(99,102,241,0.03));border:1.5px solid rgba(99,102,241,0.2);border-radius:14px;padding:14px;font-size:0.83rem;line-height:1.7;color:var(--text-2);font-style:italic;}
@@ -39,7 +45,7 @@
   <div id="inputView" style="padding:16px;">
     <div style="background:linear-gradient(135deg,#1e1b4b,#0f172a);border-radius:18px;padding:18px;margin-bottom:16px;border:1px solid rgba(99,102,241,0.3);">
       <div style="font-size:1.4rem;margin-bottom:8px;">📝</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:white;margin-bottom:4px;">AI Answer Checker</div>
+      <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.95rem;color:white;margin-bottom:4px;">AI Answer Checker</div>
       <div style="font-size:0.74rem;color:rgba(255,255,255,0.45);line-height:1.6;">Write your exam answer and NOVA will score it, find gaps, and show you a model answer. Perfect for essay, theory, and short-answer questions.</div>
     </div>
 
@@ -77,7 +83,7 @@
           <div class="score-denom">/10</div>
         </div>
       </div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-top:10px;" id="scoreLabel">—</div>
+      <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1rem;margin-top:10px;" id="scoreLabel">—</div>
       <div style="font-size:0.74rem;color:var(--text-3);margin-top:4px;" id="scoreJustification"></div>
     </div>
 
@@ -254,12 +260,12 @@ onAuthStateChanged(auth,async user=>{
 });
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
-<nav class="bottom-nav">
-  <a href="index.html" class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
-  <a href="exam.html" class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
-  <a href="analytics.html" class="nav-item"><span class="nav-icon">bar_chart</span><span class="nav-label">Stats</span></a>
-  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html" class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
-</nav>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>
