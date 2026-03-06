@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EXAMORA — Your Global Exam Prep Platform</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — Prepare Smarter for Any Exam"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
+    /* ── Dashboard-only styles ── */
+    .daily-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      border-radius: 20px; padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; margin-bottom: 20px;
+      border: 1px solid rgba(99,102,241,0.25);
+      box-shadow: 0 8px 32px rgba(15,23,42,0.35), 0 0 0 1px rgba(99,102,241,0.1) inset;
+      transition: all 0.2s ease; position: relative; overflow: hidden;
+    }
+    .daily-card:active { transform: scale(0.98); }
+    .daily-card::before {
+      content: ''; position: absolute;
+      right: -30px; top: -30px; width: 100px; height: 100px;
+      border-radius: 50%; background: rgba(245,158,11,0.12);
+      pointer-events: none;
+    }
+    .dc-icon-wrap {
+      width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.45);
+    }
+    .dc-text { flex: 1; }
+    .dc-title {
+      font-family:'Sora', sans-serif;
+      font-weight: 800; font-size: 0.92rem; color: white;
+      margin-bottom: 2px; letter-spacing: -0.3px;
+    }
+    .dc-sub { font-size: 0.71rem; color: rgba(255,255,255,0.45); }
+    .dc-cta {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white; font-family:'Sora', sans-serif;
+      font-weight: 800; font-size: 0.68rem; padding: 7px 14px;
+      border-radius: 100px; flex-shrink: 0; letter-spacing: 0.5px;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.45);
+      position: relative; z-index: 1;
+    }
+
+    /* Result row */
+    .result-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 14px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      margin-bottom: 8px; cursor: pointer; transition: all 0.18s ease;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.04);
+    }
+    .result-row:active { transform: scale(0.99); }
+    .result-row:hover { border-color: var(--c-brand); }
+    .result-icon {
+      width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .result-meta { flex: 1; min-width: 0; }
+    .result-title {
+      font-family:'Sora', sans-serif; font-weight: 700;
+      font-size: 0.82rem; color: var(--text); margin-bottom: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .result-sub { font-size: 0.67rem; color: var(--text-3); }
+    .result-score {
+      font-family:'Sora', sans-serif; font-weight: 800;
+      font-size: 1rem; flex-shrink: 0; text-align: right;
+    }
+
+    /* Announce strip */
+    .announce-strip {
+      border-radius: 12px; padding: 10px 14px;
+      font-size: 0.78rem; font-weight: 600;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Leader mini row */
+    .leader-mini {
+      display: flex; align-items: center; gap: 10px; padding: 9px 0;
+    }
+    .leader-mini + .leader-mini { border-top: 1px solid var(--border); }
+    .leader-av {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--c-brand), #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-family:'Sora', sans-serif; font-weight: 800;
+      font-size: 0.78rem; color: white;
+    }
+    .leader-medal { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+
+    /* Upgrade strip */
+    .upgrade-strip {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border-radius: 18px; padding: 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px; border: 1px solid rgba(99,102,241,0.2);
+      box-shadow: 0 4px 20px rgba(15,23,42,0.25);
+    }
+    .upgrade-strip-text h4 {
+      font-family:'Sora', sans-serif; font-weight: 800;
+      font-size: 0.85rem; color: white; margin-bottom: 2px; letter-spacing: -0.3px;
+    }
+    .upgrade-strip-text p { font-size: 0.69rem; color: rgba(255,255,255,0.45); line-height: 1.5; }
+    .upgrade-gold-btn {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white; font-family:'Sora', sans-serif;
+      font-weight: 800; font-size: 0.7rem; padding: 8px 14px;
+      border-radius: 100px; white-space: nowrap; flex-shrink: 0;
+      text-decoration: none; box-shadow: 0 3px 12px rgba(245,158,11,0.4);
+    }
+
+    /* Pill CTA buttons in hero */
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border-radius: 100px;
+      font-family:'Sora', sans-serif;
+      font-weight: 700; font-size: 0.7rem; text-decoration: none;
+    }
+    .hero-pill-white {
+      background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.18);
+      color: white; backdrop-filter: blur(4px);
+    }
+    .hero-pill-green {
+      background: rgba(16,185,129,0.18); border: 1.5px solid rgba(16,185,129,0.35);
+      color: #34d399;
+    }
+
+    /* ── Weak areas card ── */
+    .weak-card {
+      background: linear-gradient(135deg, #2d1b00, #1a0f00);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 18px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.1);
+      transition: all 0.2s ease;
+    }
+    [data-theme="light"] .weak-card {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border-color: rgba(245,158,11,0.35);
+    }
+    .weak-card:active { transform: scale(0.98); }
+    .weak-icon {
+      width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f59e0b, #dc2626);
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+    }
+    .weak-text { flex: 1; }
+    .weak-title {
+      font-family:'Sora', sans-serif; font-weight: 800;
+      font-size: 0.85rem; color: #fbbf24; margin-bottom: 2px;
+    }
+    [data-theme="light"] .weak-title { color: #92400e; }
+    .weak-sub { font-size: 0.7rem; color: rgba(251,191,36,0.6); line-height: 1.4; }
+    [data-theme="light"] .weak-sub { color: #b45309; }
+    .weak-btn {
+      background: linear-gradient(135deg, #f59e0b, #dc2626);
+      color: white; font-family:'Sora', sans-serif;
+      font-weight: 800; font-size: 0.65rem; padding: 7px 12px;
+      border-radius: 100px; flex-shrink: 0; white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.4);
+    }
+
+    /* ── Email verification banner ── */
+    .verify-banner {
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px; animation: fadeIn 0.4s ease;
+    }
+    .verify-banner-text { flex: 1; font-size: 0.75rem; color: #fbbf24; line-height: 1.5; font-weight: 600; }
+    .verify-banner-btn {
+      background: #f59e0b; color: white;
+      font-family:'Sora', sans-serif; font-weight: 700;
+      font-size: 0.65rem; padding: 6px 12px; border-radius: 100px;
+      white-space: nowrap; flex-shrink: 0; border: none; cursor: pointer;
+    }
+
+    /* ── Install banner ── */
+    .install-bar {
+      display:none; align-items:center; gap:12px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.1));
+      border:1.5px solid rgba(99,102,241,0.25);
+      border-radius:16px; padding:13px 15px;
+      margin-bottom:16px; cursor:pointer;
+      box-shadow: 0 2px 12px rgba(99,102,241,0.12);
+      transition: all 0.2s ease;
+    }
+    .install-bar.show { display:flex; animation:fadeIn 0.4s ease; }
+    .install-bar:active { transform:scale(0.99); }
+    .install-bar-text { flex:1; }
+    .install-bar-text strong {
+      font-family:'Sora',sans-serif; font-weight:800;
+      font-size:0.82rem; color:var(--text); display:block; margin-bottom:2px;
+    }
+    .install-bar-text span { font-size:0.7rem; color:var(--text-3); }
+    .install-bar-btn {
+      background:var(--c-brand); color:white;
+      font-family:'Sora',sans-serif; font-weight:700;
+      font-size:0.7rem; padding:7px 14px; border-radius:100px;
+      border:none; cursor:pointer; flex-shrink:0;
+      box-shadow:0 2px 8px rgba(99,102,241,0.35); white-space:nowrap;
+    }
+    .install-bar-close {
+      background:none; border:none; color:var(--text-3);
+      font-size:1rem; cursor:pointer; padding:4px; flex-shrink:0;
+    }
+  </style>
+</head>
+<body>
+<!-- ── Splash screen (fades out after Firebase loads) ── -->
+<div id="splash" style="position:fixed;inset:0;background:#0f172a;display:flex;
+  align-items:center;justify-content:center;z-index:9999;
+  flex-direction:column;gap:12px;transition:opacity 0.4s ease;">
+  <img src="logo.png" alt="EXAMORA"
+    style="width:64px;height:64px;border-radius:18px;
+      box-shadow:0 8px 32px rgba(99,102,241,0.5);"
+    onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"/>
+  <div id="splashFallback" style="display:none;width:64px;height:64px;border-radius:18px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);align-items:center;
+    justify-content:center;font-family:'Sora',sans-serif;
+    font-weight:800;font-size:1.5rem;color:white;
+    box-shadow:0 8px 32px rgba(99,102,241,0.5);">EX</div>
+  <div style="font-family:'Sora',sans-serif;font-weight:800;
+    font-size:1.3rem;color:white;letter-spacing:-0.5px;">EXAMORA</div>
+  <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);">Loading your dashboard...</div>
+  <div style="width:120px;height:3px;background:rgba(255,255,255,0.08);
+    border-radius:100px;overflow:hidden;margin-top:4px;">
+    <div style="height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#10b981);
+      border-radius:100px;animation:splashBar 1.5s ease forwards;" id="splashBar"></div>
+  </div>
+</div>
+<style>
+  @keyframes splashBar { to { width: 100%; } }
+</style>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <div class="streak-badge" id="streakBadge" style="display:none;"><span class="material-symbols-rounded ms-fill" style="font-size:0.9rem;color:#fbbf24;">local_fire_department</span> <span id="streakCount">0</span></div>
+    <a href="notifications.html" class="header-btn" id="notifBtn" title="Notifications" style="position:relative;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">
+      <span class="material-symbols-rounded" style="font-size:1.2rem;color:var(--text-2);">notifications</span>
+      <span id="notifBadge" style="display:none;position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--c-red);border-radius:50%;border:1.5px solid var(--bg-card);"></span>
+    </a>
+    <button class="header-btn" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- Announcement -->
+  <div id="announceBanner" style="display:none;" class="announce-strip animate-in"></div>
+
+  <!-- PWA Install Banner -->
+  <div class="install-bar animate-in" id="installBar">
+    <span class="material-symbols-rounded ms-fill" style="font-size:1.8rem;flex-shrink:0;color:var(--c-brand);">install_mobile</span>
+    <div class="install-bar-text">
+      <strong>Install EXAMORA</strong>
+      <span id="installBarHint">Add to home screen · Works offline</span>
+    </div>
+    <button class="install-bar-btn" id="installBarBtn">Install</button>
+    <button class="install-bar-close" onclick="dismissInstall()" title="Dismiss">✕</button>
+  </div>
+
+  <!-- Email verification banner -->
+  <div id="verifyBanner" style="display:none;" class="verify-banner animate-in">
+    <span style="font-size:1.2rem;">⚠️</span>
+    <div class="verify-banner-text">
+      Please verify your email address to secure your account.
+    </div>
+    <button class="verify-banner-btn" onclick="resendVerification()">Resend Email</button>
+  </div>
+
+  <!-- Weak areas card — shown after data loads -->
+  <div id="weakCard" style="display:none;" class="weak-card animate-in" onclick="goToWeakPractice()">
+    <div class="weak-icon"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.3rem;">track_changes</span></div>
+    <div class="weak-text">
+      <div class="weak-title" id="weakTitle">Focus Area</div>
+      <div class="weak-sub"  id="weakSub">Practice your weakest subject</div>
+    </div>
+    <div class="weak-btn">DRILL IT</div>
+  </div>
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <div class="hero-card animate-in">
+    <div class="hero-text">
+      <div class="hero-greeting" id="heroGreeting">Good morning 👋</div>
+      <div class="hero-name" id="heroName">Welcome back!</div>
+      <div class="hero-sub" id="heroSub">Prepare for any exam, anywhere in the world 🌍</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+        <a href="exam.html" class="hero-pill hero-pill-white"><span class="material-symbols-rounded ms-sm">edit_note</span> Start Exam</a>
+        <a href="analytics.html" class="hero-pill hero-pill-green"><span class="material-symbols-rounded ms-sm">bar_chart</span> Analytics</a>
+      </div>
+    </div>
+    <div class="hero-avatar" id="heroAvatar">?</div>
+  </div>
+
+
+  <!-- ── EXAM COUNTDOWN ─────────────────────────────────────── -->
+  <div id="countdownCard" class="countdown-card animate-in" style="display:none;" onclick="editCountdown()">
+    <div class="countdown-nums">
+      <div class="countdown-block"><div class="countdown-num" id="cdDays">--</div><div class="countdown-unit">days</div></div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block"><div class="countdown-num" id="cdHours">--</div><div class="countdown-unit">hrs</div></div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block"><div class="countdown-num" id="cdMins">--</div><div class="countdown-unit">min</div></div>
+    </div>
+    <div class="countdown-info">
+      <div class="countdown-exam" id="cdExamName">Your Exam</div>
+      <div class="countdown-date" id="cdExamDate">Tap to set exam date</div>
+    </div>
+  </div>
+  <div id="countdownSetup" class="card animate-in" style="display:none;">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:12px;">📅 Set Your Exam Date</div>
+    <div class="form-group">
+      <label class="form-label">Exam Name</label>
+      <input type="text" class="form-input" id="cdNameInput" placeholder="e.g. IELTS, JAMB 2026, SAT March..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Exam Date</label>
+      <input type="date" class="form-input" id="cdDateInput"/>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('countdownSetup').style.display='none';">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCountdown()">Save</button>
+    </div>
+  </div>
+  <!-- ── DAILY CHALLENGE ────────────────────────────────────── -->
+  <div class="daily-card animate-in animate-in-delay-1" id="dailyCard" onclick="window.location.href='daily-challenge.html'">
+    <div class="dc-icon-wrap"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.5rem;">bolt</span></div>
+    <div class="dc-text">
+      <div class="dc-title">Daily Challenge</div>
+      <div class="dc-sub" id="dcSub">5 questions · Any subject · Refreshes at midnight</div>
+    </div>
+    <div class="dc-cta" id="dcCta">START</div>
+  </div>
+
+  <!-- ── STATS ─────────────────────────────────────────────── -->
+  <div class="stats-row animate-in animate-in-delay-1">
+    <div class="stat-box">
+      <span class="stat-number" id="statExams">—</span>
+      <span class="stat-label">Exams</span>
+    </div>
+    <div class="stat-box navy">
+      <span class="stat-number" id="statAvg">—</span>
+      <span class="stat-label">Average</span>
+    </div>
+    <div class="stat-box green">
+      <span class="stat-number" id="statStreak">—</span>
+      <span class="stat-label">Day Streak</span>
+    </div>
+  </div>
+
+  <!-- ── QUICK ACTIONS ──────────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">bolt</div>
+    <h3>Quick Actions</h3>
+  </div>
+  <div class="quick-grid animate-in animate-in-delay-2">
+    <a href="exam.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#5b5ef4,#4338ca)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Practice Exam</div></a>
+    <a href="daily-challenge.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">bolt</span></div><div class="quick-label">Daily Challenge</div></a>
+    <a href="mock.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#e11d48)"><span class="material-symbols-rounded">timer</span></div><div class="quick-label">Mock Exam</div></a>
+    <a href="news.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><span class="material-symbols-rounded">newspaper</span></div><div class="quick-label">News Blog</div></a>
+    <a href="flashcards.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">style</span></div><div class="quick-label">Flash Cards</div></a>
+    <a href="topic-practice.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><span class="material-symbols-rounded">auto_awesome</span></div><div class="quick-label">AI Practice</div></a>
+    <a href="analytics.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><span class="material-symbols-rounded">bar_chart</span></div><div class="quick-label">Analytics</div></a>
+    <a href="planner.html"         class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><span class="material-symbols-rounded">calendar_month</span></div><div class="quick-label">Study Planner</div></a>
+    <a href="notes.html"           class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Study Notes</div></a>
+    <a href="bookmarks.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">bookmark</span></div><div class="quick-label">Saved Questions</div></a>
+    <a href="solver.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Problem Solver</div></a>
+    <a href="essay-check.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">rate_review</span></div><div class="quick-label">Answer Checker</div></a>
+    <a href="vocabulary.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Vocab Builder</div></a>
+    <a href="summariser.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#7c3aed)"><span class="material-symbols-rounded">auto_awesome</span></div><div class="quick-label">Smart Summariser</div></a>
+    <a href="wrong-drill.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">manage_search</span></div><div class="quick-label">Wrong Drill</div></a>
+    <a href="model-answer.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#b45309)"><span class="material-symbols-rounded">edit_document</span></div><div class="quick-label">Model Answers</div></a>
+    <a href="school.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#065f46)"><span class="material-symbols-rounded">school</span></div><div class="quick-label">School Mode</div></a>
+    <a href="streak.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ef4444,#b91c1c)"><span class="material-symbols-rounded">local_fire_department</span></div><div class="quick-label">Study Streak</div></a>
+    <a href="leaderboard.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#92400e)"><span class="material-symbols-rounded">emoji_events</span></div><div class="quick-label">Leaderboard</div></a>
+    <a href="calculator.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#1e40af)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Calculator</div></a>
+    <a href="formula-sheet.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#78350f)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Formula Sheet</div></a>
+    <a href="chat.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><span class="material-symbols-rounded">smart_toy</span></div><div class="quick-label">AI Chat Tutor</div></a>
+    <a href="settings.html"        class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#334155)"><span class="material-symbols-rounded">settings</span></div><div class="quick-label">Settings</div></a>
+    <a href="help.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#475569)"><span class="material-symbols-rounded">help</span></div><div class="quick-label">Help & FAQ</div></a>
+    <a href="upgrade.html"         class="quick-card" id="upgradeCard"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Go Premium</div></a>
+    <a href="countdown.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">timer</span></div><div class="quick-label">Countdown</div></a>
+    <a href="syllabus.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">checklist</span></div><div class="quick-label">Syllabus</div></a>
+    <a href="certificate.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Certificates</div></a>
+    <a href="scholarship.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">school</span></div><div class="quick-label">Scholarships</div></a>
+    <a href="group-study.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><span class="material-symbols-rounded">groups</span></div><div class="quick-label">Group Study</div></a>
+    <a href="mindset.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">self_improvement</span></div><div class="quick-label">Mindset</div></a>
+    <a href="parent.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#84cc16,#65a30d)"><span class="material-symbols-rounded">supervised_user_circle</span></div><div class="quick-label">For Parents</div></a>
+  </div>
+
+    <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
+  <div id="countdownWidget" style="display:none; margin-bottom:18px;">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px 18px;border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,0.15);"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Countdown to</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:0.92rem;color:white;" id="cdExamLabel">My Exam</div>
+        </div>
+        <button onclick="openCountdownSetup()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,0.6);font-size:0.68rem;font-weight:700;cursor:pointer;">Edit</button>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <div id="cdDays"   style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdDaysNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">DAYS</div>
+        </div>
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdHrsNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">HRS</div>
+        </div>
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdMinsNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">MINS</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);" id="cdDateLabel"></div>
+        <a href="exam.html" style="font-size:0.72rem;font-weight:700;color:#a78bfa;text-decoration:none;">Start practising →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Countdown setup bottom sheet -->
+  <div class="overlay" id="cdOverlay" onclick="closeCountdownSetup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;"></div>
+  <div id="cdSheet" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg-card);border-radius:24px 24px 0 0;padding:20px 20px 40px;z-index:201;border-top:1px solid var(--border);">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:100px;margin:0 auto 18px;"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:16px;">📅 Set Exam Countdown</div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Name</label>
+      <input id="cdNameInput" type="text" placeholder="e.g. JAMB 2025, WAEC May/June" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;" oninput="document.getElementById('cdExamName').value=this.value"/>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Date</label>
+      <input id="cdDateInput" type="date" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;"/>
+    </div>
+    <button onclick="saveCountdown()" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;">Save Countdown</button>
+    <button onclick="clearCountdown()" style="width:100%;padding:10px;border:none;background:none;color:var(--c-red);font-size:0.8rem;font-weight:600;cursor:pointer;margin-top:6px;">Remove countdown</button>
+  </div>
+  <input type="hidden" id="cdExamName"/>
+
+  <!-- ── EXAM CATEGORIES ───────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">category</div>
+    <h3>Exam Categories</h3>
+    <a href="exam.html" class="section-link">Browse →</a>
+  </div>
+  <div class="exam-categories-grid animate-in animate-in-delay-2">
+    <a href="exam.html?cat=SAT" class="exam-cat-card cat-intl">
+      <div class="exam-cat-icon">🇺🇸</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">SAT / ACT</div>
+        <div class="exam-cat-sub">US college admissions</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=IELTS" class="exam-cat-card cat-lang">
+      <div class="exam-cat-icon">🌐</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">IELTS / TOEFL</div>
+        <div class="exam-cat-sub">English proficiency</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=A-Levels" class="exam-cat-card cat-uk">
+      <div class="exam-cat-icon">🇬🇧</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">A-Levels / GCSE</div>
+        <div class="exam-cat-sub">UK & international</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=JAMB" class="exam-cat-card cat-ng">
+      <div class="exam-cat-icon">📘</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">JAMB / WAEC</div>
+        <div class="exam-cat-sub">West African exams</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=GRE" class="exam-cat-card cat-grad">
+      <div class="exam-cat-icon">📊</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">GRE / GMAT</div>
+        <div class="exam-cat-sub">Graduate admissions</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=Professional" class="exam-cat-card cat-prof">
+      <div class="exam-cat-icon">🏅</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">Professional</div>
+        <div class="exam-cat-sub">ACCA, PMP, IT certs</div>
+      </div>
+    </a>
+    <a href="exam.html?cat=IB" class="exam-cat-card cat-stem">
+      <div class="exam-cat-icon">🌍</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">IB Diploma</div>
+        <div class="exam-cat-sub">International Baccalaureate</div>
+      </div>
+    </a>
+    <a href="exam.html" class="exam-cat-card cat-custom">
+      <div class="exam-cat-icon">✏️</div>
+      <div class="exam-cat-info">
+        <div class="exam-cat-name">Custom Exam</div>
+        <div class="exam-cat-sub">Build your own quiz</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ── SUBJECT PROGRESS ───────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">menu_book</div>
+    <h3>Subject Progress</h3>
+    <a href="analytics.html" class="section-link">See all →</a>
+  </div>
+  <div class="subject-rings animate-in animate-in-delay-2" id="subjectRings">
+    <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+    <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+    <div class="skeleton" style="height:80px;border-radius:12px;"></div>
+  </div>
+
+  <!-- ── RECENT RESULTS ─────────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-3">
+    <div class="section-icon">history</div>
+    <h3>Recent Results</h3>
+    <a href="history.html" class="section-link">See all →</a>
+  </div>
+  <div id="recentResults" class="animate-in animate-in-delay-3">
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+
+  <!-- ── UPGRADE BANNER ─────────────────────────────────────── -->
+  <div id="upgradeBanner" style="display:none;" class="upgrade-strip animate-in animate-in-delay-3">
+    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(245,158,11,0.4);"><span class="material-symbols-rounded ms-fill" style="color:white;font-size:1.3rem;">workspace_premium</span></div>
+    <div class="upgrade-strip-text" style="flex:1;">
+      <h4>Unlock Premium</h4>
+      <p>AI explanations · Full analytics · Unlimited bookmarks</p>
+    </div>
+    <a href="upgrade.html" class="upgrade-gold-btn">From ₦2k</a>
+  </div>
+
+  <!-- ── TOP STUDENTS ───────────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-3">
+    <div class="section-icon">emoji_events</div>
+    <h3>Top Students</h3>
+    <a href="leaderboard.html" class="section-link">Full board →</a>
+  </div>
+  <div class="card animate-in animate-in-delay-3" id="leaderPeek" style="padding:8px 14px;">
+    <div class="skeleton skeleton-line"></div>
+    <div class="skeleton skeleton-line"></div>
+    <div class="skeleton skeleton-line"></div>
+  </div>
+
+</div>
+
+
+<!-- ── AI Chat FAB → links to full chat page ── -->
+<a href="chat.html" class="ai-chat-fab" title="AI Tutor" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">🤖</a>
+
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<!-- ── Bottom Nav ─────────────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item active"><span class="nav-icon ms-fill">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="ai-engine.js"></script>
+<script>
+  // Theme
+  const _t = localStorage.getItem("examora_theme") || "light";
+  document.documentElement.setAttribute("data-theme", _t);
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.innerHTML = _t==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>'; }
+  // Check notification badge
+  (function(){
+    var unread = parseInt(localStorage.getItem('examora_notif_unread')||'0');
+    var badge = document.getElementById('notifBadge');
+    if(badge) badge.style.display = unread>0 ? 'block' : 'none';
+  })();
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    const nxt = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", nxt);
+    localStorage.setItem("examora_theme", nxt);
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.innerHTML = nxt==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>'; }
+  });
+
+  // Toast
+  function toast(msg, type="", dur=3200){
+    const el=document.getElementById("toast");
+    const ico=document.getElementById("toastIcon");
+    const txt=document.getElementById("toastMsg");
+    const icons={success:"✓",error:"✕",info:"ℹ",warning:"!"};
+    el.className="toast"+(type?" toast-"+type:"");
+    if(ico){ ico.textContent=icons[type]||""; ico.style.display=type?"flex":"none"; }
+    if(txt) txt.textContent=msg; else el.textContent=msg;
+    el.classList.add("show");
+    clearTimeout(el._tid);
+    el._tid=setTimeout(()=>el.classList.remove("show"),dur);
+  }
+
+  // Greeting
+  const hr = new Date().getHours();
+  document.getElementById("heroGreeting").textContent =
+    hr < 12 ? "Good morning 👋" : hr < 17 ? "Good afternoon 👋" : "Good evening 👋";
+
+  // PWA Install
+  let _deferredInstall = null;
+  function dismissInstall(){
+    document.getElementById("installBar").classList.remove("show");
+    sessionStorage.setItem("installDismissed","1");
+  }
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    _deferredInstall = e;
+    if(!sessionStorage.getItem("installDismissed"))
+      document.getElementById("installBar").classList.add("show");
+    document.getElementById("installBarBtn").addEventListener("click", async() => {
+      if(!_deferredInstall) return;
+      _deferredInstall.prompt();
+      const {outcome} = await _deferredInstall.userChoice;
+      if(outcome === "accepted"){
+        document.getElementById("installBar").classList.remove("show");
+        toast("EXAMORA installed! 🎉","success");
+        _deferredInstall = null;
+      }
+    });
+  });
+  // iOS
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone;
+  if(isIOS && !sessionStorage.getItem("installDismissed")){
+    document.getElementById("installBar").classList.add("show");
+    document.getElementById("installBarHint").textContent =
+      "Tap Share → 'Add to Home Screen' to install";
+    document.getElementById("installBarBtn").style.display = "none";
+  }
+
+  // ── Countdown widget ──
+  function initCountdown() {
+    var stored = localStorage.getItem('examora_countdown');
+    if (!stored) { document.getElementById('countdownCard').style.display = 'none'; return; }
+    try {
+      var d = JSON.parse(stored);
+      document.getElementById('countdownCard').style.display = 'flex';
+      { const _e=document.getElementById('cdExamName'); if(_e) _e.textContent = d.name || 'Your Exam'; }
+      { const _e=document.getElementById('cdExamDate'); if(_e) _e.textContent = 'on ' + new Date(d.date).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}); }
+      updateCountdownNums(d.date);
+      setInterval(function(){ updateCountdownNums(d.date); }, 60000);
+    } catch(_) {}
+  }
+  function updateCountdownNums(dateStr) {
+    var diff = new Date(dateStr) - new Date();
+    if (diff <= 0) { document.getElementById('countdownCard').style.display = 'none'; return; }
+    var days  = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins  = Math.floor((diff % 3600000) / 60000);
+    { const _e=document.getElementById('cdDays'); if(_e) _e.textContent = days; }
+    { const _e=document.getElementById('cdHours'); if(_e) _e.textContent = hours; }
+    { const _e=document.getElementById('cdMins'); if(_e) _e.textContent = mins; }
+  }
+  function editCountdown() {
+    var s = document.getElementById('countdownSetup');
+    s.style.display = s.style.display === 'none' ? 'block' : 'none';
+  }
+  function saveCountdown() {
+    var name = document.getElementById('cdNameInput').value.trim() || 'My Exam';
+    var date = document.getElementById('cdDateInput').value;
+    if (!date) { return; }
+    localStorage.setItem('examora_countdown', JSON.stringify({name:name, date:date}));
+    document.getElementById('countdownSetup').style.display = 'none';
+    initCountdown();
+  }
+  initCountdown();
+  // Show setup if no countdown set
+  if (!localStorage.getItem('examora_countdown')) {
+    document.getElementById('countdownCard').style.display = 'none';
+  }
+
+  // AI Chat → see chat.html
+
+</script>
+<script>
+window.toast = toast;
+</script>
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc,
+           collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app  = initializeApp({
+    apiKey: "AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain: "cbt-app-5907f.firebaseapp.com",
+    projectId: "cbt-app-5907f",
+    storageBucket: "cbt-app-5907f.firebasestorage.app",
+    messagingSenderId: "705323924101",
+    appId: "1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    // Dismiss splash screen
+    const splash = document.getElementById("splash");
+    if (splash) { splash.style.opacity="0"; setTimeout(()=>splash.remove(),400); }
+
+    if (!user) { window.location.href = "login.html"; return; }
+
+    // 1. User profile
+    let ud = {};
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (!snap.exists()) {
+        // New user (e.g. first Google sign-in) — create the doc here rather than
+        // redirecting to login, which causes an infinite loop.
+        const { setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await setDoc(doc(db, "users", user.uid), {
+          displayName:    user.displayName || user.email.split("@")[0],
+          email:          user.email || "",
+          photoURL:       user.photoURL || "",
+          plan:           "free", streak: 0, totalExams: 0,
+          totalCorrect:   0, totalQuestions: 0,
+          badges:         [], xp: 0,
+          createdAt:      serverTimestamp(),
+          onboarded:      false
+        }, { merge: true });
+        ud = { onboarded: false, plan: "free", streak: 0 };
+      } else {
+        ud = snap.data();
+      }
+      // Store plan for AI gate checks across pages
+      localStorage.setItem('examora_plan', ud.plan||'free');
+      // Sync AI keys from Firestore into localStorage so ai-engine.js can use them
+      try {
+        var aiCfg = await getDoc(doc(db,'settings','ai')).catch(()=>null);
+        if (aiCfg && aiCfg.exists()) {
+          var aiKeys = aiCfg.data().openRouterKeys || [];
+          if (aiKeys.length > 0) localStorage.setItem('examora_ai_keys', JSON.stringify(aiKeys));
+        }
+      } catch(_) {}
+    } catch(e) {}
+
+    if (ud.onboarded === false) { window.location.href = "onboarding.html"; return; }
+
+    // Email verification banner
+    if (!user.emailVerified && user.providerData[0]?.providerId === "password") {
+      document.getElementById("verifyBanner").style.display = "flex";
+    }
+
+    // Streak
+    try {
+      const today = new Date().toDateString();
+      const yest  = new Date(Date.now()-86400000).toDateString();
+      let streak  = ud.streak || 0;
+      if (ud.lastActive !== today) {
+        streak = ud.lastActive === yest ? streak + 1 : 1;
+        await updateDoc(doc(db,"users",user.uid), { streak, lastActive: today });
+        ud.streak = streak;
+      }
+    } catch(_){}
+
+    const name   = (ud.displayName || user.email.split("@")[0]).split(" ")[0];
+    const streak = ud.streak || 0;
+    const total  = ud.totalExams     || 0;
+    const corr   = ud.totalCorrect   || 0;
+    const asked  = ud.totalQuestions || 0;
+    const avg    = asked > 0 ? Math.round((corr/asked)*100) : 0;
+
+    document.getElementById("heroName").textContent  = `Hi, ${name}! 👋`;
+    const avEl = document.getElementById("heroAvatar");
+    if(ud.photoURL){
+      avEl.innerHTML=`<img src="${ud.photoURL}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='${name[0].toUpperCase()}'"/>`;
+      avEl.style.background="transparent";
+    } else {
+      avEl.textContent = name[0].toUpperCase();
+    }
+    document.getElementById("heroSub").textContent   =
+      streak > 1 ? `🔥 ${streak}-day streak! Keep going!` : "Ready to conquer today?";
+
+    document.getElementById("statExams").textContent  = total;
+    document.getElementById("statAvg").textContent    = avg + "%";
+    document.getElementById("statStreak").textContent = streak;
+
+    if (streak > 0) {
+      document.getElementById("streakBadge").style.display = "flex";
+      document.getElementById("streakCount").textContent   = streak;
+    }
+
+    if (ud.plan !== "premium") {
+      document.getElementById("upgradeBanner").style.display = "flex";
+    } else {
+      const uc = document.getElementById("upgradeCard");
+      if(uc){ uc.querySelector(".quick-icon-wrap").textContent="✨";
+              uc.querySelector(".quick-label").textContent="Premium\nActive"; }
+    }
+
+    // 2. Announcement
+    try {
+      const a = await getDoc(doc(db,"settings","announcement"));
+      if (a.exists() && a.data().message) {
+        const el = document.getElementById("announceBanner");
+        const t  = a.data().type || "info";
+        const styles = {
+          info:    "background:rgba(99,102,241,0.12);color:#818cf8;border:1px solid rgba(99,102,241,0.25);",
+          success: "background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);",
+          warning: "background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);"
+        };
+        el.style.cssText += styles[t] || styles.info;
+        el.innerHTML = `<span style="font-size:1rem;">${t==="warning"?"⚠️":t==="success"?"✅":"📢"}</span> ${a.data().message}`;
+        el.style.display = "flex";
+      }
+    } catch(_){}
+
+    // 3. Daily challenge
+    try {
+      const key = new Date().toISOString().slice(0,10);
+      const dc  = await getDoc(doc(db,"dailyChallenges", user.uid+"_"+key));
+      if (dc.exists()) {
+        document.getElementById("dcCta").textContent      = "DONE ✅";
+        document.getElementById("dcCta").style.background = "linear-gradient(135deg,#10b981,#059669)";
+        document.getElementById("dcSub").textContent      = "Completed today · Come back tomorrow!";
+      }
+    } catch(_){}
+
+    // 4. Results — sort client-side (no orderBy needed)
+    try {
+      const rSnap = await getDocs(query(collection(db,"results"), where("userId","==",user.uid)));
+      let results = [];
+      rSnap.forEach(d => results.push(d.data()));
+      results.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+
+      // Recent results
+      const rEl = document.getElementById("recentResults");
+      if (results.length === 0) {
+        rEl.innerHTML = `<div class="card" style="text-align:center;padding:28px;">
+          <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
+          <p style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.88rem;color:var(--text);margin-bottom:6px;">No exams yet</p>
+          <p style="font-size:0.78rem;color:var(--text-3);margin-bottom:16px;">Take your first exam to see results here</p>
+          <a href="exam.html" class="btn btn-primary" style="max-width:200px;margin:0 auto;">📝 Start Practising</a>
+        </div>`;
+      } else {
+        const cats = {JAMB:"🎓",WAEC:"📘",SAT:"🇺🇸",IELTS:"🌐",GRE:"📊","A-Levels":"🇬🇧",IB:"🌍",GMAT:"💼",Professional:"🏅",Custom:"✏️","":"📝"};
+        rEl.innerHTML = results.slice(0,5).map(r => {
+          const pct  = r.percent || 0;
+          const pass = r.passed;
+          const col  = pass ? "var(--c-green)" : "var(--c-red)";
+          const bg   = pass ? "rgba(16,185,129,0.1)" : "rgba(244,63,94,0.1)";
+          return `<div class="result-row">
+            <div class="result-icon" style="background:${bg};">${cats[r.category||""]||"📝"}</div>
+            <div class="result-meta">
+              <div class="result-title">${r.subject || r.category || "General Practice"}</div>
+              <div style="margin:4px 0;">
+                <div class="progress-wrap">
+                  <div class="progress-fill" style="width:${pct}%;background:${col};"></div>
+                </div>
+              </div>
+              <div class="result-sub">${r.date||""} · ${r.mode==="practice"?"Practice":"Exam Mode"}</div>
+            </div>
+            <div class="result-score" style="color:${col};">${pct}%<br/><span style="font-size:0.65rem;font-weight:500;color:var(--text-3);">${r.score}/${r.total}</span></div>
+          </div>`;
+        }).join("");
+      }
+
+      // Subject rings
+      const subMap = {};
+      results.forEach(r => {
+        if (!r.subject) return;
+        if (!subMap[r.subject]) subMap[r.subject] = {correct:0,total:0};
+        subMap[r.subject].correct += r.score  || 0;
+        subMap[r.subject].total   += r.total  || 0;
+      });
+      const sEl     = document.getElementById("subjectRings");
+      const subjects = Object.keys(subMap);
+      if (subjects.length === 0) {
+        sEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-3);font-size:0.78rem;">
+          Take exams to see<br/>subject progress here!</div>`;
+      } else {
+        sEl.innerHTML = subjects.slice(0,6).map(s => {
+          const d   = subMap[s];
+          const pct = d.total > 0 ? Math.round((d.correct/d.total)*100) : 0;
+          const col = pct>=70?"#10b981":pct>=50?"#f59e0b":"#f43f5e";
+          const r=26, circ=2*Math.PI*r, fill=circ*(pct/100);
+          return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+            <div style="position:relative;width:64px;height:64px;">
+              <svg width="64" height="64" style="transform:rotate(-90deg);">
+                <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--border)" stroke-width="5"/>
+                <circle cx="32" cy="32" r="${r}" fill="none" stroke="${col}" stroke-width="5"
+                  stroke-dasharray="${fill} ${circ-fill}" stroke-linecap="round"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+                font-family:'Sora',sans-serif;font-weight:800;font-size:0.72rem;color:${col};">${pct}%</div>
+            </div>
+            <div style="font-size:0.6rem;font-weight:700;color:var(--text-3);text-align:center;line-height:1.3;max-width:58px;">${s}</div>
+          </div>`;
+        }).join("");
+      }
+
+      // Weak subject card
+      if(subjects.length>0){
+        const worst=subjects.reduce((a,b)=>{
+          const pa=subMap[a].total>0?(subMap[a].correct/subMap[a].total):1;
+          const pb=subMap[b].total>0?(subMap[b].correct/subMap[b].total):1;
+          return pa<pb?a:b;
+        });
+        const wd=subMap[worst];
+        const wpct=wd.total>0?Math.round((wd.correct/wd.total)*100):0;
+        if(wpct<70 && wd.total>=3){
+          const worstCat=results.find(r=>r.subject===worst)?.category||"";
+          localStorage.setItem("examora_weak_subject", worst);
+          localStorage.setItem("examora_weak_cat", worstCat);
+          const wcard=document.getElementById("weakCard");
+          document.getElementById("weakTitle").textContent=`Weak: ${worst}`;
+          document.getElementById("weakSub").textContent=`You're scoring ${wpct}% in ${worst}. Let's fix that!`;
+          wcard.style.display="flex";
+        }
+      }
+
+      // Auto-badges
+      try {
+        const badges = ud.badges || [], nb = [];
+        if (total>=1 && !badges.includes("first_exam")) nb.push("first_exam");
+        if (streak>=3 && !badges.includes("streak_3"))   nb.push("streak_3");
+        if (streak>=7 && !badges.includes("streak_7"))   nb.push("streak_7");
+        if (results.some(r=>r.percent===100) && !badges.includes("perfect")) nb.push("perfect");
+        if (nb.length > 0) {
+          await updateDoc(doc(db,"users",user.uid), { badges:[...badges,...nb] });
+          window.toast("🏅 New badge unlocked: " + nb[0].replace(/_/g," "));
+        }
+      } catch(_){}
+    } catch(e) {
+      console.error("Results error:",e);
+      document.getElementById("recentResults").innerHTML =
+        `<div class="card" style="text-align:center;padding:24px;">
+          <p style="color:var(--text-3);font-size:0.82rem;">Could not load results.</p>
+          <a href="exam.html" style="color:var(--c-brand);font-weight:700;font-size:0.82rem;">Take your first exam →</a>
+        </div>`;
+      document.getElementById("subjectRings").innerHTML =
+        `<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-3);font-size:0.78rem;">No data yet</div>`;
+    }
+
+    // 5. Leaderboard (no orderBy)
+    try {
+      const lSnap = await getDocs(collection(db,"users"));
+      let lb = [];
+      lSnap.forEach(d => lb.push({id:d.id,...d.data()}));
+      lb.sort((a,b)=>(b.totalCorrect||0)-(a.totalCorrect||0));
+      const medals = ["🥇","🥈","🥉"];
+      const lEl = document.getElementById("leaderPeek");
+      lEl.innerHTML = lb.length === 0
+        ? `<p style="text-align:center;color:var(--text-3);font-size:0.8rem;padding:12px;">No rankings yet — be the first!</p>`
+        : lb.slice(0,3).map((u,i) => {
+            const n = u.displayName || u.email?.split("@")[0] || "Student";
+            const isMe = u.id === user.uid;
+            return `<div class="leader-mini" style="${isMe?"background:rgba(16,185,129,0.06);border-radius:10px;padding:8px;margin:0 -6px;":""}">
+              <span class="leader-medal">${medals[i]}</span>
+              <div class="leader-av">${n[0].toUpperCase()}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.82rem;
+                  color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  ${n}${isMe?" <span style='color:var(--c-green);font-size:0.7rem;'>(You)</span>":""}${u.plan==="premium"?" 👑":""}
+                </div>
+                <div style="font-size:0.68rem;color:var(--text-3);">${u.totalCorrect||0} correct · ${u.state||"—"}</div>
+              </div>
+              <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.82rem;
+                color:var(--c-brand);">${u.totalExams||0} <span style="font-size:0.6rem;color:var(--text-3);">exams</span></div>
+            </div>`;
+          }).join("");
+    } catch(e) {
+      document.getElementById("leaderPeek").innerHTML =
+        `<p style="text-align:center;color:var(--text-3);font-size:0.8rem;padding:12px;">Could not load leaderboard.</p>`;
+    }
+  });
+</script>
+
+<script>
+  // SW registration
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+
+  // Weak card navigation
+  window.goToWeakPractice = function(){
+    const subj = localStorage.getItem("examora_weak_subject")||"";
+    const cat  = localStorage.getItem("examora_weak_cat")||"";
+    const params = new URLSearchParams();
+    if(cat)  params.set("cat",cat);
+    if(subj) params.set("subj",subj);
+    window.location.href = "exam.html?" + params.toString();
+  };
+
+  // Resend email verification
+  window.resendVerification = async function(){
+    try {
+      const { getAuth, sendEmailVerification } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const auth = getAuth();
+      if(auth.currentUser && !auth.currentUser.emailVerified){
+        await sendEmailVerification(auth.currentUser);
+        const btn = document.querySelector(".verify-banner-btn");
+        if(btn){ btn.textContent="Sent ✓"; btn.disabled=true; }
+        toast("📧 Verification email sent — check your inbox!");
+      }
+    } catch(e){ toast("Could not send email. Try again later."); }
+  };
+</script>
+<!-- ── COMING SOON POPUP ── -->
+<div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:90%;margin:auto;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3);border:1px solid var(--border);animation:fadeInUp 0.3s ease;">
+    <div style="font-size:2.6rem;margin-bottom:8px;">🚀</div>
+    <div id="csTitle" style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
+    <div id="csBody" style="font-size:0.82rem;color:var(--text-3);line-height:1.7;margin-bottom:20px;">We're building something exciting for you — stay tuned!</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="csBadges"></div>
+    <button onclick="document.getElementById('comingSoonOverlay').style.display='none'" 
+      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
+      Can't Wait! 🎉
+    </button>
+    <button onclick="dismissCS()" style="margin-top:8px;background:none;border:none;color:var(--text-3);font-size:0.75rem;cursor:pointer;width:100%;">Don't show again</button>
+  </div>
+</div>
+<script>
+  // Coming Soon popup — shows once per session unless dismissed
+  (function(){
+    var updates = [
+      {
+        title: "🎯 Offline Mode Coming!",
+        body: "Download exam packs and practice without internet. Perfect for when data runs out.",
+        badges: ["No Data Needed","Full Exam Access","Auto-Sync"]
+      },
+      {
+        title: "📊 PDF Score Reports",
+        body: "Download beautiful performance reports to share with teachers or parents.",
+        badges: ["Share Results","Track Progress","Print Ready"]
+      },
+      {
+        title: "🏫 Group Study Mode",
+        body: "Challenge your classmates, compare scores, and study together in real-time.",
+        badges: ["Multiplayer","Live Rankings","Team Goals"]
+      },
+      {
+        title: "🌍 More Exam Categories",
+        body: "SAT, GRE, LSAT, ACCA and more professional exams are being added weekly.",
+        badges: ["SAT Ready","GRE Prep","ACCA Coming"]
+      }
+    ];
+    var pick = updates[Math.floor(Math.random()*updates.length)];
+    var shown = sessionStorage.getItem('cs_shown');
+    var dismissed = localStorage.getItem('cs_dismissed_v2');
+    if(!shown && !dismissed){
+      setTimeout(function(){
+        document.getElementById('csTitle').textContent = pick.title;
+        document.getElementById('csBody').textContent = pick.body;
+        var badgeHTML = pick.badges.map(function(b){
+          return '<span style="background:var(--c-brand-pale);color:var(--c-brand);padding:4px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;">'+b+'</span>';
+        }).join('');
+        document.getElementById('csBadges').innerHTML = badgeHTML;
+        document.getElementById('comingSoonOverlay').style.display = 'flex';
+        sessionStorage.setItem('cs_shown','1');
+      }, 4000);
+    }
+  })();
+  function dismissCS(){
+    document.getElementById('comingSoonOverlay').style.display='none';
+    localStorage.setItem('cs_dismissed_v2','1');
+  }
+
+  // ── EXAM COUNTDOWN WIDGET ──────────────────────────────────
+  (function initCountdown(){
+    var cd = JSON.parse(localStorage.getItem('examora_countdown') || 'null');
+    if (!cd || !cd.date) return;
+    var widget = document.getElementById('countdownWidget');
+    if (!widget) return;
+    widget.style.display = '';
+    document.getElementById('cdExamLabel').textContent = cd.name || 'My Exam';
+    document.getElementById('cdDateLabel').textContent = new Date(cd.date).toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'});
+    function tick(){
+      var now = Date.now(), target = new Date(cd.date).getTime();
+      var diff = target - now;
+      if (diff <= 0) {
+        document.getElementById('cdDaysNum').textContent = '0';
+        document.getElementById('cdHrsNum').textContent = '0';
+        document.getElementById('cdMinsNum').textContent = '0';
+        document.getElementById('cdExamLabel').textContent = (cd.name||'Your exam') + ' — Today! 🎯';
+        return;
+      }
+      var d = Math.floor(diff/86400000);
+      var h = Math.floor((diff%86400000)/3600000);
+      var m = Math.floor((diff%3600000)/60000);
+      document.getElementById('cdDaysNum').textContent = d;
+      document.getElementById('cdHrsNum').textContent = String(h).padStart(2,'0');
+      document.getElementById('cdMinsNum').textContent = String(m).padStart(2,'0');
+    }
+    tick();
+    setInterval(tick, 60000);
+  })();
+
+  window.openCountdownSetup = function(){
+    var cd = JSON.parse(localStorage.getItem('examora_countdown') || '{}');
+    if (cd.name) document.getElementById('cdNameInput').value = cd.name;
+    if (cd.date) document.getElementById('cdDateInput').value = cd.date;
+    document.getElementById('cdOverlay').style.display = '';
+    document.getElementById('cdSheet').style.display = '';
+  };
+  window.closeCountdownSetup = function(){
+    document.getElementById('cdOverlay').style.display = 'none';
+    document.getElementById('cdSheet').style.display = 'none';
+  };
+  window.saveCountdown = function(){
+    var name = document.getElementById('cdNameInput').value.trim() || 'My Exam';
+    var date = document.getElementById('cdDateInput').value;
+    if (!date) { alert('Please pick an exam date.'); return; }
+    localStorage.setItem('examora_countdown', JSON.stringify({name:name, date:date}));
+    window.closeCountdownSetup();
+    location.reload();
+  };
+  window.clearCountdown = function(){
+    localStorage.removeItem('examora_countdown');
+    window.closeCountdownSetup();
+    document.getElementById('countdownWidget').style.display = 'none';
+  };
+</script>
+
+</body>
+</html>

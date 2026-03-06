@@ -259,17 +259,18 @@ async function signIn() {
   var email = document.getElementById('emailInput').value.trim();
   var pass  = document.getElementById('passInput').value;
   if (!email || !pass) { showErr('Please fill in all fields.'); return; }
+  window._signingIn = true;
   busyBtn('mainBtn', true, '');
   try {
     var cred = await window._signIn(email, pass);
     localStorage.setItem('examora_user_display', cred.user.displayName || email.split('@')[0]);
     if (!cred.user.emailVerified) {
-      // Soft reminder — still let them through
       window._pendingVerifyUser = cred.user;
       document.getElementById('verifyBanner').classList.add('on');
     }
     window.location.href = 'index.html';
   } catch(e) {
+    window._signingIn = false;
     busyBtn('mainBtn', false, 'Sign In →');
     var msg = ERRS[e.code] || e.message || 'Sign in failed.';
     if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
@@ -282,18 +283,20 @@ async function signIn() {
 
 // ── Google sign-in ─────────────────────────────────────────────────────────
 async function signInWithGoogle() {
+  window._signingIn = true;
   busyBtn('googleBtn', true, '');
   clearMsg();
   try {
     var cred = await window._googleSignIn();
     localStorage.setItem('examora_user_display', cred.user.displayName || cred.user.email.split('@')[0]);
+    // Create Firestore doc BEFORE navigating — index.html must find it
     await window._createDoc(cred.user);
     window.location.href = 'index.html';
   } catch(e) {
+    window._signingIn = false;
     busyBtn('googleBtn', false, 'Continue with Google');
     if (e.code === 'auth/popup-blocked') {
       showErr(ERRS[e.code]);
-      // Auto-fallback to redirect
       setTimeout(function() { window._googleRedirect && window._googleRedirect(); }, 800);
     } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
       showErr(ERRS[e.code] || e.message || 'Google sign-in failed.');
@@ -307,6 +310,7 @@ async function register() {
   var pass  = document.getElementById('passInput').value;
   if (!email || !pass) { showErr('Please fill in all fields.'); return; }
   if (pass.length < 6)  { showErr('Password must be at least 6 characters.'); return; }
+  window._signingIn = true;
   busyBtn('mainBtn', true, '');
   try {
     var cred = await window._register(email, pass);
@@ -317,6 +321,7 @@ async function register() {
   } catch(e) {
     showErr(ERRS[e.code] || e.message || 'Registration failed.');
   }
+  window._signingIn = false;
   busyBtn('mainBtn', false, 'Create Account →');
 }
 
@@ -375,9 +380,14 @@ const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
 // ── Auto-redirect if already logged in ──────────────────────────────────
-// NOTE: redirect ANY logged-in user, regardless of email verification status
+// NOTE: Only redirect if we're NOT currently in the middle of a sign-in flow.
+// During signInWithPopup the auth state fires before we finish creating the
+// Firestore doc — if we redirect immediately, index.html won't find the doc
+// and will bounce the user back here, creating an infinite loop.
+let _signingIn = false;  // set true during active sign-in, prevents premature redirect
+
 onAuthStateChanged(auth, user => {
-  if (user) window.location.href = 'index.html';
+  if (user && !_signingIn) window.location.href = 'index.html';
 });
 
 // ── Handle redirect result (for browsers that blocked the popup) ─────────
