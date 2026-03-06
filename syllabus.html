@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Syllabus Tracker — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+* { box-sizing:border-box; max-width:100%; min-width:0; }
+p,span,div,h1,h2,h3,h4,h5,h6,a,li,label,button { overflow-wrap:break-word; word-wrap:break-word; }
+
+.exam-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.exam-tab {
+  padding:7px 16px; border-radius:100px;
+  border:1.5px solid var(--border); background:var(--surface);
+  font-family:var(--fb); font-size:.78rem; font-weight:700;
+  color:var(--ink-2); cursor:pointer; transition:all .18s ease; white-space:nowrap;
+}
+.exam-tab.on { background:var(--brand); border-color:var(--brand); color:#fff; }
+
+.subj-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.subj-tab {
+  padding:7px 14px; border-radius:10px;
+  border:1.5px solid var(--border); background:var(--surface-2);
+  font-family:var(--fb); font-size:.75rem; font-weight:600;
+  color:var(--ink-2); cursor:pointer; transition:all .18s ease; white-space:nowrap;
+}
+.subj-tab.on { border-color:var(--brand); color:var(--brand); background:var(--brand-pale); }
+
+.progress-bar-wrap { margin-bottom:20px; }
+.pb-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.pb-title { font-family:var(--fd); font-weight:800; font-size:.9rem; color:var(--ink); }
+.pb-pct { font-family:var(--fd); font-weight:900; font-size:1.1rem; color:var(--brand); }
+.pb-track { height:10px; background:var(--surface-2); border-radius:100px; overflow:hidden; border:1px solid var(--border); }
+.pb-fill { height:100%; border-radius:100px; transition:width .5s cubic-bezier(.34,1.56,.64,1); background:linear-gradient(90deg,var(--brand),var(--emerald)); }
+.pb-sub { font-size:.7rem; color:var(--ink-3); margin-top:5px; font-family:var(--fb); }
+
+.topic-section { margin-bottom:20px; }
+.topic-section-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; background:var(--surface-2); border-radius:var(--r-md);
+  cursor:pointer; margin-bottom:2px; border:1px solid var(--border);
+  transition:all .18s ease;
+}
+.topic-section-header:hover { border-color:var(--brand); }
+.tsh-left { display:flex; align-items:center; gap:10px; }
+.tsh-icon { font-size:1.2rem; }
+.tsh-name { font-family:var(--fd); font-weight:800; font-size:.84rem; color:var(--ink); }
+.tsh-count { font-size:.7rem; color:var(--ink-3); font-family:var(--fb); }
+.tsh-pct { font-family:var(--fd); font-weight:800; font-size:.82rem; color:var(--brand); }
+.tsh-chevron { color:var(--ink-3); transition:transform .2s ease; font-size:1.1rem; }
+.tsh-chevron.open { transform:rotate(180deg); }
+
+.topic-items { display:none; border:1px solid var(--border); border-top:none; border-radius:0 0 var(--r-md) var(--r-md); overflow:hidden; }
+.topic-items.open { display:block; }
+.topic-item {
+  display:flex; align-items:center; gap:12px; padding:12px 14px;
+  border-bottom:1px solid var(--border); background:var(--surface);
+  cursor:pointer; transition:background .15s ease; user-select:none;
+}
+.topic-item:last-child { border-bottom:none; }
+.topic-item:hover { background:var(--surface-2); }
+.topic-item.done { background:rgba(16,185,129,.04); }
+.ti-check {
+  width:22px; height:22px; border-radius:6px; flex-shrink:0;
+  border:2px solid var(--border); display:flex; align-items:center;
+  justify-content:center; transition:all .18s ease; font-size:.75rem;
+}
+.topic-item.done .ti-check { background:var(--emerald); border-color:var(--emerald); color:#fff; }
+.ti-text { flex:1; font-family:var(--fb); font-size:.84rem; color:var(--ink); line-height:1.4; }
+.topic-item.done .ti-text { color:var(--ink-3); text-decoration:line-through; }
+.ti-badge { font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; flex-shrink:0; }
+.ti-badge.high { background:rgba(244,63,94,.1); color:var(--rose); }
+.ti-badge.med  { background:rgba(245,158,11,.1); color:var(--amber); }
+.ti-badge.low  { background:rgba(16,185,129,.1); color:var(--emerald); }
+
+.cert-cta {
+  background:linear-gradient(135deg,rgba(91,94,244,.12),rgba(16,185,129,.08));
+  border:1.5px solid rgba(91,94,244,.25); border-radius:var(--r-lg);
+  padding:18px; text-align:center; margin-top:8px; display:none;
+}
+.cert-cta.show { display:block; }
+.cert-cta-title { font-family:var(--fd); font-weight:900; font-size:.95rem; color:var(--ink); margin-bottom:8px; }
+.cert-cta-sub   { font-size:.78rem; color:var(--ink-2); margin-bottom:14px; font-family:var(--fb); }
+
+.stats-row { display:flex; gap:10px; margin-bottom:20px; }
+.stat-mini { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:12px; text-align:center; }
+.stat-mini .sm-val { font-family:var(--fd); font-weight:900; font-size:1.2rem; color:var(--brand); }
+.stat-mini .sm-lbl { font-size:.66rem; color:var(--ink-3); text-transform:uppercase; letter-spacing:.6px; margin-top:2px; font-family:var(--fb); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img class="app-logo-img" src="logo.png" alt="EXAMORA" style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"/>
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">Syllabus</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="resetBtn" title="Reset subject">
+      <span class="material-symbols-rounded">restart_alt</span>
+    </button>
+    <button class="header-btn" id="themeBtn" title="Toggle theme">
+      <span class="material-symbols-rounded">light_mode</span>
+    </button>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- Exam type tabs -->
+  <div class="exam-tabs" id="examTabs"></div>
+
+  <!-- Subject tabs -->
+  <div class="subj-tabs" id="subjTabs"></div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar-wrap">
+    <div class="pb-header">
+      <span class="pb-title" id="pbTitle">Select a subject</span>
+      <span class="pb-pct"  id="pbPct">0%</span>
+    </div>
+    <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+    <div class="pb-sub" id="pbSub">0 of 0 topics covered</div>
+  </div>
+
+  <!-- Mini stats -->
+  <div class="stats-row">
+    <div class="stat-mini"><div class="sm-val" id="statDone">0</div><div class="sm-lbl">Done</div></div>
+    <div class="stat-mini"><div class="sm-val" id="statLeft" style="color:var(--rose);">0</div><div class="sm-lbl">Left</div></div>
+    <div class="stat-mini"><div class="sm-val" id="statHigh" style="color:var(--amber);">0</div><div class="sm-lbl">High Priority</div></div>
+    <div class="stat-mini"><div class="sm-val" id="statPct" style="color:var(--emerald);">0%</div><div class="sm-lbl">Complete</div></div>
+  </div>
+
+  <!-- Topics list -->
+  <div id="topicsContainer"></div>
+
+  <!-- 100% CTA -->
+  <div class="cert-cta" id="certCta">
+    <div class="cert-cta-title">🎉 Subject Complete!</div>
+    <div class="cert-cta-sub">You've covered every topic in this subject. Time to test yourself!</div>
+    <a href="exam.html" class="btn btn-primary" style="display:inline-flex;margin-right:8px;">Take Exam</a>
+    <a href="certificate.html" class="btn btn-ghost" style="display:inline-flex;">View Certificates</a>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item active"><span class="nav-icon ms-fill">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="news.html"        class="nav-item"><span class="nav-icon">newspaper</span><span class="nav-label">News</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<div id="toastEl" class="toast"><span class="toast-icon" id="toastIcon">✓</span><span id="toastMsg">Done</span></div>
+
+<script type="module">
+// ── State ─────────────────────────────────────────────────────────────────
+let activeExam    = 'JAMB';
+let activeSubject = '';
+let checkedMap    = {};   // key: "JAMB|Biology|topic" → true/false
+
+// ── Theme ─────────────────────────────────────────────────────────────────
+const _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+const themeBtn = document.getElementById('themeBtn');
+if (themeBtn) {
+  themeBtn.querySelector('span').textContent = _t === 'dark' ? 'light_mode' : 'dark_mode';
+  themeBtn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const nxt = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nxt);
+    localStorage.setItem('examora_theme', nxt);
+    themeBtn.querySelector('span').textContent = nxt === 'dark' ? 'light_mode' : 'dark_mode';
+  });
+}
+
+// ── Load saved progress ────────────────────────────────────────────────────
+function loadProgress() {
+  try { checkedMap = JSON.parse(localStorage.getItem('examora_syllabus') || '{}'); }
+  catch (_) { checkedMap = {}; }
+}
+function saveProgress() {
+  localStorage.setItem('examora_syllabus', JSON.stringify(checkedMap));
+}
+
+// ── Syllabus data ─────────────────────────────────────────────────────────
+const SYLLABUS = {
+  JAMB: {
+    '🧬 Biology': {
+      'Cell Biology': [
+        {t:'Cell structure and organisation',p:'high'},
+        {t:'Cell membrane and transport',p:'high'},
+        {t:'Cell division: mitosis and meiosis',p:'high'},
+        {t:'Enzymes and metabolism',p:'med'},
+        {t:'Photosynthesis and respiration',p:'high'},
+      ],
+      'Genetics & Evolution': [
+        {t:'Mendelian genetics and inheritance',p:'high'},
+        {t:'DNA structure, replication, transcription',p:'high'},
+        {t:'Mutation and variation',p:'med'},
+        {t:'Natural selection and evolution',p:'med'},
+        {t:'Ecology and population genetics',p:'low'},
+      ],
+      'Human Biology': [
+        {t:'Digestive system',p:'high'},
+        {t:'Circulatory and respiratory systems',p:'high'},
+        {t:'Nervous system and sense organs',p:'high'},
+        {t:'Excretion and homeostasis',p:'med'},
+        {t:'Reproductive system',p:'med'},
+        {t:'Hormonal control',p:'med'},
+      ],
+      'Ecology & Environment': [
+        {t:'Ecosystem components and food webs',p:'med'},
+        {t:'Nutrient cycles',p:'med'},
+        {t:'Population and community ecology',p:'low'},
+        {t:'Environmental pollution',p:'low'},
+        {t:'Conservation of natural resources',p:'low'},
+      ],
+    },
+    '⚗️ Chemistry': {
+      'Atomic Structure': [
+        {t:'Atomic structure and models',p:'high'},
+        {t:'Electronic configuration',p:'high'},
+        {t:'Periodic table trends',p:'high'},
+        {t:'Chemical bonding (ionic, covalent, metallic)',p:'high'},
+        {t:'Hybridisation and molecular geometry',p:'med'},
+      ],
+      'Physical Chemistry': [
+        {t:'Mole concept and stoichiometry',p:'high'},
+        {t:'Gas laws and kinetic theory',p:'high'},
+        {t:'Thermochemistry and energetics',p:'med'},
+        {t:'Chemical equilibrium and Le Chatelier',p:'high'},
+        {t:'Electrochemistry and redox reactions',p:'high'},
+        {t:'Reaction kinetics and rates',p:'med'},
+      ],
+      'Organic Chemistry': [
+        {t:'Hydrocarbons: alkanes, alkenes, alkynes',p:'high'},
+        {t:'Aromatic compounds and benzene',p:'med'},
+        {t:'Functional groups and nomenclature',p:'high'},
+        {t:'Alcohols, aldehydes, ketones, carboxylic acids',p:'high'},
+        {t:'Polymers and plastics',p:'med'},
+        {t:'Fats, oils and soaps',p:'low'},
+      ],
+      'Inorganic Chemistry': [
+        {t:'Metals and their extraction',p:'med'},
+        {t:'Acids, bases and salts',p:'high'},
+        {t:'Nitrogen and its compounds',p:'med'},
+        {t:'Sulphur and its compounds',p:'med'},
+        {t:'Water chemistry and treatment',p:'low'},
+      ],
+    },
+    '📐 Mathematics': {
+      'Algebra': [
+        {t:'Indices, surds and logarithms',p:'high'},
+        {t:'Polynomials and factorisation',p:'high'},
+        {t:'Quadratic equations and inequalities',p:'high'},
+        {t:'Sequences and series (AP & GP)',p:'high'},
+        {t:'Matrices and determinants',p:'med'},
+        {t:'Permutations and combinations',p:'high'},
+        {t:'Binomial theorem',p:'med'},
+      ],
+      'Calculus': [
+        {t:'Differentiation: rules and applications',p:'high'},
+        {t:'Integration: definite and indefinite',p:'high'},
+        {t:'Applications: maxima, minima, area',p:'high'},
+        {t:'Limits and continuity',p:'med'},
+      ],
+      'Trigonometry': [
+        {t:'Trigonometric ratios and identities',p:'high'},
+        {t:'Graphs of trig functions',p:'med'},
+        {t:'Solving trig equations',p:'high'},
+        {t:'Sine and cosine rules',p:'high'},
+      ],
+      'Statistics & Probability': [
+        {t:'Measures of central tendency',p:'high'},
+        {t:'Measures of dispersion',p:'med'},
+        {t:'Probability theory and events',p:'high'},
+        {t:'Frequency distributions and histograms',p:'med'},
+      ],
+      'Coordinate Geometry': [
+        {t:'Straight line equations and gradients',p:'high'},
+        {t:'Circle equations',p:'med'},
+        {t:'Loci and transformations',p:'low'},
+      ],
+    },
+    '⚡ Physics': {
+      'Mechanics': [
+        {t:'Scalar and vector quantities',p:'high'},
+        {t:'Newton\'s laws of motion',p:'high'},
+        {t:'Work, energy and power',p:'high'},
+        {t:'Circular and projectile motion',p:'high'},
+        {t:'Simple harmonic motion',p:'med'},
+        {t:'Gravitational field and potential',p:'med'},
+      ],
+      'Waves & Optics': [
+        {t:'Wave properties and types',p:'high'},
+        {t:'Sound waves and resonance',p:'med'},
+        {t:'Light reflection and refraction',p:'high'},
+        {t:'Lenses and mirrors (ray diagrams)',p:'high'},
+        {t:'Wave-particle duality',p:'low'},
+        {t:'Electromagnetic spectrum',p:'med'},
+      ],
+      'Electricity & Magnetism': [
+        {t:'Electric fields and Coulomb\'s law',p:'high'},
+        {t:'Ohm\'s law, resistance and circuits',p:'high'},
+        {t:'Capacitors and capacitance',p:'med'},
+        {t:'Magnetic fields and electromagnetic induction',p:'high'},
+        {t:'AC circuits and transformers',p:'med'},
+        {t:'Electronics: diodes, transistors',p:'med'},
+      ],
+      'Modern Physics': [
+        {t:'Radioactivity: alpha, beta, gamma',p:'high'},
+        {t:'Nuclear reactions and equations',p:'high'},
+        {t:'Photoelectric effect',p:'med'},
+        {t:'X-rays and lasers',p:'low'},
+      ],
+    },
+    '🌍 Geography': {
+      'Physical Geography': [
+        {t:'Earth structure and plate tectonics',p:'high'},
+        {t:'Weathering and erosion',p:'high'},
+        {t:'Rivers and drainage basins',p:'med'},
+        {t:'Coastal processes',p:'med'},
+        {t:'Climate and weather systems',p:'high'},
+        {t:'Soils and vegetation',p:'low'},
+      ],
+      'Human Geography': [
+        {t:'Population distribution and density',p:'high'},
+        {t:'Settlement patterns and urbanisation',p:'high'},
+        {t:'Agriculture and land use',p:'med'},
+        {t:'Industries and economic activities',p:'med'},
+        {t:'Transport and communication',p:'low'},
+      ],
+      'Regional Geography': [
+        {t:'Nigeria: physical and human features',p:'high'},
+        {t:'West Africa overview',p:'high'},
+        {t:'Africa: climatic regions',p:'med'},
+        {t:'World: major regions and features',p:'low'},
+      ],
+    },
+    '📖 English': {
+      'Comprehension': [
+        {t:'Reading comprehension techniques',p:'high'},
+        {t:'Inferring meaning from context',p:'high'},
+        {t:'Summary writing skills',p:'high'},
+        {t:'Identifying themes and attitudes',p:'med'},
+      ],
+      'Grammar': [
+        {t:'Parts of speech and sentence structure',p:'high'},
+        {t:'Tenses and aspect',p:'high'},
+        {t:'Concord (subject-verb agreement)',p:'high'},
+        {t:'Punctuation and spelling',p:'med'},
+        {t:'Reported speech and conditionals',p:'med'},
+      ],
+      'Vocabulary': [
+        {t:'Synonyms, antonyms and homonyms',p:'high'},
+        {t:'Idioms and phrasal verbs',p:'high'},
+        {t:'Word formation and affixes',p:'med'},
+        {t:'Register and style',p:'low'},
+      ],
+      'Oral English': [
+        {t:'Vowel and consonant sounds',p:'high'},
+        {t:'Stress and intonation patterns',p:'high'},
+        {t:'Rhymes and minimal pairs',p:'med'},
+      ],
+    },
+  },
+  WAEC: {
+    '🧬 Biology': {
+      'Ecology': [
+        {t:'Habitat types: aquatic and terrestrial',p:'high'},
+        {t:'Ecological factors (biotic and abiotic)',p:'high'},
+        {t:'Food chains and energy flow',p:'high'},
+        {t:'Nutrient cycles: carbon, nitrogen, water',p:'med'},
+        {t:'Population studies and succession',p:'med'},
+      ],
+      'Cell Biology': [
+        {t:'Plant vs animal cells',p:'high'},
+        {t:'Microscopy and cell organelles',p:'high'},
+        {t:'Osmosis and diffusion in cells',p:'high'},
+        {t:'Cell respiration (aerobic/anaerobic)',p:'high'},
+      ],
+      'Human Physiology': [
+        {t:'Nutrition and balanced diet',p:'high'},
+        {t:'Digestion and absorption',p:'high'},
+        {t:'Blood groups and transfusion',p:'med'},
+        {t:'Immunity and disease',p:'high'},
+        {t:'Hormones and endocrine system',p:'med'},
+      ],
+      'Genetics': [
+        {t:'DNA and chromosomes',p:'high'},
+        {t:'Monohybrid and dihybrid crosses',p:'high'},
+        {t:'Sex determination and linkage',p:'med'},
+        {t:'Genetic disorders',p:'med'},
+      ],
+    },
+    '⚗️ Chemistry': {
+      'Practical Chemistry': [
+        {t:'Laboratory techniques and safety',p:'high'},
+        {t:'Titration and volumetric analysis',p:'high'},
+        {t:'Qualitative analysis (anion/cation)',p:'high'},
+        {t:'Separation techniques',p:'high'},
+      ],
+      'Physical Chemistry': [
+        {t:'Mole calculations and formulae',p:'high'},
+        {t:'Energetics and Hess\'s law',p:'med'},
+        {t:'Chemical kinetics and equilibrium',p:'high'},
+        {t:'pH and buffer solutions',p:'high'},
+      ],
+      'Organic Chemistry': [
+        {t:'Petroleum and hydrocarbons',p:'high'},
+        {t:'Isomerism',p:'med'},
+        {t:'Reactions of organic functional groups',p:'high'},
+        {t:'Nitrogen compounds',p:'med'},
+      ],
+    },
+    '📐 Mathematics': {
+      'Number Theory': [
+        {t:'Number bases and conversions',p:'high'},
+        {t:'Fractions, percentages and ratios',p:'high'},
+        {t:'Indices and standard form',p:'high'},
+      ],
+      'Algebra': [
+        {t:'Linear and quadratic equations',p:'high'},
+        {t:'Simultaneous equations',p:'high'},
+        {t:'Variation (direct, inverse, joint)',p:'med'},
+        {t:'Functions and graphs',p:'high'},
+      ],
+      'Geometry': [
+        {t:'Angles, triangles and polygons',p:'high'},
+        {t:'Circles: theorems and properties',p:'high'},
+        {t:'Mensuration (area, volume, surface area)',p:'high'},
+        {t:'Transformation geometry',p:'med'},
+      ],
+    },
+  },
+  NECO: {
+    '🧬 Biology': {
+      'Plant Biology': [
+        {t:'Plant tissues and organs',p:'high'},
+        {t:'Photosynthesis in detail',p:'high'},
+        {t:'Transpiration and water movement',p:'med'},
+        {t:'Plant reproduction',p:'high'},
+        {t:'Growth hormones in plants',p:'med'},
+      ],
+      'Animal Biology': [
+        {t:'Vertebrate and invertebrate features',p:'high'},
+        {t:'Animal nutrition and digestion',p:'high'},
+        {t:'Excretion in animals',p:'med'},
+        {t:'Movement and support',p:'med'},
+      ],
+    },
+    '⚗️ Chemistry': {
+      'Industrial Chemistry': [
+        {t:'Haber process (nitrogen fixation)',p:'high'},
+        {t:'Contact process (sulphuric acid)',p:'high'},
+        {t:'Solvay process (sodium carbonate)',p:'med'},
+        {t:'Electrolysis and electroplating',p:'high'},
+      ],
+      'Organic Chemistry': [
+        {t:'Cracking and reforming of petroleum',p:'med'},
+        {t:'Addition polymerisation',p:'high'},
+        {t:'Condensation reactions',p:'med'},
+      ],
+    },
+    '📐 Mathematics': {
+      'Statistics': [
+        {t:'Data collection and presentation',p:'high'},
+        {t:'Mean, median, mode from tables',p:'high'},
+        {t:'Standard deviation',p:'med'},
+        {t:'Histograms and frequency polygons',p:'high'},
+      ],
+      'Vectors & Mechanics': [
+        {t:'Vector addition and subtraction',p:'high'},
+        {t:'Velocity and acceleration problems',p:'high'},
+        {t:'Forces and equilibrium',p:'high'},
+      ],
+    },
+  },
+};
+
+// ── Build UI ───────────────────────────────────────────────────────────────
+loadProgress();
+
+const examTypes = Object.keys(SYLLABUS);
+const examTabsEl = document.getElementById('examTabs');
+examTypes.forEach((ex, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'exam-tab' + (i===0?' on':'');
+  btn.textContent = ex;
+  btn.addEventListener('click', () => switchExam(ex));
+  examTabsEl.appendChild(btn);
+});
+
+function switchExam(exam) {
+  activeExam = exam;
+  document.querySelectorAll('.exam-tab').forEach(b => b.classList.toggle('on', b.textContent===exam));
+  buildSubjectTabs();
+}
+
+function buildSubjectTabs() {
+  const subjects = Object.keys(SYLLABUS[activeExam] || {});
+  const el = document.getElementById('subjTabs');
+  el.innerHTML = '';
+  subjects.forEach((s,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'subj-tab' + (i===0?' on':'');
+    btn.textContent = s;
+    btn.addEventListener('click', () => switchSubject(s));
+    el.appendChild(btn);
+  });
+  if (subjects.length) switchSubject(subjects[0]);
+}
+
+function switchSubject(subj) {
+  activeSubject = subj;
+  document.querySelectorAll('.subj-tab').forEach(b => b.classList.toggle('on', b.textContent===subj));
+  renderTopics();
+}
+
+function renderTopics() {
+  const sections = SYLLABUS[activeExam]?.[activeSubject] || {};
+  const container = document.getElementById('topicsContainer');
+  container.innerHTML = '';
+
+  let totalTopics = 0, doneTopics = 0, highLeft = 0;
+
+  Object.entries(sections).forEach(([secName, topics]) => {
+    const secDone = topics.filter(t => checkedMap[topicKey(t.t)]).length;
+    const secPct  = topics.length ? Math.round(secDone/topics.length*100) : 0;
+    totalTopics  += topics.length;
+    doneTopics   += secDone;
+    topics.forEach(t => { if(!checkedMap[topicKey(t.t)] && t.p==='high') highLeft++; });
+
+    const wrap = document.createElement('div');
+    wrap.className = 'topic-section';
+
+    const header = document.createElement('div');
+    header.className = 'topic-section-header';
+    header.innerHTML = `
+      <div class="tsh-left">
+        <span class="tsh-icon">${getSecIcon(secName)}</span>
+        <div>
+          <div class="tsh-name">${esc(secName)}</div>
+          <div class="tsh-count">${secDone}/${topics.length} done</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tsh-pct">${secPct}%</span>
+        <span class="material-symbols-rounded tsh-chevron">expand_more</span>
+      </div>`;
+
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'topic-items';
+
+    topics.forEach(topic => {
+      const key  = topicKey(topic.t);
+      const done = !!checkedMap[key];
+      const item = document.createElement('div');
+      item.className = 'topic-item' + (done?' done':'');
+      item.innerHTML = `
+        <div class="ti-check">${done?'✓':''}</div>
+        <div class="ti-text">${esc(topic.t)}</div>
+        <span class="ti-badge ${topic.p}">${topic.p==='high'?'Hot':topic.p==='med'?'Med':'Low'}</span>`;
+      item.addEventListener('click', () => toggleTopic(key, item));
+      itemsWrap.appendChild(item);
+    });
+
+    // Auto-open first section
+    if (!container.hasChildNodes()) {
+      itemsWrap.classList.add('open');
+      header.querySelector('.tsh-chevron').classList.add('open');
+    }
+
+    header.addEventListener('click', () => {
+      const isOpen = itemsWrap.classList.toggle('open');
+      header.querySelector('.tsh-chevron').classList.toggle('open', isOpen);
+    });
+
+    wrap.appendChild(header);
+    wrap.appendChild(itemsWrap);
+    container.appendChild(wrap);
+  });
+
+  updateProgressUI(totalTopics, doneTopics, highLeft);
+}
+
+function toggleTopic(key, el) {
+  checkedMap[key] = !checkedMap[key];
+  saveProgress();
+  const done = checkedMap[key];
+  el.classList.toggle('done', done);
+  const check = el.querySelector('.ti-check');
+  if (check) check.textContent = done ? '✓' : '';
+  renderProgressOnly();
+}
+
+function renderProgressOnly() {
+  const sections = SYLLABUS[activeExam]?.[activeSubject] || {};
+  let total=0, done=0, highLeft=0;
+  Object.values(sections).forEach(topics => {
+    total += topics.length;
+    done  += topics.filter(t=>checkedMap[topicKey(t.t)]).length;
+    topics.forEach(t=>{ if(!checkedMap[topicKey(t.t)] && t.p==='high') highLeft++; });
+  });
+  updateProgressUI(total, done, highLeft);
+}
+
+function updateProgressUI(total, done, highLeft) {
+  const pct = total ? Math.round(done/total*100) : 0;
+  const pbFill  = document.getElementById('pbFill');
+  const pbPct   = document.getElementById('pbPct');
+  const pbTitle = document.getElementById('pbTitle');
+  const pbSub   = document.getElementById('pbSub');
+  const certCta = document.getElementById('certCta');
+
+  if (pbFill)  pbFill.style.width  = pct + '%';
+  if (pbPct)   pbPct.textContent   = pct + '%';
+  if (pbTitle) pbTitle.textContent = activeSubject;
+  if (pbSub)   pbSub.textContent   = done + ' of ' + total + ' topics covered';
+
+  const el = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  el('statDone', done);
+  el('statLeft', total-done);
+  el('statHigh', highLeft);
+  el('statPct',  pct+'%');
+
+  if (certCta) certCta.classList.toggle('show', pct===100 && total>0);
+}
+
+function topicKey(topicText) {
+  return `${activeExam}|${activeSubject}|${topicText}`;
+}
+function getSecIcon(name) {
+  if (/cell/i.test(name))    return '🔬';
+  if (/genet/i.test(name))   return '🧬';
+  if (/organ/i.test(name))   return '⚗️';
+  if (/physi/i.test(name))   return '💪';
+  if (/ecol/i.test(name))    return '🌿';
+  if (/atom/i.test(name))    return '⚛️';
+  if (/organ/i.test(name))   return '🔗';
+  if (/alg/i.test(name))     return '📐';
+  if (/calc/i.test(name))    return '∫';
+  if (/stat/i.test(name))    return '📊';
+  if (/geom/i.test(name))    return '📏';
+  if (/mech/i.test(name))    return '⚙️';
+  if (/wave/i.test(name))    return '〰️';
+  if (/elect/i.test(name))   return '⚡';
+  if (/modern/i.test(name))  return '☢️';
+  if (/human/i.test(name))   return '🫀';
+  if (/gram/i.test(name))    return '✍️';
+  if (/vocab/i.test(name))   return '📖';
+  return '📋';
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Reset button ───────────────────────────────────────────────────────────
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm(`Reset progress for ${activeSubject}? This cannot be undone.`)) return;
+  const sections = SYLLABUS[activeExam]?.[activeSubject] || {};
+  Object.values(sections).forEach(topics => {
+    topics.forEach(t => { delete checkedMap[topicKey(t.t)]; });
+  });
+  saveProgress();
+  renderTopics();
+  toast('Progress reset for ' + activeSubject, 'info');
+});
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const icons={ success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
+  const el=document.getElementById('toastEl');
+  el.className='toast toast-'+type;
+  document.getElementById('toastIcon').textContent=icons[type]||'ℹ';
+  document.getElementById('toastMsg').textContent=msg;
+  void el.offsetWidth; el.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+buildSubjectTabs();
+</script>
+
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

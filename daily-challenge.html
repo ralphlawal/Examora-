@@ -371,13 +371,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg, type="", dur=3200){
     const el=document.getElementById("toast");
@@ -400,9 +400,9 @@
     const h=Math.floor(diff/3600000);
     const m=Math.floor((diff%3600000)/60000);
     const s=Math.floor((diff%60000)/1000);
-    document.getElementById("cdH").textContent=String(h).padStart(2,"0");
-    document.getElementById("cdM").textContent=String(m).padStart(2,"0");
-    document.getElementById("cdS").textContent=String(s).padStart(2,"0");
+    { const _e=document.getElementById("cdH"); if(_e) _e.textContent = String(h).padStart(2,"0"); }
+    { const _e=document.getElementById("cdM"); if(_e) _e.textContent = String(m).padStart(2,"0"); }
+    { const _e=document.getElementById("cdS"); if(_e) _e.textContent = String(s).padStart(2,"0"); }
   }
   updateCountdown();
   setInterval(updateCountdown,1000);
@@ -424,11 +424,11 @@
   function renderQuestion(){
     const q=questions[currentIdx];
     const total=questions.length;
-    document.getElementById("qNum").textContent=currentIdx+1;
+    { const _e=document.getElementById("qNum"); if(_e) _e.textContent = currentIdx+1; }
     document.getElementById("examProgress").style.width=((currentIdx+1)/total*100)+"%";
 
     const userAns=answers[currentIdx];
-    document.getElementById("qWrap").innerHTML=`
+    { const _e=document.getElementById("qWrap"); if(_e) _e.innerHTML = ` }
       <div class="q-num-label">Question ${currentIdx+1} of ${total}</div>
       <div class="q-text">${q.text||q.question||""}</div>
       ${["A","B","C","D"].filter(l=>q.options&&q.options[l]).map(l=>`
@@ -462,8 +462,8 @@
     timerInterval=setInterval(()=>{
       timeLeft--;
       const m=Math.floor(timeLeft/60), s=timeLeft%60;
-      document.getElementById("timerDisplay").textContent=`${m}:${s.toString().padStart(2,"0")}`;
-      document.getElementById("timerPill").className="timer-pill"+(timeLeft<=30?" urgent":"");
+      { const _e=document.getElementById("timerDisplay"); if(_e) _e.textContent = `${m}:${s.toString().padStart(2,"0")}`; }
+      { const _e=document.getElementById("timerPill"); if(_e) _e.className = "timer-pill"+(timeLeft<=30?" urgent":""); }
       if(timeLeft<=0){ clearInterval(timerInterval); toast("⏰ Time's up!"); setTimeout(submitChallenge,800); }
     },1000);
   }
@@ -499,11 +499,11 @@
     ];
     const v=verdicts.find(x=>correct>=x.min)||verdicts[verdicts.length-1];
 
-    document.getElementById("resEmoji").textContent=v.emoji;
-    document.getElementById("resScore").textContent=`${correct}/${total}`;
+    { const _e=document.getElementById("resEmoji"); if(_e) _e.textContent = v.emoji; }
+    { const _e=document.getElementById("resScore"); if(_e) _e.textContent = `${correct}/${total}`; }
     document.getElementById("resScore").style.color=correct>=3?"var(--c-green)":"var(--c-red)";
-    document.getElementById("resLabel").textContent=v.label;
-    document.getElementById("resXP").textContent=`+${xpEarned} XP earned`;
+    { const _e=document.getElementById("resLabel"); if(_e) _e.textContent = v.label; }
+    { const _e=document.getElementById("resXP"); if(_e) _e.textContent = `+${xpEarned} XP earned`; }
 
     if(streak>=2){
       const sa=document.getElementById("streakAnim");
@@ -512,7 +512,7 @@
     }
 
     // Per-question mini result bars
-    document.getElementById("resBars").innerHTML=questions.map((q,i)=>{
+    { const _e=document.getElementById("resBars"); if(_e) _e.innerHTML = questions.map((q,i)=>{ }
       const correct_ans=answers[i]===q.answer;
       const answered=answers[i]!=null;
       const col=correct_ans?"#10b981":answered?"#f43f5e":"#f59e0b";

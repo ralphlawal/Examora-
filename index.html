@@ -411,6 +411,13 @@
     <a href="settings.html"        class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#334155)"><span class="material-symbols-rounded">settings</span></div><div class="quick-label">Settings</div></a>
     <a href="help.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#475569)"><span class="material-symbols-rounded">help</span></div><div class="quick-label">Help & FAQ</div></a>
     <a href="upgrade.html"         class="quick-card" id="upgradeCard"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Go Premium</div></a>
+    <a href="countdown.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">timer</span></div><div class="quick-label">Countdown</div></a>
+    <a href="syllabus.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">checklist</span></div><div class="quick-label">Syllabus</div></a>
+    <a href="certificate.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Certificates</div></a>
+    <a href="scholarship.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">school</span></div><div class="quick-label">Scholarships</div></a>
+    <a href="group-study.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><span class="material-symbols-rounded">groups</span></div><div class="quick-label">Group Study</div></a>
+    <a href="mindset.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">self_improvement</span></div><div class="quick-label">Mindset</div></a>
+    <a href="parent.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#84cc16,#65a30d)"><span class="material-symbols-rounded">supervised_user_circle</span></div><div class="quick-label">For Parents</div></a>
   </div>
 
     <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
@@ -597,7 +604,7 @@
   // Theme
   const _t = localStorage.getItem("examora_theme") || "light";
   document.documentElement.setAttribute("data-theme", _t);
-  document.getElementById("themeBtn").innerHTML = _t==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>';
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.innerHTML = _t==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>'; }
   // Check notification badge
   (function(){
     var unread = parseInt(localStorage.getItem('examora_notif_unread')||'0');
@@ -609,7 +616,7 @@
     const nxt = cur === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", nxt);
     localStorage.setItem("examora_theme", nxt);
-    document.getElementById("themeBtn").innerHTML = nxt==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>';
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.innerHTML = nxt==="dark" ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>'; }
   });
 
   // Toast
@@ -669,8 +676,8 @@
     try {
       var d = JSON.parse(stored);
       document.getElementById('countdownCard').style.display = 'flex';
-      document.getElementById('cdExamName').textContent = d.name || 'Your Exam';
-      document.getElementById('cdExamDate').textContent = 'on ' + new Date(d.date).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
+      { const _e=document.getElementById('cdExamName'); if(_e) _e.textContent = d.name || 'Your Exam'; }
+      { const _e=document.getElementById('cdExamDate'); if(_e) _e.textContent = 'on ' + new Date(d.date).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}); }
       updateCountdownNums(d.date);
       setInterval(function(){ updateCountdownNums(d.date); }, 60000);
     } catch(_) {}
@@ -681,9 +688,9 @@
     var days  = Math.floor(diff / 86400000);
     var hours = Math.floor((diff % 86400000) / 3600000);
     var mins  = Math.floor((diff % 3600000) / 60000);
-    document.getElementById('cdDays').textContent  = days;
-    document.getElementById('cdHours').textContent = hours;
-    document.getElementById('cdMins').textContent  = mins;
+    { const _e=document.getElementById('cdDays'); if(_e) _e.textContent = days; }
+    { const _e=document.getElementById('cdHours'); if(_e) _e.textContent = hours; }
+    { const _e=document.getElementById('cdMins'); if(_e) _e.textContent = mins; }
   }
   function editCountdown() {
     var s = document.getElementById('countdownSetup');

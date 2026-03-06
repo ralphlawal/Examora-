@@ -589,13 +589,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
     // Rebuild charts so colours update for new theme
     if(allResults.length>0 && window._userData!==undefined){
       buildTrendChart(allResults,currentPeriod);
@@ -884,7 +884,7 @@
     });
 
     const total=results.length;
-    document.getElementById("catLegend").innerHTML=cats.map((c,i)=>`
+    { const _e=document.getElementById("catLegend"); if(_e) _e.innerHTML = cats.map((c,i)=>` }
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <div style="width:10px;height:10px;border-radius:3px;background:${CAT_COLORS[i]};flex-shrink:0;"></div>
         <div style="flex:1;">
@@ -960,10 +960,10 @@
     const passRate=total>0?Math.round((passed/total)*100):0;
     const streak=userData?.streak||0;
 
-    document.getElementById("kpiExams").textContent=total;
-    document.getElementById("kpiAvg").textContent=avg+"%";
-    document.getElementById("kpiStreak").textContent=streak;
-    document.getElementById("kpiPass").textContent=passRate+"%";
+    { const _e=document.getElementById("kpiExams"); if(_e) _e.textContent = total; }
+    { const _e=document.getElementById("kpiAvg"); if(_e) _e.textContent = avg+"%"; }
+    { const _e=document.getElementById("kpiStreak"); if(_e) _e.textContent = streak; }
+    { const _e=document.getElementById("kpiPass"); if(_e) _e.textContent = passRate+"%"; }
 
     // Deltas
     const recentResults=results.slice(-5);
@@ -987,14 +987,14 @@
       const current=avg;
       const pct=Math.min(Math.round((current/target)*100),100);
       document.getElementById("targetCard").style.display="block";
-      document.getElementById("targetBadge").textContent=`Target: ${target}%`;
-      document.getElementById("targetCurrent").textContent=avg+"%";
-      document.getElementById("targetPct").textContent=pct+"% of goal";
+      { const _e=document.getElementById("targetBadge"); if(_e) _e.textContent = `Target: ${target}%`; }
+      { const _e=document.getElementById("targetCurrent"); if(_e) _e.textContent = avg+"%"; }
+      { const _e=document.getElementById("targetPct"); if(_e) _e.textContent = pct+"% of goal"; }
       setTimeout(()=>document.getElementById("targetBarFill").style.width=pct+"%",300);
     }
 
     if(total===0){
-      document.getElementById("trendWrap").innerHTML=`<div class="empty-state"><div class="es-icon">📈</div><h4>No data yet</h4><p>Take your first exam to see your score trend here.</p></div>`;
+      { const _e=document.getElementById("trendWrap"); if(_e) _e.innerHTML = `<div class="empty-state"><div class="es-icon">📈</div><h4>No data yet</h4><p>Take your first exam to see your score trend here.</p></div>`; }
     } else {
       buildTrendChart(results,7);
     }

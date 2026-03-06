@@ -524,13 +524,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg, type="", dur=3200){
     const el=document.getElementById("toast");
@@ -798,15 +798,15 @@
     let count=0;
     const interval=setInterval(()=>{
       count=Math.min(count+2,percent);
-      document.getElementById("scorePct").textContent=count+"%";
+      { const _e=document.getElementById("scorePct"); if(_e) _e.textContent = count+"%"; }
       if(count>=percent) clearInterval(interval);
     },18);
 
-    document.getElementById("scoreFrac").textContent=`${correct}/${total}`;
-    document.getElementById("statCorrect").textContent=correct;
-    document.getElementById("statWrong").textContent=wrong;
-    document.getElementById("statSkipped").textContent=skipped;
-    document.getElementById("statMode").textContent=mode==="practice"?"📖":"⏱️";
+    { const _e=document.getElementById("scoreFrac"); if(_e) _e.textContent = `${correct}/${total}`; }
+    { const _e=document.getElementById("statCorrect"); if(_e) _e.textContent = correct; }
+    { const _e=document.getElementById("statWrong"); if(_e) _e.textContent = wrong; }
+    { const _e=document.getElementById("statSkipped"); if(_e) _e.textContent = skipped; }
+    { const _e=document.getElementById("statMode"); if(_e) _e.textContent = mode==="practice"?"📖":"⏱️"; }
 
     // Verdict
     const verdicts=[
@@ -817,8 +817,8 @@
       {min:0, emoji:"💪",title:"Keep Going!",sub:"Don't give up. Every attempt makes you stronger."},
     ];
     const v=verdicts.find(x=>percent>=x.min)||verdicts[verdicts.length-1];
-    document.getElementById("resultVerdict").textContent=v.emoji+" "+v.title;
-    document.getElementById("resultSub").textContent=v.sub+(category?` · ${category}`:"")+(subject?` · ${subject}`:"");
+    { const _e=document.getElementById("resultVerdict"); if(_e) _e.textContent = v.emoji+" "+v.title; }
+    { const _e=document.getElementById("resultSub"); if(_e) _e.textContent = v.sub+(category?` · ${category}`:"")+(subject?` · ${subject}`:""); }
 
     // Hero glow colour
     document.getElementById("resultHero").style.background=

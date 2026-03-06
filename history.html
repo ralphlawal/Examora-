@@ -354,13 +354,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg, type="", dur=3200){
     const el=document.getElementById("toast");
@@ -482,26 +482,26 @@
 
     document.getElementById("donutFill").style.stroke=col;
     setTimeout(()=>document.getElementById("donutFill").style.strokeDashoffset=offset,100);
-    document.getElementById("sheetPct").textContent=pct+"%";
+    { const _e=document.getElementById("sheetPct"); if(_e) _e.textContent = pct+"%"; }
     document.getElementById("sheetPct").style.color=col;
-    document.getElementById("sheetFrac").textContent=(r.score||0)+"/"+(r.total||0);
-    document.getElementById("sheetSubject").textContent=r.subject||r.category||"General Practice";
-    document.getElementById("sheetDate").textContent=r.date||"";
+    { const _e=document.getElementById("sheetFrac"); if(_e) _e.textContent = (r.score||0)+"/"+(r.total||0); }
+    { const _e=document.getElementById("sheetSubject"); if(_e) _e.textContent = r.subject||r.category||"General Practice"; }
+    { const _e=document.getElementById("sheetDate"); if(_e) _e.textContent = r.date||""; }
 
     const tags=[];
     if(pass) tags.push(`<span class="sheet-tag sheet-tag-green">✅ Passed</span>`);
     else     tags.push(`<span class="sheet-tag sheet-tag-red">❌ Failed</span>`);
     if(r.category) tags.push(`<span class="sheet-tag sheet-tag-brand">${r.category}</span>`);
     if(r.mode==="practice") tags.push(`<span class="sheet-tag sheet-tag-gold">📖 Practice</span>`);
-    document.getElementById("sheetTags").innerHTML=tags.join("");
+    { const _e=document.getElementById("sheetTags"); if(_e) _e.innerHTML = tags.join(""); }
 
     const answered=r.answers?Object.keys(r.answers).length:(r.score||0);
     const wrong=answered-(r.score||0);
     const skipped=(r.total||0)-answered;
-    document.getElementById("sheetCorrect").textContent=r.score||0;
-    document.getElementById("sheetWrong").textContent=wrong;
-    document.getElementById("sheetSkipped").textContent=skipped;
-    document.getElementById("sheetMode").textContent=r.mode==="practice"?"📖":"⏱️";
+    { const _e=document.getElementById("sheetCorrect"); if(_e) _e.textContent = r.score||0; }
+    { const _e=document.getElementById("sheetWrong"); if(_e) _e.textContent = wrong; }
+    { const _e=document.getElementById("sheetSkipped"); if(_e) _e.textContent = skipped; }
+    { const _e=document.getElementById("sheetMode"); if(_e) _e.textContent = r.mode==="practice"?"📖":"⏱️"; }
 
     document.getElementById("detailOverlay").classList.add("show");
     // Reset donut
@@ -526,9 +526,9 @@
       document.getElementById("histKpis").style.display="grid";
       const best=Math.max(...results.map(r=>r.percent||0));
       const avg=Math.round(results.reduce((s,r)=>s+(r.percent||0),0)/results.length);
-      document.getElementById("kpiTotal").textContent=results.length;
-      document.getElementById("kpiBest").textContent=best+"%";
-      document.getElementById("kpiAvg").textContent=avg+"%";
+      { const _e=document.getElementById("kpiTotal"); if(_e) _e.textContent = results.length; }
+      { const _e=document.getElementById("kpiBest"); if(_e) _e.textContent = best+"%"; }
+      { const _e=document.getElementById("kpiAvg"); if(_e) _e.textContent = avg+"%"; }
       document.getElementById("heroSub").textContent=
         `${results.length} exam${results.length!==1?"s":""} · Best: ${best}% · Avg: ${avg}%`;
     }

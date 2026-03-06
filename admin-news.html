@@ -3,75 +3,54 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>News Manager — EXAMORA Admin</title>
+<title>News Manager — EXAMORA</title>
 <link rel="stylesheet" href="style.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet"/>
 <style>
-.compose-area {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); overflow: hidden;
-  box-shadow: var(--sh-sm); margin-bottom: 14px;
-}
-.compose-toolbar {
-  display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 12px;
-  background: var(--surface-2); border-bottom: 1px solid var(--border);
-}
-.tb-btn {
-  padding: 5px 10px; border-radius: var(--r-xs);
-  background: var(--surface); border: 1px solid var(--border);
-  font-size: .74rem; font-weight: 700; color: var(--ink-2);
-  cursor: pointer; transition: all .15s ease; white-space: nowrap;
-}
-.tb-btn:hover { background: var(--brand-pale); color: var(--brand); border-color: var(--brand); }
-.compose-body {
-  width: 100%; min-height: 220px; padding: 14px;
-  background: var(--surface); border: none; outline: none;
-  color: var(--ink); font-family: var(--fb); font-size: .9rem;
-  line-height: 1.75; resize: vertical; max-width: 100%;
-}
-.compose-body::placeholder { color: var(--ink-3); }
-.post-row {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-md); padding: 14px; margin-bottom: 9px;
-  display: flex; align-items: flex-start; gap: 12px;
-  transition: all .18s ease; overflow: hidden;
-}
-.post-row:hover { border-color: rgba(91,94,244,.3); box-shadow: var(--sh-sm); }
-.post-row-emoji { font-size: 1.8rem; flex-shrink: 0; width: 40px; text-align: center; margin-top: 2px; }
-.post-row-info { flex: 1; min-width: 0; }
-.post-row-title { font-family: var(--fd); font-weight: 800; font-size: .88rem; color: var(--ink); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.post-row-meta  { font-size: .68rem; color: var(--ink-3); margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.post-row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.post-action-btn { padding: 4px 10px; border-radius: 6px; font-size: .68rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); transition: all .15s ease; white-space: nowrap; }
-.post-action-btn.edit    { color: var(--brand); background: var(--brand-pale); border-color: rgba(91,94,244,.3); }
-.post-action-btn.publish { color: var(--emerald); background: var(--emerald-p); border-color: rgba(16,185,129,.3); }
-.post-action-btn.draft   { color: var(--amber); background: var(--amber-p); border-color: rgba(245,158,11,.3); }
-.post-action-btn.delete  { color: var(--rose); background: var(--rose-p); border-color: rgba(244,63,94,.3); }
-.post-action-btn:hover { opacity: .8; transform: scale(.97); }
-.status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-top: 5px; }
-.status-dot.published { background: var(--emerald); box-shadow: 0 0 0 3px var(--emerald-p); }
-.status-dot.draft      { background: var(--amber); box-shadow: 0 0 0 3px var(--amber-p); }
-.preview-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 14px; margin-top: 10px; font-size: .85rem; color: var(--ink-2); line-height: 1.75; overflow-wrap: break-word; min-height: 60px; }
-.preview-box h2 { font-family: var(--fd); font-weight: 800; font-size: 1rem; color: var(--ink); margin: 14px 0 6px; }
-.preview-box h3 { font-family: var(--fd); font-weight: 700; font-size: .9rem; color: var(--ink); margin: 12px 0 5px; }
-.preview-box p  { margin-bottom: 10px; }
-.preview-box blockquote { border-left: 3px solid var(--brand); padding: 8px 12px; background: var(--brand-pale); border-radius: 0 8px 8px 0; margin: 10px 0; font-style: italic; }
-.emoji-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.emoji-opt { font-size: 1.4rem; cursor: pointer; padding: 5px; border-radius: 8px; transition: all .15s ease; border: 1.5px solid transparent; }
-.emoji-opt:hover { background: var(--surface-2); border-color: var(--border); }
-.emoji-opt.selected { background: var(--brand-pale); border-color: var(--brand); }
-.char-count { font-size: .68rem; color: var(--ink-3); text-align: right; margin-top: 4px; }
+* { box-sizing: border-box; max-width: 100%; min-width: 0; }
+.toolbar { display:flex; flex-wrap:wrap; gap:4px; padding:10px 12px; background:var(--surface-2); border-bottom:1px solid var(--border); }
+.tb { padding:5px 10px; border-radius:6px; background:var(--surface); border:1px solid var(--border); font-size:.74rem; font-weight:700; color:var(--ink-2); cursor:pointer; white-space:nowrap; }
+.tb:hover { background:var(--brand-pale); color:var(--brand); border-color:var(--brand); }
+.editor-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin-bottom:14px; }
+.editor { width:100%; min-height:200px; padding:14px; background:var(--surface); border:none; outline:none; color:var(--ink); font-family:var(--fb); font-size:.9rem; line-height:1.75; resize:vertical; display:block; }
+.editor::placeholder { color:var(--ink-3); }
+.char-count { font-size:.68rem; color:var(--ink-3); text-align:right; margin-top:4px; }
+.emoji-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.emo { font-size:1.4rem; cursor:pointer; padding:5px; border-radius:8px; border:1.5px solid transparent; transition:all .15s; }
+.emo:hover { background:var(--surface-2); border-color:var(--border); }
+.emo.on { background:var(--brand-pale); border-color:var(--brand); }
+.preview-box { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:14px; font-size:.85rem; color:var(--ink-2); line-height:1.75; overflow-wrap:break-word; }
+.preview-box h2 { font-family:var(--fd); font-weight:800; font-size:1rem; color:var(--ink); margin:14px 0 6px; }
+.preview-box h3 { font-family:var(--fd); font-weight:700; font-size:.9rem; color:var(--ink); margin:10px 0 5px; }
+.preview-box p  { margin-bottom:10px; }
+.preview-box blockquote { border-left:3px solid var(--brand); padding:8px 12px; background:var(--brand-pale); border-radius:0 8px 8px 0; margin:10px 0; font-style:italic; }
+.post-row { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:14px; margin-bottom:9px; display:flex; align-items:flex-start; gap:12px; overflow:hidden; }
+.post-row:hover { border-color:rgba(91,94,244,.3); }
+.post-emoji { font-size:1.8rem; flex-shrink:0; width:40px; text-align:center; }
+.post-info { flex:1; min-width:0; }
+.post-title { font-family:var(--fd); font-weight:800; font-size:.88rem; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:3px; }
+.post-meta  { font-size:.68rem; color:var(--ink-3); margin-bottom:6px; }
+.post-acts  { display:flex; gap:6px; flex-wrap:wrap; }
+.pa { padding:4px 10px; border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; border:1px solid var(--border); white-space:nowrap; background:none; }
+.pa.edit   { color:var(--brand); background:var(--brand-pale); border-color:rgba(91,94,244,.3); }
+.pa.pub    { color:var(--emerald); background:var(--emerald-p); border-color:rgba(16,185,129,.3); }
+.pa.unpub  { color:var(--amber); background:var(--amber-p); border-color:rgba(245,158,11,.3); }
+.pa.del    { color:var(--rose); background:var(--rose-p); border-color:rgba(244,63,94,.3); }
+.sdot { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; margin-right:6px; }
+.sdot.live  { background:var(--emerald); box-shadow:0 0 0 3px var(--emerald-p); }
+.sdot.draft { background:var(--amber);   box-shadow:0 0 0 3px var(--amber-p); }
 </style>
 </head>
 <body>
+
 <header class="app-header">
   <a href="admin.html" class="app-logo" style="text-decoration:none;">
     <div class="app-logo-icon">EX</div>
     <div><div class="app-logo-name">News Manager</div></div>
   </a>
   <div class="header-actions">
-    <a href="news.html" class="header-btn" title="Preview news page">
+    <a href="news.html" class="header-btn" title="View news page">
       <span class="material-symbols-rounded">open_in_new</span>
     </a>
   </div>
@@ -79,57 +58,56 @@
 
 <div class="page-wrapper">
 
-  <!-- Tabs -->
   <div class="filter-tabs" style="margin-bottom:18px;">
-    <button class="filter-tab active" onclick="switchTab('compose',this)">✏️ Write Post</button>
-    <button class="filter-tab" onclick="switchTab('posts',this)">📋 All Posts</button>
-    <button class="filter-tab" onclick="switchTab('tips',this)">💡 Tips</button>
+    <button class="filter-tab active" id="tabBtnCompose" onclick="showTab('compose')">✏️ Write Post</button>
+    <button class="filter-tab"        id="tabBtnPosts"   onclick="showTab('posts')">📋 All Posts</button>
+    <button class="filter-tab"        id="tabBtnTips"    onclick="showTab('tips')">💡 Tips</button>
   </div>
 
-  <!-- ── COMPOSE TAB ── -->
+  <!-- ── COMPOSE ── -->
   <div id="tabCompose">
-    <div class="card" style="margin-bottom:14px;">
-      <div style="font-family:var(--fd);font-weight:800;font-size:.95rem;color:var(--ink);margin-bottom:16px;">
-        <span id="editModeLabel">📝 New Post</span>
-        <input type="hidden" id="editPostId"/>
-      </div>
+    <div class="card">
 
-      <!-- Emoji picker -->
+      <div style="font-family:var(--fd);font-weight:800;font-size:.95rem;color:var(--ink);margin-bottom:16px;" id="formHeading">📝 New Post</div>
+
+      <!-- Emoji -->
       <div class="form-group">
-        <label class="form-label">Post Emoji (thumbnail icon)</label>
-        <div class="emoji-picker" id="emojiPicker">
-          <span class="emoji-opt selected" onclick="pickEmoji('📰',this)">📰</span>
-          <span class="emoji-opt" onclick="pickEmoji('📚',this)">📚</span>
-          <span class="emoji-opt" onclick="pickEmoji('🎓',this)">🎓</span>
-          <span class="emoji-opt" onclick="pickEmoji('🏆',this)">🏆</span>
-          <span class="emoji-opt" onclick="pickEmoji('💡',this)">💡</span>
-          <span class="emoji-opt" onclick="pickEmoji('🔥',this)">🔥</span>
-          <span class="emoji-opt" onclick="pickEmoji('📊',this)">📊</span>
-          <span class="emoji-opt" onclick="pickEmoji('🌟',this)">🌟</span>
-          <span class="emoji-opt" onclick="pickEmoji('✅',this)">✅</span>
-          <span class="emoji-opt" onclick="pickEmoji('⚡',this)">⚡</span>
-          <span class="emoji-opt" onclick="pickEmoji('🎯',this)">🎯</span>
-          <span class="emoji-opt" onclick="pickEmoji('🗞️',this)">🗞️</span>
+        <label class="form-label">Emoji</label>
+        <div class="emoji-row" id="emojiRow">
+          <span class="emo on" data-e="📰">📰</span>
+          <span class="emo" data-e="📚">📚</span>
+          <span class="emo" data-e="🎓">🎓</span>
+          <span class="emo" data-e="🏆">🏆</span>
+          <span class="emo" data-e="💡">💡</span>
+          <span class="emo" data-e="🔥">🔥</span>
+          <span class="emo" data-e="📊">📊</span>
+          <span class="emo" data-e="🌟">🌟</span>
+          <span class="emo" data-e="✅">✅</span>
+          <span class="emo" data-e="⚡">⚡</span>
+          <span class="emo" data-e="🎯">🎯</span>
+          <span class="emo" data-e="🗞️">🗞️</span>
         </div>
-        <input type="hidden" id="postEmoji" value="📰"/>
       </div>
 
+      <!-- Title -->
       <div class="form-group">
-        <label class="form-label">Post Title *</label>
-        <input id="postTitle" class="form-input" type="text" placeholder="e.g. JAMB 2026 Registration Deadline Extended" maxlength="120"/>
-        <div class="char-count" id="titleCount">0 / 120</div>
+        <label class="form-label">Title *</label>
+        <input id="fTitle" class="form-input" type="text" placeholder="e.g. JAMB 2026 Registration Opens" maxlength="120"/>
+        <div class="char-count" id="cTitle">0 / 120</div>
       </div>
 
+      <!-- Excerpt -->
       <div class="form-group">
-        <label class="form-label">Short Excerpt (shown in previews)</label>
-        <textarea id="postExcerpt" class="form-input" rows="2" placeholder="1–2 sentence summary of the post…" maxlength="250"></textarea>
-        <div class="char-count" id="excerptCount">0 / 250</div>
+        <label class="form-label">Excerpt (shown in previews)</label>
+        <textarea id="fExcerpt" class="form-input" rows="2" placeholder="1–2 sentence summary…" maxlength="250"></textarea>
+        <div class="char-count" id="cExcerpt">0 / 250</div>
       </div>
 
+      <!-- Category + Author -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div class="form-group" style="margin:0;">
           <label class="form-label">Category *</label>
-          <select id="postCategory" class="form-select">
+          <select id="fCategory" class="form-select">
             <option>Exam Tips</option>
             <option>Study Guide</option>
             <option>Updates</option>
@@ -139,435 +117,436 @@
           </select>
         </div>
         <div class="form-group" style="margin:0;">
-          <label class="form-label">Author Name</label>
-          <input id="postAuthor" class="form-input" type="text" placeholder="e.g. EXAMORA Team"/>
+          <label class="form-label">Author</label>
+          <input id="fAuthor" class="form-input" type="text" placeholder="EXAMORA Team"/>
         </div>
       </div>
 
+      <!-- Image URL -->
       <div class="form-group">
         <label class="form-label">Image URL (optional)</label>
-        <input id="postImageUrl" class="form-input" type="url" placeholder="https://…"/>
+        <input id="fImage" class="form-input" type="url" placeholder="https://…"/>
       </div>
 
-      <!-- Body editor -->
+      <!-- Body -->
       <div class="form-group" style="margin-bottom:6px;">
-        <label class="form-label">Post Body *</label>
-        <div class="compose-area">
-          <div class="compose-toolbar">
-            <button class="tb-btn" onclick="insertMd('## ', '')">H2</button>
-            <button class="tb-btn" onclick="insertMd('### ', '')">H3</button>
-            <button class="tb-btn" onclick="insertMd('**', '**')"><b>Bold</b></button>
-            <button class="tb-btn" onclick="insertMd('*', '*')"><i>Italic</i></button>
-            <button class="tb-btn" onclick="insertMd('> ', '')">Quote</button>
-            <button class="tb-btn" onclick="insertMd('- ', '')">• List</button>
-            <button class="tb-btn" onclick="insertMd('\n---\n', '')">─ HR</button>
-            <button class="tb-btn" onclick="togglePreview()">👁 Preview</button>
+        <label class="form-label">Body *</label>
+        <div class="editor-wrap">
+          <div class="toolbar">
+            <button class="tb" onclick="md('## ','')">H2</button>
+            <button class="tb" onclick="md('### ','')">H3</button>
+            <button class="tb" onclick="md('**','**')"><b>Bold</b></button>
+            <button class="tb" onclick="md('*','*')"><i>Italic</i></button>
+            <button class="tb" onclick="md('> ','')">Quote</button>
+            <button class="tb" onclick="md('- ','')">• List</button>
+            <button class="tb" onclick="md('\n---\n','')">─ HR</button>
+            <button class="tb" onclick="togglePreview()">👁 Preview</button>
           </div>
-          <textarea id="postBody" class="compose-body" placeholder="Write your post here…
-
-You can use basic markdown:
-## Heading 2
-### Heading 3
-**bold text**
-*italic text*
-> blockquote
-- bullet item
-" oninput="updateBodyCount()" rows="12"></textarea>
+          <textarea id="fBody" class="editor" placeholder="Write your post here…" rows="12" oninput="document.getElementById('cBody').textContent=this.value.length+' chars'"></textarea>
         </div>
-        <div class="char-count" id="bodyCount">0 chars</div>
+        <div class="char-count" id="cBody">0 chars</div>
       </div>
 
       <!-- Preview -->
-      <div id="previewSection" style="display:none;margin-bottom:14px;">
+      <div id="previewWrap" style="display:none;margin-bottom:14px;">
         <div style="font-family:var(--fd);font-weight:700;font-size:.8rem;color:var(--ink-2);margin-bottom:8px;">Preview:</div>
         <div class="preview-box" id="previewBox"></div>
       </div>
 
-      <!-- Publish buttons -->
+      <!-- Buttons -->
       <div style="display:flex;gap:9px;margin-top:4px;">
-        <button class="btn btn-ghost btn-sm" onclick="saveDraft()" id="draftBtn">
+        <button class="btn btn-ghost btn-sm" id="btnDraft" onclick="saveDraft()">
           <span class="material-symbols-rounded ms-sm">save</span> Save Draft
         </button>
-        <button class="btn btn-primary" onclick="publishPost()" id="publishBtn" style="flex:1;">
+        <button class="btn btn-primary" id="btnPublish" onclick="publishPost()" style="flex:1;">
           <span class="material-symbols-rounded ms-sm">send</span> Publish Now
         </button>
       </div>
-      <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;width:100%;margin-top:8px;padding:9px;border:none;background:none;color:var(--rose);font-size:.8rem;font-weight:700;cursor:pointer;">
+      <button id="btnCancel" onclick="cancelEdit()" style="display:none;width:100%;margin-top:8px;padding:9px;border:none;background:none;color:var(--rose);font-size:.8rem;font-weight:700;cursor:pointer;">
         ✕ Cancel Edit
       </button>
+
+      <!-- Hidden edit id -->
+      <input type="hidden" id="editId"/>
     </div>
   </div>
 
-  <!-- ── POSTS LIST TAB ── -->
+  <!-- ── POSTS LIST ── -->
   <div id="tabPosts" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="font-family:var(--fd);font-weight:800;font-size:.92rem;color:var(--ink);">All Posts</div>
-      <button class="btn btn-primary btn-sm" onclick="switchTab('compose',document.querySelector('.filter-tab'))">+ New Post</button>
+      <button class="btn btn-primary btn-sm" onclick="showTab('compose')">+ New Post</button>
     </div>
     <div id="postsList">
       <div class="skeleton skeleton-card" style="margin-bottom:9px;"></div>
-      <div class="skeleton skeleton-card" style="margin-bottom:9px;"></div>
+      <div class="skeleton skeleton-card"></div>
     </div>
   </div>
 
-  <!-- ── TIPS TAB ── -->
+  <!-- ── TIPS ── -->
   <div id="tabTips" style="display:none;">
     <div class="card">
       <div style="font-family:var(--fd);font-weight:800;font-size:.95rem;color:var(--ink);margin-bottom:14px;">📖 Writing Tips</div>
-      <div style="font-size:.85rem;color:var(--ink-2);line-height:1.75;">
-        <p style="margin-bottom:10px;"><strong>Formatting Cheatsheet:</strong></p>
-        <div style="background:var(--surface-2);border-radius:10px;padding:12px 14px;font-family:monospace;font-size:.8rem;color:var(--ink-2);margin-bottom:12px;overflow-x:auto;">
-## Big Heading<br/>
-### Smaller Heading<br/>
-**bold text**<br/>
-*italic text*<br/>
-&gt; This is a quote block<br/>
-- bullet item<br/>
-- another bullet<br/>
-        </div>
-        <p style="margin-bottom:8px;"><strong>Best practices:</strong></p>
-        <ul style="padding-left:18px;color:var(--ink-2);">
-          <li style="margin-bottom:6px;">Keep titles under 80 chars for best display</li>
-          <li style="margin-bottom:6px;">Always fill in the excerpt — it shows in previews</li>
-          <li style="margin-bottom:6px;">Use emojis in headings to add personality</li>
-          <li style="margin-bottom:6px;">Break text with ## headings every 3–4 paragraphs</li>
-          <li style="margin-bottom:6px;">Add image URLs from Unsplash or Cloudinary for visual posts</li>
-          <li style="margin-bottom:6px;">Save as Draft first, review in the News page, then Publish</li>
-        </ul>
+      <p style="font-size:.85rem;color:var(--ink-2);margin-bottom:10px;"><strong>Markdown cheatsheet:</strong></p>
+      <div style="background:var(--surface-2);border-radius:10px;padding:12px 14px;font-family:monospace;font-size:.78rem;color:var(--ink-2);margin-bottom:14px;">
+        ## Big Heading<br/>### Smaller Heading<br/>**bold** &nbsp; *italic*<br/>&gt; Blockquote<br/>- Bullet item
       </div>
+      <ul style="font-size:.83rem;color:var(--ink-2);padding-left:18px;line-height:2;">
+        <li>Keep titles under 80 characters</li>
+        <li>Always add an excerpt — it shows in previews</li>
+        <li>Save as Draft first, then Publish once reviewed</li>
+        <li>Add Unsplash image URLs for visual posts</li>
+      </ul>
     </div>
   </div>
 
 </div>
 
-<!-- Toast -->
-<div id="toastEl" class="toast"><span class="toast-icon" id="toastIcon">✓</span><span id="toastMsg">Done</span></div>
+<div id="toastEl" class="toast">
+  <span class="toast-icon" id="toastIcon">✓</span>
+  <span id="toastMsg">Done</span>
+</div>
 
-<script>
+<!-- SINGLE UNIFIED MODULE SCRIPT — no split scope, no boundary issues -->
+<script type="module">
+import { initializeApp }       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore, collection, doc,
+  addDoc, updateDoc, deleteDoc,
+  getDocs, getDoc, query, orderBy, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ── Firebase init ──
+const app = initializeApp({
+  apiKey:            'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',
+  authDomain:        'cbt-app-5907f.firebaseapp.com',
+  projectId:         'cbt-app-5907f',
+  storageBucket:     'cbt-app-5907f.firebasestorage.app',
+  messagingSenderId: '705323924101',
+  appId:             '1:705323924101:web:ad9f153f25a0685a1287ec'
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ──
+let currentUser  = null;
+let cachedPosts  = [];
+let selectedEmoji = '📰';
+let previewOpen  = false;
+let editingId    = null;
+
+// ── Theme ──
 document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme') || 'dark');
 
-var selectedEmoji = '📰';
-var editingId = null;
+// ── Auth guard ──
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists() && snap.data().role !== 'admin') {
+      window.location.href = 'index.html';
+    }
+  } catch (e) { /* allow through if Firestore check fails */ }
+});
 
-function switchTab(tab, btn) {
-  ['compose','posts','tips'].forEach(function(t) {
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = 'none';
+// ── Tab switching ──
+function showTab(name) {
+  ['Compose','Posts','Tips'].forEach(t => {
+    document.getElementById('tab' + t).style.display = 'none';
+    document.getElementById('tabBtn' + t).classList.remove('active');
   });
-  document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
-  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = '';
-  if (btn) btn.classList.add('active');
-  if (tab === 'posts') loadPosts();
+  document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).style.display = '';
+  document.getElementById('tabBtn' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  if (name === 'posts') loadPosts();
 }
+window.showTab = showTab;
 
-function pickEmoji(e, el) {
-  document.querySelectorAll('.emoji-opt').forEach(function(x) { x.classList.remove('selected'); });
-  el.classList.add('selected');
-  selectedEmoji = e;
-  document.getElementById('postEmoji').value = e;
-}
+// ── Emoji picker ──
+document.getElementById('emojiRow').addEventListener('click', e => {
+  const el = e.target.closest('.emo');
+  if (!el) return;
+  document.querySelectorAll('.emo').forEach(x => x.classList.remove('on'));
+  el.classList.add('on');
+  selectedEmoji = el.dataset.e;
+});
 
-function insertMd(before, after) {
-  var ta = document.getElementById('postBody');
-  var s = ta.selectionStart, e = ta.selectionEnd;
-  var sel = ta.value.substring(s, e);
-  var rep = before + (sel || 'text') + after;
-  ta.value = ta.value.substring(0, s) + rep + ta.value.substring(e);
+// ── Markdown toolbar ──
+function md(before, after) {
+  const ta = document.getElementById('fBody');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || 'text';
+  ta.value = ta.value.substring(0, s) + before + sel + after + ta.value.substring(e);
   ta.focus();
   ta.selectionStart = s + before.length;
-  ta.selectionEnd   = s + before.length + (sel || 'text').length;
-  updateBodyCount();
+  ta.selectionEnd   = s + before.length + sel.length;
+  document.getElementById('cBody').textContent = ta.value.length + ' chars';
 }
+window.md = md;
 
-function updateBodyCount() {
-  var n = document.getElementById('postBody').value.length;
-  document.getElementById('bodyCount').textContent = n.toLocaleString() + ' chars';
-}
-
-document.getElementById('postTitle').addEventListener('input', function() {
-  document.getElementById('titleCount').textContent = this.value.length + ' / 120';
+// ── Title / excerpt char counters ──
+document.getElementById('fTitle').addEventListener('input', function() {
+  document.getElementById('cTitle').textContent = this.value.length + ' / 120';
 });
-document.getElementById('postExcerpt').addEventListener('input', function() {
-  document.getElementById('excerptCount').textContent = this.value.length + ' / 250';
+document.getElementById('fExcerpt').addEventListener('input', function() {
+  document.getElementById('cExcerpt').textContent = this.value.length + ' / 250';
 });
 
-var previewOpen = false;
+// ── Preview ──
 function togglePreview() {
   previewOpen = !previewOpen;
-  var sec = document.getElementById('previewSection');
-  sec.style.display = previewOpen ? '' : 'none';
+  document.getElementById('previewWrap').style.display = previewOpen ? '' : 'none';
   if (previewOpen) {
-    document.getElementById('previewBox').innerHTML = parseBody(document.getElementById('postBody').value);
+    document.getElementById('previewBox').innerHTML = renderMarkdown(document.getElementById('fBody').value);
   }
 }
+window.togglePreview = togglePreview;
 
-function parseBody(body) {
-  if (!body) return '<span style="color:var(--ink-3)">Nothing to preview yet…</span>';
-  return body
+function renderMarkdown(src) {
+  if (!src.trim()) return '<span style="color:var(--ink-3)">Nothing to preview yet…</span>';
+  return src
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
-    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
-    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
-    .replace(/<\/li>\n<li>/g,'</li><li>')
-    .replace(/(<li>[\s\S]+?<\/li>)/g,'<ul>$1</ul>')
-    .split('\n\n').map(function(blk) {
-      if (/^<[hublip]/.test(blk.trim())) return blk;
-      return '<p>' + blk.replace(/\n/g,'<br/>') + '</p>';
-    }).join('');
+    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+    .replace(/^> (.+)$/gm,    '<blockquote>$1</blockquote>')
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    .split('\n\n')
+    .map(b => /^<[h2h3buel]/.test(b.trim()) ? b : '<p>' + b.replace(/\n/g,'<br/>') + '</p>')
+    .join('');
 }
 
+// ── Form helpers ──
 function getFormData() {
-  var title   = document.getElementById('postTitle').value.trim();
-  var excerpt = document.getElementById('postExcerpt').value.trim();
-  var body    = document.getElementById('postBody').value.trim();
-  var cat     = document.getElementById('postCategory').value;
-  var author  = document.getElementById('postAuthor').value.trim() || 'EXAMORA Team';
-  var imgUrl  = document.getElementById('postImageUrl').value.trim();
-  var emoji   = document.getElementById('postEmoji').value || '📰';
-  return { title, excerpt, body, category: cat, author, imageUrl: imgUrl, emoji };
+  return {
+    title:    document.getElementById('fTitle').value.trim(),
+    excerpt:  document.getElementById('fExcerpt').value.trim(),
+    body:     document.getElementById('fBody').value.trim(),
+    category: document.getElementById('fCategory').value,
+    author:   document.getElementById('fAuthor').value.trim() || 'EXAMORA Team',
+    imageUrl: document.getElementById('fImage').value.trim(),
+    emoji:    selectedEmoji || '📰'
+  };
 }
 
 function validateForm() {
-  var d = getFormData();
-  if (!d.title)    { toast('Please add a title', 'error'); return false; }
-  if (!d.body)     { toast('Please write the post body', 'error'); return false; }
-  if (d.title.length > 120) { toast('Title too long (max 120)', 'error'); return false; }
+  const d = getFormData();
+  if (!d.title) { toast('Please add a title', 'error'); return null; }
+  if (!d.body)  { toast('Please write the post body', 'error'); return null; }
+  if (d.title.length > 120) { toast('Title too long (max 120 chars)', 'error'); return null; }
   return d;
 }
 
-function setLoading(btn, loading) {
-  btn.disabled = loading;
-  btn.querySelector('span.material-symbols-rounded').textContent = loading ? 'hourglass_empty' : (btn.id === 'publishBtn' ? 'send' : 'save');
-}
-
 function clearForm() {
-  document.getElementById('postTitle').value   = '';
-  document.getElementById('postExcerpt').value = '';
-  document.getElementById('postBody').value    = '';
-  document.getElementById('postImageUrl').value= '';
-  document.getElementById('postAuthor').value  = '';
-  document.getElementById('titleCount').textContent  = '0 / 120';
-  document.getElementById('excerptCount').textContent= '0 / 250';
-  document.getElementById('bodyCount').textContent   = '0 chars';
-  document.getElementById('editModeLabel').textContent = '📝 New Post';
-  document.getElementById('editPostId').value  = '';
-  document.getElementById('cancelEditBtn').style.display = 'none';
-  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('fTitle').value   = '';
+  document.getElementById('fExcerpt').value = '';
+  document.getElementById('fBody').value    = '';
+  document.getElementById('fImage').value   = '';
+  document.getElementById('fAuthor').value  = '';
+  document.getElementById('editId').value   = '';
+  document.getElementById('cTitle').textContent   = '0 / 120';
+  document.getElementById('cExcerpt').textContent = '0 / 250';
+  document.getElementById('cBody').textContent    = '0 chars';
+  document.getElementById('formHeading').textContent = '📝 New Post';
+  document.getElementById('btnCancel').style.display = 'none';
+  document.getElementById('previewWrap').style.display = 'none';
   previewOpen = false;
-  editingId = null;
-  pickEmoji('📰', document.querySelector('.emoji-opt'));
+  editingId   = null;
+  selectedEmoji = '📰';
+  document.querySelectorAll('.emo').forEach(x => x.classList.remove('on'));
+  const first = document.querySelector('.emo[data-e="📰"]');
+  if (first) first.classList.add('on');
 }
 
 function cancelEdit() {
   clearForm();
   toast('Edit cancelled', 'info');
 }
+window.cancelEdit = cancelEdit;
 
-function editPost(id, data) {
-  switchTab('compose', document.querySelectorAll('.filter-tab')[0]);
-  editingId = id;
-  document.getElementById('editModeLabel').textContent = '✏️ Editing Post';
-  document.getElementById('editPostId').value = id;
-  document.getElementById('postTitle').value   = data.title || '';
-  document.getElementById('postExcerpt').value = data.excerpt || '';
-  document.getElementById('postBody').value    = data.body || '';
-  document.getElementById('postCategory').value= data.category || 'News';
-  document.getElementById('postAuthor').value  = data.author || '';
-  document.getElementById('postImageUrl').value= data.imageUrl || '';
-  selectedEmoji = data.emoji || '📰';
-  document.getElementById('postEmoji').value   = selectedEmoji;
-  document.querySelectorAll('.emoji-opt').forEach(function(x) { x.classList.remove('selected'); });
-  document.querySelectorAll('.emoji-opt').forEach(function(x) {
-    if (x.textContent.trim() === selectedEmoji) x.classList.add('selected');
-  });
-  document.getElementById('titleCount').textContent  = (data.title||'').length + ' / 120';
-  document.getElementById('excerptCount').textContent= (data.excerpt||'').length + ' / 250';
-  updateBodyCount();
-  document.getElementById('cancelEditBtn').style.display = '';
-  window.scrollTo(0,0);
+// ── Button loading state ──
+function setBusy(btnId, busy) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = busy;
+  const icon = btn.querySelector('.material-symbols-rounded');
+  if (icon) icon.textContent = busy ? 'hourglass_empty' : (btnId === 'btnPublish' ? 'send' : 'save');
 }
 
-// Toast
-function toast(msg, type) {
-  var types = { success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
-  var el = document.getElementById('toastEl');
-  el.className = 'toast toast-' + (type||'info');
-  document.getElementById('toastIcon').textContent = types[type] || 'ℹ';
-  document.getElementById('toastMsg').textContent = msg;
-  void el.offsetWidth;
-  el.classList.add('show');
-  clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2800);
-}
-
-// expose helpers so module script can call them
-window.validateForm = validateForm;
-window.getFormData  = getFormData;
-window.clearForm    = clearForm;
-window.editPost     = editPost;
-window.setLoading   = setLoading;
-window.toast        = toast;
-window.switchTab    = switchTab;
-window.pickEmoji    = pickEmoji;
-</script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, updateDoc, deleteDoc, doc,
-  query, orderBy, getDocs, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const app  = initializeApp({
-  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
-  authDomain:"cbt-app-5907f.firebaseapp.com",
-  projectId:"cbt-app-5907f",
-  storageBucket:"cbt-app-5907f.firebasestorage.app",
-  messagingSenderId:"705323924101",
-  appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
-});
-const auth = getAuth(app);
-const db   = getFirestore(app);
-let currentUser = null;
-let cachedPosts = [];
-
-onAuthStateChanged(auth, async function(user) {
-  if (!user) { window.location.href = 'login.html'; return; }
-  currentUser = user;
-  // Verify admin
-  try {
-    const { getDoc, doc: docRef } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const snap = await getDoc(docRef(db, 'users', user.uid));
-    const role = snap.exists() ? snap.data().role : null;
-    if (role !== 'admin') { window.location.href = 'index.html'; return; }
-  } catch(e) { /* allow if check fails */ }
-});
-
-window.saveDraft = async function() {
-  const d = window.validateForm();
+// ── Save Draft ──
+async function saveDraft() {
+  const d = validateForm();
   if (!d) return;
-  const btn = document.getElementById('draftBtn');
-  window.setLoading(btn, true);
+  setBusy('btnDraft', true);
   try {
-    const id = document.getElementById('editPostId').value;
+    const id = document.getElementById('editId').value;
     if (id) {
-      await updateDoc(doc(db,'news_posts',id), { ...d, published: false, updatedAt: serverTimestamp() });
-      window.toast('Draft updated!', 'success');
+      await updateDoc(doc(db, 'news_posts', id), { ...d, published: false, updatedAt: serverTimestamp() });
+      toast('Draft updated ✓', 'success');
     } else {
-      await addDoc(collection(db,'news_posts'), {
+      await addDoc(collection(db, 'news_posts'), {
         ...d, published: false, views: 0,
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
-        authorUid: currentUser?.uid || ''
+        authorUid: currentUser ? currentUser.uid : '',
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       });
-      window.toast('Saved as draft!', 'success');
+      toast('Saved as draft ✓', 'success');
     }
-    window.clearForm();
-    window.loadPosts();
-  } catch(e) {
-    window.toast('Error: ' + e.message, 'error');
+    clearForm();
+    if (document.getElementById('tabPosts').style.display !== 'none') loadPosts();
+  } catch (err) {
+    toast('Error saving: ' + err.message, 'error');
+    console.error('saveDraft:', err);
   }
-  window.setLoading(btn, false);
-};
+  setBusy('btnDraft', false);
+}
+window.saveDraft = saveDraft;
 
-window.publishPost = async function() {
-  const d = window.validateForm();
+// ── Publish ──
+async function publishPost() {
+  const d = validateForm();
   if (!d) return;
-  const btn = document.getElementById('publishBtn');
-  window.setLoading(btn, true);
+  setBusy('btnPublish', true);
   try {
-    const id = document.getElementById('editPostId').value;
+    const id = document.getElementById('editId').value;
     if (id) {
-      await updateDoc(doc(db,'news_posts',id), { ...d, published: true, updatedAt: serverTimestamp() });
-      window.toast('Post updated & published! 🎉', 'success');
+      await updateDoc(doc(db, 'news_posts', id), { ...d, published: true, updatedAt: serverTimestamp() });
+      toast('Post updated & published! 🎉', 'success');
     } else {
-      await addDoc(collection(db,'news_posts'), {
+      await addDoc(collection(db, 'news_posts'), {
         ...d, published: true, views: 0,
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
-        authorUid: currentUser?.uid || ''
+        authorUid: currentUser ? currentUser.uid : '',
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       });
-      window.toast('Post published! 🎉', 'success');
+      toast('Post published! 🎉', 'success');
     }
-    window.clearForm();
-    window.loadPosts();
-  } catch(e) {
-    window.toast('Error: ' + e.message, 'error');
+    clearForm();
+    if (document.getElementById('tabPosts').style.display !== 'none') loadPosts();
+  } catch (err) {
+    toast('Error publishing: ' + err.message, 'error');
+    console.error('publishPost:', err);
   }
-  window.setLoading(btn, false);
-};
+  setBusy('btnPublish', false);
+}
+window.publishPost = publishPost;
 
-window.loadPosts = async function() {
+// ── Load all posts ──
+async function loadPosts() {
   const el = document.getElementById('postsList');
   el.innerHTML = '<div class="skeleton skeleton-card" style="margin-bottom:9px;"></div><div class="skeleton skeleton-card"></div>';
   try {
-    const q = query(collection(db,'news_posts'), orderBy('createdAt','desc'));
+    const q    = query(collection(db, 'news_posts'), orderBy('createdAt', 'desc'));
     const snap = await getDocs(q);
     cachedPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     if (cachedPosts.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">No posts yet</div><div class="empty-sub">Write your first news post!</div></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">No posts yet</div><div class="empty-sub">Write your first post above!</div></div>';
       return;
     }
     el.innerHTML = cachedPosts.map(p => `
       <div class="post-row">
-        <div class="post-row-emoji">${p.emoji||'📰'}</div>
-        <div class="post-row-info">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-            <div class="status-dot ${p.published?'published':'draft'}"></div>
-            <div class="post-row-title">${escHtml(p.title)}</div>
+        <div class="post-emoji">${p.emoji || '📰'}</div>
+        <div class="post-info">
+          <div style="display:flex;align-items:center;margin-bottom:3px;">
+            <span class="sdot ${p.published ? 'live' : 'draft'}"></span>
+            <div class="post-title">${esc(p.title)}</div>
           </div>
-          <div class="post-row-meta">${p.category||'News'} · ${p.published?'Published':'Draft'} · ${formatDate(p.createdAt)}</div>
-          <div class="post-row-actions">
-            <button class="post-action-btn edit" onclick="window._editPost('${p.id}')">✏️ Edit</button>
-            <button class="post-action-btn ${p.published?'draft':'publish'}" onclick="window._togglePublish('${p.id}', ${!p.published})">${p.published?'📦 Unpublish':'📤 Publish'}</button>
-            <button class="post-action-btn delete" onclick="window._deletePost('${p.id}')">🗑 Delete</button>
+          <div class="post-meta">${esc(p.category || 'News')} · ${p.published ? 'Published' : 'Draft'} · ${fmtDate(p.createdAt)}</div>
+          <div class="post-acts">
+            <button class="pa edit"  onclick="doEdit('${p.id}')">✏️ Edit</button>
+            <button class="pa ${p.published ? 'unpub' : 'pub'}" onclick="doToggle('${p.id}',${!p.published})">${p.published ? '📦 Unpublish' : '📤 Publish'}</button>
+            <button class="pa del"   onclick="doDelete('${p.id}')">🗑 Delete</button>
           </div>
         </div>
-      </div>
-    `).join('');
-  } catch(e) {
-    el.innerHTML = '<div class="alert alert-error show">Failed to load: ' + e.message + '</div>';
+      </div>`).join('');
+  } catch (err) {
+    el.innerHTML = `<div class="alert alert-error show">Failed to load posts: ${err.message}</div>`;
+    console.error('loadPosts:', err);
   }
-};
+}
 
-window._editPost = function(id) {
+// ── Edit post ──
+function doEdit(id) {
   const p = cachedPosts.find(x => x.id === id);
-  if (p) window.editPost(id, p);
-};
+  if (!p) return;
+  showTab('compose');
+  editingId = id;
+  document.getElementById('editId').value       = id;
+  document.getElementById('fTitle').value       = p.title    || '';
+  document.getElementById('fExcerpt').value     = p.excerpt  || '';
+  document.getElementById('fBody').value        = p.body     || '';
+  document.getElementById('fAuthor').value      = p.author   || '';
+  document.getElementById('fImage').value       = p.imageUrl || '';
+  document.getElementById('fCategory').value   = p.category || 'News';
+  document.getElementById('formHeading').textContent = '✏️ Editing Post';
+  document.getElementById('btnCancel').style.display = '';
+  document.getElementById('cTitle').textContent   = (p.title   || '').length + ' / 120';
+  document.getElementById('cExcerpt').textContent = (p.excerpt || '').length + ' / 250';
+  document.getElementById('cBody').textContent    = (p.body    || '').length + ' chars';
+  // Emoji
+  selectedEmoji = p.emoji || '📰';
+  document.querySelectorAll('.emo').forEach(x => {
+    x.classList.toggle('on', x.dataset.e === selectedEmoji);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.doEdit = doEdit;
 
-window._togglePublish = async function(id, publish) {
+// ── Toggle publish ──
+async function doToggle(id, publish) {
   try {
-    await updateDoc(doc(db,'news_posts',id), { published: publish, updatedAt: serverTimestamp() });
-    window.toast(publish ? 'Post published!' : 'Post unpublished', publish ? 'success' : 'info');
-    window.loadPosts();
-  } catch(e) { window.toast('Error: ' + e.message, 'error'); }
-};
+    await updateDoc(doc(db, 'news_posts', id), { published: publish, updatedAt: serverTimestamp() });
+    toast(publish ? 'Post published! 🎉' : 'Post unpublished', publish ? 'success' : 'info');
+    loadPosts();
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+    console.error('doToggle:', err);
+  }
+}
+window.doToggle = doToggle;
 
-window._deletePost = async function(id) {
-  if (!confirm('Delete this post? This cannot be undone.')) return;
+// ── Delete post ──
+async function doDelete(id) {
+  if (!confirm('Delete this post permanently? This cannot be undone.')) return;
   try {
-    await deleteDoc(doc(db,'news_posts',id));
-    window.toast('Post deleted', 'info');
-    window.loadPosts();
-  } catch(e) { window.toast('Error: ' + e.message, 'error'); }
-};
+    await deleteDoc(doc(db, 'news_posts', id));
+    toast('Post deleted', 'info');
+    loadPosts();
+  } catch (err) {
+    toast('Error: ' + err.message, 'error');
+    console.error('doDelete:', err);
+  }
+}
+window.doDelete = doDelete;
 
-function formatDate(ts) {
+// ── Toast ──
+function toast(msg, type = 'info') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
+  const el = document.getElementById('toastEl');
+  el.className = 'toast toast-' + type;
+  document.getElementById('toastIcon').textContent = icons[type] || 'ℹ';
+  document.getElementById('toastMsg').textContent  = msg;
+  void el.offsetWidth;
+  el.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Helpers ──
+function fmtDate(ts) {
   if (!ts) return '';
-  const d = ts.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' });
+  try {
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return ''; }
 }
 
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-// expose to global scope
-window.validateForm = validateForm;
-window.getFormData  = getFormData;
-window.clearForm    = clearForm;
-window.editPost     = editPost;
 </script>
+
 </body>
 </html>

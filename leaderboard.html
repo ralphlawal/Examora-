@@ -308,13 +308,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg, type="", dur=3200){
     const el=document.getElementById("toast");
@@ -457,9 +457,9 @@
     const me=allUsers.find(u=>u.id===currentUid);
     if(!me) return;
     const name=me.displayName||me.email?.split("@")[0]||"You";
-    document.getElementById("mrsRank").textContent="#"+(myRankIdx+1);
-    document.getElementById("mrsName").textContent=name;
-    document.getElementById("mrsScore").textContent=(me.totalCorrect||0)+" correct";
+    { const _e=document.getElementById("mrsRank"); if(_e) _e.textContent = "#"+(myRankIdx+1); }
+    { const _e=document.getElementById("mrsName"); if(_e) _e.textContent = name; }
+    { const _e=document.getElementById("mrsScore"); if(_e) _e.textContent = (me.totalCorrect||0)+" correct"; }
 
     window.addEventListener("scroll",()=>{
       const rows=document.querySelectorAll(".lb-row");

@@ -280,6 +280,17 @@
   }
 
   updateStorage();
+
+// expose plain-script functions to window for module access
+window.buildPackList = typeof buildPackList !== "undefined" ? buildPackList : window.buildPackList;
+window.clearAllPacks = typeof clearAllPacks !== "undefined" ? clearAllPacks : window.clearAllPacks;
+window.deletePack = typeof deletePack !== "undefined" ? deletePack : window.deletePack;
+window.downloadPack = typeof downloadPack !== "undefined" ? downloadPack : window.downloadPack;
+window.filterCat = typeof filterCat !== "undefined" ? filterCat : window.filterCat;
+window.isDownloaded = typeof isDownloaded !== "undefined" ? isDownloaded : window.isDownloaded;
+window.renderPacks = typeof renderPacks !== "undefined" ? renderPacks : window.renderPacks;
+window.toast = typeof toast !== "undefined" ? toast : window.toast;
+window.updateStorage = typeof updateStorage !== "undefined" ? updateStorage : window.updateStorage;
 </script>
 
 <script type="module">
@@ -309,8 +320,8 @@
       const qs=await getDocs(collection(db,'questions'));
       window._allQuestions=[];
       qs.forEach(d=>window._allQuestions.push({id:d.id,...d.data()}));
-      allPacks = buildPackList(window._allQuestions);
-      renderPacks();
+      allPacks = window.buildPackList(window._allQuestions);
+      window.renderPacks();
     }catch(e){
       document.getElementById('packList').innerHTML=
         '<div style="text-align:center;padding:32px;color:var(--text-3);font-size:0.82rem;">Could not load packs. Check your connection.</div>';

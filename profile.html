@@ -383,8 +383,8 @@
 var _curTheme = localStorage.getItem('examora_theme') || 'light';
 document.documentElement.setAttribute('data-theme', _curTheme);
 var _isDark = _curTheme === 'dark';
-document.getElementById('themeCheckbox').checked = _isDark;
-document.getElementById('themeRowSub').textContent = _isDark ? 'Currently dark' : 'Currently light';
+{ const _e=document.getElementById('themeCheckbox'); if(_e) _e.checked = _isDark; }
+{ const _e=document.getElementById('themeRowSub'); if(_e) _e.textContent = _isDark ? 'Currently dark' : 'Currently light'; }
 
 // XP Level system
 var XP_LEVELS = [
@@ -401,19 +401,19 @@ function renderXPLevel(xp) {
   var lvl = XP_LEVELS.find(function(l){ return xp >= l.min && xp < l.max; }) || XP_LEVELS[XP_LEVELS.length-1];
   var next = xp >= lvl.max ? null : lvl.max;
   var pct = lvl.max === Infinity ? 100 : Math.round(((xp - lvl.min) / (lvl.max - lvl.min)) * 100);
-  document.getElementById('xpLevelBadge').textContent = lvl.badge;
-  document.getElementById('xpLevelName').textContent  = lvl.name;
-  document.getElementById('xpLevelSub').textContent   = 'Level ' + lvl.level;
-  document.getElementById('xpDisplay').textContent    = xp.toLocaleString() + ' XP';
-  document.getElementById('xpNextLabel').textContent  = next ? 'Next: ' + next.toLocaleString() + ' XP' : 'Max Level! 🏆';
+  { const _e=document.getElementById('xpLevelBadge'); if(_e) _e.textContent = lvl.badge; }
+  { const _e=document.getElementById('xpLevelName'); if(_e) _e.textContent = lvl.name; }
+  { const _e=document.getElementById('xpLevelSub'); if(_e) _e.textContent = 'Level ' + lvl.level; }
+  { const _e=document.getElementById('xpDisplay'); if(_e) _e.textContent = xp.toLocaleString() + ' XP'; }
+  { const _e=document.getElementById('xpNextLabel'); if(_e) _e.textContent = next ? 'Next: ' + next.toLocaleString() + ' XP' : 'Max Level! 🏆'; }
   setTimeout(function(){ document.getElementById('xpProgressBar').style.width = pct + '%'; }, 400);
 }
 window.renderXPLevel = renderXPLevel;
 
 function toast(msg, type) {
   var t = document.getElementById('toast');
-  document.getElementById('toastIcon').textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type] || 'ℹ️';
-  document.getElementById('toastMsg').textContent = msg;
+  { const _e=document.getElementById('toastIcon'); if(_e) _e.textContent = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'}[type] || 'ℹ️'; }
+  { const _e=document.getElementById('toastMsg'); if(_e) _e.textContent = msg; }
   t.className = 'toast show ' + (type || 'info');
   setTimeout(function() { t.className = 'toast'; }, 3200);
 }
@@ -424,8 +424,8 @@ function toggleTheme() {
   localStorage.setItem('examora_theme', _curTheme);
   document.documentElement.setAttribute('data-theme', _curTheme);
   _isDark = _curTheme === 'dark';
-  document.getElementById('themeCheckbox').checked = _isDark;
-  document.getElementById('themeRowSub').textContent = _isDark ? 'Currently dark' : 'Currently light';
+  { const _e=document.getElementById('themeCheckbox'); if(_e) _e.checked = _isDark; }
+  { const _e=document.getElementById('themeRowSub'); if(_e) _e.textContent = _isDark ? 'Currently dark' : 'Currently light'; }
 }
 
 function openSheet(id) { document.getElementById(id).classList.add('open'); }
@@ -447,7 +447,7 @@ function confirmDeleteAccount() {
 window.buildReferralLink = function(uid) {
   var code = uid.slice(-8).toUpperCase();
   var link = 'https://examora.com.ng?ref=' + code;
-  document.getElementById('refCode').textContent = link;
+  { const _e=document.getElementById('refCode'); if(_e) _e.textContent = link; }
   window._refLink = link;
 };
 function copyRef() {
@@ -478,7 +478,7 @@ function renderBadges(badges) {
       '<div class="bdg-name">' + d.name + '</div>' +
       '</div>';
   }).join('');
-  document.getElementById('badgesRow').innerHTML = html;
+  { const _e=document.getElementById('badgesRow'); if(_e) _e.innerHTML = html; }
 }
 window.renderBadges = renderBadges;
 
@@ -528,7 +528,7 @@ function saveCrop() {
   out.toBlob(function(blob) {
     var url = URL.createObjectURL(blob);
     if (cropMode === 'avatar') {
-      document.getElementById('pAvatar').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/><div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>';
+      { const _e=document.getElementById('pAvatar'); if(_e) _e.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/><div class="upload-progress-ring" id="avatarProgressRing"><span class="upr-text" id="avatarProgressPct">0%</span></div>'; }
     } else {
       var cov = document.getElementById('pCover'); cov.src = url; cov.style.display = 'block';
     }

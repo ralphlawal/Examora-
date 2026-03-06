@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Exam Countdown — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+* { box-sizing:border-box; max-width:100%; min-width:0; }
+p,span,div,h1,h2,h3,h4,h5,h6,a,li,label,button { overflow-wrap:break-word; word-wrap:break-word; }
+
+/* Big countdown hero */
+.countdown-hero {
+  background:linear-gradient(135deg,#05060f 0%,#0d0c1e 100%);
+  border-radius:var(--r-xl); padding:28px 20px 24px;
+  text-align:center; margin-bottom:16px; position:relative; overflow:hidden;
+}
+.countdown-hero::before {
+  content:''; position:absolute; top:-60px; left:-60px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle,rgba(91,94,244,.3),transparent 70%); pointer-events:none;
+}
+.countdown-hero::after {
+  content:''; position:absolute; bottom:-60px; right:-60px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle,rgba(16,185,129,.2),transparent 70%); pointer-events:none;
+}
+.cd-exam-name {
+  font-family:var(--fd); font-weight:800; font-size:.82rem;
+  color:rgba(129,140,248,.9); letter-spacing:2px; text-transform:uppercase;
+  margin-bottom:10px; position:relative; z-index:1;
+}
+.cd-digits {
+  display:flex; justify-content:center; gap:10px;
+  margin-bottom:8px; position:relative; z-index:1;
+}
+.cd-unit {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.cd-num {
+  font-family:var(--fd); font-weight:900; font-size:3.2rem;
+  color:#fff; line-height:1; letter-spacing:-3px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; padding:10px 14px; min-width:72px; text-align:center;
+}
+.cd-lbl {
+  font-family:var(--fb); font-size:.64rem; color:rgba(255,255,255,.35);
+  text-transform:uppercase; letter-spacing:1px;
+}
+.cd-sep {
+  font-size:2.2rem; color:rgba(255,255,255,.2); align-self:center; padding-bottom:20px; line-height:1;
+}
+.cd-date-line {
+  font-family:var(--fb); font-size:.76rem; color:rgba(255,255,255,.4);
+  position:relative; z-index:1;
+}
+.cd-date-line span { color:rgba(255,255,255,.7); font-weight:600; }
+.cd-urgency {
+  display:inline-block; margin-top:10px; padding:5px 14px; border-radius:100px;
+  font-family:var(--fb); font-size:.72rem; font-weight:700;
+  position:relative; z-index:1;
+}
+.urgency-danger { background:rgba(244,63,94,.18); color:#f87171; border:1px solid rgba(244,63,94,.3); }
+.urgency-warn   { background:rgba(245,158,11,.15); color:#fbbf24; border:1px solid rgba(245,158,11,.3); }
+.urgency-ok     { background:rgba(16,185,129,.12);  color:#34d399; border:1px solid rgba(16,185,129,.25); }
+
+/* Exam list */
+.exam-list { margin-bottom:18px; }
+.exam-row {
+  display:flex; align-items:center; gap:12px; padding:14px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-md); margin-bottom:8px; cursor:pointer;
+  transition:all .18s ease; position:relative; overflow:hidden;
+}
+.exam-row::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:4px; border-radius:4px 0 0 4px;
+}
+.exam-row:hover { border-color:var(--brand); transform:translateX(2px); }
+.exam-row.active { border-color:var(--brand); background:var(--brand-pale); }
+.exam-row.active::before { background:var(--brand); }
+.er-icon { font-size:1.5rem; flex-shrink:0; }
+.er-info { flex:1; min-width:0; }
+.er-name { font-family:var(--fd); font-weight:800; font-size:.85rem; color:var(--ink); }
+.er-date { font-size:.7rem; color:var(--ink-3); margin-top:2px; font-family:var(--fb); }
+.er-days { font-family:var(--fd); font-weight:900; font-size:1rem; flex-shrink:0; }
+
+/* Add custom exam */
+.add-exam-form {
+  background:var(--surface); border:1.5px dashed var(--border);
+  border-radius:var(--r-lg); padding:18px; margin-bottom:18px;
+}
+.add-exam-form .form-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;
+}
+.add-exam-form .form-grid .full { grid-column:1/-1; }
+
+/* Study intensity indicator */
+.intensity-bar { margin-bottom:20px; }
+.ib-header { display:flex; justify-content:space-between; margin-bottom:8px; }
+.ib-title { font-family:var(--fd); font-weight:800; font-size:.85rem; color:var(--ink); }
+.ib-val   { font-family:var(--fd); font-weight:900; font-size:.85rem; color:var(--brand); }
+.intensity-levels { display:flex; gap:4px; }
+.il-item {
+  flex:1; height:8px; border-radius:100px; transition:all .3s ease;
+  background:var(--surface-2); border:1px solid var(--border);
+}
+.il-item.filled { border-color:transparent; }
+
+/* Tips card */
+.tip-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-md); padding:14px; margin-bottom:8px;
+  display:flex; align-items:flex-start; gap:12px;
+}
+.tip-icon { font-size:1.3rem; flex-shrink:0; margin-top:2px; }
+.tip-text { font-family:var(--fb); font-size:.8rem; color:var(--ink-2); line-height:1.55; }
+.tip-text strong { color:var(--ink); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img class="app-logo-img" src="logo.png" alt="EXAMORA" style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"/>
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">Countdown</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn" title="Toggle theme">
+      <span class="material-symbols-rounded">light_mode</span>
+    </button>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- Hero countdown -->
+  <div class="countdown-hero" id="heroSection">
+    <div class="cd-exam-name" id="heroExamName">SELECT AN EXAM BELOW</div>
+    <div class="cd-digits">
+      <div class="cd-unit"><div class="cd-num" id="cdDays">—</div><div class="cd-lbl">Days</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cdHours">—</div><div class="cd-lbl">Hours</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cdMins">—</div><div class="cd-lbl">Mins</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cdSecs">—</div><div class="cd-lbl">Secs</div></div>
+    </div>
+    <div class="cd-date-line" id="heroDateLine">Pick an exam to start your countdown</div>
+    <div id="urgencyBadge"></div>
+  </div>
+
+  <!-- Study intensity -->
+  <div class="intensity-bar" id="intensityBar" style="display:none;">
+    <div class="ib-header">
+      <span class="ib-title">Recommended Study Intensity</span>
+      <span class="ib-val" id="intensityVal">—</span>
+    </div>
+    <div class="intensity-levels" id="intensityLevels">
+      <div class="il-item"></div><div class="il-item"></div><div class="il-item"></div>
+      <div class="il-item"></div><div class="il-item"></div>
+    </div>
+  </div>
+
+  <!-- Upcoming exams -->
+  <div class="sec-label">Upcoming Exams</div>
+  <div class="exam-list" id="examList"></div>
+
+  <!-- Add custom -->
+  <div class="sec-label">+ Add Your Exam</div>
+  <div class="add-exam-form">
+    <div class="form-grid">
+      <div class="form-group full" style="margin:0 0 10px;">
+        <label class="form-label">Exam Name</label>
+        <input id="customName" class="form-input" type="text" placeholder="e.g. My University Post-UTME"/>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Exam Date</label>
+        <input id="customDate" class="form-input" type="date"/>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Exam Type</label>
+        <select id="customType" class="form-select">
+          <option value="🎓">Post-UTME</option>
+          <option value="📋">Mock Exam</option>
+          <option value="🏫">School Exam</option>
+          <option value="📜">IELTS/TOEFL</option>
+          <option value="🌍">Other</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="addCustomExam()">
+      <span class="material-symbols-rounded ms-sm">add_circle</span> Add to Countdown
+    </button>
+  </div>
+
+  <!-- Study tips -->
+  <div class="sec-label">Preparation Tips</div>
+  <div id="tipsContainer"></div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="news.html"        class="nav-item"><span class="nav-icon">newspaper</span><span class="nav-label">News</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<div id="toastEl" class="toast"><span class="toast-icon" id="toastIcon">✓</span><span id="toastMsg">Done</span></div>
+
+<script type="module">
+// ── State ──────────────────────────────────────────────────────────────────
+let activeExamId = null;
+let timerInterval = null;
+let allExams = [];
+
+// ── Theme ──────────────────────────────────────────────────────────────────
+const _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+const themeBtn = document.getElementById('themeBtn');
+if (themeBtn) {
+  themeBtn.querySelector('span').textContent = _t === 'dark' ? 'light_mode' : 'dark_mode';
+  themeBtn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const nxt = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nxt);
+    localStorage.setItem('examora_theme', nxt);
+    themeBtn.querySelector('span').textContent = nxt === 'dark' ? 'light_mode' : 'dark_mode';
+  });
+}
+
+// ── Default exams (Nigerian calendar 2025-2026) ────────────────────────────
+const DEFAULT_EXAMS = [
+  { id:'jamb26',    name:'JAMB UTME 2026',    icon:'📝', date:'2026-04-20', color:'#5b5ef4' },
+  { id:'waec26',    name:'WAEC GCE 2026',     icon:'🎓', date:'2026-05-05', color:'#10b981' },
+  { id:'neco26',    name:'NECO 2026',         icon:'📚', date:'2026-06-08', color:'#f59e0b' },
+  { id:'postutme26',name:'Post-UTME Season',  icon:'🏛️', date:'2026-08-01', color:'#8b5cf6' },
+  { id:'waec26Nov', name:'WAEC Nov/Dec 2026', icon:'✍️', date:'2026-11-10', color:'#06b6d4' },
+];
+
+// ── Load custom exams from localStorage ───────────────────────────────────
+function loadExams() {
+  let custom = [];
+  try { custom = JSON.parse(localStorage.getItem('examora_countdowns') || '[]'); } catch (_) {}
+  allExams = [...DEFAULT_EXAMS, ...custom];
+  // Filter: only future exams or today
+  const now = new Date(); now.setHours(0,0,0,0);
+  allExams = allExams.filter(e => new Date(e.date) >= now);
+  allExams.sort((a,b) => new Date(a.date) - new Date(b.date));
+}
+
+function saveCustomExams() {
+  const custom = allExams.filter(e => !DEFAULT_EXAMS.find(d=>d.id===e.id));
+  localStorage.setItem('examora_countdowns', JSON.stringify(custom));
+}
+
+// ── Render exam list ───────────────────────────────────────────────────────
+function renderExamList() {
+  const el = document.getElementById('examList');
+  if (!allExams.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:.8rem;">No upcoming exams. Add one above!</div>';
+    return;
+  }
+  el.innerHTML = allExams.map((exam, i) => {
+    const daysLeft = getDaysLeft(exam.date);
+    const active   = exam.id === activeExamId;
+    const col      = exam.color || 'var(--brand)';
+    const isCustom = !DEFAULT_EXAMS.find(d=>d.id===exam.id);
+    return `
+      <div class="exam-row ${active?'active':''}" onclick="selectExam('${exam.id}')" style="${active?`border-color:${col};`:''}">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${col};border-radius:4px 0 0 4px;"></div>
+        <div class="er-icon">${exam.icon}</div>
+        <div class="er-info">
+          <div class="er-name">${esc(exam.name)}</div>
+          <div class="er-date">${fmtDate(exam.date)}</div>
+        </div>
+        <div class="er-days" style="color:${col};">${daysLeft}d</div>
+        ${isCustom ? `<button onclick="event.stopPropagation();removeCustom('${exam.id}')" style="background:none;border:none;cursor:pointer;color:var(--ink-3);padding:4px;font-size:.9rem;" title="Remove">✕</button>` : ''}
+      </div>`;
+  }).join('');
+
+  // Auto-select first if none active
+  if (!activeExamId && allExams.length) selectExam(allExams[0].id);
+}
+
+// ── Select exam ────────────────────────────────────────────────────────────
+function selectExam(id) {
+  activeExamId = id;
+  localStorage.setItem('examora_active_countdown', id);
+  document.querySelectorAll('.exam-row').forEach((row, i) => {
+    const exam = allExams[i];
+    row.classList.toggle('active', exam && exam.id === id);
+  });
+  startCountdown();
+  renderTips();
+  renderIntensity();
+  renderExamList();
+}
+window.selectExam = selectExam;
+
+// ── Countdown timer ────────────────────────────────────────────────────────
+function startCountdown() {
+  if (timerInterval) clearInterval(timerInterval);
+  updateCountdown();
+  timerInterval = setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+  const exam = allExams.find(e => e.id === activeExamId);
+  if (!exam) return;
+
+  const now      = Date.now();
+  const target   = new Date(exam.date).getTime();
+  const diff     = target - now;
+
+  const el = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+
+  if (diff <= 0) {
+    el('cdDays','0'); el('cdHours','00'); el('cdMins','00'); el('cdSecs','00');
+    el('heroExamName', exam.name.toUpperCase());
+    el('heroDateLine','Exam day has arrived! Good luck! 🎉');
+    const badge = document.getElementById('urgencyBadge');
+    if (badge) badge.innerHTML = '<div class="cd-urgency urgency-ok">🎓 Exam Day!</div>';
+    return;
+  }
+
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000) / 60000);
+  const secs  = Math.floor((diff % 60000) / 1000);
+
+  el('cdDays',  pad(days));
+  el('cdHours', pad(hours));
+  el('cdMins',  pad(mins));
+  el('cdSecs',  pad(secs));
+  el('heroExamName', exam.name.toUpperCase());
+  el('heroDateLine', `${fmtDate(exam.date)} · ${days} days remaining`);
+
+  const badge = document.getElementById('urgencyBadge');
+  if (badge) {
+    if (days <= 7)  badge.innerHTML = `<div class="cd-urgency urgency-danger">🚨 Final week — study hard!</div>`;
+    else if (days <= 30) badge.innerHTML = `<div class="cd-urgency urgency-warn">⚡ ${days} days — stay focused!</div>`;
+    else badge.innerHTML = `<div class="cd-urgency urgency-ok">✅ ${days} days — great start!</div>`;
+  }
+}
+
+// ── Study intensity ────────────────────────────────────────────────────────
+function renderIntensity() {
+  const exam = allExams.find(e => e.id === activeExamId);
+  if (!exam) return;
+  const days   = getDaysLeft(exam.date);
+  const bar    = document.getElementById('intensityBar');
+  const valEl  = document.getElementById('intensityVal');
+  const levels = document.getElementById('intensityLevels');
+  if (!bar || !valEl || !levels) return;
+  bar.style.display = '';
+
+  let level, label, color;
+  if (days <= 7)  { level=5; label='🔥 Maximum Intensity'; color='#f43f5e'; }
+  else if (days <= 14) { level=4; label='⚡ Very High'; color='#f59e0b'; }
+  else if (days <= 30) { level=3; label='💪 High'; color='#818cf8'; }
+  else if (days <= 60) { level=2; label='📚 Moderate'; color:'#10b981'; }
+  else                 { level=1; label='🌱 Light'; color='#34d399'; }
+
+  valEl.textContent = label; valEl.style.color = color;
+  levels.querySelectorAll('.il-item').forEach((el,i) => {
+    el.classList.toggle('filled', i < level);
+    if (i < level) el.style.background = color; else el.style.background = '';
+  });
+}
+
+// ── Tips based on days remaining ──────────────────────────────────────────
+function renderTips() {
+  const exam  = allExams.find(e => e.id === activeExamId);
+  if (!exam) return;
+  const days  = getDaysLeft(exam.date);
+  const el    = document.getElementById('tipsContainer');
+
+  let tips;
+  if (days <= 7) {
+    tips = [
+      { icon:'🎯', text:'<strong>Stop learning new topics.</strong> Revise only what you already know. Your brain consolidates, not absorbs, in the final week.' },
+      { icon:'📋', text:'<strong>Do past question papers</strong> every single day under timed conditions. Familiarity with the format removes panic.' },
+      { icon:'😴', text:'<strong>Sleep 7–8 hours</strong> the night before. Sleep-deprived students lose an average of 20% of recall.' },
+      { icon:'🥤', text:'<strong>Stay hydrated.</strong> Even 2% dehydration reduces cognitive performance. Drink water consistently the day before.' },
+    ];
+  } else if (days <= 30) {
+    tips = [
+      { icon:'📖', text:'<strong>Focus on your weak subjects.</strong> One hour of targeted weak-area practice beats three hours on what you already know.' },
+      { icon:'⏱️', text:'<strong>Practice timed sessions</strong> with EXAMORA\'s mock exam mode. Speed comes from repeated familiarity.' },
+      { icon:'📝', text:'<strong>Use the Wrong Drill feature.</strong> Reviewing mistakes is 3x more effective than re-reading notes.' },
+      { icon:'📅', text:'<strong>Set a daily study schedule</strong> and treat it like an appointment you cannot miss.' },
+    ];
+  } else {
+    tips = [
+      { icon:'🗺️', text:'<strong>Start with the full syllabus.</strong> Use EXAMORA\'s Syllabus Tracker to map what you\'ve covered and what\'s left.' },
+      { icon:'🧠', text:'<strong>Build understanding, not memorisation.</strong> Ask "why" and "how" for every concept you learn.' },
+      { icon:'👥', text:'<strong>Study with friends occasionally.</strong> Explaining topics to others is one of the best ways to solidify knowledge.' },
+      { icon:'📊', text:'<strong>Track your progress</strong> on EXAMORA Analytics. Measure what matters: weak areas, not just total questions done.' },
+    ];
+  }
+
+  el.innerHTML = tips.map(t => `
+    <div class="tip-card">
+      <div class="tip-icon">${t.icon}</div>
+      <div class="tip-text">${t.text}</div>
+    </div>`).join('');
+}
+
+// ── Add custom exam ────────────────────────────────────────────────────────
+function addCustomExam() {
+  const name = (document.getElementById('customName').value || '').trim();
+  const date = document.getElementById('customDate').value;
+  const type = document.getElementById('customType').value;
+  if (!name) { toast('Enter an exam name','error'); return; }
+  if (!date) { toast('Pick an exam date','error'); return; }
+  if (new Date(date) < new Date()) { toast('Date must be in the future','error'); return; }
+
+  const id = 'custom_' + Date.now();
+  allExams.push({ id, name, icon:type, date, color:'#8b5cf6', custom:true });
+  allExams.sort((a,b) => new Date(a.date) - new Date(b.date));
+  saveCustomExams();
+  renderExamList();
+  document.getElementById('customName').value = '';
+  document.getElementById('customDate').value = '';
+  toast('Exam added! ✓','success');
+  selectExam(id);
+}
+window.addCustomExam = addCustomExam;
+
+// ── Remove custom exam ─────────────────────────────────────────────────────
+function removeCustom(id) {
+  allExams = allExams.filter(e => e.id !== id);
+  saveCustomExams();
+  if (activeExamId === id) { activeExamId = allExams[0]?.id || null; }
+  renderExamList();
+  if (activeExamId) { startCountdown(); renderTips(); renderIntensity(); }
+  toast('Removed','info');
+}
+window.removeCustom = removeCustom;
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function getDaysLeft(dateStr) {
+  const now    = new Date(); now.setHours(0,0,0,0);
+  const target = new Date(dateStr);
+  return Math.max(0, Math.ceil((target - now) / 86400000));
+}
+function fmtDate(dateStr) {
+  try { return new Date(dateStr).toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'long',year:'numeric'}); } catch { return dateStr; }
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const icons={ success:'✓', error:'✕', info:'ℹ', warning:'⚠' };
+  const el=document.getElementById('toastEl');
+  el.className='toast toast-'+type;
+  document.getElementById('toastIcon').textContent=icons[type]||'ℹ';
+  document.getElementById('toastMsg').textContent=msg;
+  void el.offsetWidth; el.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadExams();
+const saved = localStorage.getItem('examora_active_countdown');
+if (saved && allExams.find(e=>e.id===saved)) activeExamId = saved;
+renderExamList();
+renderTips();
+renderIntensity();
+startCountdown();
+</script>
+
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

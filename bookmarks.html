@@ -313,13 +313,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg,dur=2600){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
 
@@ -441,7 +441,7 @@
     const n=selectedIds.size;
     if(n>0){
       bar.classList.add("visible");
-      document.getElementById("pbText").textContent=`${n} question${n!==1?"s":""} selected`;
+      { const _e=document.getElementById("pbText"); if(_e) _e.textContent = `${n} question${n!==1?"s":""} selected`; }
     } else {
       bar.classList.remove("visible");
     }
@@ -497,9 +497,9 @@
     const subjects=new Set(bookmarks.map(b=>b.subject||"").filter(Boolean));
     const categories=new Set(bookmarks.map(b=>b.category||"").filter(Boolean));
     document.getElementById("bmSummary").style.display="flex";
-    document.getElementById("sumTotal").textContent=bookmarks.length;
-    document.getElementById("sumSubjects").textContent=subjects.size;
-    document.getElementById("sumCategories").textContent=categories.size;
+    { const _e=document.getElementById("sumTotal"); if(_e) _e.textContent = bookmarks.length; }
+    { const _e=document.getElementById("sumSubjects"); if(_e) _e.textContent = subjects.size; }
+    { const _e=document.getElementById("sumCategories"); if(_e) _e.textContent = categories.size; }
     document.getElementById("swipeHint").style.display="flex";
     document.getElementById("clearAllBtn").style.display="flex";
     document.getElementById("heroSub").textContent=
@@ -524,12 +524,12 @@
     selectedIds.delete(id);
     updatePracticeBar();
     // Update summary
-    document.getElementById("sumTotal").textContent=allBookmarks.length;
+    { const _e=document.getElementById("sumTotal"); if(_e) _e.textContent = allBookmarks.length; }
     if(allBookmarks.length===0){
       document.getElementById("bmSummary").style.display="none";
       document.getElementById("swipeHint").style.display="none";
       document.getElementById("clearAllBtn").style.display="none";
-      document.getElementById("heroSub").textContent="Your personal revision library";
+      { const _e=document.getElementById("heroSub"); if(_e) _e.textContent = "Your personal revision library"; }
     }
     render();
     await window._deleteFromFirestore(id);

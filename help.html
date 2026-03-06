@@ -182,5 +182,30 @@ function toggleFaq(el) {
   }
 }
 </script>
+
+<script>
+function filterFaq(query) {
+  var q = (query || '').toLowerCase().trim();
+  var items = document.querySelectorAll('.faq-item, .card, [data-faq]');
+  if (!items.length) {
+    // fallback: try to find any element with question/answer text
+    items = document.querySelectorAll('.acc-item, .help-item, li');
+  }
+  items.forEach(function(el) {
+    var text = (el.textContent || '').toLowerCase();
+    el.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+  // Also filter section labels if all items in section are hidden
+  document.querySelectorAll('.sec-label').forEach(function(label) {
+    var next = label.nextElementSibling;
+    var hasVisible = false;
+    while (next && !next.classList.contains('sec-label')) {
+      if (next.style.display !== 'none') hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    label.style.display = hasVisible ? '' : (q ? 'none' : '');
+  });
+}
+</script>
 </body>
 </html>

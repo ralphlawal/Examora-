@@ -474,13 +474,13 @@
 <script>
   const _t = localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent = _t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg, type="", dur=3200){
     const el=document.getElementById("toast");
@@ -591,9 +591,9 @@
   function showSubmitSheet(){
     const ans=Object.keys(answers).length;
     const total=examQuestions.length;
-    document.getElementById("ssAnswered").textContent=ans;
-    document.getElementById("ssUnanswered").textContent=total-ans;
-    document.getElementById("ssFlagged").textContent=flagged.size;
+    { const _e=document.getElementById("ssAnswered"); if(_e) _e.textContent = ans; }
+    { const _e=document.getElementById("ssUnanswered"); if(_e) _e.textContent = total-ans; }
+    { const _e=document.getElementById("ssFlagged"); if(_e) _e.textContent = flagged.size; }
     document.getElementById("submitOverlay").classList.add("show");
   }
   function hideSubmitSheet(e){
@@ -627,8 +627,8 @@
     const total=examQuestions.length;
     const progress=((currentIdx+1)/total)*100;
 
-    document.getElementById("qCurrent").textContent=currentIdx+1;
-    document.getElementById("qTotal").textContent=total;
+    { const _e=document.getElementById("qCurrent"); if(_e) _e.textContent = currentIdx+1; }
+    { const _e=document.getElementById("qTotal"); if(_e) _e.textContent = total; }
     document.getElementById("examProgress").style.width=progress+"%";
 
     const isFlagged=flagged.has(currentIdx);
@@ -636,7 +636,7 @@
     const userAns=answers[currentIdx];
     const showAnswer=examMode==="practice"&&userAns!=null;
 
-    document.getElementById("qWrap").innerHTML=`
+    { const _e=document.getElementById("qWrap"); if(_e) _e.innerHTML = ` }
       <div class="q-meta">
         ${q.category?`<span class="q-tag q-tag-cat">${q.category}</span>`:""}
         ${q.subject?`<span class="q-tag q-tag-subj">${q.subject}</span>`:""}
@@ -675,13 +675,13 @@
       </div>`;
 
     // Update nav buttons
-    document.getElementById("prevBtn").disabled=currentIdx===0;
-    document.getElementById("nextBtn").textContent=currentIdx===total-1?"Submit ✓":"Next →";
-    document.getElementById("nextBtn").className=currentIdx===total-1?"btn btn-green":"btn btn-primary";
+    { const _e=document.getElementById("prevBtn"); if(_e) _e.disabled = currentIdx===0; }
+    { const _e=document.getElementById("nextBtn"); if(_e) _e.textContent = currentIdx===total-1?"Submit ✓":"Next →"; }
+    { const _e=document.getElementById("nextBtn"); if(_e) _e.className = currentIdx===total-1?"btn btn-green":"btn btn-primary"; }
     if(currentIdx===total-1){
-      document.getElementById("nextBtn").onclick=showSubmitSheet;
+      { const _e=document.getElementById("nextBtn"); if(_e) _e.onclick = showSubmitSheet; }
     } else {
-      document.getElementById("nextBtn").onclick=()=>navigate(1);
+      { const _e=document.getElementById("nextBtn"); if(_e) _e.onclick = ()=>navigate(1); }
     }
 
     renderDots();
@@ -733,7 +733,7 @@
     timerInterval=setInterval(()=>{
       timeLeft--;
       const m=Math.floor(timeLeft/60), s=timeLeft%60;
-      document.getElementById("timerDisplay").textContent=`${m}:${s.toString().padStart(2,"0")}`;
+      { const _e=document.getElementById("timerDisplay"); if(_e) _e.textContent = `${m}:${s.toString().padStart(2,"0")}`; }
       badge.className="timer-badge"+(timeLeft<=300?" warn":"")+(timeLeft<=60?" urgent":"");
       if(timeLeft<=0){clearInterval(timerInterval);toast("⏰ Time's up! Submitting...");setTimeout(submitExam,1200);}
     },1000);
@@ -768,7 +768,7 @@
   async function generateAIQuestions() {
     if (!_checkAIAccess()) {
       document.getElementById('qgenResult').style.display = 'block';
-      document.getElementById('qgenResult').innerHTML = _aiUpgradeHTML(true);
+      { const _e=document.getElementById('qgenResult'); if(_e) _e.innerHTML = _aiUpgradeHTML(true); }
       return;
     }
     var topic = document.getElementById('qgenTopic').value.trim();

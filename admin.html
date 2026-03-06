@@ -747,13 +747,13 @@
 <script>
   const _t=localStorage.getItem("examora_theme")||"light";
   document.documentElement.setAttribute("data-theme",_t);
-  document.getElementById("themeBtn").textContent=_t==="dark"?"☀️":"🌙";
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
   document.getElementById("themeBtn").addEventListener("click",()=>{
     const c=document.documentElement.getAttribute("data-theme");
     const n=c==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",n);
     localStorage.setItem("examora_theme",n);
-    document.getElementById("themeBtn").textContent=n==="dark"?"☀️":"🌙";
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
   function toast(msg,dur=2800){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
 
@@ -815,9 +815,9 @@
       const prevBody=document.getElementById("csvPreviewBody");
       prevHead.innerHTML=headers.map(h=>`<th>${h}</th>`).join("");
       prevBody.innerHTML=parsedCSV.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td>${r[h]||""}</td>`).join("")}</tr>`).join("");
-      document.getElementById("csvStats").textContent=`✅ ${parsedCSV.length} questions parsed, ready to upload`;
+      { const _e=document.getElementById("csvStats"); if(_e) _e.textContent = `✅ ${parsedCSV.length} questions parsed, ready to upload`; }
       document.getElementById("csvPreviewWrap").style.display="block";
-      document.getElementById("confirmUploadBtn").textContent=`📤 Upload ${parsedCSV.length} Questions`;
+      { const _e=document.getElementById("confirmUploadBtn"); if(_e) _e.textContent = `📤 Upload ${parsedCSV.length} Questions`; }
     };
     reader.readAsText(file);
   }
@@ -837,7 +837,7 @@
   function cancelCSV(){
     parsedCSV=[];
     document.getElementById("csvPreviewWrap").style.display="none";
-    document.getElementById("csvFileInput").value="";
+    { const _e=document.getElementById("csvFileInput"); if(_e) _e.value = ""; }
   }
 
   function downloadTemplate(){
@@ -948,6 +948,36 @@
 </script>
 <script>
 window.toast = toast;
+
+// expose plain-script functions to window for module access
+window.addQuestion = typeof addQuestion !== "undefined" ? addQuestion : window.addQuestion;
+window.cancelCSV = typeof cancelCSV !== "undefined" ? cancelCSV : window.cancelCSV;
+window.closeOverlay = typeof closeOverlay !== "undefined" ? closeOverlay : window.closeOverlay;
+window.confirmDeleteAllQuestions = typeof confirmDeleteAllQuestions !== "undefined" ? confirmDeleteAllQuestions : window.confirmDeleteAllQuestions;
+window.deleteFlag = typeof deleteFlag !== "undefined" ? deleteFlag : window.deleteFlag;
+window.deleteQ = typeof deleteQ !== "undefined" ? deleteQ : window.deleteQ;
+window.deleteUser = typeof deleteUser !== "undefined" ? deleteUser : window.deleteUser;
+window.downloadTemplate = typeof downloadTemplate !== "undefined" ? downloadTemplate : window.downloadTemplate;
+window.grantPremium = typeof grantPremium !== "undefined" ? grantPremium : window.grantPremium;
+window.handleCSV = typeof handleCSV !== "undefined" ? handleCSV : window.handleCSV;
+window.handleDrop = typeof handleDrop !== "undefined" ? handleDrop : window.handleDrop;
+window.openEditQ = typeof openEditQ !== "undefined" ? openEditQ : window.openEditQ;
+window.parseCSVLine = typeof parseCSVLine !== "undefined" ? parseCSVLine : window.parseCSVLine;
+window.previewQuestion = typeof previewQuestion !== "undefined" ? previewQuestion : window.previewQuestion;
+window.processCSVFile = typeof processCSVFile !== "undefined" ? processCSVFile : window.processCSVFile;
+window.resolveFlag = typeof resolveFlag !== "undefined" ? resolveFlag : window.resolveFlag;
+window.saveAIKeys = typeof saveAIKeys !== "undefined" ? saveAIKeys : window.saveAIKeys;
+window.saveAnnouncement = typeof saveAnnouncement !== "undefined" ? saveAnnouncement : window.saveAnnouncement;
+window.saveAppSettings = typeof saveAppSettings !== "undefined" ? saveAppSettings : window.saveAppSettings;
+window.saveEditQuestion = typeof saveEditQuestion !== "undefined" ? saveEditQuestion : window.saveEditQuestion;
+window.saveTimers = typeof saveTimers !== "undefined" ? saveTimers : window.saveTimers;
+window.setAnnType = typeof setAnnType !== "undefined" ? setAnnType : window.setAnnType;
+window.showTab = typeof showTab !== "undefined" ? showTab : window.showTab;
+window.testAIKeys = typeof testAIKeys !== "undefined" ? testAIKeys : window.testAIKeys;
+window.toast = typeof toast !== "undefined" ? toast : window.toast;
+window.toggleKeyVis = typeof toggleKeyVis !== "undefined" ? toggleKeyVis : window.toggleKeyVis;
+window.uploadCSV = typeof uploadCSV !== "undefined" ? uploadCSV : window.uploadCSV;
+window.wrappers = typeof wrappers !== "undefined" ? wrappers : window.wrappers;
 </script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1035,8 +1065,8 @@ window.toast = toast;
           <td><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.8rem;
             color:var(--c-green);">${q.answer||"?"}</span></td>
           <td>
-            <button class="tbl-btn tbl-btn-edit" onclick="openEditQ('${q.id}')">✏️</button>
-            <button class="tbl-btn tbl-btn-delete" onclick="deleteQ('${q.id}')">🗑</button>
+            <button class="tbl-btn tbl-btn-edit" onclick="window.openEditQ('${q.id}')">✏️</button>
+            <button class="tbl-btn tbl-btn-delete" onclick="window.deleteQ('${q.id}')">🗑</button>
           </td>
         </tr>`).join("");
       if(qs.length>50) document.getElementById("qTableNote").textContent=`Showing first 50 of ${qs.length}`;
@@ -1163,7 +1193,7 @@ window.toast = toast;
       document.getElementById("upLabel").textContent=`Uploading... ${done}/${total}`;
     }
     window.toast(`✅ ${done} questions uploaded!`);
-    cancelCSV();
+    window.cancelCSV();
     document.getElementById("uploadProgress").style.display="none";
     btn.disabled=false;
     loadDashboardStats();
@@ -1199,8 +1229,8 @@ window.toast = toast;
           <td style="font-weight:700;color:var(--text);">${u.totalExams||0}</td>
           <td style="font-weight:700;color:${avg>=50?"var(--c-green)":"var(--c-red)"};">${avg}%</td>
           <td>
-            ${!isPrem?`<button class="tbl-btn tbl-btn-prem" onclick="grantPremium('${u.id}')">👑</button>`:""}
-            <button class="tbl-btn tbl-btn-delete" onclick="deleteUser('${u.id}','${name}')">🗑</button>
+            ${!isPrem?`<button class="tbl-btn tbl-btn-prem" onclick="window.grantPremium('${u.id}')">👑</button>`:""}
+            <button class="tbl-btn tbl-btn-delete" onclick="window.deleteUser('${u.id}','${name}')">🗑</button>
           </td>
         </tr>`;
       }).join("");
@@ -1247,9 +1277,9 @@ window.toast = toast;
             ${new Date(f.reportedAt||Date.now()).toLocaleDateString()}
           </div>
           <div>
-            <button class="tbl-btn tbl-btn-resolve" onclick="resolveFlag('${f.id}')">✅ Resolve</button>
-            <button class="tbl-btn tbl-btn-edit"    onclick="window.openEditQ&&openEditQ('${f.questionId}')">✏️ Edit Q</button>
-            <button class="tbl-btn tbl-btn-delete"  onclick="deleteFlag('${f.id}')">🗑 Delete</button>
+            <button class="tbl-btn tbl-btn-resolve" onclick="window.resolveFlag('${f.id}')">✅ Resolve</button>
+            <button class="tbl-btn tbl-btn-edit"    onclick="window.openEditQ&&window.openEditQ('${f.questionId}')">✏️ Edit Q</button>
+            <button class="tbl-btn tbl-btn-delete"  onclick="window.deleteFlag('${f.id}')">🗑 Delete</button>
           </div>
         </div>`).join("");
     }catch(e){window.toast("Could not load flags");}
