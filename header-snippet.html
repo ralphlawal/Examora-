@@ -1,0 +1,96 @@
+<!--
+  ═══════════════════════════════════════════════════════════
+  EXAMORA — Universal Header (copy-paste into every page)
+  Replace the existing <header class="app-header">...</header>
+  ═══════════════════════════════════════════════════════════
+  
+  HOW TO USE THE LOGO IMAGE:
+  1. Add your logo file to your project (e.g. logo.png)
+  2. Update the src="logo.png" below to match your filename
+  3. The <img> tag gracefully falls back to text "EX" if the
+     image fails to load (via onerror handler)
+  ═══════════════════════════════════════════════════════════
+-->
+
+<!-- ── PASTE THIS STYLE BLOCK once inside <head> of each page ── -->
+<style>
+  .app-logo-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    object-fit: contain;
+    display: block;
+  }
+  /* Fallback text icon — shown only if image fails */
+  .app-logo-icon-fallback {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: none; /* hidden by default, JS shows it on error */
+    align-items: center;
+    justify-content: center;
+    font-family:'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: white;
+    flex-shrink: 0;
+  }
+</style>
+
+<!-- ══════════════════════════════════════════════════════════
+     HEADER — replace the entire <header> block on each page
+══════════════════════════════════════════════════════════ -->
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;">
+
+    <!-- Logo image — update src to your actual logo file -->
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"
+    />
+
+    <!-- Fallback text icon (auto-shows if logo.png not found) -->
+    <div class="app-logo-icon-fallback">EX</div>
+
+    <div>
+      <div class="app-logo-name">EXAMORA</div>
+    </div>
+  </a>
+
+  <div class="header-actions">
+    <!-- Streak badge (shown by JS on dashboard — remove from other pages if not needed) -->
+    <div class="streak-badge" id="streakBadge" style="display:none;">
+      🔥 <span id="streakCount">0</span>
+    </div>
+    <button class="header-btn" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════════
+     THEME SCRIPT — add this to the <script> block of every page
+     (replaces any existing theme init code)
+════════════════════════════════════════════════════════════ -->
+<script>
+  (function() {
+    // Apply saved theme immediately (before render, no flash)
+    const saved = localStorage.getItem("examora_theme") || "light";
+    document.documentElement.setAttribute("data-theme", saved);
+
+    // Set button icon once DOM is ready
+    document.addEventListener("DOMContentLoaded", function() {
+      const btn = document.getElementById("themeBtn");
+      if (!btn) return;
+      btn.textContent = saved === "dark" ? "☀️" : "🌙";
+      btn.addEventListener("click", function() {
+        const current = document.documentElement.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("examora_theme", next);
+        btn.textContent = next === "dark" ? "☀️" : "🌙";
+      });
+    });
+  })();
+</script>

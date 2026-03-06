@@ -401,6 +401,16 @@ function toast(msg, type) {
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2800);
 }
+
+// expose helpers so module script can call them
+window.validateForm = validateForm;
+window.getFormData  = getFormData;
+window.clearForm    = clearForm;
+window.editPost     = editPost;
+window.setLoading   = setLoading;
+window.toast        = toast;
+window.switchTab    = switchTab;
+window.pickEmoji    = pickEmoji;
 </script>
 
 <script type="module">
@@ -437,55 +447,55 @@ onAuthStateChanged(auth, async function(user) {
 });
 
 window.saveDraft = async function() {
-  const d = validateForm();
+  const d = window.validateForm();
   if (!d) return;
   const btn = document.getElementById('draftBtn');
-  setLoading(btn, true);
+  window.setLoading(btn, true);
   try {
     const id = document.getElementById('editPostId').value;
     if (id) {
       await updateDoc(doc(db,'news_posts',id), { ...d, published: false, updatedAt: serverTimestamp() });
-      toast('Draft updated!', 'success');
+      window.toast('Draft updated!', 'success');
     } else {
       await addDoc(collection(db,'news_posts'), {
         ...d, published: false, views: 0,
         createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
         authorUid: currentUser?.uid || ''
       });
-      toast('Saved as draft!', 'success');
+      window.toast('Saved as draft!', 'success');
     }
-    clearForm();
-    loadPosts();
+    window.clearForm();
+    window.loadPosts();
   } catch(e) {
-    toast('Error: ' + e.message, 'error');
+    window.toast('Error: ' + e.message, 'error');
   }
-  setLoading(btn, false);
+  window.setLoading(btn, false);
 };
 
 window.publishPost = async function() {
-  const d = validateForm();
+  const d = window.validateForm();
   if (!d) return;
   const btn = document.getElementById('publishBtn');
-  setLoading(btn, true);
+  window.setLoading(btn, true);
   try {
     const id = document.getElementById('editPostId').value;
     if (id) {
       await updateDoc(doc(db,'news_posts',id), { ...d, published: true, updatedAt: serverTimestamp() });
-      toast('Post updated & published! 🎉', 'success');
+      window.toast('Post updated & published! 🎉', 'success');
     } else {
       await addDoc(collection(db,'news_posts'), {
         ...d, published: true, views: 0,
         createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
         authorUid: currentUser?.uid || ''
       });
-      toast('Post published! 🎉', 'success');
+      window.toast('Post published! 🎉', 'success');
     }
-    clearForm();
-    loadPosts();
+    window.clearForm();
+    window.loadPosts();
   } catch(e) {
-    toast('Error: ' + e.message, 'error');
+    window.toast('Error: ' + e.message, 'error');
   }
-  setLoading(btn, false);
+  window.setLoading(btn, false);
 };
 
 window.loadPosts = async function() {
@@ -523,24 +533,24 @@ window.loadPosts = async function() {
 
 window._editPost = function(id) {
   const p = cachedPosts.find(x => x.id === id);
-  if (p) editPost(id, p);
+  if (p) window.editPost(id, p);
 };
 
 window._togglePublish = async function(id, publish) {
   try {
     await updateDoc(doc(db,'news_posts',id), { published: publish, updatedAt: serverTimestamp() });
-    toast(publish ? 'Post published!' : 'Post unpublished', publish ? 'success' : 'info');
-    loadPosts();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+    window.toast(publish ? 'Post published!' : 'Post unpublished', publish ? 'success' : 'info');
+    window.loadPosts();
+  } catch(e) { window.toast('Error: ' + e.message, 'error'); }
 };
 
 window._deletePost = async function(id) {
   if (!confirm('Delete this post? This cannot be undone.')) return;
   try {
     await deleteDoc(doc(db,'news_posts',id));
-    toast('Post deleted', 'info');
-    loadPosts();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+    window.toast('Post deleted', 'info');
+    window.loadPosts();
+  } catch(e) { window.toast('Error: ' + e.message, 'error'); }
 };
 
 function formatDate(ts) {

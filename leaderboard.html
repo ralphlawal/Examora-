@@ -241,7 +241,7 @@
       src="logo.png"
       alt="EXAMORA"
       style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"
     />
     <div class="app-logo-icon" style="display:none;">EX</div>
     <div><div class="app-logo-name">EXAMORA</div></div>
