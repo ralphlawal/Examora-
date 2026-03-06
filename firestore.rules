@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+    function isAdmin() {
+      return isAuth() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // ── Users ─────────────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read:  if isAuth();
+      allow write: if isOwner(uid) || isAdmin();
+
+      match /linked_children/{childId} {
+        allow read, write: if isOwner(uid) || isAdmin();
+      }
+    }
+
+    // ── Questions ─────────────────────────────────────────────────────────
+    match /questions/{id} {
+      allow read:  if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── Results (both collection names) ───────────────────────────────────
+    match /results/{id} {
+      allow read:  if isAuth() &&
+                     (resource == null ||
+                      resource.data.userId == request.auth.uid ||
+                      isAdmin());
+      allow create: if isAuth() &&
+                      request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuth() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    match /exam_results/{id} {
+      allow read:  if isAuth() &&
+                     (resource == null ||
+                      resource.data.userId == request.auth.uid ||
+                      isAdmin());
+      allow create: if isAuth() &&
+                      request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuth() &&
+                      (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ── News posts ────────────────────────────────────────────────────────
+    // THIS WAS THE PUBLISH BUG — missing rule meant all writes were denied
+    match /news_posts/{id} {
+      allow read:   if isAuth();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Bookmarks ─────────────────────────────────────────────────────────
+    match /bookmarks/{id} {
+      allow read, write: if isAuth() &&
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+
+    // ── Flags ─────────────────────────────────────────────────────────────
+    match /flags/{id} {
+      allow create: if isAuth();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Daily Challenges ──────────────────────────────────────────────────
+    match /dailyChallenges/{id} {
+      allow read, write: if isAuth();
+    }
+
+    // ── Settings ─────────────────────────────────────────────────────────
+    match /settings/{id} {
+      allow read:  if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── Group Study Rooms ─────────────────────────────────────────────────
+    match /study_rooms/{roomId} {
+      allow read:   if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth();
+      allow delete: if isAuth() &&
+        (resource.data.hostUid == request.auth.uid || isAdmin());
+
+      match /messages/{msgId} {
+        allow read, create: if isAuth();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ── Scholarships ──────────────────────────────────────────────────────
+    match /scholarships/{id} {
+      allow read:  if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── Announcements / Tips ──────────────────────────────────────────────
+    match /announcements/{id} {
+      allow read:  if isAuth();
+      allow write: if isAdmin();
+    }
+    match /tips/{id} {
+      allow read:  if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── Leaderboard ───────────────────────────────────────────────────────
+    match /leaderboard/{id} {
+      allow read:  if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── School rooms ──────────────────────────────────────────────────────
+    match /school_rooms/{id} {
+      allow read, write: if isAuth();
+    }
+
+    // ── Notifications ─────────────────────────────────────────────────────
+    match /notifications/{uid} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
+  }
+}

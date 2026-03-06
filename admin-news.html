@@ -50,6 +50,7 @@
     <div><div class="app-logo-name">News Manager</div></div>
   </a>
   <div class="header-actions">
+    <span id="adminRoleStatus" style="font-size:.72rem;font-weight:700;font-family:var(--fb);padding:4px 10px;border-radius:100px;background:var(--surface-2);border:1px solid var(--border);">Checking…</span>
     <a href="news.html" class="header-btn" title="View news page">
       <span class="material-symbols-rounded">open_in_new</span>
     </a>
@@ -57,6 +58,11 @@
 </header>
 
 <div class="page-wrapper">
+
+<div id="notAdminBanner" style="display:none;margin-bottom:14px;padding:12px 16px;background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.3);border-radius:12px;font-size:.8rem;color:var(--rose,#f43f5e);line-height:1.6;">
+  ⚠️ <strong>Your account does not have admin role.</strong> Publishing will fail with a permissions error.<br>
+  To fix: go to <strong>Firebase Console → Firestore → users → your UID</strong> and set <code>role: "admin"</code>.
+</div>
 
   <div class="filter-tabs" style="margin-bottom:18px;">
     <button class="filter-tab active" id="tabBtnCompose" onclick="showTab('compose')">✏️ Write Post</button>
@@ -245,10 +251,27 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
-    if (snap.exists() && snap.data().role !== 'admin') {
-      window.location.href = 'index.html';
+    const data = snap.exists() ? snap.data() : {};
+    const role = data.role || 'none';
+
+    // Show role status in header so admin knows their access level
+    const roleEl = document.getElementById('adminRoleStatus');
+    if (roleEl) {
+      roleEl.textContent = role === 'admin' ? '✓ Admin' : '⚠ Not admin (' + role + ')';
+      roleEl.style.color = role === 'admin' ? 'var(--emerald, #10b981)' : 'var(--rose, #f43f5e)';
     }
-  } catch (e) { /* allow through if Firestore check fails */ }
+
+    if (snap.exists() && role !== 'admin') {
+      // Still show page but warn — don't silently redirect
+      const banner = document.getElementById('notAdminBanner');
+      if (banner) banner.style.display = '';
+    }
+  } catch (e) {
+    console.warn('Role check failed — proceeding:', e.message);
+    // Allow through — Firestore rules will enforce permissions
+  }
+  // Always load posts after auth resolves
+  loadPosts();
 });
 
 // ── Tab switching ──
@@ -377,6 +400,11 @@ function setBusy(btnId, busy) {
 
 // ── Save Draft ──
 async function saveDraft() {
+  if (!currentUser) {
+    toast('You must be logged in as admin. Refreshing…', 'error');
+    setTimeout(() => window.location.reload(), 1500);
+    return;
+  }
   const d = validateForm();
   if (!d) return;
   setBusy('btnDraft', true);
@@ -405,6 +433,11 @@ window.saveDraft = saveDraft;
 
 // ── Publish ──
 async function publishPost() {
+  if (!currentUser) {
+    toast('You must be logged in as admin to publish. Refreshing…', 'error');
+    setTimeout(() => window.location.reload(), 1500);
+    return;
+  }
   const d = validateForm();
   if (!d) return;
   setBusy('btnPublish', true);
@@ -416,7 +449,7 @@ async function publishPost() {
     } else {
       await addDoc(collection(db, 'news_posts'), {
         ...d, published: true, views: 0,
-        authorUid: currentUser ? currentUser.uid : '',
+        authorUid: currentUser.uid,
         createdAt: serverTimestamp(), updatedAt: serverTimestamp()
       });
       toast('Post published! 🎉', 'success');
@@ -424,7 +457,12 @@ async function publishPost() {
     clearForm();
     if (document.getElementById('tabPosts').style.display !== 'none') loadPosts();
   } catch (err) {
-    toast('Error publishing: ' + err.message, 'error');
+    // Surface the real error clearly
+    if (err.code === 'permission-denied' || (err.message && err.message.includes('permission'))) {
+      toast('Permission denied — make sure your account has admin role in Firestore users collection.', 'error');
+    } else {
+      toast('Error publishing: ' + err.message, 'error');
+    }
     console.error('publishPost:', err);
   }
   setBusy('btnPublish', false);
