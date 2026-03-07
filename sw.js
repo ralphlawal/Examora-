@@ -1,13 +1,29 @@
 // EXAMORA Service Worker — v4 · examora.com.ng
-const CACHE = "examora-v4";
+const CACHE = CACHE_VERSION;
+const CACHE_VERSION = "examora-v5";
 const SHELL = [
+  // Core
   "/index.html","/login.html","/exam.html","/result.html",
   "/analytics.html","/history.html","/leaderboard.html","/profile.html",
   "/bookmarks.html","/daily-challenge.html","/upgrade.html",
-  "/onboarding.html","/admin.html","/chat.html","/mock.html",
+  "/onboarding.html","/chat.html","/mock.html",
   "/offline.html","/school.html","/flashcards.html","/notes.html",
   "/notifications.html","/planner.html","/share-result.html",
-  "/style.css","/ai-engine.js","/manifest.json","/logo.png"
+  // Study tools
+  "/vocabulary.html","/summariser.html","/solver.html",
+  "/wrong-drill.html","/model-answer.html","/essay-check.html",
+  "/topic-practice.html","/formula-sheet.html","/calculator.html",
+  "/countdown.html","/streak.html","/syllabus.html",
+  "/certificate.html","/scholarship.html","/group-study.html",
+  "/mindset.html","/parent.html","/flashcards.html","/notes.html",
+  // Nova Learning Hub
+  "/nova.html","/daily-brief.html","/study-timer.html","/gpa-calculator.html","/discover.html","/dictionary.html",
+  "/books.html","/trivia.html","/university.html",
+  // Account & info
+  "/settings.html","/help.html","/news.html","/terms.html",
+  "/privacy.html","/404.html","/notifications-setup.html",
+  // Assets
+  "/style.css","/ai-engine.js","/security.js","/manifest.json","/logo.png"
 ];
 
 self.addEventListener("install", e => {

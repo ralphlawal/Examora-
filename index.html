@@ -224,6 +224,7 @@
       font-size:1rem; cursor:pointer; padding:4px; flex-shrink:0;
     }
   </style>
+<script src="security.js"></script>
 </head>
 <body>
 <!-- ── Splash screen (fades out after Firebase loads) ── -->
@@ -380,220 +381,166 @@
     </div>
   </div>
 
-  <!-- ── QUICK ACTIONS ──────────────────────────────────────── -->
-  <div class="section-header animate-in animate-in-delay-2">
-    <div class="section-icon">bolt</div>
-    <h3>Quick Actions</h3>
-  </div>
-  <div class="quick-grid animate-in animate-in-delay-2">
-    <a href="exam.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#5b5ef4,#4338ca)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Practice Exam</div></a>
-    <a href="daily-challenge.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">bolt</span></div><div class="quick-label">Daily Challenge</div></a>
-    <a href="mock.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#e11d48)"><span class="material-symbols-rounded">timer</span></div><div class="quick-label">Mock Exam</div></a>
-    <a href="news.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><span class="material-symbols-rounded">newspaper</span></div><div class="quick-label">News Blog</div></a>
-    <a href="flashcards.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">style</span></div><div class="quick-label">Flash Cards</div></a>
-    <a href="topic-practice.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><span class="material-symbols-rounded">auto_awesome</span></div><div class="quick-label">AI Practice</div></a>
-    <a href="analytics.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><span class="material-symbols-rounded">bar_chart</span></div><div class="quick-label">Analytics</div></a>
-    <a href="planner.html"         class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><span class="material-symbols-rounded">calendar_month</span></div><div class="quick-label">Study Planner</div></a>
-    <a href="notes.html"           class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Study Notes</div></a>
-    <a href="bookmarks.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">bookmark</span></div><div class="quick-label">Saved Questions</div></a>
-    <a href="solver.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Problem Solver</div></a>
-    <a href="essay-check.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">rate_review</span></div><div class="quick-label">Answer Checker</div></a>
-    <a href="vocabulary.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Vocab Builder</div></a>
-    <a href="summariser.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#a855f7,#7c3aed)"><span class="material-symbols-rounded">auto_awesome</span></div><div class="quick-label">Smart Summariser</div></a>
-    <a href="wrong-drill.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">manage_search</span></div><div class="quick-label">Wrong Drill</div></a>
-    <a href="model-answer.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#b45309)"><span class="material-symbols-rounded">edit_document</span></div><div class="quick-label">Model Answers</div></a>
-    <a href="school.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#065f46)"><span class="material-symbols-rounded">school</span></div><div class="quick-label">School Mode</div></a>
-    <a href="streak.html"          class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ef4444,#b91c1c)"><span class="material-symbols-rounded">local_fire_department</span></div><div class="quick-label">Study Streak</div></a>
-    <a href="leaderboard.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#92400e)"><span class="material-symbols-rounded">emoji_events</span></div><div class="quick-label">Leaderboard</div></a>
-    <a href="calculator.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#1e40af)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Calculator</div></a>
-    <a href="formula-sheet.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#78350f)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Formula Sheet</div></a>
-    <a href="chat.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><span class="material-symbols-rounded">smart_toy</span></div><div class="quick-label">AI Chat Tutor</div></a>
-    <a href="settings.html"        class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#334155)"><span class="material-symbols-rounded">settings</span></div><div class="quick-label">Settings</div></a>
-    <a href="help.html"            class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#64748b,#475569)"><span class="material-symbols-rounded">help</span></div><div class="quick-label">Help & FAQ</div></a>
-    <a href="upgrade.html"         class="quick-card" id="upgradeCard"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#f97316)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Go Premium</div></a>
-    <a href="countdown.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">timer</span></div><div class="quick-label">Countdown</div></a>
-    <a href="syllabus.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">checklist</span></div><div class="quick-label">Syllabus</div></a>
-    <a href="certificate.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">workspace_premium</span></div><div class="quick-label">Certificates</div></a>
-    <a href="scholarship.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">school</span></div><div class="quick-label">Scholarships</div></a>
-    <a href="group-study.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><span class="material-symbols-rounded">groups</span></div><div class="quick-label">Group Study</div></a>
-    <a href="mindset.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">self_improvement</span></div><div class="quick-label">Mindset</div></a>
-    <a href="parent.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#84cc16,#65a30d)"><span class="material-symbols-rounded">supervised_user_circle</span></div><div class="quick-label">For Parents</div></a>
-  <!-- Nova + Learning Hub quick cards -->
-  <a href="nova.html"        class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#6366f1,#06b6d4)"><span class="material-symbols-rounded">psychology</span></div><div class="quick-label">Nova Hub</div></a>
-  <a href="discover.html"    class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#0d1030,#1a1060)"><span class="material-symbols-rounded">explore</span></div><div class="quick-label">Discover</div></a>
-  <a href="dictionary.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">spellcheck</span></div><div class="quick-label">Dictionary</div></a>
-  <a href="books.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Books</div></a>
-  <a href="trivia.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f43f5e,#be123c)"><span class="material-symbols-rounded">quiz</span></div><div class="quick-label">Trivia Arena</div></a>
-  <a href="university.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">account_balance</span></div><div class="quick-label">Universities</div></a>
-</div>
-
-<!-- LEARNING HUB BANNER -->
-<div class="section-header animate-in animate-in-delay-2" style="margin-top:6px;">
-  <div class="section-icon">psychology</div>
-  <h3>Learning Hub · Nova</h3>
-  <a href="nova.html" class="section-link">All →</a>
-</div>
-<div style="padding:0 16px 4px;">
-  <a href="nova.html" style="display:block;background:linear-gradient(135deg,#0d1030,#1a1060);border-radius:20px;padding:16px 18px;margin-bottom:10px;text-decoration:none;border:1px solid rgba(99,102,241,.25);position:relative;overflow:hidden;">
-    <div style="position:absolute;top:-20px;right:-20px;width:90px;height:90px;border-radius:50%;background:rgba(99,102,241,.15);pointer-events:none;"></div>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 20px rgba(99,102,241,.5);">
-        <svg viewBox="0 0 52 52" fill="none" style="width:32px;height:32px"><circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/><circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/><circle cx="26" cy="26" r="2.8" fill="white" opacity=".75"/><line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><path d="M44 4L45.2 7.2L48.4 8.4L45.2 9.6L44 12.8L42.8 9.6L39.6 8.4L42.8 7.2Z" fill="white" opacity=".85"/></svg>
-      </div>
+  <!-- ── TODAY'S FOCUS BANNER ──────────────────────────────── -->
+  <a href="daily-brief.html" class="animate-in" style="display:block;text-decoration:none;margin-bottom:16px;">
+    <div style="background:linear-gradient(135deg,#f59e0b 0%,#f97316 100%);border-radius:18px;padding:14px 18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;">
+      <div style="position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.12);"></div>
+      <div style="width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.4rem;">☀️</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-family:var(--font-display);font-weight:900;font-size:.95rem;color:white;margin-bottom:3px;">Ask Nova Anything</div>
-        <div style="font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.5;">Exam prep · Science · Books · Words · Universities · Daily wisdom</div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:.88rem;color:#fff;margin-bottom:2px;">Today's Daily Brief</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.75);" id="briefSubtext">Word of the day · Quiz · Study tips · Tasks</div>
       </div>
-      <div style="color:rgba(255,255,255,.4);font-size:1.3rem;">→</div>
+      <div style="font-size:1.2rem;color:rgba(255,255,255,.7);">→</div>
     </div>
   </a>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
-    <a href="discover.html" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;text-decoration:none;">
-      <div style="font-size:1.4rem;margin-bottom:4px;">🔭</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--text);">Discover</div>
-      <div style="font-size:.6rem;color:var(--text-3);">NASA & science</div>
+
+  <!-- ── QUICK ACTIONS (categorized) ──────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-1">
+    <div class="section-icon">bolt</div>
+    <h3>Study Tools</h3>
+  </div>
+
+  <!-- Row 1: Primary study actions — horizontal scroll -->
+  <div class="animate-in animate-in-delay-1" style="display:flex;gap:10px;overflow-x:auto;padding:0 0 6px;margin-bottom:6px;scrollbar-width:none;">
+    <a href="exam.html"           style="flex-shrink:0;text-decoration:none;background:linear-gradient(135deg,#5b5ef4,#4338ca);border-radius:16px;padding:14px 16px;width:120px;display:flex;flex-direction:column;gap:6px;">
+      <span class="material-symbols-rounded" style="color:#fff;font-size:1.4rem;">edit_note</span>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;color:#fff;">Practice Exam</div>
+      <div style="font-size:.63rem;color:rgba(255,255,255,.65);">JAMB · WAEC · NECO</div>
     </a>
-    <a href="dictionary.html" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;text-decoration:none;">
-      <div style="font-size:1.4rem;margin-bottom:4px;">📖</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--text);">Dictionary</div>
-      <div style="font-size:.6rem;color:var(--text-3);">Word explorer</div>
+    <a href="mock.html"           style="flex-shrink:0;text-decoration:none;background:linear-gradient(135deg,#f43f5e,#e11d48);border-radius:16px;padding:14px 16px;width:120px;display:flex;flex-direction:column;gap:6px;">
+      <span class="material-symbols-rounded" style="color:#fff;font-size:1.4rem;">timer</span>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;color:#fff;">Mock Exam</div>
+      <div style="font-size:.63rem;color:rgba(255,255,255,.65);">Timed full exam</div>
     </a>
-    <a href="trivia.html" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;text-decoration:none;">
-      <div style="font-size:1.4rem;margin-bottom:4px;">🎯</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--text);">Trivia</div>
-      <div style="font-size:.6rem;color:var(--text-3);">Play & learn</div>
+    <a href="daily-challenge.html" style="flex-shrink:0;text-decoration:none;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:16px;padding:14px 16px;width:120px;display:flex;flex-direction:column;gap:6px;">
+      <span class="material-symbols-rounded" style="color:#fff;font-size:1.4rem;">bolt</span>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;color:#fff;">Daily Challenge</div>
+      <div style="font-size:.63rem;color:rgba(255,255,255,.65);">5 questions daily</div>
     </a>
-    <a href="books.html" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;text-decoration:none;">
-      <div style="font-size:1.4rem;margin-bottom:4px;">📚</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--text);">Books</div>
-      <div style="font-size:.6rem;color:var(--text-3);">Open Library</div>
+    <a href="study-timer.html"    style="flex-shrink:0;text-decoration:none;background:linear-gradient(135deg,#10b981,#059669);border-radius:16px;padding:14px 16px;width:120px;display:flex;flex-direction:column;gap:6px;">
+      <span class="material-symbols-rounded" style="color:#fff;font-size:1.4rem;">alarm</span>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;color:#fff;">Focus Timer</div>
+      <div style="font-size:.63rem;color:rgba(255,255,255,.65);">Pomodoro sessions</div>
     </a>
-    <a href="university.html" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;text-decoration:none;">
-      <div style="font-size:1.4rem;margin-bottom:4px;">🎓</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--text);">Uni Finder</div>
-      <div style="font-size:.6rem;color:var(--text-3);">Global search</div>
+    <a href="topic-practice.html" style="flex-shrink:0;text-decoration:none;background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:16px;padding:14px 16px;width:120px;display:flex;flex-direction:column;gap:6px;">
+      <span class="material-symbols-rounded" style="color:#fff;font-size:1.4rem;">auto_awesome</span>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;color:#fff;">AI Practice</div>
+      <div style="font-size:.63rem;color:rgba(255,255,255,.65);">By topic · AI hints</div>
     </a>
-    <a href="chat.html" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;text-decoration:none;">
-      <div style="font-size:1.4rem;margin-bottom:4px;">💬</div>
-      <div style="font-family:var(--font-display);font-weight:800;font-size:.72rem;color:var(--text);">Chat</div>
-      <div style="font-size:.6rem;color:var(--text-3);">Deep dive</div>
+    <a href="wrong-drill.html"    style="flex-shrink:0;text-decoration:none;background:linear-gradient(135deg,#ef4444,#b91c1c);border-radius:16px;padding:14px 16px;width:120px;display:flex;flex-direction:column;gap:6px;">
+      <span class="material-symbols-rounded" style="color:#fff;font-size:1.4rem;">manage_search</span>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;color:#fff;">Wrong Drill</div>
+      <div style="font-size:.63rem;color:rgba(255,255,255,.65);">Fix your mistakes</div>
     </a>
   </div>
-</div>
 
-    <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
-  <div id="countdownWidget" style="display:none; margin-bottom:18px;">
-    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px 18px;border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden;">
-      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,0.15);"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div>
-          <div style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Countdown to</div>
-          <div style="font-family:var(--font-display);font-weight:800;font-size:0.92rem;color:white;" id="cdExamLabel">My Exam</div>
-        </div>
-        <button onclick="openCountdownSetup()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,0.6);font-size:0.68rem;font-weight:700;cursor:pointer;">Edit</button>
+  <!-- Quick 4×2 grid: most-used tools -->
+  <div class="animate-in animate-in-delay-1" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">
+    <a href="flashcards.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><span class="material-symbols-rounded">style</span></div><div class="quick-label">Flashcards</div></a>
+    <a href="notes.html"       class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><span class="material-symbols-rounded">edit_note</span></div><div class="quick-label">Notes</div></a>
+    <a href="planner.html"     class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#14b8a6,#0d9488)"><span class="material-symbols-rounded">calendar_month</span></div><div class="quick-label">Planner</div></a>
+    <a href="bookmarks.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#ec4899,#db2777)"><span class="material-symbols-rounded">bookmark</span></div><div class="quick-label">Saved</div></a>
+    <a href="solver.html"      class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#10b981,#059669)"><span class="material-symbols-rounded">calculate</span></div><div class="quick-label">Solver</div></a>
+    <a href="vocabulary.html"  class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><span class="material-symbols-rounded">menu_book</span></div><div class="quick-label">Vocab</div></a>
+    <a href="analytics.html"   class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><span class="material-symbols-rounded">bar_chart</span></div><div class="quick-label">Analytics</div></a>
+    <a href="gpa-calculator.html" class="quick-card"><div class="quick-icon-wrap" style="background:linear-gradient(135deg,#06b6d4,#0284c7)"><span class="material-symbols-rounded">grade</span></div><div class="quick-label">Grades</div></a>
+  </div>
+
+  <!-- ── AI & NOVA SECTION ────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-1">
+    <div class="section-icon">auto_awesome</div>
+    <h3>Nova · AI Learning</h3>
+    <a href="nova.html" class="section-link">All →</a>
+  </div>
+
+  <!-- Nova quick-ask widget -->
+  <div class="animate-in animate-in-delay-1" style="background:linear-gradient(135deg,#080b18,#1a1040);border-radius:20px;padding:16px 18px;margin-bottom:12px;border:1px solid rgba(99,102,241,.2);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 52 52" fill="none"><circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/><circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/><line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
       </div>
-      <div style="display:flex;gap:10px;justify-content:center;">
-        <div id="cdDays"   style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdDaysNum">--</div>
-          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">DAYS</div>
-        </div>
-        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdHrsNum">--</div>
-          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">HRS</div>
-        </div>
-        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
-          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdMinsNum">--</div>
-          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">MINS</div>
-        </div>
+      <div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:.85rem;color:#fff;">Ask Nova anything</div>
+        <div style="font-size:.66rem;color:rgba(255,255,255,.45);">Your AI tutor · adapts to your level</div>
       </div>
-      <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);" id="cdDateLabel"></div>
-        <a href="exam.html" style="font-size:0.72rem;font-weight:700;color:#a78bfa;text-decoration:none;">Start practising →</a>
+    </div>
+    <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;" id="novaQuickChips"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <input id="novaQuickInput" type="text" placeholder="Ask anything…" 
+        style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px 13px;color:#fff;font-size:.82rem;font-family:Outfit,sans-serif;outline:none;"
+        onkeydown="if(event.key==='Enter'&&this.value.trim()){window.location.href='chat.html?q='+encodeURIComponent(this.value);}"
+        onfocus="this.style.borderColor='rgba(99,102,241,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'"/>
+      <button onclick="var v=document.getElementById('novaQuickInput').value.trim();if(v)window.location.href='chat.html?q='+encodeURIComponent(v);"
+        style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span class="material-symbols-rounded" style="font-size:1rem;">send</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Nova tools horizontal scroll -->
+  <div style="display:flex;gap:8px;overflow-x:auto;padding:0 0 8px;margin-bottom:20px;scrollbar-width:none;" class="animate-in animate-in-delay-1">
+    <a href="chat.html"       style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">🤖</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">AI Chat</div>
+    </a>
+    <a href="discover.html"   style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">🔭</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">Discover</div>
+    </a>
+    <a href="dictionary.html" style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">📖</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">Dictionary</div>
+    </a>
+    <a href="books.html"      style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">📚</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">Books</div>
+    </a>
+    <a href="trivia.html"     style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">🎯</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">Trivia</div>
+    </a>
+    <a href="university.html" style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">🎓</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">Uni Finder</div>
+    </a>
+    <a href="summariser.html" style="flex-shrink:0;text-decoration:none;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;text-align:center;min-width:80px;">
+      <div style="font-size:1.3rem;margin-bottom:5px;">✍️</div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:.7rem;color:var(--text);">Summariser</div>
+    </a>
+  </div>
+
+  <!-- ── PROGRESS THIS WEEK ────────────────────────────────── -->
+  <div class="section-header animate-in animate-in-delay-2">
+    <div class="section-icon">trending_up</div>
+    <h3>This Week</h3>
+    <a href="analytics.html" class="section-link">Details →</a>
+  </div>
+  <div class="animate-in animate-in-delay-2" style="background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:20px;">
+    <!-- Mini bar chart of last 7 days activity -->
+    <div style="display:flex;align-items:flex-end;gap:6px;height:56px;margin-bottom:10px;" id="weekChart">
+      <div style="color:var(--text-3);font-size:.75rem;align-self:center;">Loading…</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1;text-align:center;padding:10px 6px;background:var(--bg-input);border-radius:12px;">
+        <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.1rem;color:var(--text);" id="weekExams">—</div>
+        <div style="font-size:.6rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Exams</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:10px 6px;background:var(--bg-input);border-radius:12px;">
+        <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.1rem;color:var(--text);" id="weekAvg">—</div>
+        <div style="font-size:.6rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Avg Score</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:10px 6px;background:var(--bg-input);border-radius:12px;">
+        <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.1rem;color:var(--text);" id="weekFocus">—</div>
+        <div style="font-size:.6rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Focus min</div>
       </div>
     </div>
   </div>
 
-  <!-- Countdown setup bottom sheet -->
-  <div class="overlay" id="cdOverlay" onclick="closeCountdownSetup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;"></div>
-  <div id="cdSheet" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg-card);border-radius:24px 24px 0 0;padding:20px 20px 40px;z-index:201;border-top:1px solid var(--border);">
-    <div style="width:36px;height:4px;background:var(--border);border-radius:100px;margin:0 auto 18px;"></div>
-    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:16px;">📅 Set Exam Countdown</div>
-    <div style="margin-bottom:12px;">
-      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Name</label>
-      <input id="cdNameInput" type="text" placeholder="e.g. JAMB 2025, WAEC May/June" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;" oninput="document.getElementById('cdExamName').value=this.value"/>
-    </div>
-    <div style="margin-bottom:16px;">
-      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Date</label>
-      <input id="cdDateInput" type="date" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;"/>
-    </div>
-    <button onclick="saveCountdown()" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;">Save Countdown</button>
-    <button onclick="clearCountdown()" style="width:100%;padding:10px;border:none;background:none;color:var(--c-red);font-size:0.8rem;font-weight:600;cursor:pointer;margin-top:6px;">Remove countdown</button>
-  </div>
-  <input type="hidden" id="cdExamName"/>
-
-  <!-- ── EXAM CATEGORIES ───────────────────────────────────── -->
+  <!-- ── EXAM CATEGORIES ─────────────────────────────────── -->
   <div class="section-header animate-in animate-in-delay-2">
     <div class="section-icon">category</div>
     <h3>Exam Categories</h3>
     <a href="exam.html" class="section-link">Browse →</a>
-  </div>
-  <div class="exam-categories-grid animate-in animate-in-delay-2">
-    <a href="exam.html?cat=SAT" class="exam-cat-card cat-intl">
-      <div class="exam-cat-icon">🇺🇸</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">SAT / ACT</div>
-        <div class="exam-cat-sub">US college admissions</div>
-      </div>
-    </a>
-    <a href="exam.html?cat=IELTS" class="exam-cat-card cat-lang">
-      <div class="exam-cat-icon">🌐</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">IELTS / TOEFL</div>
-        <div class="exam-cat-sub">English proficiency</div>
-      </div>
-    </a>
-    <a href="exam.html?cat=A-Levels" class="exam-cat-card cat-uk">
-      <div class="exam-cat-icon">🇬🇧</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">A-Levels / GCSE</div>
-        <div class="exam-cat-sub">UK & international</div>
-      </div>
-    </a>
-    <a href="exam.html?cat=JAMB" class="exam-cat-card cat-ng">
-      <div class="exam-cat-icon">📘</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">JAMB / WAEC</div>
-        <div class="exam-cat-sub">West African exams</div>
-      </div>
-    </a>
-    <a href="exam.html?cat=GRE" class="exam-cat-card cat-grad">
-      <div class="exam-cat-icon">📊</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">GRE / GMAT</div>
-        <div class="exam-cat-sub">Graduate admissions</div>
-      </div>
-    </a>
-    <a href="exam.html?cat=Professional" class="exam-cat-card cat-prof">
-      <div class="exam-cat-icon">🏅</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">Professional</div>
-        <div class="exam-cat-sub">ACCA, PMP, IT certs</div>
-      </div>
-    </a>
-    <a href="exam.html?cat=IB" class="exam-cat-card cat-stem">
-      <div class="exam-cat-icon">🌍</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">IB Diploma</div>
-        <div class="exam-cat-sub">International Baccalaureate</div>
-      </div>
-    </a>
-    <a href="exam.html" class="exam-cat-card cat-custom">
-      <div class="exam-cat-icon">✏️</div>
-      <div class="exam-cat-info">
-        <div class="exam-cat-name">Custom Exam</div>
-        <div class="exam-cat-sub">Build your own quiz</div>
-      </div>
-    </a>
   </div>
 
   <!-- ── SUBJECT PROGRESS ───────────────────────────────────── -->
@@ -730,6 +677,73 @@
     document.getElementById("installBarBtn").style.display = "none";
   }
 
+  // ── Nova quick chips (level-based) ──
+  (function(){
+    var level = localStorage.getItem('examora_user_level') || 'secondary';
+    var chips = {
+      primary:    ['What is osmosis?','Explain photosynthesis simply','What causes thunder?','Tell me a fun fact','Help with fractions'],
+      secondary:  ['Explain JAMB Mathematics','WAEC Biology past questions','How do I write a good essay?','What is the water cycle?','Government: separation of powers'],
+      university: ['Help me outline a research paper','Explain thermodynamics','What is monetary policy?','Help with linear algebra','Literature review tips'],
+      phd:        ['Find research gaps in NLP','Explain Bayesian statistics','Help critique my methodology','Summarise recent AI papers','How to write a strong abstract']
+    };
+    var arr = chips[level] || chips.secondary;
+    var container = document.getElementById('novaQuickChips');
+    if(!container) return;
+    arr.slice(0,4).forEach(function(q){
+      var btn = document.createElement('a');
+      btn.href = 'chat.html?q=' + encodeURIComponent(q);
+      btn.style.cssText = 'flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:5px 12px;font-size:.7rem;color:rgba(255,255,255,.75);text-decoration:none;white-space:nowrap;font-family:Outfit,sans-serif;font-weight:500;transition:background .15s;';
+      btn.onmouseover = function(){this.style.background='rgba(99,102,241,.3)';};
+      btn.onmouseout  = function(){this.style.background='rgba(255,255,255,.08)';};
+      btn.textContent = q;
+      container.appendChild(btn);
+    });
+  })();
+
+  // ── Week chart ──
+  (function(){
+    try {
+      var days = ['S','M','T','W','T','F','S'];
+      var today = new Date().getDay();
+      // Build last 7 days of activity from localStorage timer stats
+      var heights = [];
+      for(var i=6;i>=0;i--){
+        var d = new Date(); d.setDate(d.getDate()-i);
+        var key = 'examora_timer_stats_' + d.toDateString();
+        var stats = JSON.parse(localStorage.getItem(key)||'{"focusMin":0}');
+        heights.push(Math.min(100, stats.focusMin || 0));
+      }
+      var maxH = Math.max(...heights, 1);
+      var chart = document.getElementById('weekChart');
+      if(!chart) return;
+      chart.innerHTML = '';
+      var dayIdx = (today - 6 + 7) % 7;
+      heights.forEach(function(h, i){
+        var isToday = (i === 6);
+        var col = document.createElement('div');
+        col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;';
+        var bar = document.createElement('div');
+        var barH = Math.max(4, Math.round((h/maxH)*44));
+        bar.style.cssText = 'width:100%;border-radius:4px 4px 0 0;transition:height .5s ease;height:' + barH + 'px;background:' + (isToday ? 'linear-gradient(to top,#6366f1,#8b5cf6)' : (h>0?'rgba(99,102,241,.3)':'var(--border,#e2e5f1)')) + ';';
+        var lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:.6rem;font-weight:' + (isToday?'800':'600') + ';color:' + (isToday?'var(--c-brand,#5b5ef4)':'var(--text-3,#9399c2)') + ';';
+        lbl.textContent = days[(today - 6 + i + 7) % 7];
+        col.appendChild(bar); col.appendChild(lbl);
+        chart.appendChild(col);
+      });
+      // Update week stats
+      var weekStats = JSON.parse(localStorage.getItem('examora_week_stats')||'{}');
+      var el = document.getElementById('weekExams');
+      var el2 = document.getElementById('weekAvg');
+      var el3 = document.getElementById('weekFocus');
+      if(el) el.textContent = weekStats.exams || '—';
+      if(el2) el2.textContent = weekStats.avg ? weekStats.avg+'%' : '—';
+      // Focus this week
+      var totalFocus = heights.reduce(function(a,b){return a+b;},0);
+      if(el3) el3.textContent = totalFocus > 0 ? totalFocus+'m' : '—';
+    } catch(e) {}
+  })();
+
   // ── Countdown widget ──
   function initCountdown() {
     var stored = localStorage.getItem('examora_countdown');
@@ -794,7 +808,7 @@ window.toast = toast;
     appId: "1:705323924101:web:ad9f153f25a0685a1287ec"
   });
   const auth = getAuth(app);
-  const db   = getFirestore(app);
+  window._firebaseAuth = auth; // expose for security.js idle timeout
 
   onAuthStateChanged(auth, async (user) => {
     // Dismiss splash screen

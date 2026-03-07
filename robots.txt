@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Block admin pages from indexing
+Disallow: /admin.html
+Disallow: /admin-news.html
+Disallow: /payment-success.html
+Disallow: /share-result.html
+Disallow: /result.html
+Disallow: /onboarding.html
+
+# Block raw assets
+Disallow: /*.csv$
+Disallow: /*.rules$
+Disallow: /firebase.json
+Disallow: /firebase-config.js
+
+Sitemap: https://examora.com.ng/sitemap.xml

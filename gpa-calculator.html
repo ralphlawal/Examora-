@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Grade Calculator · EXAMORA</title>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;}
+.mode-tabs{
+  display:flex;gap:0;background:var(--surface-2,#eef0fa);
+  border-radius:12px;padding:4px;margin:0 0 20px;
+}
+.mode-tab{
+  flex:1;padding:9px 6px;border-radius:9px;border:none;
+  background:none;cursor:pointer;font-family:'Sora',sans-serif;
+  font-weight:700;font-size:.74rem;color:var(--ink-3,#9399c2);
+  transition:all .18s;
+}
+.mode-tab.active{background:var(--surface,#fff);color:var(--brand,#5b5ef4);box-shadow:0 2px 8px rgba(10,15,60,.08);}
+.calc-section{display:none;}
+.calc-section.show{display:block;}
+
+/* Result badge */
+.result-badge{
+  background:linear-gradient(135deg,#080b18,#1a1040);
+  border-radius:20px;padding:22px;margin-bottom:20px;text-align:center;
+}
+.result-val{
+  font-family:'Sora',sans-serif;font-weight:900;font-size:3rem;
+  color:#fff;line-height:1;margin-bottom:4px;
+}
+.result-class{font-size:.85rem;font-weight:700;margin-top:6px;}
+.result-lbl{font-size:.72rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;}
+
+/* Course rows */
+.courses-wrap{margin-bottom:16px;}
+.course-row{
+  background:var(--surface,#fff);border:1px solid var(--border,#e2e5f1);
+  border-radius:12px;padding:12px;margin-bottom:8px;
+  display:grid;grid-template-columns:1fr auto auto 32px;gap:8px;align-items:center;
+}
+.course-row input,.course-row select{
+  background:var(--surface-2,#eef0fa);border:1.5px solid var(--border,#e2e5f1);
+  border-radius:8px;padding:8px 10px;font-size:.82rem;
+  font-family:'Outfit',sans-serif;color:var(--ink,#0d1030);width:100%;
+  transition:border-color .15s;outline:none;
+}
+.course-row input:focus,.course-row select:focus{border-color:var(--brand,#5b5ef4);}
+.del-btn{
+  width:30px;height:30px;border-radius:8px;border:none;
+  background:rgba(244,63,94,.08);color:#f43f5e;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.del-btn .material-symbols-rounded{font-size:1rem;}
+.add-btn{
+  width:100%;padding:11px;border-radius:12px;border:1.5px dashed var(--border,#e2e5f1);
+  background:none;color:var(--ink-3,#9399c2);cursor:pointer;
+  font-family:'Outfit',sans-serif;font-weight:600;font-size:.82rem;
+  transition:all .15s;
+}
+.add-btn:hover{border-color:var(--brand,#5b5ef4);color:var(--brand,#5b5ef4);}
+.calc-btn{
+  width:100%;padding:14px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;
+  font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;
+  box-shadow:0 4px 16px rgba(99,102,241,.35);transition:all .18s;margin-bottom:20px;
+}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(99,102,241,.45);}
+
+/* WAEC table */
+.waec-table{width:100%;border-collapse:separate;border-spacing:0 6px;margin-bottom:16px;}
+.waec-table th{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-3,#9399c2);padding:4px 10px;}
+.waec-row td{padding:8px 10px;background:var(--surface,#fff);border:1px solid var(--border,#e2e5f1);}
+.waec-row td:first-child{border-radius:10px 0 0 10px;}
+.waec-row td:last-child{border-radius:0 10px 10px 0;}
+.waec-row td select,.waec-row td input{
+  background:var(--surface-2,#eef0fa);border:1.5px solid var(--border,#e2e5f1);
+  border-radius:7px;padding:6px 8px;font-size:.8rem;width:100%;
+  font-family:'Outfit',sans-serif;color:var(--ink,#0d1030);outline:none;
+}
+
+/* JAMB aggregate */
+.agg-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.agg-field label{font-size:.72rem;font-weight:700;color:var(--ink-2,#454c7a);margin-bottom:4px;display:block;}
+.agg-field input{
+  width:100%;background:var(--surface-2,#eef0fa);border:1.5px solid var(--border,#e2e5f1);
+  border-radius:10px;padding:11px 13px;font-size:.88rem;font-family:'Outfit',sans-serif;
+  color:var(--ink,#0d1030);outline:none;transition:border-color .15s;
+}
+.agg-field input:focus{border-color:var(--brand,#5b5ef4);}
+.info-card{
+  background:var(--brand-pale,rgba(91,94,244,.07));
+  border:1px solid rgba(99,102,241,.15);border-radius:12px;
+  padding:12px 14px;margin-bottom:12px;font-size:.77rem;
+  color:var(--ink-2,#454c7a);line-height:1.6;
+}
+.breakdown-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--border,#e2e5f1);font-size:.82rem;
+}
+.breakdown-row:last-child{border-bottom:none;font-weight:700;}
+.section-hd{
+  font-family:'Sora',sans-serif;font-weight:800;font-size:.92rem;
+  color:var(--ink,#0d1030);margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <a href="index.html" class="back-btn"><span class="material-symbols-rounded">arrow_back</span></a>
+  <div class="header-title">Grade Calculator</div>
+  <a href="chat.html?q=How+do+I+improve+my+CGPA?" style="color:var(--brand,#5b5ef4);font-size:.75rem;font-weight:700;text-decoration:none;padding:6px 10px;background:var(--brand-pale,rgba(91,94,244,.1));border-radius:8px;">Ask Nova</a>
+</div>
+
+<div class="page-wrapper" style="padding-top:72px;padding-bottom:100px;">
+
+  <!-- Mode selector -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="switchMode('cgpa')">🎓 CGPA</button>
+    <button class="mode-tab" onclick="switchMode('waec')">📋 WAEC</button>
+    <button class="mode-tab" onclick="switchMode('aggregate')">🎯 Aggregate</button>
+    <button class="mode-tab" onclick="switchMode('primary')">🎒 Primary</button>
+  </div>
+
+  <!-- ─── CGPA Calculator ─── -->
+  <div class="calc-section show" id="sec-cgpa">
+    <div class="result-badge">
+      <div class="result-lbl">Current CGPA</div>
+      <div class="result-val" id="cgpaVal">—</div>
+      <div class="result-class" id="cgpaClass" style="color:rgba(255,255,255,.6);">Add your courses below</div>
+    </div>
+
+    <div class="section-hd">
+      <span class="material-symbols-rounded" style="color:var(--brand,#5b5ef4)">school</span>
+      Grading Scale
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="mode-tab active" id="scale5Btn" onclick="setScale(5)" style="flex:1;border-radius:10px;">5-Point (Nigeria)</button>
+      <button class="mode-tab" id="scale4Btn" onclick="setScale(4)" style="flex:1;border-radius:10px;">4-Point (US)</button>
+    </div>
+
+    <div class="section-hd">
+      <span class="material-symbols-rounded" style="color:var(--brand,#5b5ef4)">list</span>
+      Courses
+    </div>
+    <div class="courses-wrap" id="cgpaCourses"></div>
+    <button class="add-btn" onclick="addCourse()">+ Add Course</button>
+    <button class="calc-btn" onclick="calcCGPA()" style="margin-top:12px;">Calculate CGPA</button>
+
+    <div id="cgpaBreakdown" style="display:none;">
+      <div class="section-hd">Breakdown</div>
+      <div id="cgpaBreakdownRows"></div>
+      <button onclick="askNovaCGPA()" style="width:100%;padding:12px;background:none;border:1.5px solid rgba(99,102,241,.3);color:var(--brand,#5b5ef4);border-radius:12px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;">🤖 Ask Nova how to improve my CGPA</button>
+    </div>
+  </div>
+
+  <!-- ─── WAEC Grade Calculator ─── -->
+  <div class="calc-section" id="sec-waec">
+    <div class="result-badge">
+      <div class="result-lbl">WAEC Points Total</div>
+      <div class="result-val" id="waecVal">—</div>
+      <div class="result-class" id="waecClass" style="color:rgba(255,255,255,.6);">Fill in your grades below</div>
+    </div>
+
+    <div class="info-card">
+      📌 <strong>WAEC Grading:</strong> A1=6, B2=5, B3=4, C4=3, C5=2, C6=1, D7=0, E8=0, F9=0<br>
+      You need minimum <strong>5 credits</strong> (C6 or above) including English & Maths for most universities.
+    </div>
+
+    <div class="section-hd"><span class="material-symbols-rounded" style="color:#f59e0b">grade</span>Enter Your Grades</div>
+    <table class="waec-table">
+      <thead><tr><th>Subject</th><th>Grade</th><th>Points</th></tr></thead>
+      <tbody id="waecRows"></tbody>
+    </table>
+    <button class="add-btn" onclick="addWaecRow()">+ Add Subject</button>
+    <button class="calc-btn" onclick="calcWAEC()" style="margin-top:12px;">Calculate Score</button>
+    <div id="waecResult" style="display:none;"></div>
+  </div>
+
+  <!-- ─── JAMB / Post-UTME Aggregate ─── -->
+  <div class="calc-section" id="sec-aggregate">
+    <div class="result-badge">
+      <div class="result-lbl">Post-UTME Aggregate</div>
+      <div class="result-val" id="aggVal">—</div>
+      <div class="result-class" id="aggClass" style="color:rgba(255,255,255,.6);">Fill in your scores below</div>
+    </div>
+
+    <div class="info-card">
+      📌 <strong>Most universities use:</strong><br>
+      JAMB score ÷ 8 + Post-UTME score ÷ 2 + O'Level score (varies).<br>
+      Formula differs per school — check your school's cut-off method.
+    </div>
+
+    <div class="section-hd"><span class="material-symbols-rounded" style="color:#10b981">calculate</span>Your Scores</div>
+    <div class="agg-inputs">
+      <div class="agg-field"><label>JAMB Score (out of 400)</label><input type="number" id="jambScore" placeholder="e.g. 280" min="0" max="400"/></div>
+      <div class="agg-field"><label>Post-UTME Score (%)</label><input type="number" id="putmeScore" placeholder="e.g. 75" min="0" max="100"/></div>
+      <div class="agg-field"><label>O'Level Points (0–20)</label><input type="number" id="olevelPts" placeholder="e.g. 16" min="0" max="20"/></div>
+      <div class="agg-field"><label>Bonus (Catchment etc.)</label><input type="number" id="bonusPts" placeholder="e.g. 2" min="0" max="10"/></div>
+    </div>
+    <div class="section-hd"><span class="material-symbols-rounded" style="color:#10b981">school</span>Formula Type</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="mode-tab active" id="formulaA" onclick="setFormula('A')" style="flex:1;border-radius:10px;min-width:120px;">UNILAG/UI<br><small style="font-weight:400;font-size:.62rem;">JAMB/8 + Post/2</small></button>
+      <button class="mode-tab" id="formulaB" onclick="setFormula('B')" style="flex:1;border-radius:10px;min-width:120px;">OAU/FUTA<br><small style="font-weight:400;font-size:.62rem;">JAMB×0.45+Post×0.55</small></button>
+      <button class="mode-tab" id="formulaC" onclick="setFormula('C')" style="flex:1;border-radius:10px;min-width:120px;">Covenant/Private<br><small style="font-weight:400;font-size:.62rem;">JAMB/8 + Post/5×4</small></button>
+    </div>
+    <button class="calc-btn" onclick="calcAggregate()">Calculate Aggregate</button>
+    <div id="aggBreakdown" style="display:none;"></div>
+  </div>
+
+  <!-- ─── Primary School Calculator ─── -->
+  <div class="calc-section" id="sec-primary">
+    <div class="result-badge">
+      <div class="result-lbl">Total Score</div>
+      <div class="result-val" id="primVal">—</div>
+      <div class="result-class" id="primClass" style="color:rgba(255,255,255,.6);">Enter your scores below</div>
+    </div>
+
+    <div class="section-hd"><span class="material-symbols-rounded" style="color:#f59e0b">menu_book</span>Subjects & Scores</div>
+    <div class="courses-wrap" id="primCourses"></div>
+    <button class="add-btn" onclick="addPrimSubject()">+ Add Subject</button>
+    <button class="calc-btn" onclick="calcPrimary()" style="margin-top:12px;">Calculate Average</button>
+    <div id="primResult" style="display:none;"></div>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon material-symbols-rounded">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon material-symbols-rounded">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="daily-brief.html" class="nav-item"><span class="nav-icon material-symbols-rounded">wb_sunny</span><span class="nav-label">Brief</span></a>
+  <a href="nova.html"        class="nav-item"><span class="nav-icon material-symbols-rounded">auto_awesome</span><span class="nav-label">Nova</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon material-symbols-rounded">person</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+(function(){var t=localStorage.getItem('examora_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+
+// ── Mode switching ─────────────────────────────────────────────
+var _mode='cgpa';
+function switchMode(m){
+  _mode=m;
+  ['cgpa','waec','aggregate','primary'].forEach(function(s){
+    document.getElementById('sec-'+s).className='calc-section'+(s===m?' show':'');
+  });
+  document.querySelectorAll('.mode-tab').forEach(function(t,i){
+    t.className='mode-tab'+(i===['cgpa','waec','aggregate','primary'].indexOf(m)?' active':'');
+  });
+}
+
+// ── CGPA ──────────────────────────────────────────────────────
+var _scale=5;
+var _courses=[];
+var GRADE_5={A:5,B:4,C:3,D:2,E:1,F:0};
+var GRADE_4={A:4,'A-':3.7,'B+':3.3,B:3,'B-':2.7,'C+':2.3,C:2,'C-':1.7,'D+':1.3,D:1,F:0};
+
+function setScale(s){
+  _scale=s;
+  document.getElementById('scale5Btn').className='mode-tab'+(s===5?' active':'');
+  document.getElementById('scale4Btn').className='mode-tab'+(s===4?' active':'');
+  renderCourses();
+}
+
+function addCourse(name,grade,units){
+  _courses.push({name:name||'',grade:grade||(_scale===5?'A':'A'),units:units||3});
+  renderCourses();
+}
+
+function renderCourses(){
+  var wrap=document.getElementById('cgpaCourses');
+  var grades5=['A','B','C','D','E','F'];
+  var grades4=['A','A-','B+','B','B-','C+','C','C-','D+','D','F'];
+  var grades=_scale===5?grades5:grades4;
+  if(!_courses.length){addCourse();addCourse();addCourse();return;}
+  wrap.innerHTML=_courses.map(function(c,i){
+    return '<div class="course-row"><input type="text" placeholder="Course name" value="'+c.name+'" oninput="_courses['+i+'].name=this.value"/>'
+      +'<select onchange="_courses['+i+'].grade=this.value">'+grades.map(function(g){return '<option value="'+g+'"'+(g===c.grade?' selected':'')+'>'+g+'</option>';}).join('')+'</select>'
+      +'<input type="number" value="'+c.units+'" min="1" max="6" style="width:56px;" oninput="_courses['+i+'].units=parseInt(this.value)||3"/>'
+      +'<button class="del-btn" onclick="delCourse('+i+')"><span class="material-symbols-rounded">close</span></button></div>';
+  }).join('');
+}
+
+function delCourse(i){_courses.splice(i,1);renderCourses();}
+
+function calcCGPA(){
+  var gradeMap=_scale===5?GRADE_5:GRADE_4;
+  var totalPoints=0,totalUnits=0;
+  var rows=[];
+  _courses.forEach(function(c){
+    if(!c.name.trim())return;
+    var pts=(gradeMap[c.grade]||0)*c.units;
+    totalPoints+=pts;totalUnits+=c.units;
+    rows.push({name:c.name,grade:c.grade,units:c.units,points:pts});
+  });
+  if(!totalUnits){alert('Add at least one course with a name!');return;}
+  var cgpa=(totalPoints/totalUnits).toFixed(2);
+  document.getElementById('cgpaVal').textContent=cgpa;
+  var cls=_scale===5?getCls5(cgpa):getCls4(cgpa);
+  document.getElementById('cgpaClass').textContent=cls.label;
+  document.getElementById('cgpaClass').style.color=cls.color;
+  // Breakdown
+  var bd=document.getElementById('cgpaBreakdown');bd.style.display='block';
+  document.getElementById('cgpaBreakdownRows').innerHTML=
+    rows.map(function(r){return '<div class="breakdown-row"><span>'+r.name+'</span><span>'+r.grade+' × '+r.units+' = '+r.points+'</span></div>';}).join('')
+    +'<div class="breakdown-row"><span>CGPA ('+totalPoints+' ÷ '+totalUnits+')</span><span style="color:var(--brand,#5b5ef4)">'+cgpa+'</span></div>';
+  localStorage.setItem('examora_cgpa',cgpa);
+}
+
+function getCls5(cgpa){
+  var v=parseFloat(cgpa);
+  if(v>=4.5)return{label:'First Class Honours 🎉',color:'#10b981'};
+  if(v>=3.5)return{label:'Second Class Upper (2:1)',color:'#6366f1'};
+  if(v>=2.4)return{label:'Second Class Lower (2:2)',color:'#06b6d4'};
+  if(v>=1.5)return{label:'Third Class',color:'#f59e0b'};
+  return{label:'Pass',color:'#f43f5e'};
+}
+function getCls4(cgpa){
+  var v=parseFloat(cgpa);
+  if(v>=3.7)return{label:'A / Distinction 🎉',color:'#10b981'};
+  if(v>=3.0)return{label:'B / Merit',color:'#6366f1'};
+  if(v>=2.0)return{label:'C / Pass',color:'#f59e0b'};
+  return{label:'Below Average — Let\'s work on this',color:'#f43f5e'};
+}
+
+function askNovaCGPA(){
+  var cgpa=localStorage.getItem('examora_cgpa')||'—';
+  window.location.href='chat.html?q='+encodeURIComponent('My current CGPA is '+cgpa+'. What specific strategies can I use to improve it?');
+}
+
+// ── WAEC ─────────────────────────────────────────────────────
+var WAEC_GRADES={'A1':6,'B2':5,'B3':4,'C4':3,'C5':2,'C6':1,'D7':0,'E8':0,'F9':0};
+var WAEC_SUBJECTS=['English Language','Mathematics','Biology','Chemistry','Physics','Economics','Government','Literature in English','Geography','Agricultural Science','Commerce','Civic Education','CRK/IRK','Further Mathematics'];
+var _waecRows=[];
+
+function addWaecRow(subj,grade){
+  _waecRows.push({subj:subj||'',grade:grade||'A1'});
+  renderWaec();
+}
+
+function renderWaec(){
+  var tbody=document.getElementById('waecRows');
+  var grades=Object.keys(WAEC_GRADES);
+  if(!_waecRows.length){for(var i=0;i<6;i++)_waecRows.push({subj:WAEC_SUBJECTS[i]||'',grade:'B3'});renderWaec();return;}
+  tbody.innerHTML=_waecRows.map(function(r,i){
+    return '<tr class="waec-row"><td><input list="waec-subj-list" value="'+r.subj+'" placeholder="Subject" oninput="_waecRows['+i+'].subj=this.value"/></td>'
+      +'<td><select onchange="_waecRows['+i+'].grade=this.value;renderWaec()">'+grades.map(function(g){return '<option value="'+g+'"'+(g===r.grade?' selected':'')+'>'+g+'</option>';}).join('')+'</select></td>'
+      +'<td style="text-align:center;font-weight:700;color:var(--brand,#5b5ef4);">'+WAEC_GRADES[r.grade]+'</td></tr>';
+  }).join('');
+}
+
+function calcWAEC(){
+  var total=0,credits=0,engPass=false,mathPass=false;
+  _waecRows.forEach(function(r){
+    var pts=WAEC_GRADES[r.grade]||0;total+=pts;
+    if(pts>=1)credits++;
+    if(/english/i.test(r.subj)&&pts>=1)engPass=true;
+    if(/math/i.test(r.subj)&&pts>=1)mathPass=true;
+  });
+  document.getElementById('waecVal').textContent=total;
+  var eligible=credits>=5&&engPass&&mathPass;
+  document.getElementById('waecClass').textContent=eligible?'✅ Eligible for university admission':'⚠️ Check requirements — need 5 credits inc. English & Maths';
+  document.getElementById('waecClass').style.color=eligible?'#10b981':'#f59e0b';
+  var res=document.getElementById('waecResult');res.style.display='block';
+  res.innerHTML='<div class="info-card">Total points: <strong>'+total+'</strong> · Credits: <strong>'+credits+'</strong> · English: <strong>'+(engPass?'✅ Pass':'❌ Fail')+'</strong> · Maths: <strong>'+(mathPass?'✅ Pass':'❌ Fail')+'</strong></div>'
+    +'<button onclick="window.location.href=\'chat.html?q='+encodeURIComponent('My WAEC total is '+total+' with '+credits+' credits. What universities and courses can I apply for?')+'\'" style="width:100%;padding:12px;background:none;border:1.5px solid rgba(99,102,241,.3);color:var(--brand,#5b5ef4);border-radius:12px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;">🤖 Ask Nova which universities I qualify for</button>';
+}
+
+// ── Aggregate ─────────────────────────────────────────────────
+var _formula='A';
+function setFormula(f){
+  _formula=f;
+  ['A','B','C'].forEach(function(x){document.getElementById('formula'+x).className='mode-tab'+(x===f?' active':'');});
+}
+
+function calcAggregate(){
+  var jamb=parseFloat(document.getElementById('jambScore').value)||0;
+  var putme=parseFloat(document.getElementById('putmeScore').value)||0;
+  var olevel=parseFloat(document.getElementById('olevelPts').value)||0;
+  var bonus=parseFloat(document.getElementById('bonusPts').value)||0;
+  var agg=0,breakdown='';
+  if(_formula==='A'){
+    var j=jamb/8;var p=putme/2;agg=j+p+bonus;
+    breakdown='JAMB ('+jamb+'÷8) = '+j.toFixed(2)+' + Post-UTME ('+putme+'÷2) = '+p.toFixed(2)+' + Bonus '+bonus;
+  } else if(_formula==='B'){
+    var j=jamb*0.45/4;var p=putme*0.55;agg=j+p+bonus;
+    breakdown='JAMB (×0.45÷4) = '+j.toFixed(2)+' + Post-UTME (×0.55) = '+p.toFixed(2)+' + Bonus '+bonus;
+  } else {
+    var j=jamb/8;var p=putme/5*4;agg=j+p+bonus;
+    breakdown='JAMB (÷8) = '+j.toFixed(2)+' + Post-UTME (÷5×4) = '+p.toFixed(2)+' + Bonus '+bonus;
+  }
+  agg=Math.min(100,agg);
+  document.getElementById('aggVal').textContent=agg.toFixed(1);
+  document.getElementById('aggClass').textContent=agg>=50?'✅ Above average — check your school cut-off':'⚠️ May need to improve score';
+  document.getElementById('aggClass').style.color=agg>=50?'#10b981':'#f59e0b';
+  var bd=document.getElementById('aggBreakdown');bd.style.display='block';
+  bd.innerHTML='<div class="info-card">'+breakdown+'<br><strong>Total: '+agg.toFixed(1)+'</strong></div>'
+    +'<button onclick="window.location.href=\'chat.html?q='+encodeURIComponent('My Post-UTME aggregate is '+agg.toFixed(1)+'. What courses and universities should I consider?')+'\'" style="width:100%;padding:12px;background:none;border:1.5px solid rgba(99,102,241,.3);color:var(--brand,#5b5ef4);border-radius:12px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;margin-top:8px;">🤖 Ask Nova which courses I qualify for</button>';
+}
+
+// ── Primary ───────────────────────────────────────────────────
+var _primSubjects=[];
+function addPrimSubject(name,score){
+  _primSubjects.push({name:name||'',score:score||''});
+  renderPrim();
+}
+function renderPrim(){
+  var wrap=document.getElementById('primCourses');
+  if(!_primSubjects.length){['English','Mathematics','Basic Science','Social Studies','CRK'].forEach(function(s){_primSubjects.push({name:s,score:''}); });renderPrim();return;}
+  wrap.innerHTML=_primSubjects.map(function(s,i){
+    return '<div class="course-row" style="grid-template-columns:1fr auto 32px;"><input type="text" placeholder="Subject" value="'+s.name+'" oninput="_primSubjects['+i+'].name=this.value"/>'
+      +'<input type="number" placeholder="Score (0-100)" value="'+s.score+'" min="0" max="100" style="width:130px;" oninput="_primSubjects['+i+'].score=parseFloat(this.value)||0"/>'
+      +'<button class="del-btn" onclick="_primSubjects.splice('+i+',1);renderPrim()"><span class="material-symbols-rounded">close</span></button></div>';
+  }).join('');
+}
+function calcPrimary(){
+  var scored=_primSubjects.filter(function(s){return s.name.trim()&&s.score!==''});
+  if(!scored.length){alert('Add at least one subject with a score!');return;}
+  var total=scored.reduce(function(a,s){return a+parseFloat(s.score||0);},0);
+  var avg=total/scored.length;
+  document.getElementById('primVal').textContent=avg.toFixed(1)+'%';
+  var grade=avg>=70?{g:'A — Excellent! 🌟',c:'#10b981'}:avg>=60?{g:'B — Good',c:'#6366f1'}:avg>=50?{g:'C — Average',c:'#f59e0b'}:avg>=40?{g:'D — Below Average',c:'#f43f5e'}:{g:'F — Needs Improvement',c:'#f43f5e'};
+  document.getElementById('primClass').textContent=grade.g;
+  document.getElementById('primClass').style.color=grade.c;
+  var res=document.getElementById('primResult');res.style.display='block';
+  res.innerHTML='<div class="info-card">'+scored.map(function(s){return '<strong>'+s.name+':</strong> '+s.score+'%';}).join(' · ')+'<br><strong>Average: '+avg.toFixed(1)+'%</strong></div>'
+    +'<button onclick="window.location.href=\'chat.html?q='+encodeURIComponent('I scored '+avg.toFixed(1)+'% average in primary school. Which subjects should I focus on to improve?')+'\'" style="width:100%;padding:12px;background:none;border:1.5px solid rgba(99,102,241,.3);color:var(--brand,#5b5ef4);border-radius:12px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Outfit,sans-serif;margin-top:8px;">🤖 Ask Nova how to improve</button>';
+}
+
+// ── Init based on user level ───────────────────────────────────
+var lvl=localStorage.getItem('examora_user_level')||'secondary';
+if(lvl==='primary')switchMode('primary');
+else if(lvl==='university'||lvl==='phd')switchMode('cgpa');
+else switchMode('waec');
+renderCourses();renderWaec();renderPrim();
+</script>
+
+<datalist id="waec-subj-list">
+  <option value="English Language"/><option value="Mathematics"/><option value="Biology"/><option value="Chemistry"/>
+  <option value="Physics"/><option value="Economics"/><option value="Government"/><option value="Literature in English"/>
+  <option value="Agricultural Science"/><option value="Geography"/><option value="Commerce"/><option value="Further Mathematics"/>
+</datalist>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const app=initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const auth=getAuth(app);
+onAuthStateChanged(auth,user=>{if(!user)window.location.href='login.html';});
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

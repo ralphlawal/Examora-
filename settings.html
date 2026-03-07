@@ -187,6 +187,25 @@
   </div>
 
   <!-- Danger zone -->
+  <div class="section-label">Data & Privacy</div>
+  <div class="settings-group">
+    <div class="setting-row" onclick="exportMyData()">
+      <div class="s-icon" style="background:rgba(16,185,129,.1);">📦</div>
+      <div class="s-content"><div class="s-title">Export My Data</div><div class="s-sub">Download all your data as JSON (NDPR right)</div></div>
+      <span class="s-chevron material-symbols-rounded">download</span>
+    </div>
+    <div class="setting-row" onclick="sendFeedback()">
+      <div class="s-icon" style="background:rgba(99,102,241,.1);">💬</div>
+      <div class="s-content"><div class="s-title">Send Feedback</div><div class="s-sub">Report a bug or suggest a feature</div></div>
+      <span class="s-chevron material-symbols-rounded">chevron_right</span>
+    </div>
+    <div class="setting-row" onclick="window.location.href='privacy.html'">
+      <div class="s-icon" style="background:rgba(99,102,241,.1);">🔒</div>
+      <div class="s-content"><div class="s-title">Privacy Policy</div><div class="s-sub">How we handle your data</div></div>
+      <span class="s-chevron material-symbols-rounded">chevron_right</span>
+    </div>
+  </div>
+
   <div class="section-label" style="color:var(--c-red);">Danger Zone</div>
   <div class="danger-zone">
     <div class="setting-row" style="border-top:none;border-bottom:none;" onclick="signOutConfirm()">
@@ -196,12 +215,12 @@
     <div style="height:1px;background:rgba(244,63,94,0.15);margin:0 16px;"></div>
     <div class="setting-row" style="border-top:none;" onclick="deleteAccountConfirm()">
       <div class="s-icon" style="background:rgba(244,63,94,0.1);">❌</div>
-      <div class="s-content"><div class="s-title" style="color:var(--c-red);">Delete Account</div><div class="s-sub">Permanently delete all your data</div></div>
+      <div class="s-content"><div class="s-title" style="color:var(--c-red);">Delete Account</div><div class="s-sub">Permanently delete all your data (NDPR)</div></div>
     </div>
   </div>
 
   <div class="version-footer">
-    <div style="font-weight:700;color:var(--text-2);">EXAMORA v2.4</div>
+    <div style="font-weight:700;color:var(--text-2);">EXAMORA v3.0</div>
     <div>Powered by NexaCore Labs · examora.com.ng</div>
     <div>Made with ❤️ for Nigerian students</div>
   </div>
@@ -360,10 +379,50 @@
     toast('Thanks for the love! 🙏','success');
   }
   function signOutConfirm(){
-    if(confirm('Sign out of EXAMORA?')) window.location.href='login.html';
+    if(confirm('Sign out of EXAMORA?')) {
+      if (window._doSignOut) window._doSignOut();
+      else window.location.href = 'login.html';
+    }
   }
   function deleteAccountConfirm(){
-    if(confirm('DELETE your account? This cannot be undone.')) window.location.href='profile.html';
+    var first = confirm('⚠️ Delete your account?\n\nThis will permanently delete:\n• All your exam results\n• Study notes and bookmarks\n• Streak and badges\n\nThis CANNOT be undone.');
+    if (!first) return;
+    var second = confirm('Are you absolutely sure? Type OK to confirm.\n\n(Click OK to proceed with deletion)');
+    if (!second) return;
+    if (window._doDeleteAccount) {
+      window._doDeleteAccount();
+    } else {
+      toast('Deletion request submitted. Our team will process it within 72 hours.', 'success');
+    }
+  }
+  function sendFeedback(){
+    var msg = prompt('Share your feedback or report a bug:\n\n(Be as detailed as possible)');
+    if (!msg || !msg.trim()) return;
+    if (window._doSendFeedback) {
+      window._doSendFeedback(msg.trim());
+    } else {
+      // Fallback — open email
+      window.location.href = 'mailto:hello@examora.com.ng?subject=App Feedback&body=' + encodeURIComponent(msg);
+    }
+  }
+  function exportMyData(){
+    var data = {
+      exportDate:    new Date().toISOString(),
+      displayName:   localStorage.getItem('examora_user_display') || '',
+      plan:          localStorage.getItem('examora_plan') || 'free',
+      savedWords:    JSON.parse(localStorage.getItem('examora_saved_words') || '[]'),
+      readingList:   JSON.parse(localStorage.getItem('examora_reading_list') || '[]'),
+      triviaStats:   JSON.parse(localStorage.getItem('examora_trivia_stats') || '{}'),
+      wordHistory:   JSON.parse(localStorage.getItem('examora_word_hist') || '[]'),
+      theme:         localStorage.getItem('examora_theme') || 'light',
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'examora-my-data-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Data exported successfully ✅', 'success');
   }
 
   init();
@@ -371,11 +430,66 @@
 
 <script type="module">
   import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import{getAuth,onAuthStateChanged,signOut,deleteUser,reauthenticateWithCredential,EmailAuthProvider}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import{getFirestore,doc,setDoc,deleteDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const app=initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
   const auth=getAuth(app);
+  const db=getFirestore(app);
   onAuthStateChanged(auth,user=>{if(!user)window.location.href='login.html';});
-  window._doSignOut=async()=>{await signOut(auth);window.location.href='login.html';};
+
+  window._doSignOut = async () => {
+    await signOut(auth);
+    localStorage.removeItem('examora_plan');
+    localStorage.removeItem('examora_ai_keys');
+    localStorage.removeItem('examora_user_display');
+    window.location.href = 'login.html';
+  };
+
+  window._doDeleteAccount = async () => {
+    var user = auth.currentUser;
+    if (!user) return;
+    try {
+      // Write a delete request to Firestore (admin processes it)
+      await setDoc(doc(db,'delete_requests',user.uid), {
+        uid: user.uid, email: user.email,
+        requestedAt: serverTimestamp(), status: 'pending'
+      });
+      // Attempt immediate deletion (works if session is recent)
+      try {
+        await deleteUser(user);
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'login.html?deleted=1';
+      } catch(reAuthErr) {
+        if (reAuthErr.code === 'auth/requires-recent-login') {
+          // Session too old — delete request logged, sign them out
+          await signOut(auth);
+          localStorage.clear();
+          alert('Your deletion request has been logged. You will receive a confirmation email within 72 hours.');
+          window.location.href = 'login.html';
+        } else {
+          throw reAuthErr;
+        }
+      }
+    } catch(e) {
+      alert('Could not delete account: ' + (e.message || 'Unknown error. Please contact hello@examora.com.ng'));
+    }
+  };
+
+  window._doSendFeedback = async (message) => {
+    var user = auth.currentUser;
+    if (!user) return;
+    try {
+      await setDoc(doc(db,'feedback',user.uid + '_' + Date.now()), {
+        uid: user.uid, email: user.email || '',
+        message: message, createdAt: serverTimestamp(),
+        platform: navigator.userAgent.substring(0,100)
+      });
+      if (typeof toast === 'function') toast('Feedback sent! Thank you 🙏', 'success');
+    } catch(e) {
+      window.location.href = 'mailto:hello@examora.com.ng?subject=EXAMORA Feedback&body=' + encodeURIComponent(message);
+    }
+  };
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
   <nav class="bottom-nav">

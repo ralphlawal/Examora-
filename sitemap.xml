@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Core -->
+  <url><loc>https://examora.com.ng/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://examora.com.ng/exam.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://examora.com.ng/mock.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://examora.com.ng/daily-challenge.html</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+
+  <!-- Nova Learning Hub -->
+  <url><loc>https://examora.com.ng/nova.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://examora.com.ng/chat.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://examora.com.ng/discover.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/dictionary.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/books.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/trivia.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/university.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Study Tools -->
+  <url><loc>https://examora.com.ng/flashcards.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/notes.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/vocabulary.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/summariser.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/solver.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/essay-check.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/formula-sheet.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/calculator.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/syllabus.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/countdown.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/planner.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/topic-practice.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/wrong-drill.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+
+  <!-- Community & Progress -->
+  <url><loc>https://examora.com.ng/leaderboard.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/scholarship.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://examora.com.ng/group-study.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/streak.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://examora.com.ng/certificate.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://examora.com.ng/mindset.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+
+  <!-- Info -->
+  <url><loc>https://examora.com.ng/news.html</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://examora.com.ng/help.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://examora.com.ng/upgrade.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://examora.com.ng/terms.html</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://examora.com.ng/privacy.html</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+
+</urlset>
