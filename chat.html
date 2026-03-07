@@ -238,11 +238,14 @@
   <button class="ch-back" onclick="history.back()">
     <span class="material-symbols-rounded" style="font-size:1.3rem;">arrow_back</span>
   </button>
-  <div class="ch-avatar">🤖</div>
+  <div class="ch-avatar"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:26px;height:26px"><circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/><circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/><circle cx="26" cy="26" r="2.8" fill="white" opacity=".75"/><line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><path d="M44 4L45.2 7.2L48.4 8.4L45.2 9.6L44 12.8L42.8 9.6L39.6 8.4L42.8 7.2Z" fill="white" opacity=".85"/></svg></div>
   <div class="ch-info">
-    <div class="ch-name">EXAMORA AI Tutor</div>
-    <div class="ch-status"><span class="ch-status-dot"></span>Online · NexaCore Labs</div>
+    <div class="ch-name">Nova · EXAMORA</div>
+    <div class="ch-status"><span class="ch-status-dot"></span>Online · Your Learning Brain</div>
   </div>
+  <a href="nova.html" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;" title="Nova Hub">
+    <svg viewBox="0 0 52 52" fill="none" style="width:20px;height:20px"><circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/><circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/><circle cx="26" cy="26" r="2.8" fill="white" opacity=".75"/><line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/></svg>
+  </a>
   <button class="ch-menu" onclick="clearChat()" title="Clear chat">
     <span class="material-symbols-rounded" style="font-size:1.2rem;">delete_sweep</span>
   </button>
@@ -258,11 +261,16 @@
 <div class="suggestions" id="suggestionsRow">
   <button class="sug-chip" onclick="sendSuggestion(this)">Explain photosynthesis</button>
   <button class="sug-chip" onclick="sendSuggestion(this)">JAMB Maths tips</button>
+  <button class="sug-chip" onclick="sendSuggestion(this)">Tell me something about space</button>
+  <button class="sug-chip" onclick="sendSuggestion(this)">What does resilience mean?</button>
   <button class="sug-chip" onclick="sendSuggestion(this)">How does osmosis work?</button>
   <button class="sug-chip" onclick="sendSuggestion(this)">WAEC English grammar</button>
+  <button class="sug-chip" onclick="sendSuggestion(this)">Recommend a book on science</button>
+  <button class="sug-chip" onclick="sendSuggestion(this)">What are UNILAG requirements?</button>
   <button class="sug-chip" onclick="sendSuggestion(this)">Newton's laws explained</button>
   <button class="sug-chip" onclick="sendSuggestion(this)">Economics: demand & supply</button>
-  <button class="sug-chip" onclick="sendSuggestion(this)">Government: federalism</button>
+  <button class="sug-chip" onclick="sendSuggestion(this)">Give me a fun science fact</button>
+  <button class="sug-chip" onclick="sendSuggestion(this)">Help me study Government</button>
 </div>
 
 <!-- Messages -->
@@ -272,7 +280,7 @@
   <div class="msg-row bot" id="welcomeRow">
     <div class="msg-av">🤖</div>
     <div class="msg-wrap">
-      <div class="msg-bubble">👋 Hey! I'm <strong>NOVA</strong>, your personal AI study companion from EXAMORA.<br/><br/>I'm built to help you ace <strong>JAMB, WAEC, NECO, Post-UTME</strong> and any other exam. I can:<br/>📖 Explain any concept clearly<br/>🔢 Solve problems step by step<br/>❓ Give hints without spoiling answers<br/>📝 Generate practice questions<br/>📅 Build your study plan<br/><br/>What are we tackling today? 🔥</div>
+      <div class="msg-bubble">👋 Hi! I'm <strong>Nova</strong> — EXAMORA's AI brain.<br/><br/>I'm not just an exam tutor. I can:<br/>📝 Explain JAMB, WAEC, NECO and Post-UTME topics<br/>🔭 Tell you about space, science, history and more<br/>📖 Define words with pronunciation and examples<br/>🎓 Help you research universities and courses<br/>💡 Share life advice and motivational wisdom<br/>🔬 Discuss research papers and books<br/><br/>I speak to every age — whether you're 8 or 80, I'll explain at your level.<br/><br/>What would you like to explore? 🚀</div>
       <div class="msg-time" id="welcomeTime"></div>
     </div>
   </div>
@@ -354,7 +362,7 @@
     var showAv = (role === 'bot' && _lastSender !== 'bot');
     var avEl = document.createElement('div');
     avEl.className = 'msg-av' + (showAv ? '' : ' hide');
-    avEl.textContent = '🤖';
+    avEl.innerHTML = '<svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/><circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/><circle cx="26" cy="26" r="2.8" fill="white" opacity=".75"/><line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/><path d="M44 4L45.2 7.2L48.4 8.4L45.2 9.6L44 12.8L42.8 9.6L39.6 8.4L42.8 7.2Z" fill="white" opacity=".85"/></svg>';
 
     var wrap = document.createElement('div');
     wrap.className = 'msg-wrap';
@@ -475,7 +483,7 @@
     _history = [];
     _lastSender = null;
     document.getElementById('suggestionsRow').style.display = 'flex';
-    addBubble('bot', 'Chat cleared! 🔄 I\'m NOVA — ready to help. What topic should we tackle? 🎯');
+    addBubble('bot', '🔄 Chat cleared! Nova is ready. Ask me anything — exam topics, science, words, books, universities or just have a conversation! 🚀');
   }
 
   function usePrompt(btn) {
@@ -503,6 +511,20 @@
       }, true);
     }
   });
+
+  // Handle ?q= pre-filled question from other pages
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var q = params.get('q');
+    if (q) {
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          document.getElementById('chatInput').value = q;
+          sendMsg();
+        }, 600);
+      });
+    }
+  })();
 </script>
 
 <script type="module">

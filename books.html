@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Books Explorer — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;max-width:100%;min-width:0;}
+p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em{overflow-wrap:break-word;word-wrap:break-word;}
+
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.ph-back{width:36px;height:36px;border-radius:var(--r-sm);border:none;background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);flex-shrink:0;}
+.ph-back:hover{background:var(--border);}
+.ph-title{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;color:var(--ink);flex:1;}
+.ph-nova{width:36px;height:36px;border-radius:var(--r-sm);background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;text-decoration:none;}
+.ph-nova svg{width:22px;height:22px;}
+
+/* Search */
+.search-wrap{padding:14px 16px 10px;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-full);padding:10px 16px;transition:var(--ease);}
+.search-box:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px var(--brand-pale);}
+.search-box .material-symbols-rounded{color:var(--ink-3);font-size:1.1rem;flex-shrink:0;}
+.search-box input{flex:1;background:none;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:.9rem;color:var(--ink);}
+.search-box input::placeholder{color:var(--ink-3);}
+
+/* Category tabs */
+.cat-tabs{display:flex;gap:6px;padding:0 16px 14px;overflow-x:auto;scrollbar-width:none;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.cat-tab{flex-shrink:0;padding:7px 14px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface);font-family:'Sora',sans-serif;font-weight:700;font-size:.75rem;color:var(--ink-2);cursor:pointer;transition:all .18s;white-space:nowrap;}
+.cat-tab.on{background:var(--brand);border-color:var(--brand);color:white;}
+.cat-tab:hover:not(.on){border-color:var(--brand);color:var(--brand);}
+
+/* Reading list strip */
+.rl-strip{margin:0 16px 14px;padding:12px 14px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.2);border-radius:var(--r-lg);display:flex;align-items:center;gap:10px;cursor:pointer;}
+.rl-strip:hover{border-color:rgba(245,158,11,.4);}
+.rl-icon{font-size:1.5rem;flex-shrink:0;}
+.rl-text{flex:1;min-width:0;}
+.rl-title{font-family:'Sora',sans-serif;font-weight:800;font-size:.82rem;color:var(--ink);}
+.rl-sub{font-size:.7rem;color:var(--ink-3);margin-top:1px;}
+.rl-count{font-family:'Sora',sans-serif;font-weight:900;font-size:1.4rem;color:#d97706;flex-shrink:0;}
+
+/* Book grid */
+.books-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px;}
+
+.book-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;
+  transition:all .2s;cursor:pointer;display:flex;flex-direction:column;
+}
+.book-card:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:var(--sh-sm);}
+
+.book-cover{
+  aspect-ratio:2/3;max-height:180px;width:100%;
+  background:linear-gradient(135deg,#1e1b4b,#312e81);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;flex-shrink:0;
+}
+.book-cover img{width:100%;height:100%;object-fit:cover;}
+.book-cover-placeholder{font-size:2.5rem;}
+
+.book-info{padding:10px;}
+.book-title{font-family:'Sora',sans-serif;font-weight:800;font-size:.78rem;color:var(--ink);line-height:1.3;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.book-author{font-size:.68rem;color:var(--ink-3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.book-year{font-size:.65rem;color:var(--brand);font-weight:700;}
+
+.book-actions{display:flex;gap:5px;padding:0 10px 10px;margin-top:auto;}
+.bk-btn{flex:1;padding:6px 8px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface-2);font-size:.65rem;font-weight:700;color:var(--ink-2);cursor:pointer;transition:all .18s;font-family:'Sora',sans-serif;text-align:center;}
+.bk-btn.primary{background:var(--brand-pale);border-color:var(--brand);color:var(--brand);}
+.bk-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-pale);}
+.bk-btn.saved{background:rgba(16,185,129,.1);border-color:#10b981;color:#10b981;}
+
+/* Loading */
+.skel{background:var(--surface-2);border-radius:var(--r-sm);animation:shimmer 1.4s infinite linear;}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+
+.loading-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px;}
+.skel-book{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
+.skel-cover{aspect-ratio:2/3;max-height:180px;width:100%;}
+.skel-info{padding:10px;}
+
+/* Empty */
+.empty{padding:40px 20px;text-align:center;}
+.empty-icon{font-size:3rem;margin-bottom:12px;}
+.empty-title{font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;color:var(--ink);margin-bottom:6px;}
+.empty-sub{font-size:.78rem;color:var(--ink-3);line-height:1.6;}
+
+/* Reading list overlay */
+.overlay-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;}
+.overlay-bg.show{display:block;}
+.rl-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;z-index:101;border-top:1px solid var(--border);max-height:70vh;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:100px;margin:0 auto 18px;}
+.sheet-title{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;color:var(--ink);margin-bottom:14px;}
+.rl-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.rl-item:last-child{border-bottom:none;}
+.rl-item-cover{width:36px;height:50px;border-radius:var(--r-xs);background:linear-gradient(135deg,#1e1b4b,#312e81);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden;}
+.rl-item-cover img{width:100%;height:100%;object-fit:cover;}
+.rl-item-info{flex:1;min-width:0;}
+.rl-item-title{font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rl-item-author{font-size:.68rem;color:var(--ink-3);}
+.rl-item-remove{width:28px;height:28px;border-radius:50%;border:none;background:var(--rose-p);color:var(--rose);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rl-item-remove .material-symbols-rounded{font-size:.9rem;}
+
+.bottom-spacer{height:90px;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="ph-back" onclick="history.back()">
+    <span class="material-symbols-rounded" style="font-size:1.2rem">arrow_back</span>
+  </button>
+  <div class="ph-title">Books Explorer</div>
+  <a href="nova.html" class="ph-nova" title="Nova Hub">
+    <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/>
+      <circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/>
+      <circle cx="26" cy="26" r="2.8" fill="white" opacity=".75"/>
+      <line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <path d="M44 4L45.2 7.2L48.4 8.4L45.2 9.6L44 12.8L42.8 9.6L39.6 8.4L42.8 7.2Z" fill="white" opacity=".85"/>
+    </svg>
+  </a>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="material-symbols-rounded">search</span>
+    <input type="text" id="searchInput" placeholder="Search books, authors, topics…"
+           autocomplete="off" onkeydown="if(event.key==='Enter')doSearch()"/>
+    <button style="background:var(--brand);border:none;border-radius:var(--r-full);padding:6px 14px;color:white;font-family:'Sora',sans-serif;font-weight:700;font-size:.76rem;cursor:pointer;" onclick="doSearch()">Search</button>
+  </div>
+</div>
+
+<!-- Category tabs -->
+<div class="cat-tabs">
+  <button class="cat-tab on" onclick="setCategory('science','Science')">🔬 Science</button>
+  <button class="cat-tab" onclick="setCategory('mathematics','Math')">📐 Math</button>
+  <button class="cat-tab" onclick="setCategory('history','History')">📜 History</button>
+  <button class="cat-tab" onclick="setCategory('literature','Literature')">✍️ Literature</button>
+  <button class="cat-tab" onclick="setCategory('technology','Technology')">💻 Technology</button>
+  <button class="cat-tab" onclick="setCategory('economics','Economics')">💰 Economics</button>
+  <button class="cat-tab" onclick="setCategory('biology','Biology')">🧬 Biology</button>
+  <button class="cat-tab" onclick="setCategory('africa','Africa')">🌍 Africa</button>
+</div>
+
+<!-- Reading list strip -->
+<div class="rl-strip" onclick="openReadingList()">
+  <div class="rl-icon">📚</div>
+  <div class="rl-text">
+    <div class="rl-title">My Reading List</div>
+    <div class="rl-sub" id="rlSub">Tap to view saved books</div>
+  </div>
+  <div class="rl-count" id="rlCount">0</div>
+</div>
+
+<!-- Books grid -->
+<div id="booksGrid" class="books-grid"></div>
+<div id="emptyState" class="empty" style="display:none;">
+  <div class="empty-icon">📖</div>
+  <div class="empty-title">No books found</div>
+  <div class="empty-sub">Try a different search term or browse a category above.</div>
+</div>
+
+<!-- Reading list sheet -->
+<div class="overlay-bg" id="rlOverlay" onclick="closeReadingList()"></div>
+<div class="rl-sheet" id="rlSheet" style="display:none;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">📚 My Reading List</div>
+  <div id="rlItems"><div style="text-align:center;padding:20px;color:var(--ink-3);font-size:.82rem;">No books saved yet — add some by tapping the bookmark icon!</div></div>
+</div>
+
+<div class="bottom-spacer"></div>
+
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon material-symbols-rounded">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon material-symbols-rounded">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="discover.html"    class="nav-item"><span class="nav-icon material-symbols-rounded">explore</span><span class="nav-label">Discover</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon material-symbols-rounded">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon material-symbols-rounded">person</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+var _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+
+var _readingList = JSON.parse(localStorage.getItem('examora_reading_list') || '[]');
+var _currentCat  = 'science';
+
+function updateRLStrip() {
+  document.getElementById('rlCount').textContent = _readingList.length;
+  document.getElementById('rlSub').textContent = _readingList.length === 0 ? 'Tap to view saved books' : _readingList.length + ' book' + (_readingList.length === 1 ? '' : 's') + ' saved';
+}
+
+function setCategory(cat, label) {
+  _currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(function(b) {
+    b.classList.toggle('on', b.textContent.toLowerCase().includes(cat.substring(0,4).toLowerCase()));
+  });
+  document.getElementById('searchInput').value = '';
+  loadBooks(cat);
+}
+
+async function loadBooks(query) {
+  var grid = document.getElementById('booksGrid');
+  var empty = document.getElementById('emptyState');
+  empty.style.display = 'none';
+  grid.innerHTML = ['','','','','',''].map(function() {
+    return '<div class="skel-book"><div class="skel skel-cover"></div><div class="skel-info"><div class="skel" style="height:14px;width:80%;margin-bottom:6px;"></div><div class="skel" style="height:11px;width:55%;"></div></div></div>';
+  }).join('');
+
+  try {
+    var r = await fetch('https://openlibrary.org/search.json?q=' + encodeURIComponent(query) + '&limit=12&sort=rating&fields=key,title,author_name,first_publish_year,cover_i,subject');
+    var d = await r.json();
+    var books = d.docs || [];
+    if (books.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    grid.innerHTML = books.map(function(b) {
+      var coverUrl = b.cover_i ? 'https://covers.openlibrary.org/b/id/' + b.cover_i + '-M.jpg' : '';
+      var author   = (b.author_name || ['Unknown'])[0];
+      var year     = b.first_publish_year || '';
+      var key      = b.key || '';
+      var bookData = JSON.stringify({title:b.title,author:author,year:year,cover:coverUrl,key:key}).replace(/'/g,'&apos;');
+      var isSaved  = _readingList.some(function(r){ return r.key === key; });
+      return '<div class="book-card" onclick="viewBook('+JSON.stringify(key)+')">' +
+        '<div class="book-cover">' +
+          (coverUrl ? '<img src="' + coverUrl + '" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=book-cover-placeholder>📖</div>\'">' : '<div class="book-cover-placeholder">📖</div>') +
+        '</div>' +
+        '<div class="book-info">' +
+          '<div class="book-title">' + b.title + '</div>' +
+          '<div class="book-author">' + author + '</div>' +
+          (year ? '<div class="book-year">' + year + '</div>' : '') +
+        '</div>' +
+        '<div class="book-actions">' +
+          '<button class="bk-btn primary" onclick="event.stopPropagation();askNova('+JSON.stringify(b.title+' by '+author)+')">✨ Nova</button>' +
+          '<button class="bk-btn ' + (isSaved ? 'saved' : '') + '" id="save_' + key.replace(/\//g,'_') + '" onclick="event.stopPropagation();toggleSave(' + bookData.replace(/"/g,"'") + ')">'+
+            (isSaved ? '✅' : '🔖') +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    document.querySelector('.empty-sub').textContent = 'Could not load books right now. Try again in a moment.';
+  }
+}
+
+function doSearch() {
+  var q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  document.querySelectorAll('.cat-tab').forEach(function(b){ b.classList.remove('on'); });
+  loadBooks(q);
+}
+
+function viewBook(key) {
+  if (!key) return;
+  window.open('https://openlibrary.org' + key, '_blank');
+}
+
+function toggleSave(bookData) {
+  if (typeof bookData === 'string') {
+    try { bookData = JSON.parse(bookData.replace(/&apos;/g,"'")); } catch(_) { return; }
+  }
+  var idx = _readingList.findIndex(function(b){ return b.key === bookData.key; });
+  if (idx >= 0) {
+    _readingList.splice(idx, 1);
+  } else {
+    _readingList.push(bookData);
+  }
+  localStorage.setItem('examora_reading_list', JSON.stringify(_readingList));
+  updateRLStrip();
+  // Re-render grid to update button state
+  loadBooks(_currentCat);
+}
+
+function askNova(title) {
+  window.location.href = 'chat.html?q=' + encodeURIComponent('Tell me about the book: ' + title + '. Give me a summary, key themes, and why it\'s worth reading.');
+}
+
+function openReadingList() {
+  document.getElementById('rlOverlay').classList.add('show');
+  document.getElementById('rlSheet').style.display = 'block';
+  var el = document.getElementById('rlItems');
+  if (_readingList.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--ink-3);font-size:.82rem;">No books saved yet!</div>';
+    return;
+  }
+  el.innerHTML = _readingList.map(function(b, i) {
+    return '<div class="rl-item">' +
+      '<div class="rl-item-cover">' + (b.cover ? '<img src="'+b.cover+'" alt="" onerror="this.parentElement.innerHTML=\'📖\'">' : '📖') + '</div>' +
+      '<div class="rl-item-info">' +
+        '<div class="rl-item-title">' + (b.title||'Unknown') + '</div>' +
+        '<div class="rl-item-author">' + (b.author||'') + (b.year ? ' · ' + b.year : '') + '</div>' +
+      '</div>' +
+      '<button class="rl-item-remove" onclick="removeFromRL(' + i + ')"><span class="material-symbols-rounded">delete</span></button>' +
+    '</div>';
+  }).join('');
+}
+
+function removeFromRL(i) {
+  _readingList.splice(i, 1);
+  localStorage.setItem('examora_reading_list', JSON.stringify(_readingList));
+  updateRLStrip();
+  openReadingList();
+}
+
+function closeReadingList() {
+  document.getElementById('rlOverlay').classList.remove('show');
+  document.getElementById('rlSheet').style.display = 'none';
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  updateRLStrip();
+  loadBooks('science');
+});
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const app  = initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const auth = getAuth(app);
+onAuthStateChanged(auth, u => { if (!u) window.location.href = 'login.html'; });
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>University Finder — EXAMORA</title>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="stylesheet" href="style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;max-width:100%;min-width:0;}
+p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em{overflow-wrap:break-word;word-wrap:break-word;}
+
+.page-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.ph-back{width:36px;height:36px;border-radius:var(--r-sm);border:none;background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);flex-shrink:0;}
+.ph-back:hover{background:var(--border);}
+.ph-title{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;color:var(--ink);flex:1;}
+.ph-nova{width:36px;height:36px;border-radius:var(--r-sm);background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none;}
+.ph-nova svg{width:22px;height:22px;}
+
+/* Hero */
+.uni-hero{padding:20px 16px 16px;background:linear-gradient(135deg,#0d1030,#1a1060);margin-bottom:0;}
+.uni-hero-title{font-family:'Sora',sans-serif;font-weight:900;font-size:1.3rem;color:white;margin-bottom:6px;}
+.uni-hero-sub{font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:14px;}
+
+/* Search & filter */
+.search-wrap{padding:14px 16px 8px;}
+.search-row{display:flex;gap:8px;}
+.search-box{flex:1;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-full);padding:10px 14px;transition:var(--ease);}
+.search-box:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px var(--brand-pale);}
+.search-box input{flex:1;background:none;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:.88rem;color:var(--ink);}
+.search-box input::placeholder{color:var(--ink-3);}
+.search-go{padding:10px 16px;background:var(--brand);border:none;border-radius:var(--r-full);color:white;font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;white-space:nowrap;transition:all .18s;flex-shrink:0;}
+.search-go:hover{opacity:.9;}
+
+/* Country filter */
+.country-row{display:flex;gap:6px;padding:8px 16px 12px;overflow-x:auto;scrollbar-width:none;}
+.country-row::-webkit-scrollbar{display:none;}
+.country-chip{flex-shrink:0;padding:6px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface);font-size:.72rem;font-weight:700;color:var(--ink-2);cursor:pointer;transition:all .18s;white-space:nowrap;font-family:'Sora',sans-serif;}
+.country-chip.on{background:var(--brand);border-color:var(--brand);color:white;}
+.country-chip:hover:not(.on){border-color:var(--brand);color:var(--brand);}
+
+/* Results count */
+.results-meta{padding:6px 16px;font-size:.72rem;color:var(--ink-3);font-weight:600;}
+
+/* University list */
+.uni-list{padding:0 16px;display:flex;flex-direction:column;gap:10px;}
+.uni-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:14px;
+  transition:all .2s;
+}
+.uni-card:hover{border-color:var(--brand);box-shadow:var(--sh-sm);}
+.uni-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.uni-flag{font-size:1.8rem;flex-shrink:0;line-height:1.2;}
+.uni-info{flex:1;min-width:0;}
+.uni-name{font-family:'Sora',sans-serif;font-weight:800;font-size:.88rem;color:var(--ink);line-height:1.3;margin-bottom:3px;}
+.uni-country{font-size:.7rem;color:var(--ink-3);font-weight:600;}
+.uni-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--r-full);font-size:.62rem;font-weight:800;background:var(--brand-pale);color:var(--brand);margin-top:3px;}
+.uni-actions{display:flex;gap:6px;}
+.uni-btn{flex:1;padding:8px 10px;border-radius:var(--r-md);border:1.5px solid var(--border);background:var(--surface-2);font-family:'Sora',sans-serif;font-weight:700;font-size:.72rem;color:var(--ink-2);cursor:pointer;transition:all .18s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px;}
+.uni-btn.primary{background:var(--brand-pale);border-color:var(--brand);color:var(--brand);}
+.uni-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-pale);}
+
+/* Loading */
+.skel{background:var(--surface-2);border-radius:var(--r-sm);animation:shimmer 1.4s infinite linear;}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+
+/* Empty */
+.empty{padding:40px 20px;text-align:center;}
+.empty-icon{font-size:3rem;margin-bottom:10px;}
+.empty-title{font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;color:var(--ink);margin-bottom:6px;}
+.empty-sub{font-size:.78rem;color:var(--ink-3);line-height:1.6;}
+
+.bottom-spacer{height:90px;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="ph-back" onclick="history.back()">
+    <span class="material-symbols-rounded" style="font-size:1.2rem">arrow_back</span>
+  </button>
+  <div class="ph-title">University Finder</div>
+  <a href="nova.html" class="ph-nova">
+    <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="13" cy="11" r="3.5" fill="white"/><circle cx="13" cy="41" r="3.5" fill="white"/>
+      <circle cx="39" cy="11" r="3.5" fill="white"/><circle cx="39" cy="41" r="3.5" fill="white"/>
+      <circle cx="26" cy="26" r="2.8" fill="white" opacity=".75"/>
+      <line x1="13" y1="11" x2="13" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="13" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="39" y1="11" x2="39" y2="41" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <path d="M44 4L45.2 7.2L48.4 8.4L45.2 9.6L44 12.8L42.8 9.6L39.6 8.4L42.8 7.2Z" fill="white" opacity=".85"/>
+    </svg>
+  </a>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-row">
+    <div class="search-box">
+      <span class="material-symbols-rounded" style="color:var(--ink-3);font-size:1.1rem">search</span>
+      <input type="text" id="searchInput" placeholder="Search university name…"
+             onkeydown="if(event.key==='Enter')doSearch()"/>
+    </div>
+    <button class="search-go" onclick="doSearch()">Search</button>
+  </div>
+</div>
+
+<!-- Country filter -->
+<div class="country-row">
+  <button class="country-chip on" onclick="setCountry('Nigeria','NG')">🇳🇬 Nigeria</button>
+  <button class="country-chip" onclick="setCountry('United States','US')">🇺🇸 USA</button>
+  <button class="country-chip" onclick="setCountry('United Kingdom','GB')">🇬🇧 UK</button>
+  <button class="country-chip" onclick="setCountry('Canada','CA')">🇨🇦 Canada</button>
+  <button class="country-chip" onclick="setCountry('Ghana','GH')">🇬🇭 Ghana</button>
+  <button class="country-chip" onclick="setCountry('South Africa','ZA')">🇿🇦 S. Africa</button>
+  <button class="country-chip" onclick="setCountry('Australia','AU')">🇦🇺 Australia</button>
+  <button class="country-chip" onclick="setCountry('Germany','DE')">🇩🇪 Germany</button>
+  <button class="country-chip" onclick="setCountry('','ALL')">🌍 All</button>
+</div>
+
+<div class="results-meta" id="resultsMeta"></div>
+<div class="uni-list" id="uniList"></div>
+<div class="empty" id="emptyState" style="display:none;">
+  <div class="empty-icon">🎓</div>
+  <div class="empty-title">No universities found</div>
+  <div class="empty-sub">Try a different name or country filter. Nova can also help you find requirements for any university — just tap "Ask Nova".</div>
+</div>
+
+<div class="bottom-spacer"></div>
+
+<nav class="bottom-nav">
+  <a href="index.html"       class="nav-item"><span class="nav-icon material-symbols-rounded">home</span><span class="nav-label">Home</span></a>
+  <a href="exam.html"        class="nav-item"><span class="nav-icon material-symbols-rounded">edit_note</span><span class="nav-label">Exam</span></a>
+  <a href="discover.html"    class="nav-item"><span class="nav-icon material-symbols-rounded">explore</span><span class="nav-label">Discover</span></a>
+  <a href="leaderboard.html" class="nav-item"><span class="nav-icon material-symbols-rounded">emoji_events</span><span class="nav-label">Ranks</span></a>
+  <a href="profile.html"     class="nav-item"><span class="nav-icon material-symbols-rounded">person</span><span class="nav-label">Profile</span></a>
+</nav>
+
+<script>
+var _t = localStorage.getItem('examora_theme') || 'light';
+document.documentElement.setAttribute('data-theme', _t);
+
+var _selectedCountry = 'Nigeria';
+var _selectedCode    = 'NG';
+
+// Country → flag emoji map
+var FLAGS = {NG:'🇳🇬',US:'🇺🇸',GB:'🇬🇧',CA:'🇨🇦',GH:'🇬🇭',ZA:'🇿🇦',AU:'🇦🇺',DE:'🇩🇪',FR:'🇫🇷',JP:'🇯🇵',CN:'🇨🇳',IN:'🇮🇳',BR:'🇧🇷',KE:'🇰🇪',EG:'🇪🇬'};
+function flagFor(country) {
+  var code = Object.keys(FLAGS).find(function(k) {
+    return country.toUpperCase().includes(k);
+  });
+  return FLAGS[code] || '🎓';
+}
+
+function setCountry(name, code) {
+  _selectedCountry = name;
+  _selectedCode    = code;
+  document.querySelectorAll('.country-chip').forEach(function(b){
+    b.classList.toggle('on', b.textContent.includes(name === '' ? 'All' : name.split(' ')[0]));
+  });
+  document.getElementById('searchInput').value = '';
+  loadUniversities('', name === '' ? '' : name);
+}
+
+async function loadUniversities(name, country) {
+  var list  = document.getElementById('uniList');
+  var empty = document.getElementById('emptyState');
+  var meta  = document.getElementById('resultsMeta');
+  empty.style.display = 'none';
+  list.innerHTML = [1,2,3,4].map(function(){
+    return '<div class="uni-card"><div class="skel" style="height:16px;width:60%;margin-bottom:8px;"></div><div class="skel" style="height:12px;width:40%;margin-bottom:12px;"></div><div class="skel" style="height:32px;width:100%;"></div></div>';
+  }).join('');
+  meta.textContent = '';
+
+  // Build URL - universities API uses HTTP but we'll try HTTPS proxy or handle gracefully
+  var url = 'https://universities.hipolabs.com/search?';
+  if (name)    url += 'name='    + encodeURIComponent(name)    + '&';
+  if (country) url += 'country=' + encodeURIComponent(country) + '&';
+  url = url.replace(/&$/, '');
+
+  try {
+    var r = await fetch(url);
+    var unis = await r.json();
+    if (!Array.isArray(unis) || unis.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    var display = unis.slice(0, 40);
+    meta.textContent = display.length + ' universities found' + (unis.length > 40 ? ' (showing 40 of ' + unis.length + ')' : '');
+    list.innerHTML = display.map(function(u) {
+      var flag = flagFor(u.country || '');
+      var domains = (u.domains || []).slice(0,2);
+      var web = (u.web_pages || [])[0] || '';
+      return '<div class="uni-card">' +
+        '<div class="uni-card-top">' +
+          '<div class="uni-flag">' + flag + '</div>' +
+          '<div class="uni-info">' +
+            '<div class="uni-name">' + (u.name || 'Unknown University') + '</div>' +
+            '<div class="uni-country">' + (u.country || '') + (u['state-province'] ? ' · ' + u['state-province'] : '') + '</div>' +
+            (domains.length > 0 ? '<div class="uni-badge">@' + domains[0] + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="uni-actions">' +
+          '<button class="uni-btn primary" onclick="askNova(' + JSON.stringify(u.name) + ')">✨ Ask Nova</button>' +
+          (web ? '<a class="uni-btn" href="' + web + '" target="_blank">🌐 Visit Site</a>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    // API may have CORS issues from some hosts - show fallback Nigerian unis
+    showFallbackNigerian();
+  }
+}
+
+function showFallbackNigerian() {
+  var list  = document.getElementById('uniList');
+  var meta  = document.getElementById('resultsMeta');
+  meta.textContent = 'Featured Nigerian Universities';
+  var nigerianUnis = [
+    {name:'University of Lagos (UNILAG)',domain:'unilag.edu.ng',web:'https://unilag.edu.ng'},
+    {name:'University of Ibadan (UI)',domain:'ui.edu.ng',web:'https://www.ui.edu.ng'},
+    {name:'Obafemi Awolowo University (OAU)',domain:'oauife.edu.ng',web:'https://oauife.edu.ng'},
+    {name:'University of Nigeria, Nsukka (UNN)',domain:'unn.edu.ng',web:'https://unn.edu.ng'},
+    {name:'Ahmadu Bello University (ABU)',domain:'abu.edu.ng',web:'https://www.abu.edu.ng'},
+    {name:'Federal University of Technology Akure (FUTA)',domain:'futa.edu.ng',web:'https://www.futa.edu.ng'},
+    {name:'University of Benin (UNIBEN)',domain:'uniben.edu',web:'https://www.uniben.edu'},
+    {name:'Covenant University',domain:'covenantuniversity.edu.ng',web:'https://covenantuniversity.edu.ng'},
+    {name:'Lagos State University (LASU)',domain:'lasu.edu.ng',web:'https://www.lasu.edu.ng'},
+    {name:'University of Port Harcourt (UNIPORT)',domain:'uniport.edu.ng',web:'https://www.uniport.edu.ng'}
+  ];
+  list.innerHTML = nigerianUnis.map(function(u) {
+    return '<div class="uni-card">' +
+      '<div class="uni-card-top">' +
+        '<div class="uni-flag">🇳🇬</div>' +
+        '<div class="uni-info">' +
+          '<div class="uni-name">' + u.name + '</div>' +
+          '<div class="uni-country">Nigeria</div>' +
+          '<div class="uni-badge">@' + u.domain + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="uni-actions">' +
+        '<button class="uni-btn primary" onclick="askNova(\''+u.name+'\')">✨ Ask Nova</button>' +
+        '<a class="uni-btn" href="' + u.web + '" target="_blank">🌐 Visit</a>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function doSearch() {
+  var q = document.getElementById('searchInput').value.trim();
+  if (!q) {
+    loadUniversities('', _selectedCountry === '' ? '' : _selectedCountry);
+    return;
+  }
+  loadUniversities(q, '');
+}
+
+function askNova(uniName) {
+  window.location.href = 'chat.html?q=' + encodeURIComponent('Tell me about ' + uniName + ': admission requirements, popular courses, JAMB cut-off mark, and what I need to get in. Make it useful for a Nigerian student.');
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  loadUniversities('', 'Nigeria');
+});
+</script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const app  = initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const auth = getAuth(app);
+onAuthStateChanged(auth, u => { if (!u) window.location.href = 'login.html'; });
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body>
+</html>
