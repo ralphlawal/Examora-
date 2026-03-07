@@ -326,34 +326,53 @@
   </div>
 
 
-  <!-- ── EXAM COUNTDOWN ─────────────────────────────────────── -->
-  <div id="countdownCard" class="countdown-card animate-in" style="display:none;" onclick="editCountdown()">
-    <div class="countdown-nums">
-      <div class="countdown-block"><div class="countdown-num" id="cdDays">--</div><div class="countdown-unit">days</div></div>
-      <div class="countdown-sep">:</div>
-      <div class="countdown-block"><div class="countdown-num" id="cdHours">--</div><div class="countdown-unit">hrs</div></div>
-      <div class="countdown-sep">:</div>
-      <div class="countdown-block"><div class="countdown-num" id="cdMins">--</div><div class="countdown-unit">min</div></div>
-    </div>
-    <div class="countdown-info">
-      <div class="countdown-exam" id="cdExamName">Your Exam</div>
-      <div class="countdown-date" id="cdExamDate">Tap to set exam date</div>
+  <!-- ── EXAM COUNTDOWN WIDGET ─────────────────────────────── -->
+  <div id="countdownWidget" style="display:none;" class="animate-in">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:16px 18px;border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden;margin-bottom:14px;">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,0.15);pointer-events:none;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Countdown to</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:0.92rem;color:white;" id="cdExamLabel">My Exam</div>
+        </div>
+        <button onclick="openCountdownSetup()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,0.6);font-size:0.68rem;font-weight:700;cursor:pointer;">Edit</button>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdDaysNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">DAYS</div>
+        </div>
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdHrsNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">HRS</div>
+        </div>
+        <div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:12px;padding:10px 6px;">
+          <div style="font-family:var(--font-display);font-weight:900;font-size:1.8rem;color:white;line-height:1;" id="cdMinsNum">--</div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">MINS</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);" id="cdDateLabel"></div>
+        <a href="exam.html" style="font-size:0.72rem;font-weight:700;color:#a78bfa;text-decoration:none;">Start practising →</a>
+      </div>
     </div>
   </div>
-  <div id="countdownSetup" class="card animate-in" style="display:none;">
-    <div style="font-family:var(--font-display);font-weight:700;font-size:0.85rem;color:var(--text);margin-bottom:12px;">📅 Set Your Exam Date</div>
-    <div class="form-group">
-      <label class="form-label">Exam Name</label>
-      <input type="text" class="form-input" id="cdNameInput" placeholder="e.g. IELTS, JAMB 2026, SAT March..."/>
+
+  <!-- Countdown bottom sheet -->
+  <div id="cdOverlay" onclick="closeCountdownSetup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;"></div>
+  <div id="cdSheet" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg-card);border-radius:24px 24px 0 0;padding:20px 20px 40px;z-index:201;border-top:1px solid var(--border);">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:100px;margin:0 auto 18px;"></div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);margin-bottom:16px;">📅 Set Exam Countdown</div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Name</label>
+      <input id="cdNameInput" type="text" placeholder="e.g. JAMB 2026, WAEC May/June" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;"/>
     </div>
-    <div class="form-group">
-      <label class="form-label">Exam Date</label>
-      <input type="date" class="form-input" id="cdDateInput"/>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-2);margin-bottom:6px;">Exam Date</label>
+      <input id="cdDateInput" type="date" style="width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg-input);color:var(--text);font-size:0.88rem;font-family:var(--font-body);box-sizing:border-box;outline:none;"/>
     </div>
-    <div style="display:flex;gap:8px;margin-top:4px;">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('countdownSetup').style.display='none';">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="saveCountdown()">Save</button>
-    </div>
+    <button onclick="saveCountdown()" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-family:var(--font-display);font-weight:800;font-size:0.9rem;cursor:pointer;">Save Countdown</button>
+    <button onclick="clearCountdown()" style="width:100%;padding:10px;border:none;background:none;color:var(--c-red,#f43f5e);font-size:0.8rem;font-weight:600;cursor:pointer;margin-top:6px;">Remove countdown</button>
   </div>
   <!-- ── DAILY CHALLENGE ────────────────────────────────────── -->
   <div class="daily-card animate-in animate-in-delay-1" id="dailyCard" onclick="window.location.href='daily-challenge.html'">
@@ -744,428 +763,7 @@
     } catch(e) {}
   })();
 
-  // ── Countdown widget ──
-  function initCountdown() {
-    var stored = localStorage.getItem('examora_countdown');
-    if (!stored) { document.getElementById('countdownCard').style.display = 'none'; return; }
-    try {
-      var d = JSON.parse(stored);
-      document.getElementById('countdownCard').style.display = 'flex';
-      { const _e=document.getElementById('cdExamName'); if(_e) _e.textContent = d.name || 'Your Exam'; }
-      { const _e=document.getElementById('cdExamDate'); if(_e) _e.textContent = 'on ' + new Date(d.date).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}); }
-      updateCountdownNums(d.date);
-      setInterval(function(){ updateCountdownNums(d.date); }, 60000);
-    } catch(_) {}
-  }
-  function updateCountdownNums(dateStr) {
-    var diff = new Date(dateStr) - new Date();
-    if (diff <= 0) { document.getElementById('countdownCard').style.display = 'none'; return; }
-    var days  = Math.floor(diff / 86400000);
-    var hours = Math.floor((diff % 86400000) / 3600000);
-    var mins  = Math.floor((diff % 3600000) / 60000);
-    { const _e=document.getElementById('cdDays'); if(_e) _e.textContent = days; }
-    { const _e=document.getElementById('cdHours'); if(_e) _e.textContent = hours; }
-    { const _e=document.getElementById('cdMins'); if(_e) _e.textContent = mins; }
-  }
-  function editCountdown() {
-    var s = document.getElementById('countdownSetup');
-    s.style.display = s.style.display === 'none' ? 'block' : 'none';
-  }
-  function saveCountdown() {
-    var name = document.getElementById('cdNameInput').value.trim() || 'My Exam';
-    var date = document.getElementById('cdDateInput').value;
-    if (!date) { return; }
-    localStorage.setItem('examora_countdown', JSON.stringify({name:name, date:date}));
-    document.getElementById('countdownSetup').style.display = 'none';
-    initCountdown();
-  }
-  initCountdown();
-  // Show setup if no countdown set
-  if (!localStorage.getItem('examora_countdown')) {
-    document.getElementById('countdownCard').style.display = 'none';
-  }
 
-  // AI Chat → see chat.html
-
-</script>
-<script>
-window.toast = toast;
-</script>
-<script type="module">
-  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc,
-           collection, query, where, getDocs }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const app  = initializeApp({
-    apiKey: "AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
-    authDomain: "cbt-app-5907f.firebaseapp.com",
-    projectId: "cbt-app-5907f",
-    storageBucket: "cbt-app-5907f.firebasestorage.app",
-    messagingSenderId: "705323924101",
-    appId: "1:705323924101:web:ad9f153f25a0685a1287ec"
-  });
-  const auth = getAuth(app);
-  window._firebaseAuth = auth; // expose for security.js idle timeout
-
-  onAuthStateChanged(auth, async (user) => {
-    // Dismiss splash screen
-    const splash = document.getElementById("splash");
-    if (splash) { splash.style.opacity="0"; setTimeout(()=>splash.remove(),400); }
-
-    if (!user) { window.location.href = "login.html"; return; }
-
-    // 1. User profile
-    let ud = {};
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (!snap.exists()) {
-        // New user (e.g. first Google sign-in) — create the doc here rather than
-        // redirecting to login, which causes an infinite loop.
-        const { setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-        await setDoc(doc(db, "users", user.uid), {
-          displayName:    user.displayName || user.email.split("@")[0],
-          email:          user.email || "",
-          photoURL:       user.photoURL || "",
-          plan:           "free", streak: 0, totalExams: 0,
-          totalCorrect:   0, totalQuestions: 0,
-          badges:         [], xp: 0,
-          createdAt:      serverTimestamp(),
-          onboarded:      false
-        }, { merge: true });
-        ud = { onboarded: false, plan: "free", streak: 0 };
-      } else {
-        ud = snap.data();
-      }
-      // Store plan for AI gate checks across pages
-      localStorage.setItem('examora_plan', ud.plan||'free');
-      // Sync AI keys from Firestore into localStorage so ai-engine.js can use them
-      try {
-        var aiCfg = await getDoc(doc(db,'settings','ai')).catch(()=>null);
-        if (aiCfg && aiCfg.exists()) {
-          var aiKeys = aiCfg.data().openRouterKeys || [];
-          if (aiKeys.length > 0) localStorage.setItem('examora_ai_keys', JSON.stringify(aiKeys));
-        }
-      } catch(_) {}
-    } catch(e) {}
-
-    if (ud.onboarded === false) { window.location.href = "onboarding.html"; return; }
-
-    // Email verification banner
-    if (!user.emailVerified && user.providerData[0]?.providerId === "password") {
-      document.getElementById("verifyBanner").style.display = "flex";
-    }
-
-    // Streak
-    try {
-      const today = new Date().toDateString();
-      const yest  = new Date(Date.now()-86400000).toDateString();
-      let streak  = ud.streak || 0;
-      if (ud.lastActive !== today) {
-        streak = ud.lastActive === yest ? streak + 1 : 1;
-        await updateDoc(doc(db,"users",user.uid), { streak, lastActive: today });
-        ud.streak = streak;
-      }
-    } catch(_){}
-
-    const name   = (ud.displayName || user.email.split("@")[0]).split(" ")[0];
-    const streak = ud.streak || 0;
-    const total  = ud.totalExams     || 0;
-    const corr   = ud.totalCorrect   || 0;
-    const asked  = ud.totalQuestions || 0;
-    const avg    = asked > 0 ? Math.round((corr/asked)*100) : 0;
-
-    document.getElementById("heroName").textContent  = `Hi, ${name}! 👋`;
-    const avEl = document.getElementById("heroAvatar");
-    if(ud.photoURL){
-      avEl.innerHTML=`<img src="${ud.photoURL}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='${name[0].toUpperCase()}'"/>`;
-      avEl.style.background="transparent";
-    } else {
-      avEl.textContent = name[0].toUpperCase();
-    }
-    document.getElementById("heroSub").textContent   =
-      streak > 1 ? `🔥 ${streak}-day streak! Keep going!` : "Ready to conquer today?";
-
-    document.getElementById("statExams").textContent  = total;
-    document.getElementById("statAvg").textContent    = avg + "%";
-    document.getElementById("statStreak").textContent = streak;
-
-    if (streak > 0) {
-      document.getElementById("streakBadge").style.display = "flex";
-      document.getElementById("streakCount").textContent   = streak;
-    }
-
-    if (ud.plan !== "premium") {
-      document.getElementById("upgradeBanner").style.display = "flex";
-    } else {
-      const uc = document.getElementById("upgradeCard");
-      if(uc){ uc.querySelector(".quick-icon-wrap").textContent="✨";
-              uc.querySelector(".quick-label").textContent="Premium\nActive"; }
-    }
-
-    // 2. Announcement
-    try {
-      const a = await getDoc(doc(db,"settings","announcement"));
-      if (a.exists() && a.data().message) {
-        const el = document.getElementById("announceBanner");
-        const t  = a.data().type || "info";
-        const styles = {
-          info:    "background:rgba(99,102,241,0.12);color:#818cf8;border:1px solid rgba(99,102,241,0.25);",
-          success: "background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);",
-          warning: "background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);"
-        };
-        el.style.cssText += styles[t] || styles.info;
-        el.innerHTML = `<span style="font-size:1rem;">${t==="warning"?"⚠️":t==="success"?"✅":"📢"}</span> ${a.data().message}`;
-        el.style.display = "flex";
-      }
-    } catch(_){}
-
-    // 3. Daily challenge
-    try {
-      const key = new Date().toISOString().slice(0,10);
-      const dc  = await getDoc(doc(db,"dailyChallenges", user.uid+"_"+key));
-      if (dc.exists()) {
-        document.getElementById("dcCta").textContent      = "DONE ✅";
-        document.getElementById("dcCta").style.background = "linear-gradient(135deg,#10b981,#059669)";
-        document.getElementById("dcSub").textContent      = "Completed today · Come back tomorrow!";
-      }
-    } catch(_){}
-
-    // 4. Results — sort client-side (no orderBy needed)
-    try {
-      const rSnap = await getDocs(query(collection(db,"results"), where("userId","==",user.uid)));
-      let results = [];
-      rSnap.forEach(d => results.push(d.data()));
-      results.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
-
-      // Recent results
-      const rEl = document.getElementById("recentResults");
-      if (results.length === 0) {
-        rEl.innerHTML = `<div class="card" style="text-align:center;padding:28px;">
-          <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
-          <p style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.88rem;color:var(--text);margin-bottom:6px;">No exams yet</p>
-          <p style="font-size:0.78rem;color:var(--text-3);margin-bottom:16px;">Take your first exam to see results here</p>
-          <a href="exam.html" class="btn btn-primary" style="max-width:200px;margin:0 auto;">📝 Start Practising</a>
-        </div>`;
-      } else {
-        const cats = {JAMB:"🎓",WAEC:"📘",SAT:"🇺🇸",IELTS:"🌐",GRE:"📊","A-Levels":"🇬🇧",IB:"🌍",GMAT:"💼",Professional:"🏅",Custom:"✏️","":"📝"};
-        rEl.innerHTML = results.slice(0,5).map(r => {
-          const pct  = r.percent || 0;
-          const pass = r.passed;
-          const col  = pass ? "var(--c-green)" : "var(--c-red)";
-          const bg   = pass ? "rgba(16,185,129,0.1)" : "rgba(244,63,94,0.1)";
-          return `<div class="result-row">
-            <div class="result-icon" style="background:${bg};">${cats[r.category||""]||"📝"}</div>
-            <div class="result-meta">
-              <div class="result-title">${r.subject || r.category || "General Practice"}</div>
-              <div style="margin:4px 0;">
-                <div class="progress-wrap">
-                  <div class="progress-fill" style="width:${pct}%;background:${col};"></div>
-                </div>
-              </div>
-              <div class="result-sub">${r.date||""} · ${r.mode==="practice"?"Practice":"Exam Mode"}</div>
-            </div>
-            <div class="result-score" style="color:${col};">${pct}%<br/><span style="font-size:0.65rem;font-weight:500;color:var(--text-3);">${r.score}/${r.total}</span></div>
-          </div>`;
-        }).join("");
-      }
-
-      // Subject rings
-      const subMap = {};
-      results.forEach(r => {
-        if (!r.subject) return;
-        if (!subMap[r.subject]) subMap[r.subject] = {correct:0,total:0};
-        subMap[r.subject].correct += r.score  || 0;
-        subMap[r.subject].total   += r.total  || 0;
-      });
-      const sEl     = document.getElementById("subjectRings");
-      const subjects = Object.keys(subMap);
-      if (subjects.length === 0) {
-        sEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-3);font-size:0.78rem;">
-          Take exams to see<br/>subject progress here!</div>`;
-      } else {
-        sEl.innerHTML = subjects.slice(0,6).map(s => {
-          const d   = subMap[s];
-          const pct = d.total > 0 ? Math.round((d.correct/d.total)*100) : 0;
-          const col = pct>=70?"#10b981":pct>=50?"#f59e0b":"#f43f5e";
-          const r=26, circ=2*Math.PI*r, fill=circ*(pct/100);
-          return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
-            <div style="position:relative;width:64px;height:64px;">
-              <svg width="64" height="64" style="transform:rotate(-90deg);">
-                <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--border)" stroke-width="5"/>
-                <circle cx="32" cy="32" r="${r}" fill="none" stroke="${col}" stroke-width="5"
-                  stroke-dasharray="${fill} ${circ-fill}" stroke-linecap="round"/>
-              </svg>
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-                font-family:'Sora',sans-serif;font-weight:800;font-size:0.72rem;color:${col};">${pct}%</div>
-            </div>
-            <div style="font-size:0.6rem;font-weight:700;color:var(--text-3);text-align:center;line-height:1.3;max-width:58px;">${s}</div>
-          </div>`;
-        }).join("");
-      }
-
-      // Weak subject card
-      if(subjects.length>0){
-        const worst=subjects.reduce((a,b)=>{
-          const pa=subMap[a].total>0?(subMap[a].correct/subMap[a].total):1;
-          const pb=subMap[b].total>0?(subMap[b].correct/subMap[b].total):1;
-          return pa<pb?a:b;
-        });
-        const wd=subMap[worst];
-        const wpct=wd.total>0?Math.round((wd.correct/wd.total)*100):0;
-        if(wpct<70 && wd.total>=3){
-          const worstCat=results.find(r=>r.subject===worst)?.category||"";
-          localStorage.setItem("examora_weak_subject", worst);
-          localStorage.setItem("examora_weak_cat", worstCat);
-          const wcard=document.getElementById("weakCard");
-          document.getElementById("weakTitle").textContent=`Weak: ${worst}`;
-          document.getElementById("weakSub").textContent=`You're scoring ${wpct}% in ${worst}. Let's fix that!`;
-          wcard.style.display="flex";
-        }
-      }
-
-      // Auto-badges
-      try {
-        const badges = ud.badges || [], nb = [];
-        if (total>=1 && !badges.includes("first_exam")) nb.push("first_exam");
-        if (streak>=3 && !badges.includes("streak_3"))   nb.push("streak_3");
-        if (streak>=7 && !badges.includes("streak_7"))   nb.push("streak_7");
-        if (results.some(r=>r.percent===100) && !badges.includes("perfect")) nb.push("perfect");
-        if (nb.length > 0) {
-          await updateDoc(doc(db,"users",user.uid), { badges:[...badges,...nb] });
-          window.toast("🏅 New badge unlocked: " + nb[0].replace(/_/g," "));
-        }
-      } catch(_){}
-    } catch(e) {
-      console.error("Results error:",e);
-      document.getElementById("recentResults").innerHTML =
-        `<div class="card" style="text-align:center;padding:24px;">
-          <p style="color:var(--text-3);font-size:0.82rem;">Could not load results.</p>
-          <a href="exam.html" style="color:var(--c-brand);font-weight:700;font-size:0.82rem;">Take your first exam →</a>
-        </div>`;
-      document.getElementById("subjectRings").innerHTML =
-        `<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-3);font-size:0.78rem;">No data yet</div>`;
-    }
-
-    // 5. Leaderboard (no orderBy)
-    try {
-      const lSnap = await getDocs(collection(db,"users"));
-      let lb = [];
-      lSnap.forEach(d => lb.push({id:d.id,...d.data()}));
-      lb.sort((a,b)=>(b.totalCorrect||0)-(a.totalCorrect||0));
-      const medals = ["🥇","🥈","🥉"];
-      const lEl = document.getElementById("leaderPeek");
-      lEl.innerHTML = lb.length === 0
-        ? `<p style="text-align:center;color:var(--text-3);font-size:0.8rem;padding:12px;">No rankings yet — be the first!</p>`
-        : lb.slice(0,3).map((u,i) => {
-            const n = u.displayName || u.email?.split("@")[0] || "Student";
-            const isMe = u.id === user.uid;
-            return `<div class="leader-mini" style="${isMe?"background:rgba(16,185,129,0.06);border-radius:10px;padding:8px;margin:0 -6px;":""}">
-              <span class="leader-medal">${medals[i]}</span>
-              <div class="leader-av">${n[0].toUpperCase()}</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.82rem;
-                  color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  ${n}${isMe?" <span style='color:var(--c-green);font-size:0.7rem;'>(You)</span>":""}${u.plan==="premium"?" 👑":""}
-                </div>
-                <div style="font-size:0.68rem;color:var(--text-3);">${u.totalCorrect||0} correct · ${u.state||"—"}</div>
-              </div>
-              <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.82rem;
-                color:var(--c-brand);">${u.totalExams||0} <span style="font-size:0.6rem;color:var(--text-3);">exams</span></div>
-            </div>`;
-          }).join("");
-    } catch(e) {
-      document.getElementById("leaderPeek").innerHTML =
-        `<p style="text-align:center;color:var(--text-3);font-size:0.8rem;padding:12px;">Could not load leaderboard.</p>`;
-    }
-  });
-</script>
-
-<script>
-  // SW registration
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
-
-  // Weak card navigation
-  window.goToWeakPractice = function(){
-    const subj = localStorage.getItem("examora_weak_subject")||"";
-    const cat  = localStorage.getItem("examora_weak_cat")||"";
-    const params = new URLSearchParams();
-    if(cat)  params.set("cat",cat);
-    if(subj) params.set("subj",subj);
-    window.location.href = "exam.html?" + params.toString();
-  };
-
-  // Resend email verification
-  window.resendVerification = async function(){
-    try {
-      const { getAuth, sendEmailVerification } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-      const auth = getAuth();
-      if(auth.currentUser && !auth.currentUser.emailVerified){
-        await sendEmailVerification(auth.currentUser);
-        const btn = document.querySelector(".verify-banner-btn");
-        if(btn){ btn.textContent="Sent ✓"; btn.disabled=true; }
-        toast("📧 Verification email sent — check your inbox!");
-      }
-    } catch(e){ toast("Could not send email. Try again later."); }
-  };
-</script>
-<!-- ── COMING SOON POPUP ── -->
-<div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
-  <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:90%;margin:auto;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.3);border:1px solid var(--border);animation:fadeInUp 0.3s ease;">
-    <div style="font-size:2.6rem;margin-bottom:8px;">🚀</div>
-    <div id="csTitle" style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px;color:var(--text-1);">Big Updates Coming!</div>
-    <div id="csBody" style="font-size:0.82rem;color:var(--text-3);line-height:1.7;margin-bottom:20px;">We're building something exciting for you — stay tuned!</div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="csBadges"></div>
-    <button onclick="document.getElementById('comingSoonOverlay').style.display='none'" 
-      style="margin-top:20px;background:var(--c-brand);color:white;border:none;padding:12px 28px;border-radius:100px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;">
-      Can't Wait! 🎉
-    </button>
-    <button onclick="dismissCS()" style="margin-top:8px;background:none;border:none;color:var(--text-3);font-size:0.75rem;cursor:pointer;width:100%;">Don't show again</button>
-  </div>
-</div>
-<script>
-  // Coming Soon popup — shows once per session unless dismissed
-  (function(){
-    var updates = [
-      {
-        title: "🎯 Offline Mode Coming!",
-        body: "Download exam packs and practice without internet. Perfect for when data runs out.",
-        badges: ["No Data Needed","Full Exam Access","Auto-Sync"]
-      },
-      {
-        title: "📊 PDF Score Reports",
-        body: "Download beautiful performance reports to share with teachers or parents.",
-        badges: ["Share Results","Track Progress","Print Ready"]
-      },
-      {
-        title: "🏫 Group Study Mode",
-        body: "Challenge your classmates, compare scores, and study together in real-time.",
-        badges: ["Multiplayer","Live Rankings","Team Goals"]
-      },
-      {
-        title: "🌍 More Exam Categories",
-        body: "SAT, GRE, LSAT, ACCA and more professional exams are being added weekly.",
-        badges: ["SAT Ready","GRE Prep","ACCA Coming"]
-      }
-    ];
-    var pick = updates[Math.floor(Math.random()*updates.length)];
-    var shown = sessionStorage.getItem('cs_shown');
-    var dismissed = localStorage.getItem('cs_dismissed_v2');
-    if(!shown && !dismissed){
-      setTimeout(function(){
-        document.getElementById('csTitle').textContent = pick.title;
-        document.getElementById('csBody').textContent = pick.body;
-        var badgeHTML = pick.badges.map(function(b){
-          return '<span style="background:var(--c-brand-pale);color:var(--c-brand);padding:4px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;">'+b+'</span>';
-        }).join('');
-        document.getElementById('csBadges').innerHTML = badgeHTML;
-        document.getElementById('comingSoonOverlay').style.display = 'flex';
-        sessionStorage.setItem('cs_shown','1');
-      }, 4000);
-    }
-  })();
   function dismissCS(){
     document.getElementById('comingSoonOverlay').style.display='none';
     localStorage.setItem('cs_dismissed_v2','1');
@@ -1227,5 +825,16 @@ window.toast = toast;
   };
 </script>
 
+
+<!-- Coming Soon Overlay -->
+<div id="comingSoonOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border-radius:24px;padding:28px 24px;max-width:340px;width:100%;text-align:center;border:1px solid var(--border);">
+    <div style="font-size:2.5rem;margin-bottom:12px;" id="csEmoji">🚀</div>
+    <div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text);margin-bottom:8px;" id="csTitle">Coming Soon</div>
+    <div style="font-size:0.82rem;color:var(--text-3);line-height:1.6;margin-bottom:16px;" id="csBody">This feature is coming soon!</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px;" id="csBadges"></div>
+    <button onclick="dismissCS()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:12px;padding:12px 24px;font-family:var(--font-display);font-weight:700;cursor:pointer;font-size:0.88rem;">Got it!</button>
+  </div>
+</div>
 </body>
 </html>

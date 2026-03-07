@@ -157,6 +157,7 @@ p,span,div,h1,h2,h3,h4,h5,h6,a,li,label,button { overflow-wrap:break-word; word-
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, query, orderBy }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
@@ -463,7 +464,11 @@ function toast(msg, type='info') {
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-loadScholarships();
+const _auth = getAuth(app);
+onAuthStateChanged(_auth, user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  loadScholarships();
+});
 </script>
 
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>

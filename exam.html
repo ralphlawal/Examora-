@@ -1059,15 +1059,31 @@ window.updateAvailCount = updateAvailCount;
       }
     }catch(e){console.error("Save result error:",e);}
 
-    // Store result for result page
-    localStorage.setItem("examora_last_result",JSON.stringify({
+    // Store result for result page + append to results history (used by wrong-drill, planner, analytics)
+    const _resultPayload = {
       correct,total,percent,passed,mode:examMode,
       category:cat,subject:subj,
       answers,questions:examQuestions.map(q=>({
         id:q.id,text:q.text||q.question,
         options:q.options,answer:q.answer,explanation:q.explanation
-      }))
-    }));
+      })),
+      date: new Date().toLocaleDateString(),
+      timestamp: Date.now()
+    };
+    localStorage.setItem("examora_last_result", JSON.stringify(_resultPayload));
+    // Also append to history array (for wrong-drill, study analytics, planner)
+    try {
+      var _hist = JSON.parse(localStorage.getItem("examora_results")||"[]");
+      _hist.unshift(_resultPayload);
+      localStorage.setItem("examora_results", JSON.stringify(_hist.slice(0,50)));
+      // Update week stats cache
+      var _ws = JSON.parse(localStorage.getItem("examora_week_stats")||'{"exams":0,"totalPct":0,"avg":0}');
+      _ws.exams = (_ws.exams||0) + 1;
+      _ws.totalPct = (_ws.totalPct||0) + percent;
+      _ws.avg = Math.round(_ws.totalPct / _ws.exams);
+      _ws.lastUpdated = new Date().toDateString();
+      localStorage.setItem("examora_week_stats", JSON.stringify(_ws));
+    } catch(_){}
     window.location.href="result.html";
   };
 
@@ -1203,8 +1219,8 @@ window.updateAvailCount = updateAvailCount;
 
   async function askAiTutor(action) {
     if (!_checkAIAccess()) {
-      document.getElementById('aiResultBox').innerHTML = _aiUpgradeHTML(false);
-      document.getElementById('aiPanel').style.display = 'block';
+      document.getElementById('aiResponseArea').innerHTML = _aiUpgradeHTML(false);
+      document.getElementById('aiTutorPanel').classList.add('open');
       return;
     }
     const q = examQuestions[currentIdx];

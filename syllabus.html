@@ -91,6 +91,13 @@ p,span,div,h1,h2,h3,h4,h5,h6,a,li,label,button { overflow-wrap:break-word; word-
 .stat-mini .sm-val { font-family:var(--fd); font-weight:900; font-size:1.2rem; color:var(--brand); }
 .stat-mini .sm-lbl { font-size:.66rem; color:var(--ink-3); text-transform:uppercase; letter-spacing:.6px; margin-top:2px; font-family:var(--fb); }
 </style>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const _app = initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const _auth = getAuth(_app);
+onAuthStateChanged(_auth, user => { if (!user) window.location.href = 'login.html'; });
+</script>
 </head>
 <body>
 

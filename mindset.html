@@ -97,6 +97,13 @@ p,span,div,h1,h2,h3,h4,h5,h6,a,li,label,button { overflow-wrap:break-word; word-
 .day-dot.done { background:var(--brand); border-color:var(--brand); color:#fff; }
 .day-dot.today { background:var(--brand-pale); border-color:var(--brand); color:var(--brand); font-weight:900; }
 </style>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+const _app = initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const _auth = getAuth(_app);
+onAuthStateChanged(_auth, user => { if (!user) window.location.href = 'login.html'; });
+</script>
 </head>
 <body>
 
