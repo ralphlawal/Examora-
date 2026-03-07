@@ -626,6 +626,263 @@
   </nav>
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
+<script type="module">
+import { initializeApp }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, sendEmailVerification }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, query, where, orderBy, limit,
+         getDocs, doc, getDoc, setDoc }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const FB = {
+  apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+  authDomain:"cbt-app-5907f.firebaseapp.com",
+  projectId:"cbt-app-5907f",
+  storageBucket:"cbt-app-5907f.firebasestorage.app",
+  messagingSenderId:"705323924101",
+  appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+};
+const app  = initializeApp(FB);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── helpers ────────────────────────────────────────────────
+function $id(id){ return document.getElementById(id); }
+function hideSplash(){
+  const s = $id('splash');
+  if(s){ s.style.opacity='0'; setTimeout(()=>s.remove(),450); }
+}
+function setInner(id, val){ const e=$id(id); if(e) e.textContent=val; }
+
+// ── Safety: never let splash stay >8s (network issues, etc.) ──
+const _splashTimeout = setTimeout(()=>{
+  const s=$id('splash');
+  if(s){ s.innerHTML='<div style="text-align:center;padding:24px;"><div style="font-size:2rem;margin-bottom:12px;">⚠️</div><div style="color:white;font-weight:700;margin-bottom:8px;">Connection issue</div><div style="color:rgba(255,255,255,0.5);font-size:.78rem;margin-bottom:20px;">Check your internet and try again</div><button onclick="location.reload()" style="background:#6366f1;color:white;border:none;padding:10px 24px;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;">Retry</button></div>';
+  }
+}, 8000);
+
+// ── Auth guard ─────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  clearTimeout(_splashTimeout);
+  if(!user){
+    hideSplash();
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+
+  // expose sign-out helper for header button (if any page uses it)
+  window._doSignOut = () => auth.signOut().then(()=>{ window.location.href='login.html'; });
+
+  // ── Email verification banner ──────────────────────────
+  if(!user.emailVerified){
+    const b = $id('verifyBanner');
+    if(b) b.style.display = '';
+  }
+
+  // ── Sync AI keys from Firestore settings/ai ──────────
+  try{
+    const aiSnap = await getDoc(doc(db,'settings','ai'));
+    if(aiSnap.exists()){
+      const d = aiSnap.data();
+      if(d.openRouterKeys && d.openRouterKeys.length)
+        localStorage.setItem('examora_ai_keys', JSON.stringify(d.openRouterKeys));
+    }
+  }catch(e){}
+
+  // ── Load user profile ──────────────────────────────────
+  let profile = {};
+  try{
+    const uSnap = await getDoc(doc(db,'users', user.uid));
+    if(uSnap.exists()) profile = uSnap.data();
+  }catch(e){}
+
+  const displayName = profile.displayName || user.displayName || user.email?.split('@')[0] || 'Learner';
+  setInner('heroName', displayName);
+  const av = $id('heroAvatar');
+  if(av) av.textContent = displayName.charAt(0).toUpperCase();
+
+  // streak badge
+  const streak = profile.streak || parseInt(localStorage.getItem('examora_streak')||'0');
+  if(streak > 0){
+    const sb = $id('streakBadge');
+    if(sb){ sb.style.display='flex'; setInner('streakCount', streak); }
+  }
+
+  // plan badge
+  const plan = profile.plan || 'free';
+  const heroSub = $id('heroSub');
+  if(heroSub && plan !== 'free'){
+    heroSub.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:100px;margin-right:6px;">${plan.toUpperCase()}</span> ${heroSub.textContent}`;
+  }
+  if(plan === 'free'){
+    const ub = $id('upgradeBanner');
+    if(ub) ub.style.display = '';
+  }
+
+  // ── Load recent results from Firestore ────────────────
+  let results = [];
+  try{
+    const rq = query(
+      collection(db,'results'),
+      where('uid','==',user.uid),
+      orderBy('timestamp','desc'),
+      limit(20)
+    );
+    const rSnap = await getDocs(rq);
+    rSnap.forEach(d => results.push({id:d.id,...d.data()}));
+  }catch(e){
+    // fallback to localStorage
+    results = JSON.parse(localStorage.getItem('examora_results')||'[]');
+  }
+
+  // Merge with localStorage results (offline session)
+  const lsResults = JSON.parse(localStorage.getItem('examora_results')||'[]');
+  lsResults.forEach(lr=>{
+    if(!results.find(r=>r.id===lr.id)) results.push(lr);
+  });
+  results.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+
+  // ── Stats ──────────────────────────────────────────────
+  const totalExams = results.length;
+  const avgScore = totalExams
+    ? Math.round(results.reduce((s,r)=>s+(r.score||0),0)/totalExams)
+    : 0;
+  setInner('statExams', totalExams || '—');
+  setInner('statAvg',   totalExams ? avgScore+'%' : '—');
+  setInner('statStreak', streak || '—');
+
+  // ── Subject rings ──────────────────────────────────────
+  const subjMap = {};
+  results.forEach(r=>{
+    const s = r.subject || 'General';
+    if(!subjMap[s]) subjMap[s]={total:0,count:0};
+    subjMap[s].total += (r.score||0);
+    subjMap[s].count++;
+  });
+  const subjects = Object.entries(subjMap)
+    .map(([name,v])=>({name, avg:Math.round(v.total/v.count)}))
+    .sort((a,b)=>b.avg-a.avg)
+    .slice(0,5);
+
+  const ringColors=['#6366f1','#10b981','#f59e0b','#f43f5e','#06b6d4'];
+  const ringsEl = $id('subjectRings');
+  if(ringsEl){
+    if(subjects.length===0){
+      ringsEl.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text-3);font-size:.8rem;padding:20px;">Take your first exam to see progress!</div>';
+    } else {
+      ringsEl.innerHTML = subjects.map((s,i)=>{
+        const pct = s.avg;
+        const dash = Math.round((pct/100)*126);
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="position:relative;width:62px;height:62px;">
+            <svg width="62" height="62" viewBox="0 0 62 62">
+              <circle cx="31" cy="31" r="20" fill="none" stroke="var(--border)" stroke-width="6"/>
+              <circle cx="31" cy="31" r="20" fill="none" stroke="${ringColors[i%5]}" stroke-width="6"
+                stroke-dasharray="${dash} 126" stroke-dashoffset="31.5"
+                stroke-linecap="round" transform="rotate(-90 31 31)"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:900;font-size:.7rem;color:var(--text);">${pct}%</div>
+          </div>
+          <div style="font-size:.62rem;font-weight:700;color:var(--text-2);text-align:center;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Weak subject card ──────────────────────────────────
+  if(subjects.length > 0){
+    const weak = subjects[subjects.length-1];
+    if(weak.avg < 70){
+      setInner('weakTitle', weak.name);
+      setInner('weakSub', `${weak.avg}% avg — needs improvement`);
+      const wc = $id('weakCard');
+      if(wc) wc.style.display='';
+    }
+  }
+
+  // ── Recent results list ────────────────────────────────
+  const recentEl = $id('recentResults');
+  if(recentEl){
+    if(results.length===0){
+      recentEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-3);font-size:.82rem;border-radius:16px;background:var(--bg-card);border:1px solid var(--border);">No exam results yet. <a href="exam.html" style="color:var(--c-brand);font-weight:700;">Start your first exam →</a></div>';
+    } else {
+      recentEl.innerHTML = results.slice(0,5).map(r=>{
+        const ts = r.timestamp ? new Date(r.timestamp).toLocaleDateString('en-NG',{day:'numeric',month:'short'}) : '';
+        const sc = r.score || 0;
+        const color = sc>=70?'#10b981':sc>=50?'#f59e0b':'#f43f5e';
+        return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;margin-bottom:8px;">
+          <div style="width:42px;height:42px;border-radius:12px;background:${color}22;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:900;font-size:.85rem;color:${color};flex-shrink:0;">${sc}%</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:.82rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.subject||'Practice Exam'}</div>
+            <div style="font-size:.68rem;color:var(--text-3);">${r.correct||0}/${r.total||0} correct · ${ts}</div>
+          </div>
+          <a href="result.html" style="font-size:.7rem;font-weight:700;color:var(--c-brand);text-decoration:none;flex-shrink:0;">Review</a>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Week stats from results ────────────────────────────
+  const now = Date.now();
+  const weekAgo = now - 7*24*60*60*1000;
+  const weekResults = results.filter(r=>r.timestamp && r.timestamp>weekAgo);
+  const weekExams = weekResults.length;
+  const weekAvg = weekExams
+    ? Math.round(weekResults.reduce((s,r)=>s+(r.score||0),0)/weekExams)
+    : 0;
+  setInner('weekExams', weekExams||'—');
+  setInner('weekAvg',   weekExams ? weekAvg+'%' : '—');
+
+  // store for bar chart
+  localStorage.setItem('examora_week_stats', JSON.stringify({exams:weekExams, avg:weekAvg}));
+
+  // ── Leaderboard peek ───────────────────────────────────
+  try{
+    const lq = query(collection(db,'users'), orderBy('totalScore','desc'), limit(3));
+    const lSnap = await getDocs(lq);
+    const leaders = [];
+    lSnap.forEach(d=>leaders.push(d.data()));
+    const lEl = $id('leaderPeek');
+    if(lEl && leaders.length){
+      const medals=['🥇','🥈','🥉'];
+      lEl.innerHTML = leaders.map((l,i)=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;${i<leaders.length-1?'border-bottom:1px solid var(--border);':''}">
+          <span style="font-size:1.1rem;">${medals[i]}</span>
+          <div style="flex:1;font-size:.82rem;font-weight:700;color:var(--text);">${l.displayName||'Student'}</div>
+          <div style="font-size:.75rem;font-weight:800;color:var(--c-brand);">${l.totalScore||0} pts</div>
+        </div>`).join('');
+    }
+  }catch(e){}
+
+  }catch(e){}
+
+  // ── hide splash ────────────────────────────────────────
+  hideSplash();
+  }catch(err){
+    console.error('Dashboard load error:',err);
+    hideSplash();
+  }
+});
+
+// ── Exposed window functions for onclick handlers ──────────
+window.resendVerification = async function(){
+  try{
+    const user = auth.currentUser;
+    if(user){ await sendEmailVerification(user); }
+    const toastFn = window._toast || function(m){ alert(m); };
+    toastFn('Verification email sent! Check your inbox.','success');
+  } catch(e){
+    (window._toast||alert)('Could not send email: '+e.message,'error');
+  }
+};
+
+window.goToWeakPractice = function(){
+  const title = ($id('weakTitle')||{}).textContent || '';
+  window.location.href = 'topic-practice.html?subject=' + encodeURIComponent(title);
+};
+</script>
 <script src="ai-engine.js"></script>
 <script>
   // Theme
@@ -659,6 +916,7 @@
     clearTimeout(el._tid);
     el._tid=setTimeout(()=>el.classList.remove("show"),dur);
   }
+  window._toast = toast;
 
   // Greeting
   const hr = new Date().getHours();

@@ -140,42 +140,130 @@
     </div>
   </div>
 
-  <!-- Price card -->
-  <div class="price-card" id="priceCard">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-      <div>
-        <div class="price-amount" id="priceAmount">₦2,500</div>
-        <div class="price-period" id="pricePeriod">per month</div>
-        <div class="price-savings" id="priceSavings" style="display:none;">You save ₦15,000/year</div>
+  <!-- ── MULTI-TIER PLAN CARDS ─────────────────────────── -->
+  <div id="planCards" style="padding:0 16px;margin-bottom:20px;">
+
+    <!-- Starter Plan -->
+    <div class="tier-card" id="tier-starter" onclick="selectTier('starter')"
+      style="background:var(--bg-card);border:2px solid var(--border);border-radius:20px;padding:18px 18px 16px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+            <span style="font-size:1.2rem;">🌱</span>
+            <div style="font-family:Sora,sans-serif;font-weight:800;font-size:.95rem;color:var(--text);">Starter</div>
+          </div>
+          <div style="font-size:.7rem;color:var(--text-3);">For primary & JSS students</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.4rem;color:#10b981;" id="starter-price">₦1,200</div>
+          <div style="font-size:.65rem;color:var(--text-3);" id="starter-period">/month</div>
+        </div>
       </div>
-      <div style="background:rgba(99,102,241,0.2);border-radius:12px;padding:8px 12px;text-align:center;">
-        <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;">Best for</div>
-        <div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:0.8rem;color:white;margin-top:2px;" id="bestForText">Flexibility</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        <span style="background:rgba(16,185,129,.12);color:#10b981;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">20 exams/day</span>
+        <span style="background:rgba(16,185,129,.12);color:#10b981;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">AI Tutor 10/day</span>
+        <span style="background:rgba(16,185,129,.12);color:#10b981;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Flashcards</span>
+        <span style="background:rgba(16,185,129,.12);color:#10b981;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Offline mode</span>
       </div>
+      <button class="tier-btn" id="btn-starter" onclick="event.stopPropagation();startPaymentFor('starter')"
+        style="width:100%;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:Sora,sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;">
+        Get Starter — <span id="starter-cta">₦1,200/mo</span>
+      </button>
     </div>
 
-    <div class="feat-list">
-      <div class="feat-row"><div class="f-icon">🤖</div>Unlimited AI Tutor (NOVA) sessions</div>
-      <div class="feat-row"><div class="f-icon">📚</div>All 60,000+ past questions (JAMB, WAEC, NECO)</div>
-      <div class="feat-row"><div class="f-icon">📱</div>Full offline mode — study without data</div>
-      <div class="feat-row"><div class="f-icon">🔥</div>Unlimited mock exams & detailed analysis</div>
-      <div class="feat-row"><div class="f-icon">📊</div>Advanced analytics & score predictions</div>
-      <div class="feat-row"><div class="f-icon">🃏</div>AI flashcard generation — any topic</div>
-      <div class="feat-row"><div class="f-icon">🏆</div>Premium leaderboard & achievements</div>
+    <!-- Scholar Plan (Most Popular) -->
+    <div class="tier-card" id="tier-scholar" onclick="selectTier('scholar')"
+      style="background:linear-gradient(135deg,#1e1b4b,#2d1b69);border:2px solid #6366f1;border-radius:20px;padding:18px 18px 16px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;">
+      <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;font-size:.65rem;font-weight:800;padding:4px 14px;border-radius:100px;white-space:nowrap;">⭐ MOST POPULAR</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;margin-top:6px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+            <span style="font-size:1.2rem;">🎓</span>
+            <div style="font-family:Sora,sans-serif;font-weight:800;font-size:.95rem;color:#fff;">Scholar</div>
+          </div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.5);">SS1–SS3 · JAMB · WAEC · NECO</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.4rem;color:#a78bfa;" id="scholar-price">₦2,500</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.4);" id="scholar-period">/month</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        <span style="background:rgba(167,139,250,.2);color:#a78bfa;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">60k+ Questions</span>
+        <span style="background:rgba(167,139,250,.2);color:#a78bfa;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Unlimited AI</span>
+        <span style="background:rgba(167,139,250,.2);color:#a78bfa;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Mock Exams</span>
+        <span style="background:rgba(167,139,250,.2);color:#a78bfa;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Score Predict</span>
+        <span style="background:rgba(167,139,250,.2);color:#a78bfa;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Essay Check</span>
+      </div>
+      <button class="tier-btn" id="btn-scholar" onclick="event.stopPropagation();startPaymentFor('scholar')"
+        style="width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-family:Sora,sans-serif;font-weight:800;font-size:.86rem;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.45);">
+        Get Scholar — <span id="scholar-cta">₦2,500/mo</span>
+      </button>
     </div>
 
-    <button class="btn-pay" id="payBtn" onclick="startPayment()">
-      Pay ₦2,500 / month
-    </button>
+    <!-- Elite Plan -->
+    <div class="tier-card" id="tier-elite" onclick="selectTier('elite')"
+      style="background:var(--bg-card);border:2px solid var(--border);border-radius:20px;padding:18px 18px 16px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+            <span style="font-size:1.2rem;">💎</span>
+            <div style="font-family:Sora,sans-serif;font-weight:800;font-size:.95rem;color:var(--text);">Elite</div>
+          </div>
+          <div style="font-size:.7rem;color:var(--text-3);">University · Post-UTME · Professional</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.4rem;color:#f59e0b;" id="elite-price">₦4,000</div>
+          <div style="font-size:.65rem;color:var(--text-3);" id="elite-period">/month</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        <span style="background:rgba(245,158,11,.12);color:#f59e0b;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Everything in Scholar</span>
+        <span style="background:rgba(245,158,11,.12);color:#f59e0b;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Research Tools</span>
+        <span style="background:rgba(245,158,11,.12);color:#f59e0b;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">GRE/IELTS/SAT</span>
+        <span style="background:rgba(245,158,11,.12);color:#f59e0b;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Uni Finder AI</span>
+        <span style="background:rgba(245,158,11,.12);color:#f59e0b;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Priority Support</span>
+      </div>
+      <button class="tier-btn" id="btn-elite" onclick="event.stopPropagation();startPaymentFor('elite')"
+        style="width:100%;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;font-family:Sora,sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;">
+        Get Elite — <span id="elite-cta">₦4,000/mo</span>
+      </button>
+    </div>
+
+    <!-- Family / Group Plan -->
+    <div class="tier-card" id="tier-family" onclick="selectTier('family')"
+      style="background:var(--bg-card);border:2px solid var(--border);border-radius:20px;padding:18px 18px 16px;margin-bottom:4px;cursor:pointer;transition:all .2s;position:relative;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+            <span style="font-size:1.2rem;">👨‍👩‍👧‍👦</span>
+            <div style="font-family:Sora,sans-serif;font-weight:800;font-size:.95rem;color:var(--text);">Family / Group</div>
+          </div>
+          <div style="font-size:.7rem;color:var(--text-3);">Up to 4 users · Siblings · Study groups</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:Sora,sans-serif;font-weight:900;font-size:1.4rem;color:#06b6d4;" id="family-price">₦6,500</div>
+          <div style="font-size:.65rem;color:var(--text-3);" id="family-period">/month</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        <span style="background:rgba(6,182,212,.12);color:#06b6d4;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">4 Scholar accounts</span>
+        <span style="background:rgba(6,182,212,.12);color:#06b6d4;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Save ₦3,500/mo</span>
+        <span style="background:rgba(6,182,212,.12);color:#06b6d4;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Group Study Room</span>
+        <span style="background:rgba(6,182,212,.12);color:#06b6d4;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:100px;">Parent Dashboard</span>
+      </div>
+      <button class="tier-btn" id="btn-family" onclick="event.stopPropagation();startPaymentFor('family')"
+        style="width:100%;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#0284c7);color:#fff;font-family:Sora,sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;">
+        Get Family — <span id="family-cta">₦6,500/mo</span>
+      </button>
+    </div>
 
     <!-- Promo code -->
-    <div class="promo-wrap">
-      <input class="promo-input" id="promoInput" placeholder="Promo code (optional)" onkeydown="if(event.key==='Enter')applyPromo()"/>
+    <div style="margin-top:14px;display:flex;gap:8px;">
+      <input class="promo-input" id="promoInput" placeholder="Promo / voucher code" onkeydown="if(event.key==='Enter')applyPromo()" style="flex:1;"/>
       <button class="btn-promo" onclick="applyPromo()">Apply</button>
     </div>
-    <div id="promoMsg" style="font-size:0.72rem;margin-top:6px;text-align:center;"></div>
-
-    <div style="font-size:0.68rem;color:rgba(255,255,255,0.25);text-align:center;margin-top:12px;">Secured by Paystack · Cancel anytime</div>
+    <div id="promoMsg" style="font-size:.72rem;margin-top:6px;text-align:center;"></div>
   </div>
 
   <!-- Compare table -->
@@ -225,9 +313,15 @@
 var _t = localStorage.getItem('examora_theme') || 'light';
 document.documentElement.setAttribute('data-theme', _t);
 
-var _plan = 'monthly', _userEmail = '', _discount = 0, _promoCode = '';
-var PRICES = { monthly: 2500, yearly: 15000 };
-var PROMOS = { 'JAMB2025': 30, 'WAEC50': 50, 'NEXACORE': 100, 'STUDENT25': 25 };
+var _plan = 'monthly', _userEmail = '', _discount = 0, _promoCode = '', _selectedTier = 'scholar';
+var TIER_PRICES = {
+  starter: { monthly: 1200, yearly: 9600 },
+  scholar: { monthly: 2500, yearly: 20000 },
+  elite:   { monthly: 4000, yearly: 32000 },
+  family:  { monthly: 6500, yearly: 52000 }
+};
+var TIER_LABELS = { starter:'Starter', scholar:'Scholar', elite:'Elite', family:'Family' };
+var PROMOS = { 'JAMB2025': 30, 'WAEC50': 50, 'NEXACORE': 100, 'STUDENT25': 25, 'STUDY30': 30 };
 
 function toast(msg, type) {
   var t = document.getElementById('toast');
@@ -237,50 +331,53 @@ function toast(msg, type) {
   setTimeout(function(){t.className='toast';}, 3200);
 }
 
+function fmt(n) { return '₦' + n.toLocaleString(); }
+function selectTier(tier) { _selectedTier = tier; }
+
 function setPlan(p) {
   _plan = p;
   document.getElementById('planMonthly').classList.toggle('on', p==='monthly');
   document.getElementById('planYearly').classList.toggle('on', p==='yearly');
-  updatePriceDisplay();
+  updateAllPrices();
 }
 
-function updatePriceDisplay() {
-  var base = PRICES[_plan];
-  var final = Math.round(base * (1 - _discount/100));
-  var fmt = function(n) { return '₦' + n.toLocaleString(); };
-  document.getElementById('priceAmount').textContent = fmt(final);
-  document.getElementById('pricePeriod').textContent = _plan==='monthly' ? 'per month' : 'per year ('+fmt(Math.round(final/12))+'/mo)';
-  document.getElementById('priceSavings').style.display = _plan==='yearly' ? 'block' : 'none';
-  document.getElementById('priceSavings').textContent = 'You save '+fmt(PRICES.monthly*12-PRICES.yearly)+' vs monthly';
-  document.getElementById('bestForText').textContent = _plan==='monthly' ? 'Flexibility' : 'Best Value';
-  document.getElementById('payBtn').textContent = 'Pay '+fmt(final)+' / '+(_plan==='monthly'?'month':'year');
-  if (_discount > 0) {
-    document.getElementById('payBtn').textContent += ' ('+_discount+'% off)';
-  }
+function updateAllPrices() {
+  ['starter','scholar','elite','family'].forEach(function(tier) {
+    var base  = TIER_PRICES[tier][_plan];
+    var final = Math.round(base * (1 - _discount/100));
+    var el = document.getElementById(tier+'-price');
+    var pe = document.getElementById(tier+'-period');
+    var ce = document.getElementById(tier+'-cta');
+    if(el) el.textContent = fmt(final);
+    if(pe) pe.textContent = _plan==='monthly' ? '/month' : '/year ('+fmt(Math.round(final/12))+'/mo)';
+    if(ce) ce.textContent = _plan==='monthly' ? fmt(final)+'/mo' : fmt(Math.round(final/12))+'/mo (yearly)';
+  });
 }
+updateAllPrices();
 
 function applyPromo() {
   var code = document.getElementById('promoInput').value.trim().toUpperCase();
   var msgEl = document.getElementById('promoMsg');
   if (!code) { msgEl.textContent = 'Enter a promo code'; msgEl.style.color = 'rgba(244,63,94,0.8)'; return; }
   if (PROMOS[code] !== undefined) {
-    _discount = PROMOS[code];
-    _promoCode = code;
+    _discount = PROMOS[code]; _promoCode = code;
     if (_discount === 100) {
       msgEl.textContent = '🎉 Code applied! FREE access activated!';
       msgEl.style.color = '#10b981';
       window._applyFreePremium && window._applyFreePremium();
     } else {
-      msgEl.textContent = '✅ Code applied — ' + _discount + '% discount!';
+      msgEl.textContent = '✅ '+_discount+'% discount applied to all plans!';
       msgEl.style.color = '#10b981';
     }
-    updatePriceDisplay();
+    updateAllPrices();
   } else {
-    msgEl.textContent = '❌ Invalid promo code. Try JAMB2025 or WAEC50';
+    msgEl.textContent = '❌ Invalid code. Try JAMB2025 or STUDY30';
     msgEl.style.color = 'rgba(244,63,94,0.8)';
-    _discount = 0; _promoCode = '';
+    _discount=0; _promoCode='';
   }
 }
+
+function startPaymentFor(tier) { _selectedTier = tier; startPayment(); }
 
 async function startTrial() {
   var btn = document.getElementById('trialStartBtn');
@@ -302,39 +399,34 @@ async function startTrial() {
 
 function startPayment() {
   if (!_userEmail) { toast('Loading... try again shortly.','info'); return; }
-  var amount = Math.round(PRICES[_plan] * (1 - _discount/100)) * 100; // kobo
+  var tier   = _selectedTier || 'scholar';
+  var base   = TIER_PRICES[tier] ? TIER_PRICES[tier][_plan] : 2500;
+  var amount = Math.round(base * (1 - _discount/100)) * 100;
   if (typeof PaystackPop === 'undefined') { toast('Payment system not loaded. Check internet.','error'); return; }
   var handler = PaystackPop.setup({
-    key: localStorage.getItem('examora_paystack_pub_key') || 'pk_live_REPLACE_WITH_LIVE_KEY', // Set in Firebase settings/paystack doc
+    key: localStorage.getItem('examora_paystack_pub_key') || 'pk_live_REPLACE_WITH_LIVE_KEY',
     email: _userEmail,
     amount: amount,
     currency: 'NGN',
-    ref: 'EXAMORA_' + Date.now(),
-    metadata: { plan: _plan, promo: _promoCode, custom_fields: [{display_name:'App',variable_name:'app',value:'EXAMORA'}] },
-    callback: function(response) { handlePaymentSuccess(response); },
-    onClose: function() { toast('Payment cancelled','info'); }
+    ref: 'EXM_'+tier.toUpperCase()+'_'+Date.now(),
+    metadata: { tier:tier, plan:_plan, promo:_promoCode },
+    callback: function(r){ handlePaymentSuccess(r, tier); },
+    onClose: function(){ toast('Payment cancelled','info'); }
   });
   handler.openIframe();
 }
 
-async function handlePaymentSuccess(response) {
-  toast('Payment successful! Activating premium...','success');
+async function handlePaymentSuccess(response, tier) {
+  tier = tier || _selectedTier || 'scholar';
+  toast('Payment successful! Activating '+tier+'...','success');
   try {
     if (window._activatePremium) {
-      await window._activatePremium(_plan, response.reference);
-      document.getElementById('premiumActive').style.display = 'block';
-      document.getElementById('priceCard').style.opacity = '0.5';
-      document.getElementById('payBtn').disabled = true;
-      document.getElementById('trialOfferCard').style.display = 'none';
-      document.getElementById('trialActiveBanner').style.display = 'none';
-      localStorage.setItem('examora_plan', 'premium');
-      setTimeout(function() { window.location.href = 'index.html'; }, 2000);
+      await window._activatePremium(tier, _plan, response.reference);
+      localStorage.setItem('examora_plan', tier);
+      setTimeout(function(){ window.location.href = 'index.html'; }, 2000);
     }
   } catch(e) { toast('Activated! Reload if needed.','success'); }
 }
-</script>
-<script>
-window.updatePriceDisplay = updatePriceDisplay;
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -362,17 +454,20 @@ window._startTrial = async () => {
   localStorage.setItem('examora_plan','trial');
 };
 
-window._activatePremium = async (plan, ref) => {
+window._activatePremium = async (tier, plan, ref) => {
   const uid = window._uid; if (!uid) return;
+  // tier = 'starter'|'scholar'|'elite'|'family', plan = 'monthly'|'yearly'
   const expiry = plan==='yearly'
     ? new Date(Date.now()+365*24*60*60*1000).toISOString()
     : new Date(Date.now()+31*24*60*60*1000).toISOString();
   await updateDoc(doc(db,'users',uid), {
-    plan:'premium', premiumSince:new Date().toISOString(),
-    premiumExpiry:expiry, paymentRef:ref, billingPlan:plan,
-    updatedAt:new Date().toISOString()
+    plan: tier || 'scholar',
+    premiumTier: tier || 'scholar',
+    premiumSince: new Date().toISOString(),
+    premiumExpiry: expiry, paymentRef: ref, billingPlan: plan,
+    updatedAt: new Date().toISOString()
   });
-  localStorage.setItem('examora_plan','premium');
+  localStorage.setItem('examora_plan', tier || 'scholar');
 };
 
 window._applyFreePremium = async () => {
@@ -397,11 +492,12 @@ onAuthStateChanged(auth, async user => {
   const plan = ud.plan || 'free';
   localStorage.setItem('examora_plan', plan);
 
-  if (plan === 'premium') {
+  const isPremium = ['starter','scholar','elite','family','premium'].includes(plan);
+  if (isPremium) {
     document.getElementById('premiumActive').style.display = 'block';
-    document.getElementById('priceCard').style.opacity = '0.5';
-    document.getElementById('payBtn').disabled = true;
-    document.getElementById('trialOfferCard').style.display = 'none';
+    // Dim tier buttons that are already owned
+    var pa = document.getElementById('planCards');
+    if(pa) pa.style.opacity = '0.55';
   } else if (plan === 'trial') {
     // Show trial countdown
     const trialEnd = ud.trialEnd ? new Date(ud.trialEnd) : null;

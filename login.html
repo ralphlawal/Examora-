@@ -147,18 +147,6 @@ p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
       Continue with Google
     </button>
 
-    <!-- GitHub + Microsoft buttons -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <button id="githubBtn" onclick="signInWithGithub()" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 10px;background:#24292e;border:none;border-radius:10px;color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:opacity .18s;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-        GitHub
-      </button>
-      <button id="msBtn" onclick="signInWithMicrosoft()" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 10px;background:#2f2f2f;border:none;border-radius:10px;color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:opacity .18s;">
-        <svg width="17" height="17" viewBox="0 0 21 21" fill="none"><rect width="10" height="10" fill="#F25022"/><rect x="11" width="10" height="10" fill="#7FBA00"/><rect y="11" width="10" height="10" fill="#00A4EF"/><rect x="11" y="11" width="10" height="10" fill="#FFB900"/></svg>
-        Microsoft
-      </button>
-    </div>
-
     <!-- Anonymous / Guest -->
     <button id="guestBtn" onclick="signInAsGuest()" style="width:100%;padding:11px;background:none;border:1.5px dashed var(--border,#e2e5f1);border-radius:10px;color:var(--text-2,#454c7a);font-family:Outfit,sans-serif;font-weight:600;font-size:.8rem;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;">
       <span style="font-size:1rem;">👤</span> Try as Guest (no account needed)
@@ -329,47 +317,6 @@ async function signIn() {
 }
 
 // ── Google sign-in ─────────────────────────────────────────────────────────
-// ── GitHub sign-in ─────────────────────────────────────────────────────────
-async function signInWithGithub() {
-  if (window._signingIn) return;
-  window._signingIn = true;
-  busyBtn('githubBtn', true, 'GitHub');
-  try {
-    var cred = await window._githubSignIn();
-    localStorage.setItem('examora_user_display', cred.user.displayName || cred.user.email?.split('@')[0] || 'User');
-    if (window._createDoc) await window._createDoc(cred.user);
-    window.location.href = 'index.html';
-  } catch(e) {
-    window._signingIn = false;
-    busyBtn('githubBtn', false, '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg> GitHub');
-    if (e.code === 'auth/popup-blocked') {
-      window._githubRedirect && window._githubRedirect();
-    } else {
-      showErr(ERRS[e.code] || e.message || 'GitHub sign-in failed.');
-    }
-  }
-}
-
-// ── Microsoft sign-in ───────────────────────────────────────────────────────
-async function signInWithMicrosoft() {
-  if (window._signingIn) return;
-  window._signingIn = true;
-  busyBtn('msBtn', true, 'Microsoft');
-  try {
-    var cred = await window._microsoftSignIn();
-    localStorage.setItem('examora_user_display', cred.user.displayName || cred.user.email?.split('@')[0] || 'User');
-    if (window._createDoc) await window._createDoc(cred.user);
-    window.location.href = 'index.html';
-  } catch(e) {
-    window._signingIn = false;
-    busyBtn('msBtn', false, '<svg width="17" height="17" viewBox="0 0 21 21" fill="none"><rect width="10" height="10" fill="#F25022"/><rect x="11" width="10" height="10" fill="#7FBA00"/><rect y="11" width="10" height="10" fill="#00A4EF"/><rect x="11" y="11" width="10" height="10" fill="#FFB900"/></svg> Microsoft');
-    if (e.code === 'auth/popup-blocked') {
-      window._microsoftRedirect && window._microsoftRedirect();
-    } else {
-      showErr(ERRS[e.code] || e.message || 'Microsoft sign-in failed.');
-    }
-  }
-}
 
 // ── Anonymous / Guest sign-in ───────────────────────────────────────────────
 async function signInAsGuest() {
@@ -466,8 +413,6 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   GoogleAuthProvider,
-  GithubAuthProvider,
-  OAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
@@ -555,18 +500,6 @@ window._resetPw          = e      => sendPasswordResetEmail(auth, e);
 window._createDoc        = makeDoc;
 window._googleSignIn     = ()     => signInWithPopup(auth, provider);
 window._googleRedirect   = ()     => signInWithRedirect(auth, provider);
-
-// GitHub
-const githubProvider = new GithubAuthProvider();
-githubProvider.addScope('user:email');
-window._githubSignIn   = () => signInWithPopup(auth, githubProvider);
-window._githubRedirect = () => signInWithRedirect(auth, githubProvider);
-
-// Microsoft
-const msProvider = new OAuthProvider('microsoft.com');
-msProvider.setCustomParameters({ prompt: 'select_account' });
-window._microsoftSignIn   = () => signInWithPopup(auth, msProvider);
-window._microsoftRedirect = () => signInWithRedirect(auth, msProvider);
 
 // Anonymous
 window._anonymousSignIn = () => signInAnonymously(auth);
