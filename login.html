@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Sign In — EXAMORA</title>
 <link rel="manifest" href="/manifest.json"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
 <link rel="stylesheet" href="style.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,1,0" rel="stylesheet"/>
@@ -121,7 +123,10 @@ p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
 <div class="wrap">
 
   <div class="logo-wrap">
-    <div class="logo-icon">📚</div>
+    <div class="logo-icon">
+      <img src="logo.png" alt="EXAMORA" style="width:48px;height:48px;border-radius:14px;object-fit:contain;display:block;"
+        onerror="this.style.display='none';this.parentElement.innerHTML='EX'"/>
+    </div>
     <div class="logo-name">EXAMORA</div>
     <div class="logo-sub">Nigeria's smartest exam prep — powered by AI</div>
   </div>
@@ -266,6 +271,12 @@ async function signIn() {
   var pass  = document.getElementById('passInput').value;
   if (!email || !pass) { showErr('Please fill in all fields.'); return; }
 
+  // If Firebase module hasn't finished loading yet, wait briefly
+  if (!window._signIn) {
+    showErr('Still loading… please wait a moment and try again.');
+    return;
+  }
+
   // Brute-force protection
   if (window.EXAMORA && window.EXAMORA.authGate) {
     var gate = window.EXAMORA.authGate.check();
@@ -405,7 +416,7 @@ window.resendVerification = resendVerification;
 
 <!-- ── Module script: Firebase init ── -->
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -422,14 +433,17 @@ import {
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const app = initializeApp({
+const FB_CONFIG = {
   apiKey:            'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',
   authDomain:        'cbt-app-5907f.firebaseapp.com',
   projectId:         'cbt-app-5907f',
   storageBucket:     'cbt-app-5907f.firebasestorage.app',
   messagingSenderId: '705323924101',
   appId:             '1:705323924101:web:ad9f153f25a0685a1287ec'
-});
+};
+
+// Safe init — never crashes if another script already called initializeApp
+const app = getApps().length ? getApp() : initializeApp(FB_CONFIG);
 const auth     = getAuth(app);
 const db       = getFirestore(app);
 const provider = new GoogleAuthProvider();
@@ -437,13 +451,10 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 // ── Auto-redirect if already logged in ──────────────────────────────────
 // NOTE: Only redirect if we're NOT currently in the middle of a sign-in flow.
-// During signInWithPopup the auth state fires before we finish creating the
-// Firestore doc — if we redirect immediately, index.html won't find the doc
-// and will bounce the user back here, creating an infinite loop.
-let _signingIn = false;  // set true during active sign-in, prevents premature redirect
-
+// The plain script sets window._signingIn = true during active sign-in to prevent
+// premature redirect before Firestore doc is created.
 onAuthStateChanged(auth, user => {
-  if (user && !_signingIn) window.location.href = 'index.html';
+  if (user && !window._signingIn) window.location.href = 'index.html';
 });
 
 // ── Handle redirect result (for browsers that blocked the popup) ─────────
