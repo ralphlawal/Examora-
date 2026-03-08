@@ -383,7 +383,7 @@
       <div id="qgenResult" style="display:none;"></div>
     </div>
 
-    <button class="btn btn-primary animate-in animate-in-delay-3" id="startBtn" onclick="startExam()">
+    <button class="btn btn-primary animate-in animate-in-delay-3" id="startBtn" onclick="_examStart()">
       🚀 Start Exam
     </button>
   </div>
@@ -444,7 +444,7 @@
     </div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-ghost" onclick="hideSubmitSheet()" style="flex:1;">Keep Going</button>
-      <button class="btn btn-primary" onclick="submitExam()" style="flex:2;">Submit Exam ✓</button>
+      <button class="btn btn-primary" onclick="_examSubmit()" style="flex:2;">Submit Exam ✓</button>
     </div>
   </div>
 </div>
@@ -867,23 +867,51 @@
   };
 
 
-  // ── Safe wrappers for module-async functions ──────────────────
-  // Called from onclick before module may have loaded; 
-  // window.startExam / window.submitExam are set by module.
-  function startExam() {
-    if (typeof window.startExam === 'function' && window.startExam !== startExam) {
-      window.startExam();
+  // ── Safe wrappers — poll until module functions are ready ──────
+  // ── Robust button wrappers — work even before module loads ────
+  // These are named differently from window.startExam / window.submitExam
+  // to avoid shadowing. The onclick attributes call these wrappers.
+  function _examStart() {
+    if (typeof window._startExamImpl === 'function') {
+      window._startExamImpl();
     } else {
-      toast('Loading questions… please wait a moment and try again.', 'info');
+      // Module still loading — poll and retry
+      toast('Loading questions… please wait.', 'info');
+      var _t = 0;
+      var _iv = setInterval(function() {
+        _t += 150;
+        if (typeof window._startExamImpl === 'function') {
+          clearInterval(_iv);
+          window._startExamImpl();
+        } else if (_t > 8000) {
+          clearInterval(_iv);
+          toast('Could not load questions. Please refresh.', 'warning');
+        }
+      }, 150);
     }
   }
-  function submitExam() {
-    if (typeof window.submitExam === 'function' && window.submitExam !== submitExam) {
-      window.submitExam();
+  function _examSubmit() {
+    if (typeof window._submitExamImpl === 'function') {
+      window._submitExamImpl();
     } else {
-      toast('Submitting…', 'info');
+      toast('Processing…', 'info');
+      var _t = 0;
+      var _iv = setInterval(function() {
+        _t += 150;
+        if (typeof window._submitExamImpl === 'function') {
+          clearInterval(_iv);
+          window._submitExamImpl();
+        } else if (_t > 5000) {
+          clearInterval(_iv);
+          // Force navigate even without Firestore
+          window.location.href = 'result.html';
+        }
+      }, 150);
     }
   }
+  // Legacy names — also exposed so click-guard works
+  window.startExam = _examStart;
+  window.submitExam = _examSubmit;
 </script>
 <script>
 window.toast = toast;
