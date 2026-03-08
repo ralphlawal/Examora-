@@ -3,613 +3,1480 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NUR FUTURA — Admin Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <title>EXAMORA — Admin Panel</title>
+  <link rel="stylesheet" href="style.css"/>
+    <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta property="og:title" content="EXAMORA — The Smart Exam Prep Platform"/>
+  <meta property="og:description" content="Prepare smarter for any exam — SAT, IELTS, GRE, JAMB, A-Levels and more. AI explanations and leaderboards."/>
+  <meta property="og:image" content="og-image.png"/>
+  <meta name="application-name" content="EXAMORA"/>
+  <meta name="theme-color" content="#0f172a"/>
   <style>
-    :root{--brand:#8B2C00;--gold:#f5b041;--dark:#0a0a0a;--card:#141414;--card2:#1c1c1c;--border:rgba(255,255,255,0.07);--light:#f4f4f4;--success:#2ecc71;--danger:#e74c3c;--sidebar:260px;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;display:flex;}
+  /* ── overflow protection patch ── */
+  * { box-sizing: border-box; max-width: 100%; min-width: 0; }
+  p,span,div,h1,h2,h3,h4,h5,h6,a,li,td,th,label,button,small,strong,em {
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
+    /* ── Admin hero ── */
+    .admin-hero {
+      background: linear-gradient(160deg, #0f172a 0%, #1a0a1a 60%, #0f172a 100%);
+      padding: 28px 20px 24px; position: relative; overflow: hidden;
+    }
+    .admin-hero::before {
+      content:''; position:absolute; top:-60px; right:-60px;
+      width:180px; height:180px; border-radius:50%;
+      background:rgba(168,85,247,0.12); pointer-events:none;
+    }
+    .admin-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3);
+      color:#c084fc; padding:4px 12px; border-radius:100px;
+      font-size:0.68rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.8px; margin-bottom:10px; position:relative; z-index:1;
+    }
+    .admin-hero-title {
+      font-family:'Sora',sans-serif; font-weight:800;
+      font-size:1.4rem; color:white; letter-spacing:-0.5px;
+      margin-bottom:4px; position:relative; z-index:1;
+    }
+    .admin-hero-sub {
+      font-size:0.74rem; color:rgba(255,255,255,0.4);
+      position:relative; z-index:1;
+    }
 
-    /* AUTH */
-    #auth-screen{position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;}
-    .auth-box{background:var(--card);border:1px solid var(--gold);border-radius:18px;padding:48px 40px;width:100%;max-width:400px;text-align:center;}
-    .auth-logo{font-family:'Playfair Display',serif;font-size:30px;color:var(--gold);margin-bottom:4px;}
-    .auth-sub{color:#555;font-size:13px;margin-bottom:32px;text-transform:uppercase;letter-spacing:2px;}
-    .auth-box input{width:100%;padding:14px 16px;background:#0f0f0f;border:1px solid var(--border);border-radius:9px;color:#fff;font-size:14px;margin-bottom:12px;font-family:'Inter',sans-serif;transition:border-color .2s;}
-    .auth-box input:focus{outline:none;border-color:var(--gold);}
-    .auth-btn{width:100%;padding:14px;background:var(--gold);color:#000;border:none;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;transition:.3s;font-family:'Inter',sans-serif;}
-    .auth-btn:disabled{opacity:.6;cursor:not-allowed;}
-    .auth-error{color:var(--danger);font-size:13px;margin-top:10px;display:none;}
-    .auth-hint{color:#444;font-size:12px;margin-top:14px;line-height:1.6;}
+    /* ── Stat cards ── */
+    .admin-stats {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:8px; margin-bottom:14px;
+    }
+    .admin-stat {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:14px; padding:14px 12px; box-shadow:var(--shadow-sm);
+      position:relative; overflow:hidden;
+    }
+    .admin-stat::after {
+      content:''; position:absolute; right:-8px; top:-8px;
+      width:50px; height:50px; border-radius:50%;
+      background:var(--as-color,rgba(99,102,241,0.08));
+    }
+    .as-icon { font-size:1.3rem; display:block; margin-bottom:6px; }
+    .as-num {
+      font-family:'Sora',sans-serif; font-weight:800;
+      font-size:1.5rem; color:var(--text); letter-spacing:-0.5px;
+      display:block; line-height:1; margin-bottom:3px;
+    }
+    .as-label {
+      font-size:0.62rem; font-weight:700; color:var(--text-3);
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
 
-    /* LAYOUT */
-    .sidebar{width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100;transition:transform .3s ease;}
-    .sidebar-logo{padding:26px 22px 20px;border-bottom:1px solid var(--border);}
-    .sidebar-logo .name{font-family:'Playfair Display',serif;font-size:19px;color:var(--gold);}
-    .sidebar-logo .role{font-size:11px;color:#444;text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
-    .sidebar-nav{flex:1;padding:14px 10px;overflow-y:auto;}
-    .nav-group-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#383838;padding:10px 12px 5px;}
-    .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;cursor:pointer;color:#666;transition:.18s;font-size:13.5px;font-weight:500;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;}
-    .nav-item i{width:17px;text-align:center;font-size:14px;}
-    .nav-item:hover{color:#ddd;background:rgba(255,255,255,.04);}
-    .nav-item.active{color:var(--gold);background:rgba(245,176,65,.08);}
-    .sidebar-footer{padding:14px 10px;border-top:1px solid var(--border);}
-    .logout-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);color:var(--danger);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:.2s;}
-    .logout-btn:hover{background:var(--danger);color:#fff;}
+    /* ── Tab bar ── */
+    .admin-tabs {
+      display:flex; gap:0; background:var(--bg-input);
+      border:1px solid var(--border); border-radius:12px;
+      padding:4px; margin-bottom:16px; overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .admin-tabs::-webkit-scrollbar { display:none; }
+    .admin-tab {
+      flex:1; min-width:fit-content; padding:9px 12px;
+      border-radius:9px; font-family:'Sora',sans-serif;
+      font-weight:700; font-size:0.72rem; color:var(--text-3);
+      cursor:pointer; transition:all 0.2s ease; text-align:center;
+      white-space:nowrap;
+    }
+    .admin-tab.active {
+      background:var(--bg-card); color:var(--text);
+      box-shadow:0 2px 8px rgba(15,23,42,0.1);
+    }
 
-    /* MOBILE */
-    .mobile-menu-btn{display:none;background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:4px 8px;}
-    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99;backdrop-filter:blur(2px);}
-    .sidebar-overlay.active{display:block;}
+    /* ── Tab panel ── */
+    .admin-panel { display:none; }
+    .admin-panel.active { display:block; animation:fadeInUp 0.2s ease; }
 
-    .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-    .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:15px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-    .topbar-left{display:flex;align-items:center;gap:12px;}
-    .topbar-left h2{font-size:17px;font-weight:700;}
-    .topbar-left h2 span{color:var(--gold);}
-    .topbar-right{display:flex;align-items:center;gap:14px;}
-    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 7px var(--success);animation:pulse 2s infinite;}
-    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-    .topbar-right small{color:#555;font-size:12px;}
-    .view-btn{padding:8px 16px;background:rgba(245,176,65,.1);border:1px solid var(--gold);color:var(--gold);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;transition:.2s;}
-    .view-btn:hover{background:var(--gold);color:#000;}
+    /* ── Table ── */
+    .admin-table-wrap {
+      overflow-x:auto; border-radius:14px;
+      border:1px solid var(--border); margin-bottom:14px;
+    }
+    .admin-table {
+      width:100%; border-collapse:collapse; font-size:0.76rem;
+      min-width:520px;
+    }
+    .admin-table thead th {
+      background:var(--bg-input); padding:10px 12px;
+      font-family:'Sora',sans-serif; font-weight:700;
+      font-size:0.65rem; color:var(--text-3); text-align:left;
+      text-transform:uppercase; letter-spacing:0.5px;
+      border-bottom:1px solid var(--border);
+    }
+    .admin-table tbody td {
+      padding:11px 12px; border-bottom:1px solid var(--border);
+      color:var(--text-2); vertical-align:middle;
+    }
+    .admin-table tbody tr:last-child td { border-bottom:none; }
+    .admin-table tbody tr:hover { background:var(--bg-input); }
+    .admin-table .td-name {
+      font-family:'Sora',sans-serif; font-weight:700;
+      color:var(--text); max-width:120px;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
 
-    .content{padding:26px;flex:1;}
-    .tab-panel{display:none;}
-    .tab-panel.active{display:block;animation:fadeIn .3s ease;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    /* ── Action chips in table ── */
+    .tbl-btn {
+      padding:4px 10px; border-radius:7px;
+      font-family:'Sora',sans-serif; font-weight:700;
+      font-size:0.65rem; cursor:pointer; transition:all 0.15s ease;
+      border:none; display:inline-flex; align-items:center; gap:4px;
+      margin-right:4px;
+    }
+    .tbl-btn:active { transform:scale(0.94); }
+    .tbl-btn-edit   { background:var(--c-brand-pale); color:var(--c-brand); }
+    .tbl-btn-delete { background:var(--c-red-pale);   color:var(--c-red); }
+    .tbl-btn-resolve{ background:var(--c-green-pale); color:var(--c-green); }
+    .tbl-btn-prem   { background:var(--c-gold-pale);  color:var(--c-gold); }
 
-    /* DASHBOARD */
-    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
-    .s-label{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
-    .s-val{font-size:30px;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif;line-height:1;}
-    .s-sub{font-size:11px;color:#444;margin-top:5px;}
-    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-    .dash-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;}
-    .dash-card h4{font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-    .dash-card h4 i{color:var(--gold);}
-    .recent-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
-    .recent-item:last-child{border-bottom:none;}
+    /* ── Form card ── */
+    .admin-form-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:16px; padding:18px; margin-bottom:14px;
+      box-shadow:var(--shadow-sm);
+    }
+    .admin-form-title {
+      font-family:'Sora',sans-serif; font-weight:800;
+      font-size:0.9rem; color:var(--text); margin-bottom:14px;
+      display:flex; align-items:center; gap:7px;
+    }
 
-    /* FORMS */
-    .section-header{margin-bottom:22px;}
-    .section-header h2{font-size:20px;font-weight:700;}
-    .section-header p{color:#555;font-size:13px;margin-top:3px;}
-    .form-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;margin-bottom:20px;}
-    .form-card-title{font-size:14px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:9px;color:#ddd;}
-    .form-card-title i{color:var(--gold);}
-    .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-    .g1{display:grid;grid-template-columns:1fr;gap:14px;}
-    .fg{display:flex;flex-direction:column;gap:5px;}
-    .fg label{font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-    .fg input,.fg textarea,.fg select{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:#fff;padding:11px 13px;font-size:13.5px;font-family:'Inter',sans-serif;transition:border-color .2s;width:100%;}
-    .fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--gold);}
-    .fg textarea{resize:vertical;min-height:80px;}
-    .hint{font-size:11px;color:#444;margin-top:3px;}
-    .form-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+    /* ── CSV upload zone ── */
+    .upload-zone {
+      border:2px dashed var(--border); border-radius:14px;
+      padding:28px 20px; text-align:center; cursor:pointer;
+      transition:all 0.2s ease; margin-bottom:14px;
+      background:var(--bg-input);
+    }
+    .upload-zone:hover, .upload-zone.drag { 
+      border-color:var(--c-brand); background:var(--c-brand-pale);
+    }
+    .upload-zone .uz-icon { font-size:2rem; margin-bottom:8px; display:block; }
+    .upload-zone h4 {
+      font-family:'Sora',sans-serif; font-weight:700;
+      font-size:0.88rem; color:var(--text); margin-bottom:4px;
+    }
+    .upload-zone p { font-size:0.72rem; color:var(--text-3); }
+    #csvFileInput { display:none; }/* SMART */
 
-    .btn{padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;}
-    .btn-gold{background:var(--gold);color:#000;}
-    .btn-gold:hover{box-shadow:0 0 16px rgba(245,176,65,.35);}
-    .btn-ghost{background:rgba(255,255,255,.05);color:#bbb;border:1px solid var(--border);}
-    .btn-ghost:hover{background:rgba(255,255,255,.1);color:#fff;}
-    .btn-red{background:rgba(231,76,60,.1);color:var(--danger);border:1px solid rgba(231,76,60,.25);}
-    .btn-red:hover{background:var(--danger);color:#fff;}
-    .btn-sm{padding:6px 12px;font-size:12px;}
-    .btn-xs{padding:4px 10px;font-size:11px;}
+    /* ── Progress bar for upload ── */
+    .upload-progress {
+      display:none; margin-bottom:14px;
+    }
+    .up-label {
+      display:flex; justify-content:space-between;
+      font-size:0.72rem; font-weight:600; color:var(--text-2);
+      margin-bottom:6px;
+    }
+    .up-bar-bg {
+      height:8px; background:var(--bg-input);
+      border-radius:100px; overflow:hidden;
+    }
+    .up-bar-fill {
+      height:100%; border-radius:100px;
+      background:linear-gradient(90deg,var(--c-brand),var(--c-green));
+      transition:width 0.3s ease; width:0%;
+    }
 
-    /* TABLE */
-    .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
-    .table-top{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-    .table-top h3{font-size:14px;font-weight:700;color:#ddd;}
-    table{width:100%;border-collapse:collapse;}
-    thead th{padding:11px 16px;text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#444;border-bottom:1px solid var(--border);background:rgba(0,0,0,.25);}
-    tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
-    tbody tr:last-child{border-bottom:none;}
-    tbody tr:hover{background:rgba(255,255,255,.018);}
-    tbody td{padding:12px 16px;font-size:13px;color:#bbb;vertical-align:middle;}
-    .td-act{display:flex;gap:6px;}
-    .badge{display:inline-block;padding:3px 9px;border-radius:30px;font-size:10.5px;font-weight:700;text-transform:uppercase;}
-    .badge-gold{background:rgba(245,176,65,.13);color:var(--gold);}
-    .badge-green{background:rgba(46,204,113,.13);color:var(--success);}
-    .badge-gray{background:rgba(255,255,255,.06);color:#666;}
-    .td-img{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);background:#111;}
+    /* ── Flag row ── */
+    .flag-row {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:12px; padding:12px 14px; margin-bottom:8px;
+      box-shadow:var(--shadow-xs);
+    }
+    .flag-q {
+      font-size:0.8rem; font-weight:600; color:var(--text);
+      margin-bottom:5px; line-height:1.5;
+    }
+    .flag-meta {
+      font-size:0.68rem; color:var(--text-3); margin-bottom:8px;
+    }
 
-    /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;}
-    .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#666;font-size:18px;cursor:pointer;}
-    .modal-close:hover{color:#fff;}
-    .modal-title{font-size:16px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:9px;}
-    .modal-title i{color:var(--gold);}
+    /* ── Announcement form ── */
+    .ann-type-row {
+      display:flex; gap:8px; margin-bottom:12px;
+    }
+    .ann-type-btn {
+      flex:1; padding:8px; border-radius:9px;
+      border:1.5px solid var(--border); background:var(--bg-input);
+      font-family:'Sora',sans-serif; font-weight:700;
+      font-size:0.72rem; color:var(--text-3); cursor:pointer;
+      text-align:center; transition:all 0.15s ease;
+    }
+    .ann-type-btn.active {
+      border-color:var(--c-brand); background:var(--c-brand-pale);
+      color:var(--c-brand);
+    }
 
-    /* TOAST */
-    #toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 18px;display:flex;align-items:center;gap:11px;font-size:13.5px;box-shadow:0 12px 40px rgba(0,0,0,.7);z-index:99999;transform:translateY(80px);opacity:0;transition:.4s cubic-bezier(.175,.885,.32,1.275);min-width:240px;}
-    #toast.show{transform:translateY(0);opacity:1;}
-    #toast.success i{color:var(--success);}
-    #toast.error i{color:var(--danger);}
-    #toast.loading i{color:var(--gold);}
+    /* ── Q preview card ── */
+    .q-preview {
+      background:var(--bg-input); border:1px solid var(--border);
+      border-radius:12px; padding:12px 14px; margin-top:10px;
+      font-size:0.78rem; color:var(--text-2); line-height:1.6;
+      display:none;
+    }
 
-    /* TOGGLE */
-    .toggle-wrap{display:flex;align-items:center;gap:10px;}
-    .toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
-    .toggle input{opacity:0;width:0;height:0;}
-    .toggle-slider{position:absolute;inset:0;background:#2a2a2a;border-radius:30px;cursor:pointer;transition:.3s;border:1px solid var(--border);}
-    .toggle-slider:before{content:'';position:absolute;width:16px;height:16px;left:2px;bottom:2px;background:#555;border-radius:50%;transition:.3s;}
-    .toggle input:checked+.toggle-slider{background:rgba(245,176,65,.2);border-color:var(--gold);}
-    .toggle input:checked+.toggle-slider:before{transform:translateX(18px);background:var(--gold);}
+    /* ── Overlay / sheet ── */
+    .overlay {
+      display:none; position:fixed; inset:0; z-index:200;
+      background:rgba(0,0,0,0.6); backdrop-filter:blur(6px);
+      align-items:flex-end; justify-content:center;
+    }
+    .overlay.show { display:flex; animation:fadeIn 0.2s ease; }
+    .edit-sheet {
+      background:var(--bg-card); border-radius:24px 24px 0 0;
+      padding:24px 20px 40px; width:100%; max-width:var(--max-width);
+      animation:fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1);
+      max-height:90vh; overflow-y:auto;
+    }
+    .sheet-handle {
+      width:36px; height:4px; background:var(--border);
+      border-radius:100px; margin:0 auto 20px;
+    }
+    .sheet-title {
+      font-family:'Sora',sans-serif; font-weight:800;
+      font-size:1rem; color:var(--text); margin-bottom:18px;
+    }
 
-    /* VISIBILITY */
-    .vis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
-    .vis-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:15px;display:flex;align-items:center;justify-content:space-between;}
-    .vis-card .vi{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;}
-    .vis-card i{color:var(--gold);width:18px;text-align:center;}
+    /* ── Empty state ── */
+    .admin-empty {
+      text-align:center; padding:32px 16px;
+      color:var(--text-3); font-size:0.78rem;
+    }
+    .admin-empty .ae-icon { font-size:2rem; margin-bottom:8px; }
 
-    /* SPINNER */
-    .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-    .load-state{padding:30px;text-align:center;color:#444;font-size:13px;}
-
-    /* TIP BOX */
-    .tip-box{background:rgba(245,176,65,.05);border:1px solid rgba(245,176,65,.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#888;line-height:1.7;}
-    .tip-box strong{color:var(--gold);}
-
-    /* POPUP PREVIEW */
-    .popup-prev{border:1px solid var(--border);border-radius:10px;overflow:hidden;max-width:280px;}
-    .popup-prev img{width:100%;display:block;max-height:150px;object-fit:cover;background:#111;}
-    .popup-prev-info{padding:12px;background:#111;}
-
-    @media(max-width:768px){
-      .sidebar{transform:translateX(-100%);}
-      .sidebar.open{transform:translateX(0);}
-      .main{margin-left:0;}
-      .dash-grid,.g2,.g3{grid-template-columns:1fr;}
-      .mobile-menu-btn{display:block;}
-      .topbar{padding:12px 16px;}
-      .content{padding:14px;}
-      .form-card{padding:16px;}
+    /* Timer settings */
+    .timer-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; margin-bottom:14px;
     }
   </style>
 </head>
 <body>
 
-<!-- AUTH -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">NUR FUTURA</div>
-    <div class="auth-sub">Admin Portal</div>
-    <input type="email" id="auth-email" placeholder="Admin Email"/>
-    <input type="password" id="auth-pass" placeholder="Password"/>
-    <button class="auth-btn" id="login-btn" onclick="doLogin()">
-      <i class="fa-solid fa-lock-open"></i> Enter Panel
-    </button>
-    <div class="auth-error" id="auth-error"></div>
-    <div class="auth-hint">
-      Use the email &amp; password you set up in<br>
-      <strong style="color:var(--gold)">Firebase Console → Authentication</strong>
+<header class="app-header">
+  <a class="app-logo" href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:9px;">
+    <img
+      class="app-logo-img"
+      src="logo.png"
+      alt="EXAMORA"
+      style="width:34px;height:34px;border-radius:10px;object-fit:contain;display:block;"
+      onerror="(function(i){i.style.display='none';var p=i.parentElement;var f=p&&p.querySelector('.app-logo-icon');if(f)f.style.display='flex';})(this)"
+    />
+    <div class="app-logo-icon" style="display:none;">EX</div>
+    <div><div class="app-logo-name">EXAMORA</div></div>
+  </a>
+  <div class="header-actions">
+    <button class="header-btn" id="themeBtn">🌙</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="admin-hero animate-in">
+  <div class="admin-badge">🛡️ Admin Panel</div>
+  <div class="admin-hero-title">Control Centre</div>
+  <div class="admin-hero-sub" id="adminSub">Loading dashboard...</div>
+</div>
+
+<div class="page-wrapper" style="padding-top:16px;">
+
+  <!-- Stats -->
+  <div class="admin-stats animate-in animate-in-delay-1">
+    <div class="admin-stat" style="--as-color:rgba(99,102,241,0.08);">
+      <span class="as-icon">👥</span>
+      <span class="as-num" id="statUsers">—</span>
+      <span class="as-label">Total Users</span>
+    </div>
+    <div class="admin-stat" style="--as-color:rgba(16,185,129,0.08);">
+      <span class="as-icon">📝</span>
+      <span class="as-num" id="statQuestions">—</span>
+      <span class="as-label">Questions</span>
+    </div>
+    <div class="admin-stat" style="--as-color:rgba(245,158,11,0.08);">
+      <span class="as-icon">🏆</span>
+      <span class="as-num" id="statResults">—</span>
+      <span class="as-label">Exams Taken</span>
+    </div>
+    <div class="admin-stat" style="--as-color:rgba(168,85,247,0.08);">
+      <span class="as-icon">👑</span>
+      <span class="as-num" id="statPremium">—</span>
+      <span class="as-label">Premium</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs animate-in animate-in-delay-1">
+    <div class="admin-tab active" onclick="showTab('questions',this)">📚 Questions</div>
+    <div class="admin-tab" onclick="showTab('upload',this)">📤 Upload CSV</div>
+    <div class="admin-tab" onclick="showTab('users',this)">👥 Users</div>
+    <div class="admin-tab" onclick="showTab('flags',this)">⚑ Flags</div>
+    <div class="admin-tab" onclick="showTab('settings',this)">⚙️ Settings</div>
+    <div class="admin-tab" onclick="window.location.href='admin-news.html'">📰 News Blog</div>
+  </div>
+
+  <!-- ════ QUESTIONS TAB ════ -->
+  <div class="admin-panel active" id="tab-questions">
+    <div class="admin-form-card">
+      <div class="admin-form-title">➕ Add New Question</div>
+      <div class="filter-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label class="form-label">Category</label>
+          <select class="form-select" id="qCat">
+            <option value="JAMB">JAMB</option>
+            <option value="WAEC">WAEC</option>
+            <option value="NECO">NECO</option>
+            <option value="Post-UTME">Post-UTME</option>
+            <option value="A-Levels">A-Levels</option>
+            <option value="GCSE">GCSE</option>
+            <option value="SAT">SAT</option>
+            <option value="ACT">ACT</option>
+            <option value="IELTS">IELTS</option>
+            <option value="TOEFL">TOEFL</option>
+            <option value="GRE">GRE</option>
+            <option value="GMAT">GMAT</option>
+            <option value="IB">IB</option>
+            <option value="Cert Prep">Cert Prep</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Subject</label>
+          <select class="form-select" id="qSubj">
+            <option value="Mathematics">Mathematics</option>
+            <option value="English Language">English Language</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Economics">Economics</option>
+            <option value="Government">Government</option>
+            <option value="Literature in English">Literature in English</option>
+            <option value="Geography">Geography</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Agricultural Science">Agricultural Science</option>
+            <option value="Accounting">Accounting</option>
+            <option value="Further Mathematics">Further Mathematics</option>
+            <option value="Christian Religious Studies">Christian Religious Studies</option>
+            <option value="Islamic Religious Studies">Islamic Religious Studies</option>
+            <option value="Technical Drawing">Technical Drawing</option>
+            <option value="Food and Nutrition">Food and Nutrition</option>
+            <option value="Computer Studies">Computer Studies</option>
+            <option value="Statistics">Statistics</option>
+            <option value="Reading Comprehension">Reading Comprehension</option>
+            <option value="Writing Skills">Writing Skills</option>
+            <option value="Critical Reasoning">Critical Reasoning</option>
+            <option value="Verbal Reasoning">Verbal Reasoning</option>
+            <option value="Quantitative Reasoning">Quantitative Reasoning</option>
+            <option value="General Knowledge">General Knowledge</option>
+            <option value="History">History</option>
+            <option value="Civic Education">Civic Education</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label class="form-label">Year</label>
+          <input type="number" class="form-input" id="qYear" placeholder="e.g. 2019" min="1980" max="2024"/>
+        </div>
+        <div>
+          <label class="form-label">Correct Answer</label>
+          <select class="form-select" id="qAnswer">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Question Text</label>
+        <textarea class="form-input" id="qText" rows="3" placeholder="Enter question text..." style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div><label class="form-label">Option A</label><input type="text" class="form-input" id="qOptA" placeholder="Option A"/></div>
+        <div><label class="form-label">Option B</label><input type="text" class="form-input" id="qOptB" placeholder="Option B"/></div>
+        <div><label class="form-label">Option C</label><input type="text" class="form-input" id="qOptC" placeholder="Option C"/></div>
+        <div><label class="form-label">Option D</label><input type="text" class="form-input" id="qOptD" placeholder="Option D"/></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Explanation (optional)</label>
+        <textarea class="form-input" id="qExp" rows="2" placeholder="Explain why the answer is correct..." style="resize:vertical;"></textarea>
+      </div>
+      <!-- Preview -->
+      <div class="q-preview" id="qPreview"></div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="btn btn-ghost" onclick="previewQuestion()" style="flex:1;">👁 Preview</button>
+        <button class="btn btn-primary" id="addQBtn" onclick="addQuestion()" style="flex:2;">➕ Add Question</button>
+      </div>
+    </div>
+
+    <!-- Questions list -->
+    <div class="section-header">
+      <div class="section-icon">menu_book</div>
+      <h3>All Questions</h3>
+      <span style="font-size:0.72rem;color:var(--text-3);" id="qCount">Loading...</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <select class="form-select" id="filterQCat" onchange="loadQuestions()">
+        <option value="">All Categories</option>
+        <option value="JAMB">JAMB</option>
+            <option value="WAEC">WAEC</option>
+            <option value="NECO">NECO</option>
+            <option value="Post-UTME">Post-UTME</option>
+            <option value="A-Levels">A-Levels</option>
+            <option value="GCSE">GCSE</option>
+            <option value="SAT">SAT</option>
+            <option value="ACT">ACT</option>
+            <option value="IELTS">IELTS</option>
+            <option value="TOEFL">TOEFL</option>
+            <option value="GRE">GRE</option>
+            <option value="GMAT">GMAT</option>
+            <option value="IB">IB</option>
+            <option value="Cert Prep">Cert Prep</option>
+            <option value="Custom">Custom</option>
+      </select>
+      <select class="form-select" id="filterQSubj" onchange="loadQuestions()">
+        <option value="">All Subjects</option>
+        <option value="Mathematics">Mathematics</option>
+            <option value="English Language">English Language</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Economics">Economics</option>
+            <option value="Government">Government</option>
+            <option value="Literature in English">Literature in English</option>
+            <option value="Geography">Geography</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Agricultural Science">Agricultural Science</option>
+            <option value="Accounting">Accounting</option>
+            <option value="Further Mathematics">Further Mathematics</option>
+            <option value="Christian Religious Studies">Christian Religious Studies</option>
+            <option value="Islamic Religious Studies">Islamic Religious Studies</option>
+            <option value="Technical Drawing">Technical Drawing</option>
+            <option value="Food and Nutrition">Food and Nutrition</option>
+            <option value="Computer Studies">Computer Studies</option>
+            <option value="Statistics">Statistics</option>
+            <option value="Reading Comprehension">Reading Comprehension</option>
+            <option value="Writing Skills">Writing Skills</option>
+            <option value="Critical Reasoning">Critical Reasoning</option>
+            <option value="Verbal Reasoning">Verbal Reasoning</option>
+            <option value="Quantitative Reasoning">Quantitative Reasoning</option>
+            <option value="General Knowledge">General Knowledge</option>
+            <option value="History">History</option>
+            <option value="Civic Education">Civic Education</option>
+      </select>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Cat</th>
+            <th>Subj</th>
+            <th>Ans</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="questionsBody">
+          <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.72rem;color:var(--text-3);text-align:center;margin-top:-6px;" id="qTableNote"></div>
+  </div>
+
+  <!-- ════ UPLOAD TAB ════ -->
+  <div class="admin-panel" id="tab-upload">
+    <div class="upload-zone" id="uploadZone"
+      onclick="document.getElementById('csvFileInput').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <span class="uz-icon">📤</span>
+      <h4>Drop CSV file here or tap to browse</h4>
+      <p>Accepts .csv with columns:<br/>
+        <code style="font-size:0.65rem;background:var(--bg-input);padding:2px 6px;border-radius:4px;">
+          text, A, B, C, D, answer, category, subject, year, explanation
+        </code>
+      </p>
+    </div>
+    <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSV(event)"/>
+
+    <div class="upload-progress" id="uploadProgress">
+      <div class="up-label">
+        <span id="upLabel">Uploading...</span>
+        <span id="upPct">0%</span>
+      </div>
+      <div class="up-bar-bg"><div class="up-bar-fill" id="upBar"></div></div>
+    </div>
+
+    <div id="csvPreviewWrap" style="display:none;" class="admin-form-card">
+      <div class="admin-form-title">📋 Preview (first 5 rows)</div>
+      <div class="admin-table-wrap" style="margin-bottom:12px;">
+        <table class="admin-table" id="csvPreviewTable">
+          <thead><tr id="csvPreviewHead"></tr></thead>
+          <tbody id="csvPreviewBody"></tbody>
+        </table>
+      </div>
+      <div id="csvStats" style="font-size:0.78rem;color:var(--text-3);margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="cancelCSV()" style="flex:1;">Cancel</button>
+        <button class="btn btn-primary" id="confirmUploadBtn" onclick="uploadCSV()" style="flex:2;">
+          📤 Upload All Questions
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-form-card" style="margin-top:14px;">
+      <div class="admin-form-title">📥 Download Template</div>
+      <p style="font-size:0.78rem;color:var(--text-2);line-height:1.6;margin-bottom:12px;">
+        Download a CSV template with the correct column format and 3 sample rows.
+      </p>
+      <button class="btn btn-ghost" onclick="downloadTemplate()">⬇️ Download Template CSV</button>
+    </div>
+  </div>
+
+  <!-- ════ USERS TAB ════ -->
+  <div class="admin-panel" id="tab-users">
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Plan</th>
+            <th>Exams</th>
+            <th>Avg</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ FLAGS TAB ════ -->
+  <div class="admin-panel" id="tab-flags">
+    <div id="flagsList">
+      <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:8px;"></div>
+      <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SETTINGS TAB ════ -->
+  <div class="admin-panel" id="tab-settings">
+    <!-- Announcement -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">📢 Announcement Banner</div>
+      <div class="ann-type-row">
+        <div class="ann-type-btn active" onclick="setAnnType('info',this)">ℹ️ Info</div>
+        <div class="ann-type-btn" onclick="setAnnType('success',this)">✅ Success</div>
+        <div class="ann-type-btn" onclick="setAnnType('warning',this)">⚠️ Warning</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message (leave blank to hide)</label>
+        <textarea class="form-input" id="annMessage" rows="2"
+          placeholder="e.g. New WAEC 2024 questions added!"
+          style="resize:vertical;"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveAnnouncement()">📢 Save Announcement</button>
+    </div>
+
+    <!-- Timer settings -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">⏱️ Exam Timer (minutes per question)</div>
+      <div class="timer-grid">
+        <div>
+          <label class="form-label">JAMB</label>
+          <input type="number" class="form-input" id="timerJAMB" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+        <div>
+          <label class="form-label">WAEC</label>
+          <input type="number" class="form-input" id="timerWAEC" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+        <div>
+          <label class="form-label">Cert Prep</label>
+          <input type="number" class="form-input" id="timerCertPrep" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+        <div>
+          <label class="form-label">Custom</label>
+          <input type="number" class="form-input" id="timerPostUTME" value="1.5" step="0.25" min="0.5" max="5"/>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveTimers()">⏱️ Save Timer Settings</button>
+    </div>
+
+    <!-- Maintenance mode -->
+    <div class="admin-form-card">
+      <div class="admin-form-title">🔧 App Settings</div>
+      <div class="toggle-row" style="margin-bottom:10px;">
+        <div class="setting-icon" style="background:rgba(244,63,94,0.1);">🔧</div>
+        <div style="flex:1;">
+          <div class="toggle-label">Maintenance Mode</div>
+          <div class="toggle-sub">Disable app for regular users</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="maintenanceToggle"/>
+          <div class="toggle-slider"></div>
+          <div class="toggle-knob"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="setting-icon" style="background:rgba(99,102,241,0.1);">📝</div>
+        <div style="flex:1;">
+          <div class="toggle-label">Allow New Registrations</div>
+          <div class="toggle-sub">Let new users sign up</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" class="toggle-input" id="regToggle" checked/>
+          <div class="toggle-slider"></div>
+          <div class="toggle-knob"></div>
+        </label>
+      </div>
+      <button class="btn btn-primary" onclick="saveAppSettings()" style="margin-top:12px;">💾 Save Settings</button>
+    </div>
+
+    <!-- AI Keys -->
+    <div style="border:1.5px solid rgba(99,102,241,0.2);border-radius:16px;padding:16px;margin-bottom:16px;">
+      <h4 style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.82rem;
+        color:var(--c-brand);margin-bottom:12px;">🤖 OpenRouter AI Keys</h4>
+      <p style="font-size:0.75rem;color:var(--text-3);margin-bottom:12px;line-height:1.6;">
+        Add your free OpenRouter keys here. Get keys at <strong>openrouter.ai/keys</strong>.
+        Multiple keys rotate automatically when one hits a limit.
+      </p>
+      <div id="aiKeysList">
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="password" id="aiKey1" class="input-field" placeholder="sk-or-v1-... (Key 1 — Primary)" style="flex:1;font-size:0.78rem;font-family:monospace;"/>
+          <button onclick="toggleKeyVis('aiKey1',this)" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:0.7rem;cursor:pointer;color:var(--text-2);">👁</button>
+        </div>
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="password" id="aiKey2" class="input-field" placeholder="sk-or-v1-... (Key 2 — Fallback)" style="flex:1;font-size:0.78rem;font-family:monospace;"/>
+          <button onclick="toggleKeyVis('aiKey2',this)" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:0.7rem;cursor:pointer;color:var(--text-2);">👁</button>
+        </div>
+        <div class="form-group" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="password" id="aiKey3" class="input-field" placeholder="sk-or-v1-... (Key 3 — Fallback)" style="flex:1;font-size:0.78rem;font-family:monospace;"/>
+          <button onclick="toggleKeyVis('aiKey3',this)" style="padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:0.7rem;cursor:pointer;color:var(--text-2);">👁</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+        <button class="btn btn-primary" onclick="saveAIKeys()" style="flex:1;">💾 Save AI Keys</button>
+        <button class="btn btn-ghost" onclick="testAIKeys()" style="flex:1;">🧪 Test AI</button>
+      </div>
+      <div id="aiKeyStatus" style="font-size:0.75rem;color:var(--text-3);margin-top:8px;"></div>
+    </div>
+
+    <!-- Danger zone -->
+    <div style="border:1.5px solid rgba(244,63,94,0.2);border-radius:16px;padding:16px;background:rgba(244,63,94,0.03);">
+      <h4 style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.78rem;
+        color:var(--c-red);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">
+        ⚠️ Danger Zone
+      </h4>
+      <button class="btn btn-ghost" onclick="confirmDeleteAllQuestions()"
+        style="width:100%;color:var(--c-red);border-color:rgba(244,63,94,0.3);">
+        🗑️ Delete All Questions
+      </button>
+    </div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<!-- Edit question overlay -->
+<div class="overlay" id="editOverlay" onclick="closeOverlay('editOverlay',event)">
+  <div class="edit-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">✏️ Edit Question</div>
+    <input type="hidden" id="editQId"/>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div>
+        <label class="form-label">Category</label>
+        <select class="form-select" id="editCat">
+          <option value="JAMB">JAMB</option><option value="WAEC">WAEC</option>
+          <option value="Cert Prep">Cert Prep</option><option value="Custom">Custom</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Subject</label>
+        <input type="text" class="form-input" id="editSubj"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div><label class="form-label">Year</label><input type="number" class="form-input" id="editYear"/></div>
+      <div>
+        <label class="form-label">Answer</label>
+        <select class="form-select" id="editAnswer">
+          <option value="A">A</option><option value="B">B</option>
+          <option value="C">C</option><option value="D">D</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Question Text</label>
+      <textarea class="form-input" id="editText" rows="3" style="resize:vertical;"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div><label class="form-label">Option A</label><input type="text" class="form-input" id="editA"/></div>
+      <div><label class="form-label">Option B</label><input type="text" class="form-input" id="editB"/></div>
+      <div><label class="form-label">Option C</label><input type="text" class="form-input" id="editC"/></div>
+      <div><label class="form-label">Option D</label><input type="text" class="form-input" id="editD"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Explanation</label>
+      <textarea class="form-input" id="editExp" rows="2" style="resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeOverlay('editOverlay')" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditQuestion()" style="flex:2;">💾 Save Changes</button>
     </div>
   </div>
 </div>
 
-<!-- MOBILE OVERLAY -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <div class="name">NUR FUTURA</div>
-    <div class="role">Content Management</div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-group-label">Overview</div>
-    <button class="nav-item active" onclick="showTab('dashboard',this)"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
-    <div class="nav-group-label">Content</div>
-    <button class="nav-item" onclick="showTab('hero',this)"><i class="fa-solid fa-star"></i> Hero Section</button>
-    <button class="nav-item" onclick="showTab('about',this)"><i class="fa-solid fa-circle-info"></i> About Us</button>
-    <button class="nav-item" onclick="showTab('services',this)"><i class="fa-solid fa-briefcase"></i> Services</button>
-    <button class="nav-item" onclick="showTab('artists',this)"><i class="fa-solid fa-music"></i> Hall of Fame</button>
-    <button class="nav-item" onclick="showTab('reviews',this)"><i class="fa-solid fa-quote-left"></i> Reviews</button>
-    <button class="nav-item" onclick="showTab('announcements',this)"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
-    <button class="nav-item" onclick="showTab('newsletter',this)"><i class="fa-solid fa-newspaper"></i> Newsletter Images</button>
-    <div class="nav-group-label">Site</div>
-    <button class="nav-item" onclick="showTab('popup',this)"><i class="fa-solid fa-rectangle-ad"></i> Popup Ad</button>
-    <button class="nav-item" onclick="showTab('contact',this)"><i class="fa-solid fa-phone"></i> Contact Info</button>
-    <button class="nav-item" onclick="showTab('visibility',this)"><i class="fa-solid fa-eye"></i> Section Visibility</button>
-  </nav>
-  <div class="sidebar-footer">
-    <button class="logout-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="topbar">
-    <div class="topbar-left">
-      <button class="mobile-menu-btn" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <h2 id="topbar-title">Admin <span>Panel</span></h2>
-    </div>
-    <div class="topbar-right">
-      <div class="live-dot"></div>
-      <small>Firebase Live</small>
-      <a href="index.html" target="_blank" class="view-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Site</a>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- DASHBOARD -->
-    <div class="tab-panel active" id="tab-dashboard">
-      <div class="section-header"><h2>Dashboard</h2><p>Live overview of your site content</p></div>
-      <div class="stats-row" id="dash-stats"><div class="load-state"><span class="spinner"></span></div></div>
-      <div class="dash-grid">
-        <div class="dash-card"><h4><i class="fa-solid fa-music"></i> Artists</h4><div id="dash-artists"><div class="load-state"><span class="spinner"></span></div></div></div>
-        <div class="dash-card"><h4><i class="fa-solid fa-quote-left"></i> Reviews</h4><div id="dash-reviews"><div class="load-state"><span class="spinner"></span></div></div></div>
-      </div>
-    </div>
-
-    <!-- HERO -->
-    <div class="tab-panel" id="tab-hero">
-      <div class="section-header"><h2>Hero Section</h2><p>Main banner headline, subtext, background image and stats</p></div>
-      <div class="form-card">
-        <div class="form-card-title"><i class="fa-solid fa-heading"></i> Headline & Subtext</div>
-        <div class="g1">
-          <div class="fg"><label>Headline Line 1</label><input type="text" id="hero-h1" placeholder="Perception is Reality,"></div>
-          <div class="fg"><label>Headline Line 2</label><input type="text" id="hero-h2" placeholder="Image is Everything"></div>
-          <div class="fg"><label>Subtext</label><textarea id="hero-sub" rows="2"></textarea></div>
-          <div class="fg">
-            <label>Background Image URL</label>
-            <input type="url" id="hero-bg" placeholder="https://res.cloudinary.com/... or images/hero.png">
-            <span class="hint">Use Cloudinary, imgbb or any direct image link</span>
-          </div>
-        </div>
-        <div class="form-card-title" style="margin-top:22px;"><i class="fa-solid fa-chart-bar"></i> Stats</div>
-        <div class="g2">
-          <div class="fg"><label>Stat 1 Number</label><input type="text" id="s1n" placeholder="150+"></div>
-          <div class="fg"><label>Stat 1 Label</label><input type="text" id="s1l" placeholder="Artists Distributed"></div>
-          <div class="fg"><label>Stat 2 Number</label><input type="text" id="s2n" placeholder="10M+"></div>
-          <div class="fg"><label>Stat 2 Label</label><input type="text" id="s2l" placeholder="Streams Generated"></div>
-          <div class="fg"><label>Stat 3 Number</label><input type="text" id="s3n" placeholder="24/7"></div>
-          <div class="fg"><label>Stat 3 Label</label><input type="text" id="s3l" placeholder="Global Support"></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-gold" onclick="saveHero()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button>
-          <button class="btn btn-ghost" onclick="loadHeroForm()"><i class="fa-solid fa-rotate-left"></i> Discard</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ABOUT -->
-    <div class="tab-panel" id="tab-about">
-      <div class="section-header"><h2>About Us</h2><p>Mission, vision and company description</p></div>
-      <div class="form-card">
-        <div class="g1">
-          <div class="fg"><label>Mission Statement</label><textarea id="about-mission" rows="3"></textarea></div>
-          <div class="fg"><label>Vision Statement</label><textarea id="about-vision" rows="3"></textarea></div>
-          <div class="fg"><label>Who We Are</label><textarea id="about-who" rows="3"></textarea></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-gold" onclick="saveAbout()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button>
-          <button class="btn btn-ghost" onclick="loadAboutForm()"><i class="fa-solid fa-rotate-left"></i> Discard</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- SERVICES -->
-    <div class="tab-panel" id="tab-services">
-      <div class="section-header"><h2>Services</h2><p>Manage the 7-Fold Package</p></div>
-      <div class="table-wrap">
-        <div class="table-top"><h3>All Services</h3><button class="btn btn-gold btn-sm" onclick="openModal('service')"><i class="fa-solid fa-plus"></i> Add Service</button></div>
-        <div id="services-list"><div class="load-state"><span class="spinner"></span> Loading...</div></div>
-      </div>
-    </div>
-
-    <!-- ARTISTS -->
-    <div class="tab-panel" id="tab-artists">
-      <div class="section-header"><h2>Hall of Fame</h2><p>Add and manage artists</p></div>
-      <div class="tip-box"><strong>💡 How to add photos:</strong> Upload to <strong>cloudinary.com</strong> (free) or <strong>imgbb.com</strong> → copy the image URL → paste it in the Photo URL field below.</div>
-      <div class="table-wrap">
-        <div class="table-top"><h3>All Artists</h3><button class="btn btn-gold btn-sm" onclick="openModal('artist')"><i class="fa-solid fa-plus"></i> Add Artist</button></div>
-        <div id="artists-list"><div class="load-state"><span class="spinner"></span> Loading...</div></div>
-      </div>
-    </div>
-
-    <!-- REVIEWS -->
-    <div class="tab-panel" id="tab-reviews">
-      <div class="section-header"><h2>Client Reviews</h2><p>Manage testimonials</p></div>
-      <div class="table-wrap">
-        <div class="table-top"><h3>All Reviews</h3><button class="btn btn-gold btn-sm" onclick="openModal('review')"><i class="fa-solid fa-plus"></i> Add Review</button></div>
-        <div id="reviews-list"><div class="load-state"><span class="spinner"></span> Loading...</div></div>
-      </div>
-    </div>
-
-    <!-- ANNOUNCEMENTS -->
-    <div class="tab-panel" id="tab-announcements">
-      <div class="section-header"><h2>Announcements</h2><p>Edit the main announcement and distribution section</p></div>
-      <div class="form-card">
-        <div class="g2">
-          <div class="fg"><label>Badge Text</label><input type="text" id="ann-badge" placeholder="Major Launch"></div>
-          <div class="fg"><label>Headline</label><input type="text" id="ann-title"></div>
-        </div>
-        <div class="g1" style="margin-top:12px;">
-          <div class="fg"><label>Body Text</label><textarea id="ann-body" rows="4"></textarea></div>
-          <div class="fg"><label>Features (comma-separated)</label><input type="text" id="ann-features" placeholder="Transparent Royalties, Playlist Pitching, Global Reach"></div>
-          <div class="fg"><label>Link Text</label><input type="text" id="ann-link-text"></div>
-          <div class="fg"><label>Link URL</label><input type="url" id="ann-link-url"></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-gold" onclick="saveAnnouncement()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button>
-          <button class="btn btn-ghost" onclick="loadAnnouncementForm()"><i class="fa-solid fa-rotate-left"></i> Discard</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- NEWSLETTER -->
-    <div class="tab-panel" id="tab-newsletter">
-      <div class="section-header"><h2>Newsletter Images</h2><p>The 3 highlight images in the newsletter section</p></div>
-      <div class="form-card">
-        <div class="tip-box"><strong>💡 Tip:</strong> Paste direct image URLs. Upload to Cloudinary or imgbb first. Recommended: 400×200px.</div>
-        <div class="g1">
-          <div class="fg"><label>Image 1 URL</label><input type="url" id="nl-img1" placeholder="https://..."></div>
-          <div class="fg"><label>Image 2 URL</label><input type="url" id="nl-img2" placeholder="https://..."></div>
-          <div class="fg"><label>Image 3 URL</label><input type="url" id="nl-img3" placeholder="https://..."></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-gold" onclick="saveNewsletter()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- POPUP -->
-    <div class="tab-panel" id="tab-popup">
-      <div class="section-header"><h2>Popup Ad</h2><p>Promotional popup shown 3 seconds after page load</p></div>
-      <div class="form-card">
-        <div class="g2">
-          <div>
-            <div class="fg"><label>Popup Image URL</label><input type="url" id="popup-img" placeholder="https://..." oninput="updatePopupPrev()"></div>
-            <div class="fg" style="margin-top:12px;"><label>Headline</label><input type="text" id="popup-ttl" oninput="updatePopupPrev()"></div>
-            <div class="fg" style="margin-top:12px;"><label>Subtext</label><input type="text" id="popup-sub" oninput="updatePopupPrev()"></div>
-            <div class="fg" style="margin-top:12px;"><label>Click Destination</label><input type="text" id="popup-lnk" placeholder="#announcements"></div>
-            <div class="fg" style="margin-top:14px;">
-              <label>Enable Popup</label>
-              <div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="popup-on" checked><span class="toggle-slider"></span></label><span style="font-size:13px;color:#888;">Show on page load</span></div>
-            </div>
-          </div>
-          <div>
-            <p style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Preview</p>
-            <div class="popup-prev">
-              <img id="popup-prev-img" src="" style="min-height:80px;">
-              <div class="popup-prev-info">
-                <div id="popup-prev-ttl" style="color:var(--gold);font-family:'Playfair Display',serif;font-size:15px;"></div>
-                <div id="popup-prev-sub" style="color:#999;font-size:12px;margin-top:4px;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-gold" onclick="savePopup()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- CONTACT -->
-    <div class="tab-panel" id="tab-contact">
-      <div class="section-header"><h2>Contact Info</h2><p>Update contact details and social links</p></div>
-      <div class="form-card">
-        <div class="g2">
-          <div class="fg"><label>Email</label><input type="email" id="c-email"></div>
-          <div class="fg"><label>Phone</label><input type="text" id="c-phone"></div>
-          <div class="fg"><label>Location</label><input type="text" id="c-location"></div>
-        </div>
-        <div class="form-card-title" style="margin-top:20px;"><i class="fa-brands fa-instagram"></i> Social Links</div>
-        <div class="g2">
-          <div class="fg"><label>Facebook URL</label><input type="url" id="s-fb"></div>
-          <div class="fg"><label>Twitter / X URL</label><input type="url" id="s-tw"></div>
-          <div class="fg"><label>Instagram URL</label><input type="url" id="s-ig"></div>
-          <div class="fg"><label>LinkedIn URL</label><input type="url" id="s-li"></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-gold" onclick="saveContact()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- VISIBILITY -->
-    <div class="tab-panel" id="tab-visibility">
-      <div class="section-header"><h2>Section Visibility</h2><p>Toggle sections on/off — changes go live immediately</p></div>
-      <div class="form-card">
-        <div class="vis-grid">
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-star"></i>Hero</div><label class="toggle"><input type="checkbox" id="vis-hero" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-circle-info"></i>About Us</div><label class="toggle"><input type="checkbox" id="vis-about" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-briefcase"></i>Services</div><label class="toggle"><input type="checkbox" id="vis-services" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-image"></i>Services Image</div><label class="toggle"><input type="checkbox" id="vis-showcase" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-bullhorn"></i>Announcements</div><label class="toggle"><input type="checkbox" id="vis-announcements" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-music"></i>Hall of Fame</div><label class="toggle"><input type="checkbox" id="vis-hall" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-quote-left"></i>Reviews</div><label class="toggle"><input type="checkbox" id="vis-reviews" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-          <div class="vis-card"><div class="vi"><i class="fa-solid fa-phone"></i>Contact</div><label class="toggle"><input type="checkbox" id="vis-contact" checked onchange="saveVisibility()"><span class="toggle-slider"></span></label></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<div id="modal-container"></div>
-<div id="toast"><i class="fa-solid fa-check-circle"></i><span id="toast-msg">Saved!</span></div>
-
-<!-- Firebase compat SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="ai-engine.js"></script>
 <script>
-firebase.initializeApp({ apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw", authDomain:"cbt-app-5907f.firebaseapp.com", projectId:"cbt-app-5907f", storageBucket:"cbt-app-5907f.firebasestorage.app", messagingSenderId:"705323924101", appId:"1:705323924101:web:e2468e94d1b030e61287ec" });
-var auth = firebase.auth();
-var db   = firebase.firestore();
+  const _t=localStorage.getItem("examora_theme")||"light";
+  document.documentElement.setAttribute("data-theme",_t);
+  { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = _t==="dark"?"☀️":"🌙"; }
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const c=document.documentElement.getAttribute("data-theme");
+    const n=c==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("examora_theme",n);
+    { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
+  });
+  function toast(msg,dur=2800){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),dur);}
 
-const D = {
-  hero:{ h1:'Perception is Reality,', h2:'Image is Everything', sub:"We don't just build campaigns — we build unforgettable brands.", bg:'images/hero.png', s1n:'150+', s1l:'Artists Distributed', s2n:'10M+', s2l:'Streams Generated', s3n:'24/7', s3l:'Global Support' },
-  about:{ mission:'Our mission is to bring brands, artistes, and individuals into the limelight.', vision:'Illuminating paths of our clients, unlocking full potentials, and redefining the marketing landscape.', who:'We are a revolutionary force in 2026. With expertise in strategy, creativity & technology, we drive real results.' },
-  announcement:{ badge:'Major Launch', title:'Introducing: Nur Futura Distribution', body:"We don't just manage artists; we power them. Get your music on Spotify, Apple Music, Boomplay, and 150+ stores worldwide.", features:'Transparent Royalties,Playlist Pitching,Global Reach', linkText:'Distribution Terms & FAQ', linkUrl:'#' },
-  newsletter:{ img1:'images/pla2.png', img2:'images/pla1.png', img3:'images/pla.png' },
-  popup:{ img:'https://res.cloudinary.com/dco9drzzp/image/upload/v1770817840/AMPLYFY_yjtdve.jpg', title:'Amplify Your Sounds', sub:'Distribute on all platforms today.', link:'#announcements', enabled:true },
-  contact:{ email:'hello@nurfuturamarketing.com.ng', phone:'+234 916 035 9275', location:'Lagos, Nigeria', fb:'https://www.facebook.com/share/1GsZFKot85/', tw:'https://twitter.com/nurfutura', ig:'https://instagram.com/nur.futura', li:'https://www.linkedin.com/in/nur-futura-marketing-558a85356' },
-  visibility:{ hero:true, about:true, services:true, announcements:true, hall:true, reviews:true, contact:true }
-};
+  function showTab(name,btn){
+    document.querySelectorAll(".admin-panel").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".admin-tab").forEach(t=>t.classList.remove("active"));
+    document.getElementById("tab-"+name).classList.add("active");
+    btn.classList.add("active");
+    // Lazy load data for each tab
+    if(name==="questions") window._loadQuestions&&window._loadQuestions();
+    if(name==="users")     window._loadUsers&&window._loadUsers();
+    if(name==="flags")     window._loadFlags&&window._loadFlags();
+    if(name==="settings")  window._loadSettings&&window._loadSettings();
+  }
 
-async function fsGet(p){ 
-  try{ var parts=p.split('/'); var s=await db.collection(parts[0]).doc(parts[1]).get(); return s.exists?s.data():null; }
-  catch(e){ console.warn('Read failed:',p,e.message); return null; } 
-}
-async function fsSet(p,d){ 
-  try{ var parts=p.split('/'); await db.collection(parts[0]).doc(parts[1]).set(d,{merge:true}); }
-  catch(e){ toast('Save failed — check Firestore rules: '+e.message,'error'); throw e; } 
-}
-async function fsList(c){ 
-  try{ var s=await db.collection(c).get(); return s.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); }
-  catch(e){ console.warn('List failed:',c,e.message); return []; } 
-}
+  function closeOverlay(id,e){
+    if(!e||e.target===document.getElementById(id))
+      document.getElementById(id).classList.remove("show");
+  }
 
-window.toast = function(msg,type='success'){
-  const t=document.getElementById('toast');
-  t.className=type;
-  t.querySelector('i').className=type==='success'?'fa-solid fa-check-circle':type==='error'?'fa-solid fa-circle-xmark':'fa-solid fa-spinner fa-spin';
-  document.getElementById('toast-msg').textContent=msg;
-  t.classList.add('show');
-  if(type!=='loading') setTimeout(()=>t.classList.remove('show'),3200);
-};
+  let annType="info";
+  function setAnnType(t,btn){
+    annType=t;
+    document.querySelectorAll(".ann-type-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  }
 
-// AUTH
-window.doLogin = async function(){
-  const e=document.getElementById('auth-email').value.trim();
-  const p=document.getElementById('auth-pass').value;
-  const err=document.getElementById('auth-error');
-  const btn=document.getElementById('login-btn');
-  err.style.display='none'; btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Signing in...';
-  try{ await auth.signInWithEmailAndPassword(e,p); }
-  catch(ex){ err.style.display='block'; err.textContent=ex.code==='auth/invalid-credential'?'Wrong email or password.':ex.message; btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Enter Panel'; }
-};
-document.getElementById('auth-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') window.doLogin(); });
-window.doLogout = async ()=>{ await auth.signOut(); };
+  // CSV handling
+  let parsedCSV=[];
 
-auth.onAuthStateChanged(function(user){
-  if(user){ document.getElementById('auth-screen').style.display='none'; initAdmin(); }
-  else{ document.getElementById('auth-screen').style.display='flex'; document.getElementById('login-btn').disabled=false; document.getElementById('login-btn').innerHTML='<i class="fa-solid fa-lock-open"></i> Enter Panel'; }
-});
+  function handleDrop(e){
+    e.preventDefault();
+    document.getElementById("uploadZone").classList.remove("drag");
+    const file=e.dataTransfer.files[0];
+    if(file) processCSVFile(file);
+  }
 
-// MOBILE
-window.openSidebar  = ()=>{ document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('active'); };
-window.closeSidebar = ()=>{ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); };
-window.showTab = function(name,btn){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-  document.getElementById('topbar-title').innerHTML=btn.textContent.trim().replace(/^.+?\s/,'')+'  <span>Editor</span>';
-  window.closeSidebar();
-};
+  function handleCSV(e){
+    const file=e.target.files[0];
+    if(file) processCSVFile(file);
+  }
 
-async function initAdmin(){
-  await Promise.all([loadHeroForm(),loadAboutForm(),loadAnnouncementForm(),loadNewsletterForm(),loadPopupForm(),loadContactForm(),loadVisibility(),loadServicesTable(),loadArtistsTable(),loadReviewsTable()]);
-  loadDashboard();
-}
+  function processCSVFile(file){
+    if(!file.name.endsWith(".csv")){toast("Please upload a .csv file");return;}
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const text=e.target.result;
+      const lines=text.trim().split("\n");
+      const headers=parseCSVLine(lines[0]);
+      parsedCSV=lines.slice(1).filter(l=>l.trim()).map(l=>{
+        const vals=parseCSVLine(l);
+        const obj={};
+        headers.forEach((h,i)=>obj[h.trim()]=vals[i]?.trim()||"");
+        return obj;
+      });
 
-// DASHBOARD
-async function loadDashboard(){
-  const [art,rev,svc]=await Promise.all([fsList('artists'),fsList('reviews'),fsList('services')]);
-  document.getElementById('dash-stats').innerHTML=`
-    <div class="stat-card"><div class="s-label">Artists</div><div class="s-val">${art.length}</div><div class="s-sub">Hall of Fame</div></div>
-    <div class="stat-card"><div class="s-label">Services</div><div class="s-val">${svc.length}</div><div class="s-sub">7-Fold Package</div></div>
-    <div class="stat-card"><div class="s-label">Reviews</div><div class="s-val">${rev.length}</div><div class="s-sub">Testimonials</div></div>
-    <div class="stat-card"><div class="s-label">Database</div><div class="s-val" style="font-size:18px;margin-top:4px;">🔥 Live</div><div class="s-sub">Firebase Firestore</div></div>`;
-  document.getElementById('dash-artists').innerHTML=art.length?art.slice(0,6).map(a=>`<div class="recent-item"><span style="color:#ccc;font-weight:500;">${a.name}</span><span class="badge badge-gold">Artist</span></div>`).join(''):'<p style="color:#444;font-size:13px;">No artists yet.</p>';
-  document.getElementById('dash-reviews').innerHTML=rev.length?rev.slice(0,5).map(r=>`<div class="recent-item"><span style="color:#ccc;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"${r.quote.substring(0,45)}..."</span><span style="color:#444;font-size:12px;">— ${r.client}</span></div>`).join(''):'<p style="color:#444;font-size:13px;">No reviews yet.</p>';
-}
+      // Preview
+      const prevHead=document.getElementById("csvPreviewHead");
+      const prevBody=document.getElementById("csvPreviewBody");
+      prevHead.innerHTML=headers.map(h=>`<th>${h}</th>`).join("");
+      prevBody.innerHTML=parsedCSV.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td>${r[h]||""}</td>`).join("")}</tr>`).join("");
+      { const _e=document.getElementById("csvStats"); if(_e) _e.textContent = `✅ ${parsedCSV.length} questions parsed, ready to upload`; }
+      document.getElementById("csvPreviewWrap").style.display="block";
+      { const _e=document.getElementById("confirmUploadBtn"); if(_e) _e.textContent = `📤 Upload ${parsedCSV.length} Questions`; }
+    };
+    reader.readAsText(file);
+  }
 
-// HERO
-window.loadHeroForm = async function(){ const d=await fsGet('site/hero')||D.hero; ['h1','h2','sub','bg'].forEach(k=>{ const el=document.getElementById('hero-'+k); if(el) el.value=d[k]||''; }); document.getElementById('s1n').value=d.s1n||d.stat1n||''; document.getElementById('s1l').value=d.s1l||d.stat1l||''; document.getElementById('s2n').value=d.s2n||d.stat2n||''; document.getElementById('s2l').value=d.s2l||d.stat2l||''; document.getElementById('s3n').value=d.s3n||d.stat3n||''; document.getElementById('s3l').value=d.s3l||d.stat3l||''; };
-window.saveHero = async function(){ toast('Saving...','loading'); await fsSet('site/hero',{ h1:document.getElementById('hero-h1').value, h2:document.getElementById('hero-h2').value, sub:document.getElementById('hero-sub').value, bg:document.getElementById('hero-bg').value, s1n:document.getElementById('s1n').value, s1l:document.getElementById('s1l').value, s2n:document.getElementById('s2n').value, s2l:document.getElementById('s2l').value, s3n:document.getElementById('s3n').value, s3l:document.getElementById('s3l').value }); toast('Hero section published! ✓'); };
+  function parseCSVLine(line){
+    const result=[]; let cur=""; let inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){ inQ=!inQ; }
+      else if(c===","&&!inQ){ result.push(cur); cur=""; }
+      else { cur+=c; }
+    }
+    result.push(cur);
+    return result;
+  }
 
-// ABOUT
-window.loadAboutForm = async function(){ const d=await fsGet('site/about')||D.about; document.getElementById('about-mission').value=d.mission||''; document.getElementById('about-vision').value=d.vision||''; document.getElementById('about-who').value=d.who||''; };
-window.saveAbout = async function(){ toast('Saving...','loading'); await fsSet('site/about',{ mission:document.getElementById('about-mission').value, vision:document.getElementById('about-vision').value, who:document.getElementById('about-who').value }); toast('About section published! ✓'); };
+  function cancelCSV(){
+    parsedCSV=[];
+    document.getElementById("csvPreviewWrap").style.display="none";
+    { const _e=document.getElementById("csvFileInput"); if(_e) _e.value = ""; }
+  }
 
-// SERVICES
-async function loadServicesTable(){
-  const items=await fsList('services');
-  const el=document.getElementById('services-list');
-  if(!items.length){ el.innerHTML='<p style="padding:20px;color:#444;font-size:13px;">No services yet. Add your first one.</p>'; return; }
-  el.innerHTML=`<table><thead><tr><th>Icon</th><th>Title</th><th>Description</th><th>Actions</th></tr></thead><tbody>${items.map(s=>`<tr><td><i class="${s.icon}" style="color:var(--gold);font-size:18px;"></i></td><td style="font-weight:600;color:#ddd;">${s.title}</td><td style="font-size:12px;color:#666;max-width:200px;">${(s.desc||'').substring(0,50)}…</td><td class="td-act"><button class="btn btn-ghost btn-xs" onclick="editItem('service','${s.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-red btn-xs" onclick="delItem('services','${s.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`;
-}
-window.loadServicesTable=loadServicesTable;
+  function downloadTemplate(){
+    const headers="text,A,B,C,D,answer,category,subject,year,explanation\n";
+    const row1='"What is the value of x in 2x + 3 = 7?","1","2","3","4","B","JAMB","Mathematics",2020,"2x = 4, so x = 2"\n';
+    const row2='"Which organ produces insulin?","Liver","Pancreas","Kidney","Spleen","B","JAMB","Biology",2019,"The pancreas produces insulin to regulate blood sugar"\n';
+    const row3='"What is Newton\'s first law also called?","Law of motion","Law of inertia","Law of gravity","Law of action","B","JAMB","Physics",2021,"Newton\'s first law is the law of inertia"\n';
+    const blob=new Blob([headers+row1+row2+row3],{type:"text/csv"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url;
+    a.download="examora_template.csv"; a.click();
+    URL.revokeObjectURL(url);
+    toast("📥 Template downloaded!");
+  }
 
-// ARTISTS
-async function loadArtistsTable(){
-  const items=await fsList('artists');
-  const el=document.getElementById('artists-list');
-  if(!items.length){ el.innerHTML='<p style="padding:20px;color:#444;font-size:13px;">No artists yet. Add your first one.</p>'; return; }
-  el.innerHTML=`<table><thead><tr><th>Photo</th><th>Name</th><th>IG</th><th>Spotify</th><th>Actions</th></tr></thead><tbody>${items.map(a=>`<tr><td><img class="td-img" src="${a.img}" onerror="this.src=''" alt="${a.name}"></td><td style="font-weight:700;color:var(--gold);">${a.name}</td><td>${a.ig&&a.ig!='#'?'<span class="badge badge-green">✓</span>':'<span class="badge badge-gray">—</span>'}</td><td>${a.spotify&&a.spotify!='#'?'<span class="badge badge-green">✓</span>':'<span class="badge badge-gray">—</span>'}</td><td class="td-act"><button class="btn btn-ghost btn-xs" onclick="editItem('artist','${a.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-red btn-xs" onclick="delItem('artists','${a.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`;
-}
-window.loadArtistsTable=loadArtistsTable;
+  function previewQuestion(){
+    const text=document.getElementById("qText").value;
+    const a=document.getElementById("qOptA").value;
+    const b=document.getElementById("qOptB").value;
+    const c=document.getElementById("qOptC").value;
+    const d=document.getElementById("qOptD").value;
+    const ans=document.getElementById("qAnswer").value;
+    if(!text){toast("Enter question text first");return;}
+    const p=document.getElementById("qPreview");
+    p.style.display="block";
+    p.innerHTML=`<strong>${text}</strong><br/><br/>
+      ${["A","B","C","D"].map((l,i)=>{
+        const opt=[a,b,c,d][i];
+        if(!opt) return "";
+        const cor=l===ans;
+        return `<span style="display:block;padding:5px 8px;margin-bottom:4px;border-radius:7px;
+          background:${cor?"var(--c-green-pale)":"var(--bg-card)"};
+          color:${cor?"var(--c-green)":"var(--text-2)"};font-size:0.8rem;">
+          ${l}: ${opt}${cor?" ✓":""}
+        </span>`;
+      }).join("")}`;
+  }
 
-// REVIEWS
-async function loadReviewsTable(){
-  const items=await fsList('reviews');
-  const el=document.getElementById('reviews-list');
-  if(!items.length){ el.innerHTML='<p style="padding:20px;color:#444;font-size:13px;">No reviews yet.</p>'; return; }
-  el.innerHTML=`<table><thead><tr><th>Quote</th><th>Client</th><th>Actions</th></tr></thead><tbody>${items.map(r=>`<tr><td style="max-width:260px;color:#ccc;">"${r.quote.substring(0,60)}${r.quote.length>60?'…':''}"</td><td style="color:var(--gold);font-weight:600;">— ${r.client}</td><td class="td-act"><button class="btn btn-ghost btn-xs" onclick="editItem('review','${r.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-red btn-xs" onclick="delItem('reviews','${r.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`;
-}
-window.loadReviewsTable=loadReviewsTable;
+  function confirmDeleteAllQuestions(){
+    if(confirm("Delete ALL questions? This cannot be undone.")){
+      if(confirm("Are you absolutely sure?")){
+        window._deleteAllQuestions&&window._deleteAllQuestions();
+      }
+    }
+  }
 
-// ANNOUNCEMENT
-window.loadAnnouncementForm = async function(){ const d=await fsGet('site/announcement')||D.announcement; document.getElementById('ann-badge').value=d.badge||''; document.getElementById('ann-title').value=d.title||''; document.getElementById('ann-body').value=d.body||''; document.getElementById('ann-features').value=d.features||''; document.getElementById('ann-link-text').value=d.linkText||''; document.getElementById('ann-link-url').value=d.linkUrl||''; };
-window.saveAnnouncement = async function(){ toast('Saving...','loading'); await fsSet('site/announcement',{ badge:document.getElementById('ann-badge').value, title:document.getElementById('ann-title').value, body:document.getElementById('ann-body').value, features:document.getElementById('ann-features').value, linkText:document.getElementById('ann-link-text').value, linkUrl:document.getElementById('ann-link-url').value }); toast('Announcement published! ✓'); };
+  // ── Module function wrappers (safe onclick bridge) ──
+  function saveAppSettings() {
+    if (typeof window.saveAppSettings === 'function') window.saveAppSettings();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveTimers() {
+    if (typeof window.saveTimers === 'function') window.saveTimers();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function uploadCSV() {
+    if (typeof window.uploadCSV === 'function') window.uploadCSV();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function deleteUser() {
+    if (typeof window.deleteUser === 'function') window.deleteUser();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function deleteQ() {
+    if (typeof window.deleteQ === 'function') window.deleteQ();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function toggleKeyVis() {
+    if (typeof window.toggleKeyVis === 'function') window.toggleKeyVis();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveAIKeys() {
+    if (typeof window.saveAIKeys === 'function') window.saveAIKeys();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveAnnouncement() {
+    if (typeof window.saveAnnouncement === 'function') window.saveAnnouncement();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function addQuestion() {
+    if (typeof window.addQuestion === 'function') window.addQuestion();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function resolveFlag() {
+    if (typeof window.resolveFlag === 'function') window.resolveFlag();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function grantPremium() {
+    if (typeof window.grantPremium === 'function') window.grantPremium();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function deleteFlag() {
+    if (typeof window.deleteFlag === 'function') window.deleteFlag();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function openEditQ() {
+    if (typeof window.openEditQ === 'function') window.openEditQ();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function saveEditQuestion() {
+    if (typeof window.saveEditQuestion === 'function') window.saveEditQuestion();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+  function testAIKeys() {
+    if (typeof window.testAIKeys === 'function') window.testAIKeys();
+    else window.toast && window.toast('Still loading… try again.','info');
+  }
+</script>
+<script>
+window.toast = toast;
 
-// NEWSLETTER
-window.loadNewsletterForm = async function(){ const d=await fsGet('site/newsletter')||D.newsletter; document.getElementById('nl-img1').value=d.img1||''; document.getElementById('nl-img2').value=d.img2||''; document.getElementById('nl-img3').value=d.img3||''; };
-window.saveNewsletter = async function(){ toast('Saving...','loading'); await fsSet('site/newsletter',{ img1:document.getElementById('nl-img1').value, img2:document.getElementById('nl-img2').value, img3:document.getElementById('nl-img3').value }); toast('Newsletter images published! ✓'); };
+// expose plain-script functions to window for module access
+window.addQuestion = typeof addQuestion !== "undefined" ? addQuestion : window.addQuestion;
+window.cancelCSV = typeof cancelCSV !== "undefined" ? cancelCSV : window.cancelCSV;
+window.closeOverlay = typeof closeOverlay !== "undefined" ? closeOverlay : window.closeOverlay;
+window.confirmDeleteAllQuestions = typeof confirmDeleteAllQuestions !== "undefined" ? confirmDeleteAllQuestions : window.confirmDeleteAllQuestions;
+window.deleteFlag = typeof deleteFlag !== "undefined" ? deleteFlag : window.deleteFlag;
+window.deleteQ = typeof deleteQ !== "undefined" ? deleteQ : window.deleteQ;
+window.deleteUser = typeof deleteUser !== "undefined" ? deleteUser : window.deleteUser;
+window.downloadTemplate = typeof downloadTemplate !== "undefined" ? downloadTemplate : window.downloadTemplate;
+window.grantPremium = typeof grantPremium !== "undefined" ? grantPremium : window.grantPremium;
+window.handleCSV = typeof handleCSV !== "undefined" ? handleCSV : window.handleCSV;
+window.handleDrop = typeof handleDrop !== "undefined" ? handleDrop : window.handleDrop;
+window.openEditQ = typeof openEditQ !== "undefined" ? openEditQ : window.openEditQ;
+window.parseCSVLine = typeof parseCSVLine !== "undefined" ? parseCSVLine : window.parseCSVLine;
+window.previewQuestion = typeof previewQuestion !== "undefined" ? previewQuestion : window.previewQuestion;
+window.processCSVFile = typeof processCSVFile !== "undefined" ? processCSVFile : window.processCSVFile;
+window.resolveFlag = typeof resolveFlag !== "undefined" ? resolveFlag : window.resolveFlag;
+window.saveAIKeys = typeof saveAIKeys !== "undefined" ? saveAIKeys : window.saveAIKeys;
+window.saveAnnouncement = typeof saveAnnouncement !== "undefined" ? saveAnnouncement : window.saveAnnouncement;
+window.saveAppSettings = typeof saveAppSettings !== "undefined" ? saveAppSettings : window.saveAppSettings;
+window.saveEditQuestion = typeof saveEditQuestion !== "undefined" ? saveEditQuestion : window.saveEditQuestion;
+window.saveTimers = typeof saveTimers !== "undefined" ? saveTimers : window.saveTimers;
+window.setAnnType = typeof setAnnType !== "undefined" ? setAnnType : window.setAnnType;
+window.showTab = typeof showTab !== "undefined" ? showTab : window.showTab;
+window.testAIKeys = typeof testAIKeys !== "undefined" ? testAIKeys : window.testAIKeys;
+window.toast = typeof toast !== "undefined" ? toast : window.toast;
+window.toggleKeyVis = typeof toggleKeyVis !== "undefined" ? toggleKeyVis : window.toggleKeyVis;
+window.uploadCSV = typeof uploadCSV !== "undefined" ? uploadCSV : window.uploadCSV;
+window.wrappers = typeof wrappers !== "undefined" ? wrappers : window.wrappers;
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc,
+           updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// POPUP
-window.loadPopupForm = async function(){ const d=await fsGet('site/popup')||D.popup; document.getElementById('popup-img').value=d.img||''; document.getElementById('popup-ttl').value=d.title||''; document.getElementById('popup-sub').value=d.sub||''; document.getElementById('popup-lnk').value=d.link||''; document.getElementById('popup-on').checked=d.enabled!==false; window.updatePopupPrev(); };
-window.updatePopupPrev = function(){ document.getElementById('popup-prev-img').src=document.getElementById('popup-img').value; document.getElementById('popup-prev-ttl').textContent=document.getElementById('popup-ttl').value; document.getElementById('popup-prev-sub').textContent=document.getElementById('popup-sub').value; };
-window.savePopup = async function(){ toast('Saving...','loading'); await fsSet('site/popup',{ img:document.getElementById('popup-img').value, title:document.getElementById('popup-ttl').value, sub:document.getElementById('popup-sub').value, link:document.getElementById('popup-lnk').value, enabled:document.getElementById('popup-on').checked }); toast('Popup published! ✓'); };
+  const app=initializeApp({
+    apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
+    authDomain:"cbt-app-5907f.firebaseapp.com",
+    projectId:"cbt-app-5907f",
+    storageBucket:"cbt-app-5907f.firebasestorage.app",
+    messagingSenderId:"705323924101",
+    appId:"1:705323924101:web:ad9f153f25a0685a1287ec"
+  });
+  const auth=getAuth(app), db=getFirestore(app);
+  let uid=null;
 
-// CONTACT
-window.loadContactForm = async function(){ const d=await fsGet('site/contact')||D.contact; document.getElementById('c-email').value=d.email||''; document.getElementById('c-phone').value=d.phone||''; document.getElementById('c-location').value=d.location||''; document.getElementById('s-fb').value=d.fb||''; document.getElementById('s-tw').value=d.tw||''; document.getElementById('s-ig').value=d.ig||''; document.getElementById('s-li').value=d.li||''; };
-window.saveContact = async function(){ toast('Saving...','loading'); await fsSet('site/contact',{ email:document.getElementById('c-email').value, phone:document.getElementById('c-phone').value, location:document.getElementById('c-location').value, fb:document.getElementById('s-fb').value, tw:document.getElementById('s-tw').value, ig:document.getElementById('s-ig').value, li:document.getElementById('s-li').value }); toast('Contact info published! ✓'); };
+  // ── Auth guard ──
+  onAuthStateChanged(auth,async user=>{
+    if(!user){window.location.href="login.html";return;}
+    uid=user.uid;
+    const s=await getDoc(doc(db,"users",uid)).catch(()=>null);
+    const _role = s?.data()?.role;
+    if(_role !== "admin" && _role !== "superadmin"){
+      // First-time setup: visit admin.html?setup=1 while signed in to grant yourself admin
+      if(new URLSearchParams(location.search).get("setup")==="1"){
+        try{
+          await updateDoc(doc(db,"users",uid),{role:"admin"});
+          alert("✅ Admin role granted! You can now access the admin panel.");
+          location.replace("admin.html");
+        }catch(e){ alert("Setup failed: "+e.message); window.location.href="index.html"; }
+        return;
+      }
+      alert("Access denied.\n\nTo get admin access:\n1. Make sure you are signed in\n2. Go to: admin.html?setup=1\nThis grants admin role to your account.");
+      window.location.href="index.html"; return;
+    }
+    document.getElementById("adminSub").textContent=`Signed in as ${user.email}`;
+    loadDashboardStats();
+    window._loadQuestions();
+  });
 
-// VISIBILITY
-window.loadVisibility = async function(){ const d=await fsGet('site/visibility')||D.visibility; Object.keys(d).forEach(k=>{ const el=document.getElementById('vis-'+k); if(el) el.checked=d[k]; }); };
-window.saveVisibility = async function(){ const keys=['hero','about','services','announcements','hall','reviews','contact']; const obj={}; keys.forEach(k=>{ const el=document.getElementById('vis-'+k); if(el) obj[k]=el.checked; }); await fsSet('site/visibility',obj); toast('Visibility updated! ✓'); };
+  // ── Dashboard stats ──
+  async function loadDashboardStats(){
+    try{
+      const [uSnap,qSnap,rSnap]=await Promise.all([
+        getDocs(collection(db,"users")),
+        getDocs(collection(db,"questions")),
+        getDocs(collection(db,"results"))
+      ]);
+      let users=[],prem=0;
+      uSnap.forEach(d=>{users.push(d.data());if(d.data().plan==="premium")prem++;});
+      document.getElementById("statUsers").textContent=uSnap.size;
+      document.getElementById("statQuestions").textContent=qSnap.size;
+      document.getElementById("statResults").textContent=rSnap.size;
+      document.getElementById("statPremium").textContent=prem;
+    }catch(e){console.error(e);}
+  }
 
-// MODAL
-window.openModal = function(type, data={}){
-  const cfgs = {
-    service:{
-      title: data.id?'Edit Service':'Add Service', icon:'fa-solid fa-briefcase',
-      html:`<div class="g2"><div class="fg"><label>Service Title</label><input id="m-title" value="${data.title||''}" placeholder="Brand Management"></div><div class="fg"><label>Icon class (Font Awesome)</label><input id="m-icon" value="${data.icon||''}" placeholder="fa-solid fa-briefcase"></div></div><div class="fg" style="margin-top:12px;"><label>Description</label><textarea id="m-desc" rows="2">${data.desc||''}</textarea></div><div class="fg" style="margin-top:12px;"><label>Tags (comma separated)</label><input id="m-tags" value="${data.tags||''}" placeholder="Identity Refresh, Creative Direction"></div>`,
-      save: async()=>{ const o={icon:document.getElementById('m-icon').value||'fa-solid fa-star',title:document.getElementById('m-title').value,desc:document.getElementById('m-desc').value,tags:document.getElementById('m-tags').value}; if(!o.title){toast('Title required','error');return;} toast('Saving...','loading'); if(data.id) await db.collection('services').doc(data.id).update(o); else await db.collection('services').add(o); closeModal(); await loadServicesTable(); loadDashboard(); toast('Service saved! ✓'); }
-    },
-    artist:{
-      title: data.id?'Edit Artist':'Add Artist', icon:'fa-solid fa-music',
-      html:`<div class="tip-box"><strong>Photo URL:</strong> Upload to cloudinary.com or imgbb.com → copy URL → paste below.</div><div class="g2"><div class="fg"><label>Artist Name</label><input id="m-name" value="${data.name||''}" placeholder="GOSHEN"></div><div class="fg"><label>Photo URL</label><input id="m-img" value="${data.img||''}" placeholder="https://..."></div><div class="fg"><label>Instagram URL</label><input id="m-ig" value="${data.ig||''}" placeholder="https://instagram.com/..."></div><div class="fg"><label>Spotify URL</label><input id="m-spotify" value="${data.spotify||''}" placeholder="https://open.spotify.com/..."></div><div class="fg"><label>Audio Snippet URL (optional)</label><input id="m-audio" value="${data.audio||''}" placeholder="mp3/name.mp3 or https://..."></div></div>`,
-      save: async()=>{ const o={name:(document.getElementById('m-name').value||'').toUpperCase(),img:document.getElementById('m-img').value,ig:document.getElementById('m-ig').value||'#',spotify:document.getElementById('m-spotify').value||'#',audio:document.getElementById('m-audio').value||''}; if(!o.name){toast('Name required','error');return;} toast('Saving...','loading'); if(data.id) await db.collection('artists').doc(data.id).update(o); else await db.collection('artists').add(o); closeModal(); await loadArtistsTable(); loadDashboard(); toast('Artist saved! ✓'); }
-    },
-    review:{
-      title: data.id?'Edit Review':'Add Review', icon:'fa-solid fa-quote-left',
-      html:`<div class="g1"><div class="fg"><label>Review / Quote</label><textarea id="m-quote" rows="3">${data.quote||''}</textarea></div><div class="fg"><label>Client Name</label><input id="m-client" value="${data.client||''}" placeholder="YMX"></div></div>`,
-      save: async()=>{ const o={quote:document.getElementById('m-quote').value,client:document.getElementById('m-client').value}; if(!o.quote||!o.client){toast('All fields required','error');return;} toast('Saving...','loading'); if(data.id) await db.collection('reviews').doc(data.id).update(o); else await db.collection('reviews').add(o); closeModal(); await loadReviewsTable(); loadDashboard(); toast('Review saved! ✓'); }
+  // ── Questions ──
+  let allQuestionsCache=[];
+
+  window._loadQuestions=async function(){
+    try{
+      const cat=document.getElementById("filterQCat").value;
+      const subj=document.getElementById("filterQSubj").value;
+      const snap=await getDocs(collection(db,"questions"));
+      let qs=[]; snap.forEach(d=>qs.push({id:d.id,...d.data()}));
+      allQuestionsCache=qs;
+      if(cat) qs=qs.filter(q=>q.category===cat);
+      if(subj) qs=qs.filter(q=>q.subject===subj);
+      document.getElementById("qCount").textContent=`${qs.length} of ${allQuestionsCache.length}`;
+      const tbody=document.getElementById("questionsBody");
+      if(qs.length===0){
+        tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">No questions found</td></tr>`;
+        return;
+      }
+      const display=qs.slice(0,50);
+      tbody.innerHTML=display.map(q=>`
+        <tr>
+          <td class="td-name" style="max-width:160px;">${(q.text||q.question||"").slice(0,60)}...</td>
+          <td><span style="font-size:0.65rem;font-weight:700;color:var(--c-brand);">${q.category||""}</span></td>
+          <td style="font-size:0.7rem;color:var(--text-3);">${(q.subject||"").split(" ")[0]}</td>
+          <td><span style="font-family:'Sora',sans-serif;font-weight:800;font-size:0.8rem;
+            color:var(--c-green);">${q.answer||"?"}</span></td>
+          <td>
+            <button class="tbl-btn tbl-btn-edit" onclick="window.openEditQ('${q.id}')">✏️</button>
+            <button class="tbl-btn tbl-btn-delete" onclick="window.deleteQ('${q.id}')">🗑</button>
+          </td>
+        </tr>`).join("");
+      if(qs.length>50) document.getElementById("qTableNote").textContent=`Showing first 50 of ${qs.length}`;
+    }catch(e){window.toast("Could not load questions: "+e.message);}
+  };
+  window.loadQuestions=window._loadQuestions;
+
+  window.addQuestion=async function(){
+    const text=document.getElementById("qText").value.trim();
+    const a=document.getElementById("qOptA").value.trim();
+    const b=document.getElementById("qOptB").value.trim();
+    const c=document.getElementById("qOptC").value.trim();
+    const d=document.getElementById("qOptD").value.trim();
+    const ans=document.getElementById("qAnswer").value;
+    const cat=document.getElementById("qCat").value;
+    const subj=document.getElementById("qSubj").value;
+    const year=parseInt(document.getElementById("qYear").value)||new Date().getFullYear();
+    const exp=document.getElementById("qExp").value.trim();
+    if(!text||!a||!b||!c||!d){window.toast("Fill in question text and all 4 options");return;}
+    const btn=document.getElementById("addQBtn");
+    btn.disabled=true; btn.textContent="Adding...";
+    try{
+      await addDoc(collection(db,"questions"),{
+        text,question:text,options:{A:a,B:b,C:c,D:d},answer:ans,
+        category:cat,subject:subj,year,explanation:exp,
+        createdAt:new Date().toISOString()
+      });
+      window.toast("✅ Question added!");
+      ["qText","qOptA","qOptB","qOptC","qOptD","qExp"].forEach(id=>document.getElementById(id).value="");
+      document.getElementById("qPreview").style.display="none";
+      window._loadQuestions();
+      loadDashboardStats();
+    }catch(e){window.toast("Error: "+e.message);}
+    btn.disabled=false; btn.textContent="➕ Add Question";
+  };
+
+  window.openEditQ=function(id){
+    const q=allQuestionsCache.find(q=>q.id===id);
+    if(!q) return;
+    document.getElementById("editQId").value=id;
+    document.getElementById("editText").value=q.text||q.question||"";
+    document.getElementById("editCat").value=q.category||"JAMB";
+    document.getElementById("editSubj").value=q.subject||"";
+    document.getElementById("editYear").value=q.year||"";
+    document.getElementById("editAnswer").value=q.answer||"A";
+    document.getElementById("editA").value=q.options?.A||"";
+    document.getElementById("editB").value=q.options?.B||"";
+    document.getElementById("editC").value=q.options?.C||"";
+    document.getElementById("editD").value=q.options?.D||"";
+    document.getElementById("editExp").value=q.explanation||"";
+    document.getElementById("editOverlay").classList.add("show");
+  };
+
+  window.saveEditQuestion=async function(){
+    const id=document.getElementById("editQId").value;
+    if(!id) return;
+    const data={
+      text:document.getElementById("editText").value.trim(),
+      question:document.getElementById("editText").value.trim(),
+      category:document.getElementById("editCat").value,
+      subject:document.getElementById("editSubj").value.trim(),
+      year:parseInt(document.getElementById("editYear").value)||0,
+      answer:document.getElementById("editAnswer").value,
+      options:{
+        A:document.getElementById("editA").value.trim(),
+        B:document.getElementById("editB").value.trim(),
+        C:document.getElementById("editC").value.trim(),
+        D:document.getElementById("editD").value.trim(),
+      },
+      explanation:document.getElementById("editExp").value.trim(),
+      updatedAt:new Date().toISOString()
+    };
+    try{
+      await updateDoc(doc(db,"questions",id),data);
+      window.toast("✅ Question updated!");
+      document.getElementById("editOverlay").classList.remove("show");
+      window._loadQuestions();
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  window.deleteQ=async function(id){
+    if(!confirm("Delete this question?")) return;
+    try{
+      await deleteDoc(doc(db,"questions",id));
+      window.toast("🗑 Question deleted");
+      window._loadQuestions();
+      loadDashboardStats();
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  // ── CSV Upload ──
+  window.uploadCSV=async function(){
+    if(!parsedCSV||parsedCSV.length===0){window.toast("No CSV parsed yet");return;}
+    const btn=document.getElementById("confirmUploadBtn");
+    btn.disabled=true;
+    document.getElementById("uploadProgress").style.display="block";
+
+    let done=0;
+    const total=parsedCSV.length;
+    const BATCH_SIZE=400;
+
+    for(let i=0;i<total;i+=BATCH_SIZE){
+      const batch=writeBatch(db);
+      const chunk=parsedCSV.slice(i,i+BATCH_SIZE);
+      chunk.forEach(row=>{
+        const ref=doc(collection(db,"questions"));
+        const text=row.text||row.question||"";
+        batch.set(ref,{
+          text, question:text,
+          options:{A:row.A||"",B:row.B||"",C:row.C||"",D:row.D||""},
+          answer:(row.answer||"A").toUpperCase(),
+          category:row.category||"JAMB",
+          subject:row.subject||"",
+          year:parseInt(row.year)||2020,
+          explanation:row.explanation||"",
+          createdAt:new Date().toISOString()
+        });
+      });
+      try{await batch.commit();}catch(e){window.toast("Batch error at row "+i+": "+e.message);break;}
+      done+=chunk.length;
+      const pct=Math.round((done/total)*100);
+      document.getElementById("upBar").style.width=pct+"%";
+      document.getElementById("upPct").textContent=pct+"%";
+      document.getElementById("upLabel").textContent=`Uploading... ${done}/${total}`;
+    }
+    window.toast(`✅ ${done} questions uploaded!`);
+    window.cancelCSV();
+    document.getElementById("uploadProgress").style.display="none";
+    btn.disabled=false;
+    loadDashboardStats();
+    window._loadQuestions();
+  };
+
+  // ── Users ──
+  window._loadUsers=async function(){
+    try{
+      const snap=await getDocs(collection(db,"users"));
+      let users=[]; snap.forEach(d=>users.push({id:d.id,...d.data()}));
+      users.sort((a,b)=>(b.totalExams||0)-(a.totalExams||0));
+      const tbody=document.getElementById("usersBody");
+      if(users.length===0){
+        tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-3);">No users yet</td></tr>`;
+        return;
+      }
+      tbody.innerHTML=users.map(u=>{
+        const name=u.displayName||u.email?.split("@")[0]||"User";
+        const avg=u.totalQuestions>0?Math.round((u.totalCorrect/u.totalQuestions)*100):0;
+        const isPrem=u.plan==="premium";
+        return `<tr>
+          <td>
+            <div class="td-name">${name}</div>
+            <div style="font-size:0.62rem;color:var(--text-3);">${u.email||""}</div>
+          </td>
+          <td>
+            <span style="font-size:0.68rem;font-weight:700;
+              color:${isPrem?"var(--c-gold)":"var(--text-3)"};">
+              ${isPrem?"👑 Premium":"Free"}
+            </span>
+          </td>
+          <td style="font-weight:700;color:var(--text);">${u.totalExams||0}</td>
+          <td style="font-weight:700;color:${avg>=50?"var(--c-green)":"var(--c-red)"};">${avg}%</td>
+          <td>
+            ${!isPrem?`<button class="tbl-btn tbl-btn-prem" onclick="window.grantPremium('${u.id}')">👑</button>`:""}
+            <button class="tbl-btn tbl-btn-delete" onclick="window.deleteUser('${u.id}','${name}')">🗑</button>
+          </td>
+        </tr>`;
+      }).join("");
+    }catch(e){window.toast("Could not load users");}
+  };
+
+  window.grantPremium=async function(id){
+    if(!confirm("Grant Premium to this user?")) return;
+    try{
+      await updateDoc(doc(db,"users",id),{plan:"premium",premiumGrantedBy:"admin",premiumSince:new Date().toISOString()});
+      window.toast("👑 Premium granted!");
+      window._loadUsers();
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  window.deleteUser=async function(id,name){
+    if(!confirm(`Delete user "${name}"? This only removes their Firestore data.`)) return;
+    try{
+      await deleteDoc(doc(db,"users",id));
+      window.toast("🗑 User removed");
+      window._loadUsers();
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  // ── Flags ──
+  window._loadFlags=async function(){
+    try{
+      const snap=await getDocs(collection(db,"flags"));
+      let flags=[]; snap.forEach(d=>flags.push({id:d.id,...d.data()}));
+      flags.sort((a,b)=>(b.reportedAt||"").localeCompare(a.reportedAt||""));
+      const el=document.getElementById("flagsList");
+      if(flags.length===0){
+        el.innerHTML=`<div class="admin-empty"><div class="ae-icon">✅</div><p>No flagged questions!</p></div>`;
+        return;
+      }
+      el.innerHTML=flags.map(f=>`
+        <div class="flag-row">
+          <div class="flag-q">${f.questionId||"Unknown question"}</div>
+          <div class="flag-meta">
+            Reason: <strong>${f.reason||"—"}</strong> ·
+            Status: <span style="color:${f.status==="resolved"?"var(--c-green)":"var(--c-red)"};">
+              ${f.status||"pending"}
+            </span> ·
+            ${new Date(f.reportedAt||Date.now()).toLocaleDateString()}
+          </div>
+          <div>
+            <button class="tbl-btn tbl-btn-resolve" onclick="window.resolveFlag('${f.id}')">✅ Resolve</button>
+            <button class="tbl-btn tbl-btn-edit"    onclick="window.openEditQ&&window.openEditQ('${f.questionId}')">✏️ Edit Q</button>
+            <button class="tbl-btn tbl-btn-delete"  onclick="window.deleteFlag('${f.id}')">🗑 Delete</button>
+          </div>
+        </div>`).join("");
+    }catch(e){window.toast("Could not load flags");}
+  };
+
+  window.resolveFlag=async function(id){
+    try{await updateDoc(doc(db,"flags",id),{status:"resolved"});window.toast("✅ Flag resolved");window._loadFlags();}
+    catch(e){window.toast("Error");}
+  };
+  window.deleteFlag=async function(id){
+    if(!confirm("Delete this flag report?")) return;
+    try{await deleteDoc(doc(db,"flags",id));window.toast("🗑 Flag deleted");window._loadFlags();}
+    catch(e){window.toast("Error");}
+  };
+
+  // ── Settings ──
+  window._loadSettings=async function(){
+    // Load AI keys — try Firestore first, fall back to localStorage
+    try {
+      var aiSnap = await getDoc(doc(db, 'settings', 'ai')).catch(()=>null);
+      var saved = [];
+      if (aiSnap && aiSnap.exists()) {
+        saved = aiSnap.data().openRouterKeys || [];
+        // Sync to localStorage
+        localStorage.setItem('examora_ai_keys', JSON.stringify(saved));
+      } else {
+        saved = JSON.parse(localStorage.getItem('examora_ai_keys') || '[]');
+      }
+      ['aiKey1','aiKey2','aiKey3'].forEach(function(id, i) {
+        var el = document.getElementById(id);
+        if (el && saved[i]) el.value = saved[i];
+      });
+      var st = document.getElementById('aiKeyStatus');
+      if (st) {
+        if (saved.length > 0) {
+          st.innerHTML = '<span style="color:var(--c-green);">✓ ' + saved.length + ' key(s) loaded from cloud</span>';
+        } else {
+          st.innerHTML = '<span style="color:var(--text-3);">No keys saved yet. Get a free key at <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--c-brand);">openrouter.ai/keys</a></span>';
+        }
+      }
+    } catch(e) {
+      var stEl = document.getElementById('aiKeyStatus');
+      if (stEl) stEl.innerHTML = '<span style="color:var(--c-red);">Could not load keys: ' + e.message.slice(0,60) + '</span>';
+    }
+    try{
+      const [annSnap,timerSnap,appSnap]=await Promise.all([
+        getDoc(doc(db,"settings","announcement")),
+        getDoc(doc(db,"settings","timers")),
+        getDoc(doc(db,"settings","app"))
+      ]);
+      if(annSnap.exists()){
+        document.getElementById("annMessage").value=annSnap.data().message||"";
+      }
+      if(timerSnap.exists()){
+        const t=timerSnap.data();
+        document.getElementById("timerJAMB").value=t.JAMB||1.5;
+        document.getElementById("timerWAEC").value=t.WAEC||1.5;
+        document.getElementById("timerCertPrep").value=t["Cert Prep"]||1.5;
+        document.getElementById("timerPostUTME").value=t["Custom"]||1.5;
+      }
+      if(appSnap.exists()){
+        const a=appSnap.data();
+        document.getElementById("maintenanceToggle").checked=a.maintenance||false;
+        document.getElementById("regToggle").checked=a.allowRegistrations!==false;
+      }
+    }catch(_){}
+  };
+
+  window.saveAnnouncement=async function(){
+    const msg=document.getElementById("annMessage").value.trim();
+    try{
+      await setDoc(doc(db,"settings","announcement"),{message:msg,type:annType,updatedAt:new Date().toISOString()});
+      window.toast(msg?"📢 Announcement saved!":"Announcement cleared");
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  window.saveTimers=async function(){
+    try{
+      await setDoc(doc(db,"settings","timers"),{
+        JAMB:parseFloat(document.getElementById("timerJAMB").value)||1.5,
+        WAEC:parseFloat(document.getElementById("timerWAEC").value)||1.5,
+        "Cert Prep":parseFloat(document.getElementById("timerCertPrep").value)||1.5,
+        "Custom":parseFloat(document.getElementById("timerPostUTME").value)||1.5
+      });
+      window.toast("⏱️ Timer settings saved!");
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  // ── AI Key management ──
+  window.toggleKeyVis = function(id, btn) {
+    var inp = document.getElementById(id);
+    if (!inp) return;
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
+  };
+
+  window.saveAIKeys = async function() {
+    var statusEl = document.getElementById('aiKeyStatus');
+    var raw = [
+      document.getElementById('aiKey1').value.trim(),
+      document.getElementById('aiKey2').value.trim(),
+      document.getElementById('aiKey3').value.trim(),
+    ];
+    // Deduplicate — in case same key was entered in multiple fields
+    var seen = {};
+    var keys = raw.filter(function(k) {
+      if (k.length < 20 || seen[k]) return false;
+      seen[k] = true;
+      return true;
+    });
+    
+    if (keys.length === 0) {
+      statusEl.innerHTML = '<span style="color:var(--c-red);">⚠️ Enter at least one OpenRouter key (starts with sk-or-v1-...). Get one free at <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--c-brand);">openrouter.ai/keys</a></span>';
+      return;
+    }
+
+    statusEl.innerHTML = '<span style="color:var(--c-gold);">💾 Saving ' + keys.length + ' key(s)...</span>';
+
+    // Save to localStorage immediately (ai-engine.js reads this on every call)
+    localStorage.setItem('examora_ai_keys', JSON.stringify(keys));
+
+    // Also save to Firestore so keys work across devices
+    try {
+      await setDoc(doc(db, 'settings', 'ai'), {
+        openRouterKeys: keys,
+        updatedAt: new Date().toISOString(),
+        updatedBy: uid || 'admin'
+      }, { merge: true });
+      statusEl.innerHTML = '<span style="color:var(--c-green);">✅ ' + keys.length + ' key' + (keys.length>1?'s':'') + ' saved to cloud — AI is ready. Click 🧪 Test AI to verify.</span>';
+      window.toast('AI keys saved to cloud ✅', 'success');
+    } catch(e) {
+      statusEl.innerHTML = '<span style="color:var(--c-gold);">⚠️ Saved to this device only (cloud sync failed: ' + e.message.slice(0,50) + '). AI will work on this device.</span>';
+      window.toast('Keys saved locally', 'warning');
     }
   };
-  const cfg=cfgs[type];
-  window._modalSave=cfg.save;
-  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-box"><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button><div class="modal-title"><i class="${cfg.icon}"></i> ${cfg.title}</div>${cfg.html}<div class="form-actions" style="margin-top:18px;"><button class="btn btn-gold" onclick="window._modalSave()"><i class="fa-solid fa-floppy-disk"></i> Save & Publish</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div></div></div>`;
-};
-window.closeModal = ()=>{ document.getElementById('modal-container').innerHTML=''; };
 
-window.editItem = async function(type,id){ const colMap={service:'services',artist:'artists',review:'reviews'}; var s=await db.collection(colMap[type]).doc(id).get(); if(s.exists) window.openModal(type,Object.assign({id:id},s.data())); };
-window.delItem = async function(col,id){ if(!confirm('Delete this item? This cannot be undone.')) return; toast('Deleting...','loading'); await db.collection(col).doc(id).delete(); if(col==='services') await loadServicesTable(); if(col==='artists') await loadArtistsTable(); if(col==='reviews') await loadReviewsTable(); loadDashboard(); toast('Deleted.'); };
+  window.testAIKeys = async function() {
+    var statusEl = document.getElementById('aiKeyStatus');
+    statusEl.innerHTML = '<span style="color:var(--c-gold);">🧪 Testing AI connection...</span>';
+    try {
+      if (typeof EXAMORA_AI === 'undefined') {
+        statusEl.innerHTML = '<span style="color:var(--c-red);">❌ ai-engine.js not loaded. Make sure ai-engine.js is in the same folder as admin.html.</span>';
+        return;
+      }
+      var status = EXAMORA_AI.getStatus();
+      if (status.keys === 0) {
+        statusEl.innerHTML = '<span style="color:var(--c-red);">❌ No valid keys found. Save your OpenRouter key above first.</span>';
+        return;
+      }
+      statusEl.innerHTML = '<span style="color:var(--c-gold);">🧪 Calling OpenRouter with ' + status.keys + ' key(s)...</span>';
+      var r = await EXAMORA_AI.chat('Reply with exactly: "NexaCore Labs AI is working!"', '', []);
+      statusEl.innerHTML = '<span style="color:var(--c-green);">✅ AI working! Response: ' + (r.text||'').slice(0,80) + '</span>';
+      window.toast('AI connection successful ✅', 'success');
+    } catch(e) {
+      var msg = (e.message||'').slice(0,120);
+      statusEl.innerHTML = '<span style="color:var(--c-red);">❌ Test failed: ' + msg + '</span>';
+      window.toast('AI test failed — check your key', 'error');
+    }
+  };
+
+  window.saveAppSettings=async function(){
+    try{
+      await setDoc(doc(db,"settings","app"),{
+        maintenance:document.getElementById("maintenanceToggle").checked,
+        allowRegistrations:document.getElementById("regToggle").checked,
+        updatedAt:new Date().toISOString()
+      });
+      window.toast("✅ App settings saved!");
+    }catch(e){window.toast("Error: "+e.message);}
+  };
+
+  window._deleteAllQuestions=async function(){
+    try{
+      const snap=await getDocs(collection(db,"questions"));
+      const BATCH=400; let arr=[];
+      snap.forEach(d=>arr.push(d.ref));
+      for(let i=0;i<arr.length;i+=BATCH){
+        const b=writeBatch(db);
+        arr.slice(i,i+BATCH).forEach(ref=>b.delete(ref));
+        await b.commit();
+      }
+      window.toast("🗑 All questions deleted");
+      loadDashboardStats();
+      window._loadQuestions();
+    }catch(e){window.toast("Error: "+e.message);}
+  };
 </script>
+
+<script>
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+</script>
+  <nav class="bottom-nav">
+    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+    <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
+    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+  </nav>
 </body>
 </html>

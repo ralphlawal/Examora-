@@ -229,185 +229,234 @@ var _level = localStorage.getItem('examora_user_level')||'secondary';
 var _exam  = localStorage.getItem('examora_target_exam')||'';
 var TASK_KEY = 'examora_tasks_'+new Date().toDateString();
 
-// ── Hero init ──────────────────────────────────────────────────
+// ── Hero ──────────────────────────────────────────────────────
 (function initHero(){
   var h=new Date().getHours();
   var g=h<12?'Good morning ☀️':h<17?'Good afternoon 🌤':h<20?'Good evening 🌆':'Study night 🌙';
-  document.getElementById('briefGreeting').textContent=g;
+  var el=document.getElementById('briefGreeting'); if(el) el.textContent=g;
   var n=_name||'Scholar';
-  document.getElementById('briefName').textContent=n.split(' ')[0]+'\'s Daily Brief';
+  var el2=document.getElementById('briefName'); if(el2) el2.textContent=n.split(' ')[0]+'\'s Daily Brief';
   var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var d=new Date();
-  document.getElementById('briefDate').textContent=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  var el3=document.getElementById('briefDate'); if(el3) el3.textContent=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   var streak=parseInt(localStorage.getItem('examora_streak')||'0',10);
-  document.getElementById('briefStreak').textContent=streak>0?'🔥 '+streak+' day streak — keep going!':'🔥 Start your streak today!';
+  var el4=document.getElementById('briefStreak'); if(el4) el4.textContent=streak>0?'🔥 '+streak+' day streak — keep going!':'🔥 Start your streak today!';
 })();
 
-// ── Load insights ──────────────────────────────────────────────
-async function loadInsights(){
-  // Word of the day (day-indexed)
-  var words=['eloquent','tenacity','perseverance','synthesis','hypothesis','empirical','cognition','pedagogy','inference','resilience','oscillation','metabolism'];
-  var todayWord=words[new Date().getDate()%words.length];
-  document.getElementById('wordVal').textContent=todayWord.charAt(0).toUpperCase()+todayWord.slice(1);
-  document.getElementById('wordVal').classList.remove('loading');
+function setText(id,val){ var e=document.getElementById(id); if(e){e.textContent=val; e.classList.remove('loading');} }
+function setHtml(id,val){ var e=document.getElementById(id); if(e){e.innerHTML=val; e.classList.remove('loading');} }
 
-  // Number fact
+// ── Word of the day with definition via free dictionary API ──
+async function loadWord(){
+  var words=['eloquent','tenacity','perseverance','synthesis','hypothesis','empirical','cognition','pedagogy','resilience','oscillation','metabolism','inference','articulate','diligence','coherence','pragmatic','profound','exemplary','astute','lucid'];
+  var w=words[new Date().getDate()%words.length];
+  setText('wordVal',w.charAt(0).toUpperCase()+w.slice(1));
+  try{
+    var r=await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+w,{signal:AbortSignal.timeout(4000)});
+    var d=await r.json();
+    if(d[0]&&d[0].meanings&&d[0].meanings[0]){
+      var def=d[0].meanings[0].definitions[0].definition;
+      setHtml('wordVal','<strong>'+w.charAt(0).toUpperCase()+w.slice(1)+'</strong><br><span style="font-size:.75rem;font-weight:400;color:var(--text-3,#9399c2);">'+def.substring(0,90)+'</span>');
+    }
+  }catch(e){}
+}
+
+// ── Number fact with fallback ─────────────────────────────────
+async function loadNumber(){
+  var fallbacks=['17 is a prime number found in DNA sequences and musical scales.','The number 42 appears in nature — bees have 42 chromosomes.','Fibonacci numbers appear in sunflower seed spirals.','Zero was invented in 628 AD by Indian mathematician Brahmagupta.','The number 1 is neither prime nor composite.'];
+  setText('numVal',fallbacks[Math.floor(Math.random()*fallbacks.length)]);
   try{
     var n=Math.floor(Math.random()*999)+2;
     var r=await fetch('https://numbersapi.com/'+n+'/trivia?json',{signal:AbortSignal.timeout(4000)});
+    if(!r.ok) throw new Error('bad response');
     var d=await r.json();
-    var fact=(d.text||'').replace(/^[0-9]+ /,'');
-    document.getElementById('numVal').textContent=fact.substring(0,80)+(fact.length>80?'…':'');
-    document.getElementById('numVal').classList.remove('loading');
-  }catch(e){
-    document.getElementById('numVal').textContent=n+' is a fascinating number in mathematics.';
-    document.getElementById('numVal').classList.remove('loading');
-  }
+    if(d.text){ var fact=d.text.replace(/^[0-9]+ /,''); setText('numVal',fact.substring(0,100)+(fact.length>100?'…':'')); }
+  }catch(e){}
+}
 
-  // Quote
+// ── Motivational quote with multiple API fallbacks ────────────
+async function loadQuote(){
+  var staticQuotes=[
+    '"Success is not final, failure is not fatal: it is the courage to continue that counts." — Churchill',
+    '"Education is the most powerful weapon which you can use to change the world." — Mandela',
+    '"The secret of getting ahead is getting started." — Mark Twain',
+    '"Believe you can and you're halfway there." — Theodore Roosevelt',
+    '"The expert in anything was once a beginner." — Helen Hayes',
+    '"Hard work beats talent when talent fails to work hard." — Kevin Durant'
+  ];
+  setHtml('quoteVal',staticQuotes[new Date().getDate()%staticQuotes.length]);
+  // Try Quotable API (new format returns array or object)
   try{
-    var qr=await fetch('https://api.quotable.io/quotes/random?maxLength=120',{signal:AbortSignal.timeout(4000)});
-    var qd=await qr.json();
-    if(qd[0]){
-      var q=qd[0];
-      document.getElementById('quoteVal').innerHTML='"'+q.content+'"<br><small style="color:var(--ink-3,#9399c2)">— '+q.author+'</small>';
-      document.getElementById('quoteVal').classList.remove('loading');
+    var r=await fetch('https://api.quotable.io/quotes/random?maxLength=150',{signal:AbortSignal.timeout(5000)});
+    if(!r.ok) throw new Error('bad');
+    var d=await r.json();
+    // Handle both array [{...}] and object {...} formats
+    var q=Array.isArray(d)?d[0]:d;
+    if(q&&q.content&&q.author){
+      setHtml('quoteVal','"'+q.content+'"<br><small style="color:var(--text-3,#9399c2);font-weight:400;">— '+q.author+'</small>');
     }
   }catch(e){
-    var fallbackQuotes=['"Success is not final, failure is not fatal." — Churchill',''"Education is the most powerful weapon." — Mandela',''"The expert in anything was once a beginner." — Unknown'];
-    document.getElementById('quoteVal').innerHTML=fallbackQuotes[Math.floor(Math.random()*fallbackQuotes.length)];
-    document.getElementById('quoteVal').classList.remove('loading');
+    // Try ZenQuotes as fallback
+    try{
+      var r2=await fetch('https://zenquotes.io/api/random',{signal:AbortSignal.timeout(4000)});
+      var d2=await r2.json();
+      if(d2[0]&&d2[0].q){ setHtml('quoteVal','"'+d2[0].q+'"<br><small style="color:var(--text-3,#9399c2);font-weight:400;">— '+d2[0].a+'</small>'); }
+    }catch(e2){}
   }
+}
 
-  // Study tip (level-based)
+// ── Study tip (level-based) ───────────────────────────────────
+function loadTip(){
   var tips={
-    primary:['Read your notes out loud — it helps you remember!','Ask your teacher when confused — no question is silly!','Take 5-min breaks every 30 minutes to keep focus.','Draw pictures of what you\'re learning!','Review yesterday\'s notes before starting today.'],
-    secondary:['Make a quick mind-map before studying each topic.','Past questions are your best friend — do at least 5 daily.','Study your weak subject first while your brain is fresh.','Use the SQ3R method: Survey, Question, Read, Recite, Review.','Teach a topic to someone — it shows you what you truly know.'],
-    university:['Link new concepts to things you already know.','Write summaries without looking at notes to test yourself.','Form a study group but set an agenda before meeting.','Break assignments into 25-min Pomodoro sessions.','Sleep consolidates memory — don\'t pull all-nighters before exams.'],
-    phd:['Write 200 words per day minimum — consistent output compounds.','Read outside your field weekly to spark novel connections.','Track your citations and gaps as you read, not after.','Schedule deep work blocks when your energy is peak.','Discuss your research with non-experts to clarify your thinking.']
+    primary:['Read your notes out loud — it helps you remember!','Ask your teacher when confused. No question is silly!','Take 5-min breaks every 30 minutes to keep focus.','Draw pictures of what you're learning — visual memory is powerful!','Review yesterday's notes before starting today.'],
+    secondary:['Make a quick mind-map before studying each topic.','Past questions are your best friend — do at least 10 daily.','Study your weak subject first while your brain is fresh.','Use the SQ3R method: Survey, Question, Read, Recite, Review.','Teach a topic to a friend — it reveals what you truly know.'],
+    university:['Link new concepts to things you already know.','Write summaries without looking at notes to test yourself.','Form a study group but set a clear agenda before meeting.','Break assignments into 25-min Pomodoro sessions.','Sleep consolidates memory — avoid all-nighters before exams.'],
+    phd:['Write 200 words minimum per day — output compounds.','Read outside your field weekly to spark novel ideas.','Track citations and gaps as you read, not after.','Schedule deep work blocks when your energy peaks.','Discuss your research with non-experts to sharpen clarity.']
   };
   var arr=tips[_level]||tips.secondary;
-  document.getElementById('tipVal').textContent=arr[new Date().getDate()%arr.length];
-  document.getElementById('tipVal').classList.remove('loading');
+  setText('tipVal',arr[new Date().getDate()%arr.length]);
 }
 
-// ── Quick quiz ─────────────────────────────────────────────────
-var _quizCatsByLevel={
-  primary:[17,27,22],secondary:[17,23,19,22],
-  university:[17,18,19,23],phd:[17,18,30,23]
-};
+// ── Brain quiz (opentdb + fallback) ──────────────────────────
+var _quizCatsByLevel={primary:[17,27,22],secondary:[17,23,19,22],university:[17,18,19,23],phd:[17,18,30,23]};
 var _quizAnswered=false;
+var _lastCat=-1;
 
 async function loadQuiz(){
-  document.getElementById('nextQuizBtn').style.display='none';
-  document.getElementById('quizFeedback').classList.remove('show');
+  var nextBtn=document.getElementById('nextQuizBtn'); if(nextBtn) nextBtn.style.display='none';
+  var fb=document.getElementById('quizFeedback'); if(fb) fb.classList.remove('show');
   _quizAnswered=false;
-  document.getElementById('quizQ').textContent='Loading question…';
-  document.getElementById('quizOpts').innerHTML='';
+  var qEl=document.getElementById('quizQ'); if(qEl) qEl.textContent='Loading question…';
+  var oEl=document.getElementById('quizOpts'); if(oEl) oEl.innerHTML='';
   var cats=_quizCatsByLevel[_level]||_quizCatsByLevel.secondary;
-  var cat=cats[Math.floor(Math.random()*cats.length)];
+  var cat=cats.filter(function(c){return c!==_lastCat;})[0]||cats[0];
+  _lastCat=cat;
   try{
-    var r=await fetch('https://opentdb.com/api.php?amount=1&type=multiple&category='+cat,{signal:AbortSignal.timeout(5000)});
+    var r=await fetch('https://opentdb.com/api.php?amount=1&type=multiple&category='+cat,{signal:AbortSignal.timeout(6000)});
+    if(!r.ok) throw new Error('bad');
     var d=await r.json();
-    if(d.results&&d.results[0]){
-      var q=d.results[0];
-      var correct=he(q.correct_answer);
-      var opts=[correct,...q.incorrect_answers.map(he)].sort(()=>Math.random()-.5);
-      document.getElementById('quizQ').textContent=he(q.question);
-      var letters=['A','B','C','D'];
-      opts.forEach(function(opt,i){
-        var btn=document.createElement('button');btn.className='quiz-opt';
-        btn.innerHTML='<span class="opt-letter">'+letters[i]+'</span>'+opt;
-        btn.onclick=function(){answerQuiz(opt,correct,q.question);};
-        document.getElementById('quizOpts').appendChild(btn);
-      });
-    }
-  }catch(e){showFallbackQuiz();}
+    if(d.response_code===0&&d.results&&d.results[0]){ renderQuiz(d.results[0]); return; }
+  }catch(e){}
+  showFallbackQuiz();
 }
+
 function he(s){var d=document.createElement('div');d.innerHTML=s;return d.textContent;}
+
+function renderQuiz(q){
+  var correct=he(q.correct_answer);
+  var opts=[correct,...q.incorrect_answers.map(he)].sort(function(){return Math.random()-.5;});
+  var qEl=document.getElementById('quizQ'); if(qEl) qEl.textContent=he(q.question);
+  var oEl=document.getElementById('quizOpts'); if(!oEl) return;
+  oEl.innerHTML='';
+  var letters=['A','B','C','D'];
+  opts.forEach(function(opt,i){
+    var btn=document.createElement('button'); btn.className='quiz-opt';
+    btn.innerHTML='<span class="opt-letter">'+letters[i]+'</span>'+opt;
+    btn.onclick=function(){answerQuiz(opt,correct,he(q.question));};
+    oEl.appendChild(btn);
+  });
+}
+
 function answerQuiz(chosen,correct,question){
-  if(_quizAnswered)return;_quizAnswered=true;
-  var btns=document.querySelectorAll('.quiz-opt');
-  btns.forEach(function(b){
+  if(_quizAnswered) return; _quizAnswered=true;
+  document.querySelectorAll('.quiz-opt').forEach(function(b){
     var label=b.textContent.substring(1).trim();
-    if(label===correct)b.classList.add('correct');
-    else if(label===chosen&&chosen!==correct)b.classList.add('wrong');
+    if(label===correct) b.classList.add('correct');
+    else if(label===chosen&&chosen!==correct) b.classList.add('wrong');
     b.style.pointerEvents='none';
   });
   var isRight=chosen===correct;
   var fb=document.getElementById('quizFeedback');
-  fb.innerHTML=(isRight?'✅ <strong>Correct!</strong> Well done!':'❌ <strong>Incorrect.</strong> The right answer was: <strong>'+correct+'</strong>')+' <a href="chat.html?q='+encodeURIComponent('Explain this question: '+question+' The answer is '+correct)+'" style="color:var(--brand,#5b5ef4);font-weight:700;">Ask Nova to explain →</a>';
-  fb.classList.add('show');
-  document.getElementById('nextQuizBtn').style.display='block';
-  var stats=JSON.parse(localStorage.getItem('examora_brief_quiz')||'{"total":0,"correct":0}');
-  stats.total++;if(isRight)stats.correct++;
-  localStorage.setItem('examora_brief_quiz',JSON.stringify(stats));
+  if(fb){
+    fb.innerHTML=(isRight?'✅ <strong>Correct!</strong> Great job!':'❌ <strong>Incorrect.</strong> The right answer was: <strong>'+correct+'</strong>')+
+      ' <a href="chat.html?q='+encodeURIComponent('Explain this: '+question+'. The answer is '+correct)+'" style="color:var(--brand,#5b5ef4);font-weight:700;">Ask Nova →</a>';
+    fb.classList.add('show');
+  }
+  var nb=document.getElementById('nextQuizBtn'); if(nb) nb.style.display='block';
+  try{
+    var stats=JSON.parse(localStorage.getItem('examora_brief_quiz')||'{"total":0,"correct":0}');
+    stats.total++; if(isRight) stats.correct++;
+    localStorage.setItem('examora_brief_quiz',JSON.stringify(stats));
+  }catch(e){}
 }
+
 function showFallbackQuiz(){
-  var fallback=[
+  var qs=[
     {q:'What is the powerhouse of the cell?',opts:['Mitochondria','Nucleus','Ribosome','Vacuole'],correct:'Mitochondria'},
     {q:'What year did Nigeria gain independence?',opts:['1960','1963','1956','1970'],correct:'1960'},
-    {q:'What does DNA stand for?',opts:['Deoxyribonucleic Acid','Dynamic Neural Array','Data Node Algorithm','None of these'],correct:'Deoxyribonucleic Acid'},
-    {q:'Speed = Distance ÷ ?',opts:['Time','Mass','Force','Energy'],correct:'Time'}
+    {q:'What does DNA stand for?',opts:['Deoxyribonucleic Acid','Dynamic Neural Array','Data Node Algorithm','Ribonucleic Acid'],correct:'Deoxyribonucleic Acid'},
+    {q:'Speed = Distance ÷ ?',opts:['Time','Mass','Force','Energy'],correct:'Time'},
+    {q:'What is H₂O?',opts:['Water','Hydrogen gas','Oxygen','Carbon dioxide'],correct:'Water'},
+    {q:'Who wrote "Things Fall Apart"?',opts:['Chinua Achebe','Wole Soyinka','Chimamanda Adichie','Ben Okri'],correct:'Chinua Achebe'},
+    {q:'What is the capital of Nigeria?',opts:['Abuja','Lagos','Kano','Ibadan'],correct:'Abuja'}
   ];
-  var q=fallback[Math.floor(Math.random()*fallback.length)];
-  document.getElementById('quizQ').textContent=q.q;
+  renderQuiz({
+    question: qs[Math.floor(Math.random()*qs.length)].q,
+    correct_answer: qs[0].correct,
+    incorrect_answers: qs[0].opts.filter(function(o){return o!==qs[0].correct;})
+  });
+  // pick random
+  var q=qs[new Date().getHours()%qs.length];
+  var qEl=document.getElementById('quizQ'); if(qEl) qEl.textContent=q.q;
+  var oEl=document.getElementById('quizOpts'); if(!oEl) return;
+  oEl.innerHTML='';
   var letters=['A','B','C','D'];
   q.opts.forEach(function(opt,i){
-    var btn=document.createElement('button');btn.className='quiz-opt';
+    var btn=document.createElement('button'); btn.className='quiz-opt';
     btn.innerHTML='<span class="opt-letter">'+letters[i]+'</span>'+opt;
     btn.onclick=function(){answerQuiz(opt,q.correct,q.q);};
-    document.getElementById('quizOpts').appendChild(btn);
+    oEl.appendChild(btn);
   });
 }
 
-// ── Study tasks (level + exam specific) ───────────────────────
+// ── Tasks ─────────────────────────────────────────────────────
 function initTasks(){
   var saved=JSON.parse(localStorage.getItem(TASK_KEY)||'null');
   if(saved){renderTasks(saved);return;}
   var tasksByLevel={
     primary:[
-      {label:'Read 2 pages of your textbook',sub:'Any subject'},
-      {label:'Do 5 maths problems',sub:'Practice makes perfect'},
-      {label:'Spell 10 new words',sub:'Build your vocabulary'},
-      {label:'Watch an educational video',sub:'Science or History'}
+      {label:'Read 2 pages of your textbook',sub:'Any subject',done:false},
+      {label:'Do 5 maths problems',sub:'Practice makes perfect',done:false},
+      {label:'Spell 10 new words',sub:'Build your vocabulary',done:false},
+      {label:'Watch an educational video',sub:'Science or History',done:false}
     ],
     secondary:[
-      {label:'Practice 10 past questions',sub:_exam||'JAMB/WAEC style'},
-      {label:'Review yesterday\'s notes',sub:'Active recall boosts retention'},
-      {label:'Learn 5 new vocabulary words',sub:'English is key'},
-      {label:'Solve 3 maths problems',sub:'Step by step'},
-      {label:'Read today\'s topic summary',sub:'Then close and recall it'}
+      {label:'Practice 10 past questions',sub:_exam||'JAMB/WAEC style',done:false},
+      {label:'Review yesterday's notes',sub:'Active recall boosts retention',done:false},
+      {label:'Learn 5 new vocabulary words',sub:'English is key',done:false},
+      {label:'Solve 3 maths problems',sub:'Step by step',done:false},
+      {label:'Read today's topic summary',sub:'Close and recall it after',done:false}
     ],
     university:[
-      {label:'Read 20 pages of assigned text',sub:'Academic reading'},
-      {label:'Review lecture notes',sub:'Consolidate within 24hrs'},
-      {label:'Work on assignment or project',sub:'25-min focused session'},
-      {label:'Research one key concept',sub:'Go deeper than the textbook'},
-      {label:'Prepare 3 questions for class',sub:'Active participation'}
+      {label:'Read 20 pages of assigned text',sub:'Academic reading',done:false},
+      {label:'Review lecture notes',sub:'Consolidate within 24hrs',done:false},
+      {label:'Work on assignment or project',sub:'25-min focused session',done:false},
+      {label:'Research one key concept',sub:'Go deeper than the textbook',done:false},
+      {label:'Prepare 3 questions for class',sub:'Active participation',done:false}
     ],
     phd:[
-      {label:'Write 200+ words',sub:'Thesis or publication'},
-      {label:'Read and annotate 1 paper',sub:'Critical reading'},
-      {label:'Update research notes',sub:'Literature or methodology'},
-      {label:'Review your research questions',sub:'Stay focused on the core'},
-      {label:'1 hour deep work session',sub:'No distractions'}
+      {label:'Write 200+ words',sub:'Thesis or publication',done:false},
+      {label:'Read and annotate 1 paper',sub:'Critical reading',done:false},
+      {label:'Update research notes',sub:'Literature or methodology',done:false},
+      {label:'Review your research questions',sub:'Stay focused on the core',done:false},
+      {label:'1 hour deep work session',sub:'No distractions',done:false}
     ]
   };
-  var tasks=(tasksByLevel[_level]||tasksByLevel.secondary).map(function(t){return Object.assign({},t,{done:false});});
+  var tasks=tasksByLevel[_level]||tasksByLevel.secondary;
   localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
   renderTasks(tasks);
 }
+
 function renderTasks(tasks){
-  var list=document.getElementById('taskList');
+  var list=document.getElementById('taskList'); if(!list) return;
   list.innerHTML='';
   var done=tasks.filter(function(t){return t.done;}).length;
-  document.getElementById('taskCount').textContent=done+' / '+tasks.length;
+  var tc=document.getElementById('taskCount'); if(tc) tc.textContent=done+' / '+tasks.length;
   var pct=tasks.length?Math.round(done/tasks.length*100):0;
-  document.getElementById('ringPct').textContent=pct+'%';
+  var rp=document.getElementById('ringPct'); if(rp) rp.textContent=pct+'%';
   var circ=289;
-  document.getElementById('ringProg').setAttribute('stroke-dashoffset',circ-(circ*pct/100));
+  var rProg=document.getElementById('ringProg'); if(rProg) rProg.setAttribute('stroke-dashoffset',circ-(circ*pct/100));
   tasks.forEach(function(t,i){
     var el=document.createElement('div');
     el.className='task-item'+(t.done?' done':'');
@@ -417,21 +466,30 @@ function renderTasks(tasks){
   });
 }
 
-// ── Ask Nova helper ────────────────────────────────────────────
 function askNova(q){window.location.href='chat.html?q='+encodeURIComponent(q);}
 
-// ── Init ───────────────────────────────────────────────────────
-loadInsights();
-loadQuiz();
+// ── Boot: load all data concurrently ─────────────────────────
+loadTip();
 initTasks();
+Promise.all([loadWord(), loadNumber(), loadQuote(), loadQuiz()]);
 </script>
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{initializeApp,getApps,getApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-const app=initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const FB={apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'};
+const app=getApps().length?getApp():initializeApp(FB);
 const auth=getAuth(app);
-onAuthStateChanged(auth,user=>{if(!user)window.location.href='login.html';});
+// Update name from Firebase user
+onAuthStateChanged(auth,user=>{
+  if(!user){window.location.href='login.html';return;}
+  if(user.displayName){
+    var n=user.displayName;
+    localStorage.setItem('examora_user_display',n);
+    var el=document.getElementById('briefName');
+    if(el) el.textContent=n.split(' ')[0]+''s Daily Brief';
+  }
+});
 </script>
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>
