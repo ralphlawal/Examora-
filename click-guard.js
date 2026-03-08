@@ -78,3 +78,13 @@
   }, true); // true = capture phase
 
 })();
+
+// ── Force SW update check on every page load ─────────────────
+// Ensures users never get stuck on stale cached files
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistration().then(function(reg) {
+    if (reg) {
+      reg.update(); // silently checks for new SW version
+    }
+  });
+}

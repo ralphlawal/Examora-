@@ -1146,7 +1146,7 @@ window.updateAvailCount = updateAvailCount;
 
 <script>
   if("serviceWorker" in navigator){
-    navigator.serviceWorker.register("/sw.js").catch(()=>{});
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
   }
 </script>
 
@@ -1296,5 +1296,15 @@ window.updateAvailCount = updateAvailCount;
   }
 </script>
 
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>
