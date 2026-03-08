@@ -638,7 +638,7 @@
     const userAns=answers[currentIdx];
     const showAnswer=examMode==="practice"&&userAns!=null;
 
-    { const _e=document.getElementById("qWrap"); if(_e) _e.innerHTML = ` }
+    const _qWrap=document.getElementById("qWrap"); if(_qWrap) _qWrap.innerHTML = `
       <div class="q-meta">
         ${q.category?`<span class="q-tag q-tag-cat">${q.category}</span>`:""}
         ${q.subject?`<span class="q-tag q-tag-subj">${q.subject}</span>`:""}
@@ -1271,11 +1271,8 @@ window.updateAvailCount = updateAvailCount;
       // Render response
       const formatted = result.text
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/
-
-/g, "</p><p>")
-        .replace(/
-/g, "<br/>");
+        .replace(/\n\n/g, "</p><p>")
+        .replace(/\n/g, "<br/>");
       document.getElementById("aiResponseArea").innerHTML =
         '<div class="ai-response"><p>' + formatted + '</p></div>';
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <title>Daily Brief · Nova — EXAMORA</title>
@@ -171,7 +172,7 @@
     Quick Brain Check
   </div>
   <div class="quick-quiz-card" id="quizCard">
-    <div class="quiz-question" id="quizQ">Loading today's question…</div>
+    <div class="quiz-question" id="quizQ">Loading today’s question…</div>
     <div class="quiz-options" id="quizOpts"></div>
     <div class="quiz-feedback" id="quizFeedback"></div>
     <button onclick="loadQuiz()" id="nextQuizBtn" style="display:none;margin-top:12px;background:var(--brand,#5b5ef4);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:Outfit,sans-serif;">Next Question →</button>
@@ -281,7 +282,7 @@ async function loadQuote(){
     '"Success is not final, failure is not fatal: it is the courage to continue that counts." — Churchill',
     '"Education is the most powerful weapon which you can use to change the world." — Mandela',
     '"The secret of getting ahead is getting started." — Mark Twain',
-    '"Believe you can and you're halfway there." — Theodore Roosevelt',
+    '"Believe you can and you’re halfway there." — Theodore Roosevelt',
     '"The expert in anything was once a beginner." — Helen Hayes',
     '"Hard work beats talent when talent fails to work hard." — Kevin Durant'
   ];
@@ -309,10 +310,10 @@ async function loadQuote(){
 // ── Study tip (level-based) ───────────────────────────────────
 function loadTip(){
   var tips={
-    primary:['Read your notes out loud — it helps you remember!','Ask your teacher when confused. No question is silly!','Take 5-min breaks every 30 minutes to keep focus.','Draw pictures of what you're learning — visual memory is powerful!','Review yesterday's notes before starting today.'],
-    secondary:['Make a quick mind-map before studying each topic.','Past questions are your best friend — do at least 10 daily.','Study your weak subject first while your brain is fresh.','Use the SQ3R method: Survey, Question, Read, Recite, Review.','Teach a topic to a friend — it reveals what you truly know.'],
-    university:['Link new concepts to things you already know.','Write summaries without looking at notes to test yourself.','Form a study group but set a clear agenda before meeting.','Break assignments into 25-min Pomodoro sessions.','Sleep consolidates memory — avoid all-nighters before exams.'],
-    phd:['Write 200 words minimum per day — output compounds.','Read outside your field weekly to spark novel ideas.','Track citations and gaps as you read, not after.','Schedule deep work blocks when your energy peaks.','Discuss your research with non-experts to sharpen clarity.']
+    primary:["Read your notes out loud — it helps you remember!","Ask your teacher when confused. No question is silly!","Take 5-min breaks every 30 minutes to keep focus.","Draw pictures of what you're learning — visual memory is powerful!","Review yesterday’s notes before starting today."],
+    secondary:["Make a quick mind-map before studying each topic.","Past questions are your best friend — do at least 10 daily.","Study your weak subject first while your brain is fresh.","Use the SQ3R method: Survey, Question, Read, Recite, Review.","Teach a topic to a friend — it reveals what you truly know."],
+    university:["Link new concepts to things you already know.","Write summaries without looking at notes to test yourself.","Form a study group but set a clear agenda before meeting.","Break assignments into 25-min Pomodoro sessions.","Sleep consolidates memory — avoid all-nighters before exams."],
+    phd:["Write 200 words minimum per day — output compounds.","Read outside your field weekly to spark novel ideas.","Track citations and gaps as you read, not after.","Schedule deep work blocks when your energy peaks.","Discuss your research with non-experts to sharpen clarity."]
   };
   var arr=tips[_level]||tips.secondary;
   setText('tipVal',arr[new Date().getDate()%arr.length]);
@@ -423,10 +424,10 @@ function initTasks(){
     ],
     secondary:[
       {label:'Practice 10 past questions',sub:_exam||'JAMB/WAEC style',done:false},
-      {label:'Review yesterday's notes',sub:'Active recall boosts retention',done:false},
+      {label:'Review yesterday’s notes',sub:'Active recall boosts retention',done:false},
       {label:'Learn 5 new vocabulary words',sub:'English is key',done:false},
       {label:'Solve 3 maths problems',sub:'Step by step',done:false},
-      {label:'Read today's topic summary',sub:'Close and recall it after',done:false}
+      {label:'Read today’s topic summary',sub:'Close and recall it after',done:false}
     ],
     university:[
       {label:'Read 20 pages of assigned text',sub:'Academic reading',done:false},
@@ -491,5 +492,15 @@ onAuthStateChanged(auth,user=>{
 });
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>

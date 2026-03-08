@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Analytics</title>
@@ -319,7 +320,7 @@
         <div class="chart-title">Subject Readiness</div>
         <div class="chart-sub">Your exam readiness score per subject</div>
       </div>
-      <div id="overallReadiness" style="font-family:var(--fd, 'Sora', sans-serif);font-weight:900;font-size:1.4rem;color:var(--c-brand);"></div>
+      <div id="overallReadiness" style="font-family:var(--fd,Sora,sans-serif);font-weight:900;font-size:1.4rem;color:var(--c-brand);"></div>
     </div>
     <div id="subjBreakdown"></div>
     <div id="readinessSummary" style="margin-top:12px;"></div>
@@ -498,7 +499,7 @@
         document.getElementById("predictRange").textContent = d.range || "—";
         document.getElementById("predictConfidence").textContent = (d.confidence||"") + " confidence";
         document.getElementById("predictTip").textContent = d.tip || "";
-        const pct = Math.min(((d.predictedScore||200)%)*100, 100);
+        const pct = Math.min(d.predictedScore||0, 100);
         setTimeout(() => { document.getElementById("predictBarFill").style.width = pct + "%"; }, 300);
         const pb = document.getElementById("predictModelBadge");
         const modelShort = res.model.includes("gemini-2.0") ? "Gemini 2.0 Flash" : res.model.split("/").pop();
@@ -750,13 +751,13 @@
     if(summEl && subjects.length>0) {
       summEl.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;">'
         +'<div style="flex:1;min-width:80px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:8px;text-align:center;">'
-          +'<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-green);">'+ready+'</div>'
+          +'<div style="font-family:var(--fd,Sora,sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-green);">'+ready+'</div>'
           +'<div style="font-size:0.62rem;color:var(--text-3);">Ready</div></div>'
         +'<div style="flex:1;min-width:80px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px;text-align:center;">'
-          +'<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-gold);">'+(subjects.length-ready-needsWork)+'</div>'
+          +'<div style="font-family:var(--fd,Sora,sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-gold);">'+(subjects.length-ready-needsWork)+'</div>'
           +'<div style="font-size:0.62rem;color:var(--text-3);">In Progress</div></div>'
         +'<div style="flex:1;min-width:80px;background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:10px;padding:8px;text-align:center;">'
-          +'<div style="font-family:var(--fd, 'Sora', sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-red);">'+needsWork+'</div>'
+          +'<div style="font-family:var(--fd,Sora,sans-serif);font-weight:800;font-size:1.1rem;color:var(--c-red);">'+needsWork+'</div>'
           +'<div style="font-size:0.62rem;color:var(--text-3);">Needs Work</div></div>'
         +'</div>';
     }
@@ -1008,6 +1009,7 @@
     var params = new URLSearchParams({category: subject, count: 20});
     window.location.href = "exam.html?" + params.toString();
   }
+}
 </script>
 <script>
 window.toast = toast;
@@ -1052,7 +1054,7 @@ window.toast = toast;
   });
 </script>
 <script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
 <!-- ── AI Chat FAB ─────────────────────────────────────────── -->
@@ -1125,5 +1127,15 @@ window.toast = toast;
   }
 </script>
 
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>
