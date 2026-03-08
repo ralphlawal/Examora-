@@ -537,12 +537,12 @@
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, collection, query, where, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app=initializeApp({
+  const app = getApps().length ? getApp() : initializeApp({
     apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
     authDomain:"cbt-app-5907f.firebaseapp.com",
     projectId:"cbt-app-5907f",
@@ -559,14 +559,23 @@
       let results=[];
       snap.forEach(d=>results.push({id:d.id,...d.data()}));
       results.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+      // Merge localStorage results too
+      const localRaw=localStorage.getItem("examora_results");
+      if(localRaw){try{const lr=JSON.parse(localRaw);lr.forEach(r=>{if(!results.find(x=>x.id===r.id))results.push(r);});}catch(_){}}
       window._onHistoryLoaded(results);
     }catch(e){
-      console.error("History error:",e);
-      document.getElementById("skeletons").innerHTML=
-        `<div style="text-align:center;padding:40px 20px;">
-          <div style="font-size:2rem;margin-bottom:10px;">⚠️</div>
-          <p style="font-size:0.82rem;color:var(--text-3);">Could not load history.<br/>Check your connection.</p>
-        </div>`;
+      // Fallback to localStorage
+      let results=[];
+      try{const raw=localStorage.getItem("examora_results");if(raw)results=JSON.parse(raw);}catch(_){}
+      if(results.length>0){ window._onHistoryLoaded(results); }
+      else {
+        document.getElementById("skeletons").innerHTML=
+          `<div style="text-align:center;padding:40px 20px;">
+            <div style="font-size:2rem;margin-bottom:10px;">📋</div>
+            <p style="font-size:0.82rem;color:var(--text-3);">No exam history yet.<br/>Take your first exam to see results here!</p>
+            <a href="exam.html" style="display:inline-block;margin-top:12px;padding:10px 20px;background:#6366f1;color:#fff;border-radius:10px;font-weight:700;text-decoration:none;font-size:0.8rem;">Start an Exam →</a>
+          </div>`;
+      }
     }
   });
 </script>

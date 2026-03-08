@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Exam</title>
@@ -209,6 +210,7 @@
     .submit-stat-l { font-size:0.65rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
   </style>
   <script src="ai-engine.js"></script>
+  <script src="questions.js"></script>
 </head>
 <body>
 
@@ -714,7 +716,7 @@
     else{bookmarked.add(key);toast("🔖 Saved to bookmarks");}
     renderQuestion();
     // Persist bookmark to Firestore via module script
-    window._saveBookmark&&window._saveBookmark(q,!bookmarked.has(key));
+    if(typeof window._saveBookmark==='function') window._saveBookmark(q,!bookmarked.has(key));
   }
 
   window.submitFlag=function(reason){
@@ -722,7 +724,7 @@
     hideFlagSheet();
     window.toast("⚑ Question reported — thanks for helping us improve!", "success");
     // Write to Firestore via window._reportFlag set by module script
-    window._reportFlag&&window._reportFlag(examQuestions[currentIdx],reason);
+    if(typeof window._reportFlag==='function') window._reportFlag(examQuestions[currentIdx],reason);
     renderQuestion();
   };
 
@@ -808,7 +810,7 @@
         resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Could not generate questions. Try a different topic.</div>';
       }
     } catch(e) {
-      var msg = (e.message === 'AI_KEY_MISSING' || e.message.startsWith('AI_KEY_MISSING')) ? 'AI not configured — add your OpenRouter key in ai-engine.js' : e.message;
+      var msg = (false) ? 'AI not configured — add your OpenRouter key in ai-engine.js' : e.message;
       resultDiv.innerHTML = '<div class="qgen-result" style="color:var(--c-red);">Error: ' + msg + '</div>';
     }
 
@@ -892,12 +894,12 @@ window.updateSubjects = updateSubjects;
 window.updateAvailCount = updateAvailCount;
 </script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, collection, getDocs, doc, getDoc, addDoc, setDoc, updateDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app=initializeApp({
+  const app = getApps().length ? getApp() : initializeApp({
     apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
     authDomain:"cbt-app-5907f.firebaseapp.com",
     projectId:"cbt-app-5907f",
@@ -953,11 +955,16 @@ window.updateAvailCount = updateAvailCount;
       }
     }
 
-    // Load questions
+    // Load questions — try Firestore first, fall back to local bank
     try{
       const snap=await getDocs(collection(db,"questions"));
       allQuestions=[];
       snap.forEach(d=>allQuestions.push({id:d.id,...d.data()}));
+      // If Firestore has no questions yet, use local bank
+      if(allQuestions.length === 0 && window.EXAMORA_LOCAL_QB) {
+        allQuestions = window.EXAMORA_LOCAL_QB;
+        console.log("Using local question bank (" + allQuestions.length + " questions)");
+      }
       window.buildSubjectDropdowns();
       // Apply URL params if coming from weak areas card
       if(window._urlCat||window._urlSubj){
@@ -973,7 +980,14 @@ window.updateAvailCount = updateAvailCount;
       }
       window.updateAvailCount();
     } catch(e){
-      document.getElementById("qAvailNum").textContent="Could not load questions";
+      // Firestore failed — use local question bank
+      if(window.EXAMORA_LOCAL_QB && window.EXAMORA_LOCAL_QB.length > 0) {
+        allQuestions = window.EXAMORA_LOCAL_QB;
+        window.buildSubjectDropdowns();
+        window.updateAvailCount();
+      } else {
+        document.getElementById("qAvailNum").textContent="Could not load questions";
+      }
     }
 
     // Load timer settings
@@ -1037,7 +1051,7 @@ window.updateAvailCount = updateAvailCount;
     // Save result
     try{
       await addDoc(collection(db,"results"),{
-        userId:uid, score:correct, total, percent, passed,
+        userId:uid, score:percent, correct, total, percent, passed,
         category:cat, subject:subj, mode:examMode,
         answers:answers, date, createdAt:new Date().toISOString()
       });
@@ -1270,7 +1284,7 @@ window.updateAvailCount = updateAvailCount;
       document.getElementById("aiModelBadge").style.display = "inline-flex";
 
     } catch (e) {
-      const isKeyMissing = (e.message === "AI_KEY_MISSING" || e.message.startsWith("AI_KEY_MISSING"));
+      const isKeyMissing = (false);
       document.getElementById("aiResponseArea").innerHTML =
         '<div class="ai-error"><span class="material-symbols-rounded ms-sm">error</span>' +
         (isKeyMissing

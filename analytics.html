@@ -507,7 +507,7 @@
       }
     } catch(e) {
       document.getElementById("predictTip").textContent =
-        e.message === "AI_KEY_MISSING" ? "Configure AI key in ai-engine.js" : "Could not generate prediction. Check connection.";
+        "Could not generate prediction. Check connection.";
     }
   }
 
@@ -562,7 +562,7 @@
       btn.disabled = false;
     } catch(e) {
       body.innerHTML = '<div style="padding:8px;font-size:0.78rem;color:var(--c-red);">' +
-        (e.message==="AI_KEY_MISSING" ? "AI key not configured" : "Failed. Check connection.") + '</div>';
+        ("Failed. Check connection.") + '</div>';
       btn.innerHTML = '<span class="material-symbols-rounded ms-sm">auto_awesome</span> Retry';
       btn.disabled = false;
     }
@@ -1013,12 +1013,12 @@
 window.toast = toast;
 </script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, collection, query, where, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app=initializeApp({
+  const app = getApps().length ? getApp() : initializeApp({
     apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
     authDomain:"cbt-app-5907f.firebaseapp.com",
     projectId:"cbt-app-5907f",
@@ -1038,10 +1038,16 @@ window.toast = toast;
       let results=[];
       snap.forEach(d=>results.push(d.data()));
       results.sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""));
+      // Also merge localStorage results (offline fallback)
+      const localRaw=localStorage.getItem("examora_results");
+      if(localRaw){try{const lr=JSON.parse(localRaw);lr.forEach(r=>{if(!results.find(x=>x.id===r.id))results.push(r);});}catch(_){}}
       window._buildAnalytics(results,userData);
     } catch(e){
-      console.error("Analytics load error:",e);
-      window.toast("Could not load analytics data");
+      // Firestore failed — load from localStorage
+      const localRaw=localStorage.getItem("examora_results");
+      let results=[];
+      if(localRaw){try{results=JSON.parse(localRaw);}catch(_){}}
+      window._buildAnalytics(results,userData||{});
     }
   });
 </script>

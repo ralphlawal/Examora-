@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Admin Panel</title>
@@ -763,10 +764,10 @@
     document.getElementById("tab-"+name).classList.add("active");
     btn.classList.add("active");
     // Lazy load data for each tab
-    if(name==="questions") window._loadQuestions&&window._loadQuestions();
-    if(name==="users")     window._loadUsers&&window._loadUsers();
-    if(name==="flags")     window._loadFlags&&window._loadFlags();
-    if(name==="settings")  window._loadSettings&&window._loadSettings();
+    if(name==="questions") if(typeof window._loadQuestions==='function') window._loadQuestions();
+    if(name==="users")     if(typeof window._loadUsers==='function') window._loadUsers();
+    if(name==="flags")     if(typeof window._loadFlags==="function") window._loadFlags();
+    if(name==="settings")  if(typeof window._loadSettings==="function") window._loadSettings();
   }
 
   function closeOverlay(id,e){
@@ -879,7 +880,7 @@
   function confirmDeleteAllQuestions(){
     if(confirm("Delete ALL questions? This cannot be undone.")){
       if(confirm("Are you absolutely sure?")){
-        window._deleteAllQuestions&&window._deleteAllQuestions();
+        if(typeof window._deleteAllQuestions==="function") window._deleteAllQuestions();
       }
     }
   }
@@ -980,13 +981,13 @@ window.uploadCSV = typeof uploadCSV !== "undefined" ? uploadCSV : window.uploadC
 window.wrappers = typeof wrappers !== "undefined" ? wrappers : window.wrappers;
 </script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, collection, getDocs, doc, getDoc, addDoc,
            updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app=initializeApp({
+  const app = getApps().length ? getApp() : initializeApp({
     apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
     authDomain:"cbt-app-5907f.firebaseapp.com",
     projectId:"cbt-app-5907f",

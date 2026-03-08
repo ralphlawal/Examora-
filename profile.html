@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Profile — EXAMORA</title>
@@ -436,11 +437,11 @@ function toggleSubj(el) { el.classList.toggle('sel-on'); }
 window.toggleSubj = toggleSubj;
 
 function confirmSignOut() {
-  if (confirm('Sign out of EXAMORA?')) window._doSignOut && window._doSignOut();
+  if (confirm('Sign out of EXAMORA?')) if(typeof window._doSignOut==='function') window._doSignOut();
 }
 function confirmDeleteAccount() {
   if (confirm('DELETE your account? This cannot be undone. All your data will be lost.'))
-    window._doDelete && window._doDelete();
+    if(typeof window._doDelete==='function') window._doDelete();
 }
 
 // Referral
@@ -533,7 +534,7 @@ function saveCrop() {
       var cov = document.getElementById('pCover'); cov.src = url; cov.style.display = 'block';
     }
     closeCrop(); btn.disabled = false; btn.textContent = 'Use Photo';
-    window._uploadPhoto && window._uploadPhoto(blob, cropMode);
+    if(typeof window._uploadPhoto==="function") window._uploadPhoto(blob, cropMode);
   }, 'image/jpeg', 0.85);
 }
 
@@ -561,7 +562,7 @@ function saveCrop() {
 </script>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, deleteUser }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc,
@@ -570,7 +571,7 @@ import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc,
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-const app = initializeApp({
+const app = getApps().length ? getApp() : initializeApp({
   apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
   authDomain:"cbt-app-5907f.firebaseapp.com",
   projectId:"cbt-app-5907f",
@@ -753,7 +754,7 @@ onAuthStateChanged(auth, async user => {
 });
 </script>
 <script>
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>
