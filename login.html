@@ -130,6 +130,7 @@ body { margin:0; background:var(--bg,#f1f5f9); }
 </div>
 
 <script>
+// Welcome flow handled by welcome.html itself
 // Fallback: if module hasn't loaded yet, show feedback on button click
 document.addEventListener('DOMContentLoaded', function() {
   var mainBtn = document.getElementById('mainBtn');
@@ -360,10 +361,14 @@ document.querySelector('.pw-eye').addEventListener('click', () => {
 const resendBtn = document.querySelector('[onclick="doResend()"]');
 if(resendBtn){ resendBtn.removeAttribute('onclick'); resendBtn.addEventListener('click', doResend); }
 
-// Make functions available as window.* too (for any external calls)
-window.setMode = setMode;
-window.doAuth  = doAuth;
-window.doResend = doResend;
+// Expose ALL button functions to window so onclick= attributes work
+window.setMode    = setMode;
+window.doAuth     = doAuth;
+window.doGoogle   = doGoogle;
+window.doGuest    = doGuest;
+window.doForgot   = doForgot;
+window.doResend   = doResend;
+window.togglePwFn = togglePwFn;
 </script>
 </body>
 </html>

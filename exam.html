@@ -512,7 +512,7 @@
 
   function buildSubjectDropdowns() {
     subjectsByCategory = {};
-    allQuestions.forEach(q => {
+    S.allQuestions.forEach(q => {
       const cat = q.category || "";
       const subj = q.subject || "";
       if (!subjectsByCategory[cat]) subjectsByCategory[cat] = new Set();
@@ -520,14 +520,14 @@
     });
     // Also build "All" across every category
     subjectsByCategory[""] = new Set();
-    allQuestions.forEach(q => { if (q.subject) subjectsByCategory[""].add(q.subject); });
+    S.allQuestions.forEach(q => { if (q.subject) subjectsByCategory[""].add(q.subject); });
 
     updateSubjects(); // refresh the visible dropdown
   }
 
   // Read saved questions-per-session preference
   var _savedSettings = JSON.parse(localStorage.getItem('examora_settings') || '{}');
-  // ── SHARED STATE — exposed on window so module script can access ──
+  // ── SHARED STATE — single source of truth for both plain and module scripts ──
   window._examState = {
     examMode: "exam",
     qCount: _savedSettings.qcount||20,
@@ -540,18 +540,9 @@
     timerInterval: null,
     timeLeft: 0
   };
-  // Convenience local aliases (plain script still uses these directly)
-  var examMode     = window._examState.examMode;
-  var qCount       = window._examState.qCount;
-  var allQuestions = window._examState.allQuestions;
-  var examQuestions= window._examState.examQuestions;
-  var answers      = window._examState.answers;
-  var flagged      = window._examState.flagged;
-  var bookmarked   = window._examState.bookmarked;
-  var currentIdx   = window._examState.currentIdx;
-  var timerInterval= null; // keep local for clearInterval calls in plain script
-  var timeLeft     = 0;
-  var currentUser  = null;
+  // Shorthand getter/setter — always reads live from window._examState
+  var S = window._examState;
+  var currentUser = null;
 
   // Read URL params (for "drill weak subject" from dashboard)
   (function(){
@@ -567,7 +558,7 @@
   for(let y=2024;y>=1990;y--){const o=document.createElement("option");o.value=y;o.textContent=y;ySel.appendChild(o);}
 
   function setMode(m){
-    examMode=m; if(window._examState) window._examState.examMode=m;
+    S.examMode=m; if(window._examState) window._examState.S.examMode=m;
     document.getElementById("modeExam").classList.toggle("active",m==="exam");
     document.getElementById("modePractice").classList.toggle("active",m==="practice");
     const qfBtn=document.getElementById("modeQuickfire");
@@ -576,7 +567,7 @@
     if(m==="quickfire"){
       const qcInput=document.getElementById("qCount");
       if(qcInput){qcInput.value=10;}
-      qCount=10;
+      S.qCount=10;
     }
     const hint=document.getElementById("modeHint");
     hint.innerHTML=m==="exam"
@@ -588,7 +579,7 @@
   }
 
   function setCount(n){
-    qCount=n; if(window._examState) window._examState.qCount=n;
+    S.qCount=n; if(window._examState) window._examState.S.qCount=n;
     document.querySelectorAll(".count-chip").forEach(c=>{
       c.classList.toggle("selected", parseInt(c.textContent)===n || (n===0 && c.textContent==="All"));
     });
@@ -614,20 +605,20 @@
     const cat=document.getElementById("catSelect").value;
     const subj=document.getElementById("subjSelect").value;
     const year=document.getElementById("yearSelect").value;
-    let pool=allQuestions.filter(q=>
+    let pool=S.allQuestions.filter(q=>
       (!cat||q.category===cat)&&(!subj||q.subject===subj)&&(!year||String(q.year)===year));
     const avail=pool.length;
-    const showing=qCount===0?avail:Math.min(qCount,avail);
+    const showing=S.qCount===0?avail:Math.min(qCount,avail);
     document.getElementById("qAvailNum").textContent=
       avail===0?"No questions match — try different filters":`${avail} questions available · ${showing} will be used`;
   }
 
   function showSubmitSheet(){
-    const ans=Object.keys(answers).length;
-    const total=examQuestions.length;
+    const ans=Object.keys(S.answers).length;
+    const total=S.examQuestions.length;
     { const _e=document.getElementById("ssAnswered"); if(_e) _e.textContent = ans; }
     { const _e=document.getElementById("ssUnanswered"); if(_e) _e.textContent = total-ans; }
-    { const _e=document.getElementById("ssFlagged"); if(_e) _e.textContent = flagged.size; }
+    { const _e=document.getElementById("ssFlagged"); if(_e) _e.textContent = S.flagged.size; }
     document.getElementById("submitOverlay").classList.add("show");
   }
   function hideSubmitSheet(e){
@@ -642,8 +633,8 @@
 
   function renderDots(){
     const wrap=document.getElementById("qDotsWrap");
-    wrap.innerHTML=examQuestions.map((_,i)=>{
-      const cls=i===currentIdx?"current":answers[i]!=null?"answered":flagged.has(i)?"flagged":"";
+    wrap.innerHTML=S.examQuestions.map((_,i)=>{
+      const cls=i===S.currentIdx?"current":S.answers[i]!=null?"answered":S.flagged.has(i)?"flagged":"";
       return `<div class="q-dot ${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
     }).join("");
     // Scroll active dot into view
@@ -653,31 +644,23 @@
     },50);
   }
 
-  function jumpTo(i){currentIdx=i;if(window._examState)window._examState.currentIdx=i;renderQuestion();}
+  function jumpTo(i){S.currentIdx=i;if(window._examState)window._examState.S.currentIdx=i;renderQuestion();}
 
   function renderQuestion(){
-    // Sync state from window._examState (set by module impl functions)
-    if(window._examState){
-      examQuestions = window._examState.examQuestions || examQuestions;
-      answers       = window._examState.answers       || answers;
-      currentIdx    = window._examState.currentIdx    !== undefined ? window._examState.currentIdx : currentIdx;
-      flagged       = window._examState.flagged       || flagged;
-      bookmarked    = window._examState.bookmarked    || bookmarked;
-      examMode      = window._examState.examMode      || examMode;
-    }
-    const q=examQuestions[currentIdx];
-    if(!q) return;
-    const total=examQuestions.length;
-    const progress=((currentIdx+1)/total)*100;
 
-    { const _e=document.getElementById("qCurrent"); if(_e) _e.textContent = currentIdx+1; }
+    const q=S.examQuestions[S.currentIdx];
+    if(!q) return;
+    const total=S.examQuestions.length;
+    const progress=((S.currentIdx+1)/total)*100;
+
+    { const _e=document.getElementById("qCurrent"); if(_e) _e.textContent = S.currentIdx+1; }
     { const _e=document.getElementById("qTotal"); if(_e) _e.textContent = total; }
     document.getElementById("examProgress").style.width=progress+"%";
 
-    const isFlagged=flagged.has(currentIdx);
-    const isBookmarked=bookmarked.has(q.id||currentIdx);
-    const userAns=answers[currentIdx];
-    const showAnswer=examMode==="practice"&&userAns!=null;
+    const isFlagged=S.flagged.has(S.currentIdx);
+    const isBookmarked=S.bookmarked.has(q.id||S.currentIdx);
+    const userAns=S.answers[S.currentIdx];
+    const showAnswer=S.examMode==="practice"&&userAns!=null;
 
     const _qWrap=document.getElementById("qWrap"); if(_qWrap) _qWrap.innerHTML = `
       <div class="q-meta">
@@ -685,7 +668,7 @@
         ${q.subject?`<span class="q-tag q-tag-subj">${q.subject}</span>`:""}
         ${q.year?`<span class="q-tag q-tag-year">${q.year}</span>`:""}
       </div>
-      <div class="q-text">${currentIdx+1}. ${q.text||q.question||""}</div>
+      <div class="q-text">${S.currentIdx+1}. ${q.text||q.question||""}</div>
       <div id="optionsWrap">
         ${["A","B","C","D"].filter(l=>q.options&&q.options[l]).map(l=>{
           let cls="";
@@ -718,10 +701,10 @@
       </div>`;
 
     // Update nav buttons
-    { const _e=document.getElementById("prevBtn"); if(_e) _e.disabled = currentIdx===0; }
-    { const _e=document.getElementById("nextBtn"); if(_e) _e.textContent = currentIdx===total-1?"Submit ✓":"Next →"; }
-    { const _e=document.getElementById("nextBtn"); if(_e) _e.className = currentIdx===total-1?"btn btn-green":"btn btn-primary"; }
-    if(currentIdx===total-1){
+    { const _e=document.getElementById("prevBtn"); if(_e) _e.disabled = S.currentIdx===0; }
+    { const _e=document.getElementById("nextBtn"); if(_e) _e.textContent = S.currentIdx===total-1?"Submit ✓":"Next →"; }
+    { const _e=document.getElementById("nextBtn"); if(_e) _e.className = S.currentIdx===total-1?"btn btn-green":"btn btn-primary"; }
+    if(S.currentIdx===total-1){
       { const _e=document.getElementById("nextBtn"); if(_e) _e.onclick = showSubmitSheet; }
     } else {
       { const _e=document.getElementById("nextBtn"); if(_e) _e.onclick = ()=>navigate(1); }
@@ -731,62 +714,56 @@
   }
 
   function selectAnswer(letter){
-    // Sync from shared state
-    if(window._examState){
-      examQuestions = window._examState.examQuestions || examQuestions;
-      answers       = window._examState.answers       || answers;
-      currentIdx    = window._examState.currentIdx    !== undefined ? window._examState.currentIdx : currentIdx;
-      examMode      = window._examState.examMode      || examMode;
-    }
-    const q=examQuestions[currentIdx];
-    if(!q) return;
-    if(examMode==="practice"&&answers[currentIdx]!=null) return;
 
-    answers[currentIdx]=letter;
-    if(window._examState) window._examState.answers = answers;
+    const q=S.examQuestions[S.currentIdx];
+    if(!q) return;
+    if(S.examMode==="practice"&&S.answers[S.currentIdx]!=null) return;
+
+    S.answers[S.currentIdx]=letter;
+    if(window._examState);
     renderQuestion();
 
     // Practice mode: auto-advance after 1.2s
-    if(examMode==="practice"&&currentIdx<examQuestions.length-1){
+    if(S.examMode==="practice"&&S.currentIdx<S.examQuestions.length-1){
       setTimeout(()=>navigate(1),1400);
     }
   }
 
   function navigate(dir){
-    if(window._examState) currentIdx = window._examState.currentIdx !== undefined ? window._examState.currentIdx : currentIdx;
-    const newIdx=currentIdx+dir;
-    if(newIdx>=0&&newIdx<examQuestions.length){currentIdx=newIdx;renderQuestion();}
+    
+    const newIdx=S.currentIdx+dir;
+    if(newIdx>=0&&newIdx<S.examQuestions.length){S.currentIdx=newIdx;renderQuestion();}
   }
 
   function toggleBookmark(){
-    const q=examQuestions[currentIdx];
-    const key=q.id||currentIdx;
-    if(bookmarked.has(key)){bookmarked.delete(key);toast("Bookmark removed");}
-    else{bookmarked.add(key);toast("🔖 Saved to bookmarks");}
+    const q=S.examQuestions[S.currentIdx];
+    const key=q.id||S.currentIdx;
+    if(S.bookmarked.has(key)){S.bookmarked.delete(key);toast("Bookmark removed");}
+    else{S.bookmarked.add(key);toast("🔖 Saved to bookmarks");}
     renderQuestion();
     // Persist bookmark to Firestore via module script
-    if(typeof window._saveBookmark==='function') window._saveBookmark(q,!bookmarked.has(key));
+    if(typeof window._saveBookmark==='function') window._saveBookmark(q,!S.bookmarked.has(key));
   }
 
   window.submitFlag=function(reason){
-    flagged.add(currentIdx);
+    S.flagged.add(S.currentIdx);
     hideFlagSheet();
     window.toast("⚑ Question reported — thanks for helping us improve!", "success");
     // Write to Firestore via window._reportFlag set by module script
-    if(typeof window._reportFlag==='function') window._reportFlag(examQuestions[currentIdx],reason);
+    if(typeof window._reportFlag==='function') window._reportFlag(S.examQuestions[S.currentIdx],reason);
     renderQuestion();
   };
 
   function startTimer(seconds){
-    timeLeft=seconds;
+    S.timeLeft=seconds;
     const badge=document.getElementById("timerBadge");
     badge.style.display="flex";
     window._timerInterval = timerInterval = setInterval(()=>{
-      timeLeft--;
-      const m=Math.floor(timeLeft/60), s=timeLeft%60;
+      S.timeLeft--;
+      const m=Math.floor(S.timeLeft/60), s=S.timeLeft%60;
       { const _e=document.getElementById("timerDisplay"); if(_e) _e.textContent = `${m}:${s.toString().padStart(2,"0")}`; }
-      badge.className="timer-badge"+(timeLeft<=300?" warn":"")+(timeLeft<=60?" urgent":"");
-      if(timeLeft<=0){clearInterval(timerInterval);toast("⏰ Time's up! Submitting...");setTimeout(submitExam,1200);}
+      badge.className="timer-badge"+(S.timeLeft<=300?" warn":"")+(S.timeLeft<=60?" urgent":"");
+      if(S.timeLeft<=0){clearInterval(S.timerInterval);toast("⏰ Time's up! Submitting...");setTimeout(submitExam,1200);}
     },1000);
   }
 
@@ -802,7 +779,7 @@
       if (btn) { btn.textContent = '🔊'; btn.classList.remove('listening'); }
       return;
     }
-    var q = examQuestions[currentIdx];
+    var q = S.examQuestions[S.currentIdx];
     if (!q) return;
     var text = (q.text || q.question || '');
     if (q.options) {
@@ -850,7 +827,7 @@
             isGenerated: true
           };
         });
-        allQuestions = generated.concat(allQuestions);
+        S.allQuestions = generated.concat(S.allQuestions);
         buildSubjectDropdowns();
         updateAvailCount();
         resultDiv.innerHTML = '<div class="qgen-result"><div style="font-family:var(--font-display);font-weight:700;font-size:0.8rem;color:var(--c-green);margin-bottom:8px;">✓ ' + generated.length + ' questions generated by ' + (result.model||'AI') + '</div>' + generated.map(function(q,i){ return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;color:var(--text);"><strong>' + (i+1) + '.</strong> ' + q.text + '</div>'; }).join('') + '<button class="btn btn-primary" style="margin-top:12px;" onclick="startWithGenerated()">▶ Practice These Questions</button></div>';
@@ -869,14 +846,14 @@
 
   function startWithGenerated() {
     if (!window._generatedQs || !window._generatedQs.length) return;
-    examQuestions = window._generatedQs;
-    answers = {}; flagged = new Set(); bookmarked = new Set(); currentIdx = 0;
-    examMode = 'practice';
+    S.examQuestions = window._generatedQs;
+    S.answers = {}; S.flagged = new Set(); S.bookmarked = new Set(); S.currentIdx = 0;
+    S.examMode = 'practice';
     document.getElementById('setupScreen').style.display = 'none';
     document.getElementById('examScreen').style.display = 'block';
     document.querySelector('.bottom-nav').style.display = 'none';
     renderQuestion();
-    toast('Practising ' + examQuestions.length + ' AI-generated questions', 'success');
+    toast('Practising ' + S.examQuestions.length + ' AI-generated questions', 'success');
   }
 
   // ── Smart Review (Spaced Repetition) ──
