@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Settings — EXAMORA</title>
@@ -38,7 +39,25 @@
     .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
     .danger-zone{margin:16px;border:1.5px solid rgba(244,63,94,0.25);border-radius:16px;overflow:hidden;}
     .version-footer{text-align:center;padding:24px 16px;font-size:0.72rem;color:var(--text-3);line-height:1.8;}
-  </style>
+    .qcount-opt {
+    background: var(--bg-input, #f1f5f9);
+    border: 1.5px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+    padding: 14px 8px;
+    text-align: center;
+    font-family: var(--fd, 'Sora', sans-serif);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text, #1e293b);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .qcount-opt:active, .qcount-opt.selected {
+    background: var(--c-brand, #6f38d5);
+    color: white;
+    border-color: var(--c-brand, #6f38d5);
+  }
+</style>
 </head>
 <body>
 <div class="app-container">
@@ -248,6 +267,22 @@
   </div>
 </div>
 
+<div class="overlay" id="qCountSheet" onclick="if(event.target===this)document.getElementById('qCountSheet').classList.remove('open')">
+  <div style="background:var(--bg-card);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:var(--max-width);" onclick="event.stopPropagation()">
+    <div style="width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto 16px;"></div>
+    <div style="font-family:var(--fd,'Sora',sans-serif);font-weight:800;font-size:0.95rem;margin-bottom:16px;">Questions Per Session</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div class="qcount-opt" onclick="setQCount(10)">10</div>
+      <div class="qcount-opt" onclick="setQCount(15)">15</div>
+      <div class="qcount-opt" onclick="setQCount(20)">20 ⭐</div>
+      <div class="qcount-opt" onclick="setQCount(30)">30</div>
+      <div class="qcount-opt" onclick="setQCount(40)">40</div>
+      <div class="qcount-opt" onclick="setQCount(50)">50</div>
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-3);margin-top:16px;text-align:center;">This applies to Practice and Mock exams. JAMB/WAEC exams use their official count.</p>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span id="toastIcon" class="toast-icon"></span><span id="toastMsg"></span></div>
 
 <script>
@@ -319,7 +354,21 @@
       </div>`).join('');
     document.getElementById('examTypeSheet').classList.add('open');
   }
-  function openQCountSheet(){}
+  function openQCountSheet(){
+    // Highlight current selection
+    var cur = settings.qcount || 20;
+    document.querySelectorAll('.qcount-opt').forEach(function(el){
+      el.classList.toggle('selected', parseInt(el.textContent) === cur);
+    });
+    document.getElementById('qCountSheet').classList.add('open');
+  }
+  function setQCount(n){
+    settings.qcount = n;
+    localStorage.setItem('examora_settings', JSON.stringify(settings));
+    document.getElementById('qCountSub').textContent = n + ' questions';
+    document.getElementById('qCountSheet').classList.remove('open');
+    toast('Questions per session set to ' + n, 'success');
+  }
 
   function setExamType(t){
     settings.examtype=t;
@@ -371,9 +420,7 @@
     toast('Local data cleared','success');
   }
 
-  function sendFeedback(){
-    window.open('mailto:support@examora.com.ng?subject=EXAMORA Feedback','_blank');
-  }
+
   function rateApp(){
     window.open('https://examora.com.ng','_blank');
     toast('Thanks for the love! 🙏','success');
@@ -429,10 +476,10 @@
 </script>
 
 <script type="module">
-  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import{getAuth,onAuthStateChanged,signOut,deleteUser,reauthenticateWithCredential,EmailAuthProvider}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import{getFirestore,doc,setDoc,deleteDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  const app=initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
+  const app = getApps().length ? getApp() : initializeApp({apiKey:"AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",authDomain:"cbt-app-5907f.firebaseapp.com",projectId:"cbt-app-5907f",storageBucket:"cbt-app-5907f.firebasestorage.app",messagingSenderId:"705323924101",appId:"1:705323924101:web:ad9f153f25a0685a1287ec"});
   const auth=getAuth(app);
   const db=getFirestore(app);
   onAuthStateChanged(auth,user=>{if(!user)window.location.href='login.html';});
@@ -491,7 +538,7 @@
     }
   };
 </script>
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
   <nav class="bottom-nav">
     <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
     <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
@@ -499,5 +546,15 @@
     <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
     <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
   </nav>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>

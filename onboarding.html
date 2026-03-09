@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EXAMORA — Let's Set You Up</title>
@@ -447,13 +448,13 @@
 window.toast = toast;
 </script>
 <script type="module">
-  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, updateDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app = initializeApp({
+  const app = getApps().length ? getApp() : initializeApp({
     apiKey: "AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw",
     authDomain: "cbt-app-5907f.firebaseapp.com",
     projectId: "cbt-app-5907f",
@@ -497,13 +498,49 @@ window.toast = toast;
       // Don't block the user if Firestore fails - log and continue
       console.warn("Onboarding save error (non-fatal):", e.message);
     }
+    // ── Write to localStorage so all pages see it immediately ──
+    // examora_target_exam: e.g. "JAMB", "WAEC", "NECO"
+    if (data.examType) {
+      localStorage.setItem("examora_target_exam", data.examType);
+    }
+    // examora_user_level: maps exam type → level key used by NOVA + gating
+    var levelMap = {
+      "JAMB":"secondary","WAEC":"secondary","NECO":"secondary",
+      "Post-UTME":"secondary","A-Levels":"secondary","GCSE":"secondary",
+      "SAT":"secondary","ACT":"secondary",
+      "GRE":"university","GMAT":"university","IELTS":"university",
+      "IB":"university","Professional":"university","Certification":"university",
+    };
+    var level = levelMap[data.examType] || "secondary";
+    localStorage.setItem("examora_user_level", level);
+    // examora_user_subjects: for personalised subject-filtered practice
+    if (data.subjects && data.subjects.length) {
+      localStorage.setItem("examora_user_subjects", JSON.stringify(data.subjects));
+    }
+    // examora_target_score
+    if (data.targetScore) {
+      localStorage.setItem("examora_target_score", String(data.targetScore));
+    }
+    // Mark onboarding done so index.html doesn't redirect back here
+    localStorage.setItem("examora_onboarded", "true");
+
     window.toast("Profile saved! Let's go 🎉");
     setTimeout(() => window.location.href = "index.html", 900);
   };
 </script>
 
 <script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
 </script>
 </body>
 </html>

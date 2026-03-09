@@ -484,6 +484,16 @@
     localStorage.setItem("examora_theme",n);
     { const _e=document.getElementById("themeBtn"); if(_e) _e.textContent = n==="dark"?"☀️":"🌙"; }
   });
+  // Pre-select count chip based on saved setting
+  (function(){
+    var saved = JSON.parse(localStorage.getItem('examora_settings')||'{}').qcount || 20;
+    document.querySelectorAll('.count-chip').forEach(function(el){
+      var v = el.textContent.trim();
+      var chipVal = v === 'All' ? 0 : parseInt(v);
+      el.classList.toggle('selected', chipVal === saved);
+    });
+  })();
+
   function toast(msg, type="", dur=3200){
     const el=document.getElementById("toast");
     const ico=document.getElementById("toastIcon");
@@ -515,7 +525,9 @@
     updateSubjects(); // refresh the visible dropdown
   }
 
-  let examMode="exam", qCount=20, allQuestions=[], examQuestions=[];
+  // Read saved questions-per-session preference
+  var _savedSettings = JSON.parse(localStorage.getItem('examora_settings') || '{}');
+  let examMode="exam", qCount=_savedSettings.qcount||20, allQuestions=[], examQuestions=[];
 
   // Read URL params (for "drill weak subject" from dashboard)
   (function(){

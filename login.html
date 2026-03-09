@@ -219,9 +219,19 @@ async function makeDoc(user) {
     const ref  = doc(db,'users',user.uid);
     const snap = await getDoc(ref);
     const data = { displayName:user.displayName||user.email?.split('@')[0]||'Learner', email:user.email||'', photoURL:user.photoURL||'', updatedAt:serverTimestamp() };
-    if(!snap.exists()) Object.assign(data,{ plan:'free',streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[],xp:0,totalScore:0,createdAt:serverTimestamp(),onboarded:false });
+    const isNew = !snap.exists();
+    if(isNew) Object.assign(data,{ plan:'free',streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[],xp:0,totalScore:0,createdAt:serverTimestamp(),onboarded:false });
     await setDoc(ref,data,{merge:true});
-  } catch(e){ console.warn('makeDoc:',e.message); }
+    // Store uid so index.html onboarding gate works
+    localStorage.setItem('examora_uid', user.uid);
+    // If user already completed onboarding in Firestore, mark it locally too
+    if(!isNew && snap.data()?.onboarded) {
+      localStorage.setItem('examora_onboarded','true');
+    }
+  } catch(e){
+    console.warn('makeDoc:',e.message);
+    localStorage.setItem('examora_uid', user.uid);
+  }
 }
 
 function goHome() { window.location.href='index.html'; }
@@ -303,6 +313,8 @@ async function doGuest() {
     const cred = await signInAnonymously(auth);
     localStorage.setItem('examora_user_display','Guest');
     localStorage.setItem('examora_user_level','secondary');
+    localStorage.setItem('examora_uid','guest_'+Date.now());
+    localStorage.setItem('examora_onboarded','true'); // guests skip onboarding
     await makeDoc(cred.user);
     goHome();
   } catch(e) {

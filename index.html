@@ -615,6 +615,15 @@
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
 <script>
+// ── ONBOARDING GATE: redirect new users before anything else ──
+(function(){
+  var onboarded = localStorage.getItem('examora_onboarded');
+  var uid       = localStorage.getItem('examora_uid');
+  // Only redirect if user is logged in but hasn't done onboarding
+  if(uid && !onboarded){
+    window.location.replace('onboarding.html');
+  }
+})();
 // ─────────────────────────────────────────────────────────────
 // STEP 1: Show dashboard IMMEDIATELY from localStorage.
 // No blocking on Firebase. No splash for already-seen users.

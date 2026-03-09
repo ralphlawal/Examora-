@@ -1,36 +1,20 @@
 {
-  "name": "EXAMORA \u2014 Nigeria's #1 CBT Prep App",
+  "name": "EXAMORA — Nigeria's #1 CBT Prep App",
   "short_name": "EXAMORA",
   "description": "Practise JAMB, WAEC, NECO and Post-UTME questions with AI explanations, performance analytics, daily challenges and leaderboards.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0f172a",
-  "theme_color": "#6366f1",
+  "background_color": "#0f0a1a",
+  "theme_color": "#6f38d5",
   "lang": "en-NG",
-  "categories": [
-    "education"
-  ],
+  "categories": ["education"],
   "icons": [
-    {
-      "src": "logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "favicon.png",  "sizes": "32x32",   "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
     {
@@ -42,77 +26,16 @@
     }
   ],
   "shortcuts": [
-    {
-      "name": "Start Exam",
-      "short_name": "Exam",
-      "description": "Jump into practice",
-      "url": "/exam.html",
-      "icons": [
-        {
-          "src": "logo.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Daily Challenge",
-      "short_name": "Challenge",
-      "description": "Today's challenge",
-      "url": "/daily-challenge.html",
-      "icons": [
-        {
-          "src": "logo.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Mock Exam",
-      "short_name": "Mock",
-      "description": "Timed mock exam",
-      "url": "/mock.html",
-      "icons": [
-        {
-          "src": "logo.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "AI Tutor",
-      "short_name": "AI Chat",
-      "description": "Ask the AI tutor",
-      "url": "/chat.html",
-      "icons": [
-        {
-          "src": "logo.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Study Planner",
-      "short_name": "Planner",
-      "description": "Your study plan",
-      "url": "/planner.html",
-      "icons": [
-        {
-          "src": "logo.png",
-          "sizes": "96x96"
-        }
-      ]
-    }
+    { "name": "Start Exam",      "url": "/exam.html",            "icons": [{"src":"icon-192.png","sizes":"192x192"}] },
+    { "name": "Daily Challenge", "url": "/daily-challenge.html", "icons": [{"src":"icon-192.png","sizes":"192x192"}] },
+    { "name": "Mock Exam",       "url": "/mock.html",            "icons": [{"src":"icon-192.png","sizes":"192x192"}] },
+    { "name": "AI Tutor",        "url": "/chat.html",            "icons": [{"src":"icon-192.png","sizes":"192x192"}] },
+    { "name": "Study Planner",   "url": "/planner.html",         "icons": [{"src":"icon-192.png","sizes":"192x192"}] }
   ],
-  "related_applications": [],
   "prefer_related_applications": false,
-  "iarc_rating_id": "",
   "share_target": {
     "action": "/index.html",
     "method": "GET",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
+    "params": { "title": "title", "text": "text", "url": "url" }
   }
 }

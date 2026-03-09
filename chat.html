@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <title>Nova AI · EXAMORA</title>
@@ -397,12 +398,20 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   // Memory chips
   renderMem();
-  // Welcome message with typewriter
-  var el=document.getElementById('welcomeBubble');
-  document.getElementById('welcomeTime').textContent=now();
+  // Restore prior conversation or show welcome
   var urlQ=(new URLSearchParams(window.location.search)).get('q');
-  if(urlQ){el.innerHTML=fmtMsg(buildWelcome());setTimeout(function(){document.getElementById('chatInput').value=urlQ;doSend();},600);}
-  else typewrite(el,buildWelcome(),16);
+  if(_hist.length > 0 && !urlQ){
+    // Hide the static welcome bubble
+    var wb=document.getElementById('welcomeBubble');
+    if(wb){ var wr=wb.closest('.msg-row'); if(wr) wr.style.display='none'; }
+    document.getElementById('sugStrip').style.opacity='0';
+    restoreHistory();
+  } else {
+    var el=document.getElementById('welcomeBubble');
+    document.getElementById('welcomeTime').textContent=now();
+    if(urlQ){el.innerHTML=fmtMsg(buildWelcome());setTimeout(function(){document.getElementById('chatInput').value=urlQ;doSend();},600);}
+    else typewrite(el,buildWelcome(),16);
+  }
 });
 
 // ── Typewriter ─────────────────────────────────────────────────
@@ -587,10 +596,10 @@ function clearChat(){
 </script>
 
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getApp, getApps, initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import{getFirestore,doc,getDoc}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const app=initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
+const app = getApps().length ? getApp() : initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
 const auth=getAuth(app);const db=getFirestore(app);
 window._firebaseAuth=auth;
 onAuthStateChanged(auth,async user=>{
@@ -608,6 +617,16 @@ onAuthStateChanged(auth,async user=>{
   }catch(_){}
 });
 </script>
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>
