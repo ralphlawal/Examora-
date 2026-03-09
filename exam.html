@@ -1012,14 +1012,12 @@ window.updateAvailCount = updateAvailCount;
     // Load questions — try Firestore first, fall back to local bank
     try{
       const snap=await getDocs(collection(db,"questions"));
-      allQuestions=[];
-      snap.forEach(d=>allQuestions.push({id:d.id,...d.data()}));
-      if(allQuestions.length === 0 && window.EXAMORA_LOCAL_QB) {
-        allQuestions = window.EXAMORA_LOCAL_QB;
-        console.log("Using local question bank (" + allQuestions.length + " questions)");
+      S.allQuestions=[];
+      snap.forEach(d=>S.allQuestions.push({id:d.id,...d.data()}));
+      if(S.allQuestions.length === 0 && window.EXAMORA_LOCAL_QB) {
+        S.allQuestions = window.EXAMORA_LOCAL_QB;
+        console.log("Using local question bank (" + S.allQuestions.length + " questions)");
       }
-      // Sync to shared state so _startExamImpl can access it
-      if(window._examState) window._examState.allQuestions = allQuestions;
       window.buildSubjectDropdowns();
       // Apply URL params if coming from weak areas card
       if(window._urlCat||window._urlSubj){

@@ -133,30 +133,35 @@ body { margin:0; background:var(--bg,#f1f5f9); }
 // Welcome flow handled by welcome.html itself
 // Fallback: if module hasn't loaded yet, show feedback on button click
 document.addEventListener('DOMContentLoaded', function() {
-  var mainBtn = document.getElementById('mainBtn');
-  if (!mainBtn) return;
-  mainBtn.addEventListener('click', function() {
-    if (!window.doAuth) {
-      mainBtn.textContent = 'Loading…';
-      mainBtn.disabled = true;
-      // Retry every 200ms for up to 8 seconds
+  // Guard ALL buttons against race condition where module hasn't loaded yet
+  function makeRetryHandler(btnId, fnName, originalLabel) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      if (typeof window[fnName] === 'function') return; // module loaded - onclick handles it
+      btn.disabled = true;
+      if (originalLabel) btn.textContent = 'Loading…';
       var attempts = 0;
       var retry = setInterval(function() {
         attempts++;
-        if (window.doAuth) {
+        if (typeof window[fnName] === 'function') {
           clearInterval(retry);
-          mainBtn.disabled = false;
-          mainBtn.textContent = 'Sign In →';
-          window.doAuth();
+          btn.disabled = false;
+          if (originalLabel) btn.textContent = originalLabel;
+          window[fnName]();
         } else if (attempts > 40) {
           clearInterval(retry);
-          mainBtn.disabled = false;
-          mainBtn.textContent = 'Sign In →';
-          alert('Connection problem. Please check your internet and try again.');
+          btn.disabled = false;
+          if (originalLabel) btn.textContent = originalLabel;
+          alert('Connection problem. Please refresh the page and try again.');
         }
       }, 200);
-    }
-  });
+    });
+  }
+  makeRetryHandler('mainBtn',   'doAuth',   'Sign In →');
+  makeRetryHandler('googleBtn', 'doGoogle', null);
+  makeRetryHandler('guestBtn',  'doGuest',  null);
+  makeRetryHandler('forgotBtn', 'doForgot', null);
 });
 </script>
 <script type="module">
