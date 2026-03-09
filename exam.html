@@ -527,27 +527,47 @@
 
   // Read saved questions-per-session preference
   var _savedSettings = JSON.parse(localStorage.getItem('examora_settings') || '{}');
-  let examMode="exam", qCount=_savedSettings.qcount||20, allQuestions=[], examQuestions=[];
+  // ── SHARED STATE — exposed on window so module script can access ──
+  window._examState = {
+    examMode: "exam",
+    qCount: _savedSettings.qcount||20,
+    allQuestions: [],
+    examQuestions: [],
+    answers: {},
+    flagged: new Set(),
+    bookmarked: new Set(),
+    currentIdx: 0,
+    timerInterval: null,
+    timeLeft: 0
+  };
+  // Convenience local aliases (plain script still uses these directly)
+  var examMode     = window._examState.examMode;
+  var qCount       = window._examState.qCount;
+  var allQuestions = window._examState.allQuestions;
+  var examQuestions= window._examState.examQuestions;
+  var answers      = window._examState.answers;
+  var flagged      = window._examState.flagged;
+  var bookmarked   = window._examState.bookmarked;
+  var currentIdx   = window._examState.currentIdx;
+  var timerInterval= null; // keep local for clearInterval calls in plain script
+  var timeLeft     = 0;
+  var currentUser  = null;
 
   // Read URL params (for "drill weak subject" from dashboard)
   (function(){
     const p=new URLSearchParams(location.search);
     const cat=p.get("cat"), subj=p.get("subj");
     if(cat||subj){
-      // Will apply once dropdowns are built — store for later
       window._urlCat=cat||""; window._urlSubj=subj||"";
     }
   })();
-  let answers={}, flagged=new Set(), bookmarked=new Set();
-  let currentIdx=0, timerInterval=null, timeLeft=0;
-  let currentUser=null;
 
   // Year dropdown
   const ySel=document.getElementById("yearSelect");
   for(let y=2024;y>=1990;y--){const o=document.createElement("option");o.value=y;o.textContent=y;ySel.appendChild(o);}
 
   function setMode(m){
-    examMode=m;
+    examMode=m; if(window._examState) window._examState.examMode=m;
     document.getElementById("modeExam").classList.toggle("active",m==="exam");
     document.getElementById("modePractice").classList.toggle("active",m==="practice");
     const qfBtn=document.getElementById("modeQuickfire");
@@ -568,7 +588,7 @@
   }
 
   function setCount(n){
-    qCount=n;
+    qCount=n; if(window._examState) window._examState.qCount=n;
     document.querySelectorAll(".count-chip").forEach(c=>{
       c.classList.toggle("selected", parseInt(c.textContent)===n || (n===0 && c.textContent==="All"));
     });
@@ -633,9 +653,18 @@
     },50);
   }
 
-  function jumpTo(i){currentIdx=i;renderQuestion();}
+  function jumpTo(i){currentIdx=i;if(window._examState)window._examState.currentIdx=i;renderQuestion();}
 
   function renderQuestion(){
+    // Sync state from window._examState (set by module impl functions)
+    if(window._examState){
+      examQuestions = window._examState.examQuestions || examQuestions;
+      answers       = window._examState.answers       || answers;
+      currentIdx    = window._examState.currentIdx    !== undefined ? window._examState.currentIdx : currentIdx;
+      flagged       = window._examState.flagged       || flagged;
+      bookmarked    = window._examState.bookmarked    || bookmarked;
+      examMode      = window._examState.examMode      || examMode;
+    }
     const q=examQuestions[currentIdx];
     if(!q) return;
     const total=examQuestions.length;
@@ -702,12 +731,19 @@
   }
 
   function selectAnswer(letter){
+    // Sync from shared state
+    if(window._examState){
+      examQuestions = window._examState.examQuestions || examQuestions;
+      answers       = window._examState.answers       || answers;
+      currentIdx    = window._examState.currentIdx    !== undefined ? window._examState.currentIdx : currentIdx;
+      examMode      = window._examState.examMode      || examMode;
+    }
     const q=examQuestions[currentIdx];
     if(!q) return;
-    // In practice mode, prevent re-answering
     if(examMode==="practice"&&answers[currentIdx]!=null) return;
 
     answers[currentIdx]=letter;
+    if(window._examState) window._examState.answers = answers;
     renderQuestion();
 
     // Practice mode: auto-advance after 1.2s
@@ -717,6 +753,7 @@
   }
 
   function navigate(dir){
+    if(window._examState) currentIdx = window._examState.currentIdx !== undefined ? window._examState.currentIdx : currentIdx;
     const newIdx=currentIdx+dir;
     if(newIdx>=0&&newIdx<examQuestions.length){currentIdx=newIdx;renderQuestion();}
   }
@@ -744,7 +781,7 @@
     timeLeft=seconds;
     const badge=document.getElementById("timerBadge");
     badge.style.display="flex";
-    timerInterval=setInterval(()=>{
+    window._timerInterval = timerInterval = setInterval(()=>{
       timeLeft--;
       const m=Math.floor(timeLeft/60), s=timeLeft%60;
       { const _e=document.getElementById("timerDisplay"); if(_e) _e.textContent = `${m}:${s.toString().padStart(2,"0")}`; }
@@ -1000,11 +1037,12 @@ window.updateAvailCount = updateAvailCount;
       const snap=await getDocs(collection(db,"questions"));
       allQuestions=[];
       snap.forEach(d=>allQuestions.push({id:d.id,...d.data()}));
-      // If Firestore has no questions yet, use local bank
       if(allQuestions.length === 0 && window.EXAMORA_LOCAL_QB) {
         allQuestions = window.EXAMORA_LOCAL_QB;
         console.log("Using local question bank (" + allQuestions.length + " questions)");
       }
+      // Sync to shared state so _startExamImpl can access it
+      if(window._examState) window._examState.allQuestions = allQuestions;
       window.buildSubjectDropdowns();
       // Apply URL params if coming from weak areas card
       if(window._urlCat||window._urlSubj){
@@ -1023,6 +1061,7 @@ window.updateAvailCount = updateAvailCount;
       // Firestore failed — use local question bank
       if(window.EXAMORA_LOCAL_QB && window.EXAMORA_LOCAL_QB.length > 0) {
         allQuestions = window.EXAMORA_LOCAL_QB;
+        if(window._examState) window._examState.allQuestions = allQuestions;
         window.buildSubjectDropdowns();
         window.updateAvailCount();
       } else {
@@ -1041,22 +1080,24 @@ window.updateAvailCount = updateAvailCount;
     // Trial gate check
     if (window._checkTrialGate && !window._checkTrialGate(window._userData||{})) return;
 
+    // Use shared state from window._examState (set by plain script)
+    var S = window._examState;
+
     const cat=document.getElementById("catSelect").value;
     const subj=document.getElementById("subjSelect").value;
     const year=document.getElementById("yearSelect").value;
-    let pool=allQuestions.filter(q=>
+    let pool=(S.allQuestions||[]).filter(q=>
       (!cat||q.category===cat)&&(!subj||q.subject===subj)&&(!year||String(q.year)===year));
 
     if(pool.length===0){window.toast("No questions match. Try different filters.");return;}
 
-    // Spaced repetition mode — sort by priority
-    if(examMode==="spaced") {
+    if(S.examMode==="spaced") {
       pool = EXAMORA_AI.getSpacedRepetitionQueue(pool, window._srHistory||{});
     } else {
       pool=pool.sort(()=>Math.random()-0.5);
     }
-    examQuestions=qCount===0?pool:pool.slice(0,qCount);
-    answers={}; flagged=new Set(); bookmarked=new Set(); currentIdx=0;
+    S.examQuestions = S.qCount===0 ? pool : pool.slice(0, S.qCount);
+    S.answers={}; S.flagged=new Set(); S.bookmarked=new Set(); S.currentIdx=0;
 
     document.getElementById("setupScreen").style.display="none";
     document.getElementById("examScreen").style.display="block";
@@ -1064,38 +1105,47 @@ window.updateAvailCount = updateAvailCount;
 
     window.renderQuestion();
 
-    // Timer for exam mode
-    if(examMode==="exam"){
+    if(S.examMode==="exam"){
       const timers=window._timers||{};
       const minsPerQ=timers[cat||"JAMB"]||1.5;
-      window.startTimer(Math.round(minsPerQ*60*examQuestions.length));
+      window.startTimer(Math.round(minsPerQ*60*S.examQuestions.length));
     }
   };
 
   window._submitExamImpl=window.submitExam=async()=>{
-    clearInterval(timerInterval);
+    // Use shared state from window._examState
+    var S = window._examState;
+    // Clear timer — try both window._timerInterval and local
+    if(window._timerInterval) clearInterval(window._timerInterval);
     document.getElementById("submitOverlay").classList.remove("show");
+
+    var examQuestions = S.examQuestions || [];
+    var answers       = S.answers       || {};
+    var examMode      = S.examMode      || "exam";
+
+    if(examQuestions.length === 0){
+      window.toast("No exam in progress.", "warning");
+      window.location.href = "result.html";
+      return;
+    }
 
     let correct=0;
     examQuestions.forEach((q,i)=>{if(answers[i]===q.answer)correct++;});
     const total=examQuestions.length;
-    const percent=Math.round((correct/total)*100);
+    const percent=total>0?Math.round((correct/total)*100):0;
     const passed=percent>=50;
-    // Quickfire = practice mode with 10 q, instant feedback
-    if(examMode==="quickfire") qCount=10;
-    const effectiveMode=examMode==="quickfire"?"practice":examMode;
+    if(examMode==="quickfire") S.qCount=10;
     const cat=document.getElementById("catSelect").value||"Mixed";
     const subj=document.getElementById("subjSelect").value||"General";
-    const date=new Date().toLocaleDateString("undefined",{day:"numeric",month:"short",year:"numeric"});
+    const date=new Date().toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"});
 
-    // Save result
+    // Save result to Firestore (non-blocking — navigate even if it fails)
     try{
       await addDoc(collection(db,"results"),{
         userId:uid, score:percent, correct, total, percent, passed,
         category:cat, subject:subj, mode:examMode,
         answers:answers, date, createdAt:new Date().toISOString()
       });
-      // Update user stats
       const uSnap=await getDoc(doc(db,"users",uid));
       if(uSnap.exists()){
         const ud=uSnap.data();
@@ -1104,16 +1154,12 @@ window.updateAvailCount = updateAvailCount;
           totalCorrect:(ud.totalCorrect||0)+correct,
           totalQuestions:(ud.totalQuestions||0)+total
         };
-        // Track trial exam usage
-        if (ud.plan === 'trial') {
-          updateData.trialExamsUsed = (ud.trialExamsUsed||0)+1;
-        }
+        if (ud.plan === 'trial') updateData.trialExamsUsed = (ud.trialExamsUsed||0)+1;
         await updateDoc(doc(db,"users",uid), updateData);
         window._userData = Object.assign({}, ud, updateData);
       }
-    }catch(e){console.error("Save result error:",e);}
+    }catch(e){console.warn("Save result (non-fatal):",e.message);}
 
-    // Store result for result page + append to results history (used by wrong-drill, planner, analytics)
     const _resultPayload = {
       correct,total,percent,passed,mode:examMode,
       category:cat,subject:subj,
