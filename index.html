@@ -224,7 +224,42 @@
       background:none; border:none; color:var(--text-3);
       font-size:1rem; cursor:pointer; padding:4px; flex-shrink:0;
     }
-  </style>
+  
+  /* ── Cookie consent ── */
+  .cookie-bar {
+    display: none;
+    position: fixed;
+    bottom: 72px; /* above bottom nav */
+    left: 0; right: 0;
+    z-index: 9999;
+    padding: 0 12px 8px;
+  }
+  .cookie-bar.show { display: block; }
+  .cookie-inner {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 16px 14px;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+  }
+  .cookie-title { font-family: var(--font-display); font-weight: 800; font-size: 0.88rem; margin-bottom: 5px; }
+  .cookie-body  { font-size: 0.75rem; color: var(--text-3); line-height: 1.55; margin-bottom: 12px; }
+  .cookie-btns  { display: flex; gap: 8px; }
+  .cookie-accept {
+    flex: 2; background: var(--c-brand); color: white;
+    border: none; border-radius: 12px; padding: 10px;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .cookie-decline {
+    flex: 1; background: var(--bg-input); color: var(--text-3);
+    border: 1px solid var(--border); border-radius: 12px; padding: 10px;
+    font-family: var(--font-display); font-weight: 600; font-size: 0.8rem;
+    cursor: pointer;
+  }
+</style>
 <script src="security.js"></script>
 </head>
 <body>
@@ -605,7 +640,23 @@
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
 
 <!-- ── Bottom Nav ─────────────────────────────────────────── -->
-  <nav class="bottom-nav">
+  
+<!-- ── Cookie Consent ── -->
+<div class="cookie-bar" id="cookieBar">
+  <div class="cookie-inner">
+    <div class="cookie-title">🍪 We use cookies</div>
+    <div class="cookie-body">
+      EXAMORA uses cookies and local storage to save your progress, preferences, and study history. No data is sold to third parties.
+      <a href="privacy.html" style="color:var(--c-brand);text-decoration:none;">Privacy Policy</a>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-decline" onclick="declineCookies()">Essential only</button>
+      <button class="cookie-accept" onclick="acceptCookies()">Accept all ✓</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
     <a href="index.html"      class="nav-item active"><span class="nav-icon ms-fill">home</span><span class="nav-label">Home</span></a>
     <a href="exam.html"       class="nav-item "><span class="nav-icon ">edit_note</span><span class="nav-label">Exam</span></a>
     <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
@@ -615,15 +666,7 @@
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
 <script>
-// ── ONBOARDING GATE: redirect new users before anything else ──
-(function(){
-  var onboarded = localStorage.getItem('examora_onboarded');
-  var uid       = localStorage.getItem('examora_uid');
-  // Only redirect if user is logged in but hasn't done onboarding
-  if(uid && !onboarded){
-    window.location.replace('onboarding.html');
-  }
-})();
+// Onboarding check handled by Firebase auth module below
 // ─────────────────────────────────────────────────────────────
 // STEP 1: Show dashboard IMMEDIATELY from localStorage.
 // No blocking on Firebase. No splash for already-seen users.
@@ -692,6 +735,22 @@
     }
   }catch(e){}
 })();
+
+  // ── Cookie consent ──────────────────────────────────────
+  (function(){
+    if(!localStorage.getItem('examora_cookie_consent')){
+      setTimeout(()=>{ const b=document.getElementById('cookieBar'); if(b) b.classList.add('show'); }, 1200);
+    }
+  })();
+  function acceptCookies(){
+    localStorage.setItem('examora_cookie_consent','all');
+    document.getElementById('cookieBar').classList.remove('show');
+  }
+  function declineCookies(){
+    localStorage.setItem('examora_cookie_consent','essential');
+    document.getElementById('cookieBar').classList.remove('show');
+  }
+
 </script>
 
 <script type="module">
@@ -798,7 +857,14 @@ if(auth) {
     }
 
     // Sign out helper
-    window._doSignOut = ()=>auth.signOut().then(()=>{ localStorage.removeItem('examora_cached_profile'); window.location.href='login.html'; });
+    window._doSignOut = () => auth.signOut().then(() => {
+      ['examora_plan','examora_ai_keys','examora_user_display','examora_uid',
+       'examora_onboarded','examora_target_exam','examora_user_level',
+       'examora_user_subjects','examora_target_score','examora_cached_profile',
+       'examora_nova_mem','examora_chat_hist'
+      ].forEach(k => localStorage.removeItem(k));
+      window.location.href = 'login.html';
+    });
 
     // ── Verify banner ────────────────────────────────
     if(!user.emailVerified){ const b=$id('verifyBanner'); if(b) b.style.display=''; }
@@ -809,6 +875,12 @@ if(auth) {
       const snap = await getDoc(doc(db,'users',user.uid));
       if(snap.exists()) profile = snap.data();
     }catch(e){}
+
+    // ── Onboarding gate (uses Firestore data, not localStorage) ──
+    if(profile.onboarded === false){
+      window.location.href = 'onboarding.html';
+      return;
+    }
 
     const displayName = profile.displayName||user.displayName||user.email?.split('@')[0]||'Learner';
     // Cache for instant next load

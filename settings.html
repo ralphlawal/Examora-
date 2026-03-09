@@ -486,9 +486,14 @@
 
   window._doSignOut = async () => {
     await signOut(auth);
-    localStorage.removeItem('examora_plan');
-    localStorage.removeItem('examora_ai_keys');
-    localStorage.removeItem('examora_user_display');
+    // Clear all session keys
+    var keysToRemove = [
+      'examora_plan','examora_ai_keys','examora_user_display',
+      'examora_uid','examora_onboarded','examora_target_exam',
+      'examora_user_level','examora_user_subjects','examora_target_score',
+      'examora_cached_profile','examora_nova_mem','examora_chat_hist'
+    ];
+    keysToRemove.forEach(k => localStorage.removeItem(k));
     window.location.href = 'login.html';
   };
 

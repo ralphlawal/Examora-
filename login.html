@@ -236,8 +236,14 @@ async function makeDoc(user) {
 
 function goHome() { window.location.href='index.html'; }
 
-// Auto-redirect if already logged in
-onAuthStateChanged(auth, user => { if(user&&!_busy) goHome(); });
+// Only redirect on explicit login actions (not on page load).
+// Each sign-in function calls goHome() itself after success.
+// Removing the auto-redirect prevents the page from immediately bouncing
+// away when a user intentionally navigates to login.html (e.g. after logout).
+onAuthStateChanged(auth, user => {
+  // Do nothing on page load — let the user see the form
+  // goHome() is called explicitly in each sign-in handler
+});
 
 // Handle Google redirect result
 getRedirectResult(auth).then(async r => {
