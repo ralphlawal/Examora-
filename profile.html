@@ -563,7 +563,7 @@ function saveCrop() {
 
 <script type="module">
 import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, deleteUser }
+import { getAuth, onAuthStateChanged, signOut, deleteUser, updateProfile }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc,
          collection, query, where, getDocs }
@@ -612,8 +612,14 @@ window.saveProfile = async () => {
   const state  = document.getElementById('editState').value;
   if (!name) { window.toast('Name cannot be empty','error'); return; }
   try {
-    await updateDoc(doc(db,'users',uid), {displayName:name, school, state, updatedAt:new Date().toISOString()});
+    // Update Firestore AND Firebase Auth so name reflects everywhere
+    await Promise.all([
+      updateDoc(doc(db,'users',uid), {displayName:name, school, state, updatedAt:new Date().toISOString()}),
+      updateProfile(auth.currentUser, {displayName: name})
+    ]);
     document.getElementById('pName').textContent = name;
+    // Also update hero greeting in dashboard if cached
+    localStorage.setItem('examora_display_name', name);
     window.closeSheet('editOverlay'); window.toast('Profile updated!','success');
   } catch(e) { window.toast('Save failed. Try again.','error'); }
 };
@@ -755,6 +761,16 @@ onAuthStateChanged(auth, async user => {
 </script>
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
 </script>
 </body>
 </html>

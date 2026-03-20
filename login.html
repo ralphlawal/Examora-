@@ -98,6 +98,40 @@ body { margin:0; background:var(--bg,#f1f5f9); }
       <div class="divider-line"></div>
     </div>
 
+    <div class="fg" id="fg-name" style="display:none;">
+      <label class="fl" for="nameInput">Full name</label>
+      <input class="fi" type="text" id="nameInput" placeholder="e.g. Chioma Okonkwo" autocomplete="name"/>
+    </div>
+
+    <div class="fg" id="fg-phone" style="display:none;">
+      <label class="fl" for="phoneInput">Phone number <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+      <input class="fi" type="tel" id="phoneInput" placeholder="e.g. 08012345678" autocomplete="tel" inputmode="tel"/>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="fg-row2" style="display:none;">
+      <div class="fg" id="fg-exam" style="margin-bottom:0;">
+        <label class="fl" for="examInput">Target exam</label>
+        <select class="fi" id="examInput">
+          <option value="">Select exam</option>
+          <option value="JAMB">JAMB</option>
+          <option value="WAEC">WAEC</option>
+          <option value="NECO">NECO</option>
+          <option value="Post-UTME">Post-UTME</option>
+          <option value="SAT">SAT</option>
+          <option value="GRE">GRE</option>
+        </select>
+      </div>
+      <div class="fg" id="fg-state" style="margin-bottom:0;">
+        <label class="fl" for="stateInput">State</label>
+        <select class="fi" id="stateInput">
+          <option value="">State</option>
+          <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option><option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option><option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option><option>Ekiti</option><option>Enugu</option><option>FCT Abuja</option><option>Gombe</option><option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="height:14px;" id="fg-row2-spacer" style="display:none;"></div>
+
     <div class="fg">
       <label class="fl" for="emailInput">Email address</label>
       <input class="fi" type="email" id="emailInput" placeholder="you@email.com" autocomplete="email" inputmode="email"/>
@@ -224,7 +258,15 @@ async function makeDoc(user) {
   try {
     const ref  = doc(db,'users',user.uid);
     const snap = await getDoc(ref);
-    const data = { displayName:user.displayName||user.email?.split('@')[0]||'Learner', email:user.email||'', photoURL:user.photoURL||'', updatedAt:serverTimestamp() };
+    const extras = window._signupExtras || {};
+    const data = {
+      displayName: extras.displayName || user.displayName || user.email?.split('@')[0] || 'Learner',
+      email: user.email||'', photoURL: user.photoURL||'', updatedAt: serverTimestamp()
+    };
+    if(extras.phone)      data.phone      = extras.phone;
+    if(extras.targetExam) data.targetExam = extras.targetExam;
+    if(extras.state)      data.state      = extras.state;
+    window._signupExtras = null; // clear after use
     const isNew = !snap.exists();
     if(isNew) Object.assign(data,{ plan:'free',streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[],xp:0,totalScore:0,createdAt:serverTimestamp(),onboarded:false });
     await setDoc(ref,data,{merge:true});
@@ -267,6 +309,12 @@ function setMode(m) {
   $('mainBtn').textContent = m==='login' ? 'Sign In →' : 'Create Account →';
   $('forgotBtn').style.display = m==='login' ? '' : 'none';
   $('spamHint').className = 'info-banner'+(m==='register'?' on':'');
+  // Show/hide signup-only fields
+  const isReg = m === 'register';
+  ['fg-name','fg-phone','fg-row2','fg-row2-spacer'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = isReg ? (id==='fg-row2'?'grid':'block') : 'none';
+  });
   clearMsg();
 };
 
@@ -288,7 +336,16 @@ async function doAuth() {
       goHome();
     } else {
       if(pass.length<6){ setBusy(false); showErr('Password must be at least 6 characters.'); return; }
+      const fullName = ($('nameInput')?.value||'').trim();
+      if(!fullName){ setBusy(false); showErr('Please enter your full name.'); return; }
+      const phone    = ($('phoneInput')?.value||'').trim();
+      const examType = ($('examInput')?.value||'');
+      const state    = ($('stateInput')?.value||'');
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      // Set Firebase Auth display name immediately
+      await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(m=>m.updateProfile(cred.user,{displayName:fullName})).catch(()=>{});
+      // Save extra details to Firestore
+      window._signupExtras = { displayName:fullName, phone, targetExam:examType, state };
       await sendEmailVerification(cred.user);
       await makeDoc(cred.user);
       setBusy(false);

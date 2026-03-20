@@ -88,3 +88,42 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
+
+// ── Smooth page transitions ───────────────────────────────────
+// Intercept all internal link clicks and animate out before navigating
+(function() {
+  function isSameSite(href) {
+    if (!href) return false;
+    if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+    try {
+      var url = new URL(href, location.href);
+      return url.hostname === location.hostname;
+    } catch(_) { return true; }
+  }
+
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    // Walk up to find an anchor
+    while (el && el.tagName !== 'A') el = el.parentElement;
+    if (!el || !el.href) return;
+    var href = el.getAttribute('href');
+    if (!href || !isSameSite(href)) return;
+    // Skip links that open in new tab or have special handling
+    if (el.target === '_blank') return;
+    // Skip if meta/ctrl key held (open in new tab)
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+
+    e.preventDefault();
+    var dest = el.href;
+
+    // Apply exit animation
+    document.body.classList.add('page-exit');
+    setTimeout(function() {
+      window.location.href = dest;
+    }, 170);
+  }, false);
+
+  // Also intercept programmatic window.location changes by wrapping common patterns
+  // (nav buttons via onclick use window.location.href= so we can't intercept those easily)
+  // The CSS animation on body entry handles the enter direction already.
+})();

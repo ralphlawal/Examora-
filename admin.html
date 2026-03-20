@@ -318,6 +318,7 @@
   <div class="admin-tabs animate-in animate-in-delay-1">
     <div class="admin-tab active" onclick="showTab('questions',this)">📚 Questions</div>
     <div class="admin-tab" onclick="showTab('upload',this)">📤 Upload CSV</div>
+    <div class="admin-tab" onclick="showTab('ai-gen',this)">🤖 AI Generate</div>
     <div class="admin-tab" onclick="showTab('users',this)">👥 Users</div>
     <div class="admin-tab" onclick="showTab('flags',this)">⚑ Flags</div>
     <div class="admin-tab" onclick="showTab('settings',this)">⚙️ Settings</div>
@@ -545,6 +546,99 @@
       </p>
       <button class="btn btn-ghost" onclick="downloadTemplate()">⬇️ Download Template CSV</button>
     </div>
+  </div>
+
+  <!-- ════ AI GENERATE TAB ════ -->
+  <div class="admin-panel" id="tab-ai-gen">
+    <div class="card" style="padding:18px;margin-bottom:14px;">
+      <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.95rem;color:var(--text);margin-bottom:4px;">🤖 AI Question Generator</h4>
+      <p style="font-size:0.75rem;color:var(--text-3);line-height:1.6;margin-bottom:16px;">
+        Generate multiple-choice exam questions using your OpenRouter AI key. Questions are previewed before saving — you control what goes into the bank.
+      </p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Category</label>
+          <select class="form-input" id="aiGenCat">
+            <option value="JAMB">JAMB</option>
+            <option value="WAEC">WAEC</option>
+            <option value="NECO">NECO</option>
+            <option value="Post-UTME">Post-UTME</option>
+            <option value="SAT">SAT</option>
+            <option value="GRE">GRE</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Subject</label>
+          <select class="form-input" id="aiGenSubj">
+            <option value="Mathematics">Mathematics</option>
+            <option value="English Language">English Language</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Economics">Economics</option>
+            <option value="Government">Government</option>
+            <option value="Literature">Literature</option>
+            <option value="Geography">Geography</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Accounting">Accounting</option>
+            <option value="Agricultural Science">Agricultural Science</option>
+            <option value="CRS">CRS</option>
+            <option value="IRS">IRS</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Year (optional)</label>
+          <input class="form-input" type="number" id="aiGenYear" placeholder="e.g. 2023" min="1980" max="2025"/>
+        </div>
+        <div>
+          <label class="form-label">Number of questions</label>
+          <select class="form-input" id="aiGenCount">
+            <option value="5">5 questions</option>
+            <option value="10" selected>10 questions</option>
+            <option value="15">15 questions</option>
+            <option value="20">20 questions</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Topic / focus area (optional)</label>
+        <input class="form-input" type="text" id="aiGenTopic" placeholder="e.g. Quadratic equations, Cell respiration, Nigeria Civil War…"/>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Difficulty</label>
+        <div style="display:flex;gap:8px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer;font-weight:600;color:var(--text-2);">
+            <input type="radio" name="aiDiff" value="easy"> Easy
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer;font-weight:600;color:var(--text-2);">
+            <input type="radio" name="aiDiff" value="medium" checked> Medium
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer;font-weight:600;color:var(--text-2);">
+            <input type="radio" name="aiDiff" value="hard"> Hard
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="generateAIQuestions()" id="aiGenBtn" style="flex:1;">
+          🤖 Generate Questions
+        </button>
+        <button class="btn btn-ghost" onclick="saveAllAIQuestions()" id="aiSaveAllBtn" style="flex:1;display:none;">
+          💾 Save All to Bank
+        </button>
+      </div>
+
+      <div id="aiGenStatus" style="margin-top:10px;font-size:0.78rem;color:var(--text-3);min-height:20px;"></div>
+    </div>
+
+    <!-- Preview area -->
+    <div id="aiGenPreview"></div>
   </div>
 
   <!-- ════ USERS TAB ════ -->
@@ -1467,10 +1561,236 @@ window.wrappers = typeof wrappers !== "undefined" ? wrappers : window.wrappers;
       window._loadQuestions();
     }catch(e){window.toast("Error: "+e.message);}
   };
+
+  // ── AI Question Generation ──────────────────────────────
+  let _aiGeneratedQuestions = [];
+
+  window.generateAIQuestions = async function() {
+    const btn    = document.getElementById("aiGenBtn");
+    const status = document.getElementById("aiGenStatus");
+    const preview= document.getElementById("aiGenPreview");
+    const cat    = document.getElementById("aiGenCat").value;
+    const subj   = document.getElementById("aiGenSubj").value;
+    const year   = document.getElementById("aiGenYear").value.trim();
+    const count  = parseInt(document.getElementById("aiGenCount").value);
+    const topic  = document.getElementById("aiGenTopic").value.trim();
+    const diff   = document.querySelector('input[name="aiDiff"]:checked')?.value || "medium";
+
+    // Load AI keys
+    let keys = [];
+    try {
+      const aiSnap = await getDoc(doc(db,"settings","ai")).catch(()=>null);
+      if(aiSnap && aiSnap.exists()) keys = aiSnap.data().openRouterKeys || [];
+      if(!keys.length) keys = JSON.parse(localStorage.getItem("examora_ai_keys")||"[]");
+    } catch(_){}
+
+    if(!keys.length) {
+      status.innerHTML = '<span style="color:var(--c-red);">⚠️ No AI keys found. Add your OpenRouter key in the Settings tab first.</span>';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "⏳ Generating…";
+    status.innerHTML = '<span style="color:var(--c-gold);">🤖 Sending request to AI…</span>';
+    preview.innerHTML = "";
+    document.getElementById("aiSaveAllBtn").style.display = "none";
+    _aiGeneratedQuestions = [];
+
+    const topicStr = topic ? ` Focus specifically on: "${topic}".` : "";
+    const yearStr  = year  ? ` Frame questions in the context of ${year} exam.` : "";
+    const prompt   = `You are an expert ${cat} exam question creator for Nigerian students. Generate exactly ${count} multiple-choice questions for the subject "${subj}" at ${diff} difficulty.${topicStr}${yearStr}
+
+Rules:
+- Each question must have exactly 4 options (A, B, C, D)
+- Only ONE option must be correct
+- Include a brief explanation for the correct answer
+- Questions must be factually accurate and curriculum-relevant
+- Do NOT repeat questions
+
+Return ONLY a valid JSON array. No markdown, no preamble, no extra text. Format:
+[
+  {
+    "text": "Question text here?",
+    "A": "Option A text",
+    "B": "Option B text", 
+    "C": "Option C text",
+    "D": "Option D text",
+    "answer": "A",
+    "explanation": "Brief explanation of why A is correct"
+  }
+]`;
+
+    const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+    const MODELS = [
+      "google/gemini-2.0-flash-001",
+      "google/gemini-flash-1.5-8b",
+      "mistralai/mistral-7b-instruct:free",
+      "meta-llama/llama-3.2-3b-instruct:free"
+    ];
+
+    let result = null;
+    for(const key of keys) {
+      for(const model of MODELS) {
+        try {
+          status.innerHTML = `<span style="color:var(--c-gold);">🤖 Trying ${model.split("/")[1]}…</span>`;
+          const res = await fetch(OPENROUTER_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + key,
+              "HTTP-Referer": "https://examora.com.ng",
+              "X-Title": "EXAMORA Admin"
+            },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: "user", content: prompt }],
+              max_tokens: Math.min(count * 250, 4000),
+              temperature: 0.4
+            })
+          });
+          if(!res.ok) { const e=await res.text(); throw new Error("HTTP "+res.status+": "+e.slice(0,80)); }
+          const data = await res.json();
+          const text = data?.choices?.[0]?.message?.content?.trim();
+          if(!text) throw new Error("Empty response");
+
+          // Parse JSON
+          let cleaned = text.replace(/^```json\s*/i,"").replace(/```\s*$/,"").trim();
+          // Find array start/end
+          const start = cleaned.indexOf("[");
+          const end   = cleaned.lastIndexOf("]");
+          if(start === -1 || end === -1) throw new Error("No JSON array found");
+          cleaned = cleaned.slice(start, end+1);
+          const parsed = JSON.parse(cleaned);
+          if(!Array.isArray(parsed) || parsed.length === 0) throw new Error("Empty array");
+          result = { questions: parsed, model };
+          break;
+        } catch(e) {
+          console.warn("[AI Gen]", model, e.message);
+        }
+      }
+      if(result) break;
+    }
+
+    btn.disabled = false;
+    btn.textContent = "🤖 Generate Questions";
+
+    if(!result) {
+      status.innerHTML = '<span style="color:var(--c-red);">❌ All AI models failed. Check your key and try again.</span>';
+      return;
+    }
+
+    // Preview the questions
+    _aiGeneratedQuestions = result.questions.map(q => ({
+      ...q,
+      category: cat,
+      subject: subj,
+      year: year ? parseInt(year) : null,
+      difficulty: diff
+    }));
+
+    status.innerHTML = `<span style="color:var(--c-green);">✅ Generated ${_aiGeneratedQuestions.length} questions via ${result.model.split("/")[1]}. Review below, then save.</span>`;
+    document.getElementById("aiSaveAllBtn").style.display = "";
+
+    preview.innerHTML = _aiGeneratedQuestions.map((q, i) => `
+      <div class="card" style="padding:16px;margin-bottom:10px;" id="aiq_${i}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.85rem;color:var(--text);flex:1;line-height:1.5;">
+            <span style="color:var(--c-brand);font-weight:800;">${i+1}.</span> ${q.text}
+          </div>
+          <button onclick="discardAIQ(${i})" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:1.1rem;padding:2px 6px;" title="Discard">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+          ${["A","B","C","D"].map(l => `
+            <div style="padding:8px 10px;border-radius:8px;font-size:0.78rem;font-weight:600;
+              background:${q.answer===l?"rgba(16,185,129,0.12)":"var(--bg-input)"};
+              border:1.5px solid ${q.answer===l?"rgba(16,185,129,0.4)":"var(--border)"};
+              color:${q.answer===l?"var(--c-green)":"var(--text-2)"};">
+              <strong>${l}.</strong> ${q[l]||""}
+            </div>`).join("")}
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-3);line-height:1.5;padding:8px 10px;background:var(--bg-input);border-radius:8px;">
+          💡 <strong>Answer:</strong> ${q.answer} — ${q.explanation||""}
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
+          <button class="btn btn-ghost" style="font-size:0.72rem;padding:6px 14px;" onclick="saveSingleAIQ(${i})">
+            💾 Save this
+          </button>
+        </div>
+      </div>`).join("");
+  };
+
+  window.discardAIQ = function(i) {
+    const el = document.getElementById("aiq_"+i);
+    if(el) { el.style.opacity="0"; el.style.transform="scale(0.95)"; setTimeout(()=>el.remove(),200); }
+    _aiGeneratedQuestions[i] = null;
+  };
+
+  window.saveSingleAIQ = async function(i) {
+    const q = _aiGeneratedQuestions[i];
+    if(!q) return;
+    try {
+      await addDoc(collection(db,"questions"), {
+        text: q.text||"", question: q.text||"",
+        options: {A:q.A||"",B:q.B||"",C:q.C||"",D:q.D||""},
+        answer: q.answer||"A",
+        explanation: q.explanation||"",
+        category: q.category||"JAMB",
+        subject: q.subject||"General",
+        year: q.year||null,
+        difficulty: q.difficulty||"medium",
+        aiGenerated: true,
+        createdAt: new Date().toISOString()
+      });
+      window.discardAIQ(i);
+      window.toast("✅ Question saved to bank!","success");
+      loadDashboardStats();
+    } catch(e) { window.toast("Save failed: "+e.message,"error"); }
+  };
+
+  window.saveAllAIQuestions = async function() {
+    const btn = document.getElementById("aiSaveAllBtn");
+    const toSave = _aiGeneratedQuestions.filter(Boolean);
+    if(!toSave.length) { window.toast("No questions to save"); return; }
+    btn.disabled = true;
+    btn.textContent = "💾 Saving…";
+    let saved = 0;
+    for(const q of toSave) {
+      try {
+        await addDoc(collection(db,"questions"), {
+          text: q.text||"", question: q.text||"",
+          options: {A:q.A||"",B:q.B||"",C:q.C||"",D:q.D||""},
+          answer: q.answer||"A",
+          explanation: q.explanation||"",
+          category: q.category||"JAMB",
+          subject: q.subject||"General",
+          year: q.year||null,
+          difficulty: q.difficulty||"medium",
+          aiGenerated: true,
+          createdAt: new Date().toISOString()
+        });
+        saved++;
+      } catch(_){}
+    }
+    _aiGeneratedQuestions = [];
+    document.getElementById("aiGenPreview").innerHTML = `
+      <div class="card" style="text-align:center;padding:28px;">
+        <div style="font-size:2rem;margin-bottom:8px;">✅</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.95rem;color:var(--text);">
+          ${saved} questions saved to bank!
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-3);margin-top:4px;">Generate more or switch to the Questions tab to review.</div>
+      </div>`;
+    document.getElementById("aiGenStatus").innerHTML = "";
+    btn.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "💾 Save All to Bank";
+    loadDashboardStats();
+    window.toast(`🎉 ${saved} questions added to the bank!`,"success");
+  };
 </script>
 
 <script>
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
   <nav class="bottom-nav">
     <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
@@ -1479,5 +1799,15 @@ window.wrappers = typeof wrappers !== "undefined" ? wrappers : window.wrappers;
     <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
     <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
   </nav>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>

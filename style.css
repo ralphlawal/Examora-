@@ -1007,3 +1007,51 @@ input, textarea, select {
   box-sizing: border-box;
 }
 
+
+/* ── Smooth page transitions ─────────────────────────────── */
+/* Page enter animation — body fades in on load */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body {
+  animation: pageEnter 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Page exit — applied via JS before navigation */
+@keyframes pageExit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+body.page-exit {
+  animation: pageExit 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+/* Nav item tap feedback */
+.nav-item {
+  transition: opacity 0.15s, transform 0.15s;
+}
+.nav-item:active {
+  opacity: 0.6;
+  transform: scale(0.92);
+}
+
+/* Button tap animations - global */
+.btn, .btn-primary, .btn-ghost, .btn-green, .quick-card, .card-tap {
+  transition: transform 0.13s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.13s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.13s;
+}
+.btn:active, .btn-primary:active, .btn-ghost:active, .btn-green:active {
+  transform: scale(0.97);
+}
+.quick-card:active { transform: scale(0.94); }
+
+/* Admin panel show/hide smoothing */
+.admin-panel {
+  transition: opacity 0.2s ease;
+}
+.admin-panel.active {
+  animation: fadeInUp 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
