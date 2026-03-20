@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="click-guard.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Sign In — EXAMORA</title>
@@ -55,6 +54,10 @@ body { margin:0; background:var(--bg,#f1f5f9); }
 .info-banner.on { display:block; }
 .tnote { font-size:.68rem; color:var(--text-3,#94a3b8); text-align:center; margin-top:14px; line-height:1.6; }
 .tnote a { color:#6366f1; text-decoration:none; font-weight:600; }
+/* Signup-only fields — hidden by default */
+.signup-only { display:none; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.two-col .fg { margin-bottom:0; }
 </style>
 </head>
 <body>
@@ -71,14 +74,14 @@ body { margin:0; background:var(--bg,#f1f5f9); }
 
   <div class="card">
     <div class="tabs">
-      <button class="tab on" id="tab-in" >Sign In</button>
-      <button class="tab"    id="tab-up" >Create Account</button>
+      <button class="tab on" id="tab-in">Sign In</button>
+      <button class="tab"    id="tab-up">Create Account</button>
     </div>
 
     <div class="err" id="errBox"></div>
     <div class="ok"  id="okBox"></div>
 
-    <button class="btn-google" id="googleBtn" onclick="if(window.doGoogle)doGoogle()">
+    <button class="btn-google" id="googleBtn">
       <svg width="18" height="18" viewBox="0 0 24 24">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -88,7 +91,7 @@ body { margin:0; background:var(--bg,#f1f5f9); }
       Continue with Google
     </button>
 
-    <button class="btn-guest" id="guestBtn" onclick="if(window.doGuest)doGuest()">
+    <button class="btn-guest" id="guestBtn">
       <span style="font-size:1rem;">👤</span> Try as Guest (no account needed)
     </button>
 
@@ -98,18 +101,21 @@ body { margin:0; background:var(--bg,#f1f5f9); }
       <div class="divider-line"></div>
     </div>
 
-    <div class="fg" id="fg-name" style="display:none;">
+    <!-- Signup-only: Full name -->
+    <div class="fg signup-only" id="fg-name">
       <label class="fl" for="nameInput">Full name</label>
       <input class="fi" type="text" id="nameInput" placeholder="e.g. Chioma Okonkwo" autocomplete="name"/>
     </div>
 
-    <div class="fg" id="fg-phone" style="display:none;">
+    <!-- Signup-only: Phone -->
+    <div class="fg signup-only" id="fg-phone">
       <label class="fl" for="phoneInput">Phone number <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
       <input class="fi" type="tel" id="phoneInput" placeholder="e.g. 08012345678" autocomplete="tel" inputmode="tel"/>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="fg-row2" style="display:none;">
-      <div class="fg" id="fg-exam" style="margin-bottom:0;">
+    <!-- Signup-only: Exam + State -->
+    <div class="two-col signup-only" id="fg-row2">
+      <div class="fg">
         <label class="fl" for="examInput">Target exam</label>
         <select class="fi" id="examInput">
           <option value="">Select exam</option>
@@ -121,7 +127,7 @@ body { margin:0; background:var(--bg,#f1f5f9); }
           <option value="GRE">GRE</option>
         </select>
       </div>
-      <div class="fg" id="fg-state" style="margin-bottom:0;">
+      <div class="fg">
         <label class="fl" for="stateInput">State</label>
         <select class="fi" id="stateInput">
           <option value="">State</option>
@@ -130,31 +136,40 @@ body { margin:0; background:var(--bg,#f1f5f9); }
       </div>
     </div>
 
-    <div style="height:14px;" id="fg-row2-spacer" style="display:none;"></div>
-
+    <!-- Always visible: Email -->
     <div class="fg">
       <label class="fl" for="emailInput">Email address</label>
       <input class="fi" type="email" id="emailInput" placeholder="you@email.com" autocomplete="email" inputmode="email"/>
     </div>
 
+    <!-- Always visible: Password -->
     <div class="fg">
       <label class="fl" for="passInput">Password</label>
       <div class="pw-wrap">
         <input class="fi" type="password" id="passInput" placeholder="••••••••" autocomplete="current-password"/>
-        <button class="pw-eye" type="button">👁</button>
+        <button class="pw-eye" id="pwEye" type="button" tabindex="-1">👁</button>
       </div>
     </div>
 
-    <button class="forgot" id="forgotBtn" onclick="if(window.doForgot)doForgot()">Forgot password?</button>
+    <!-- Signup-only: Confirm password -->
+    <div class="fg signup-only" id="fg-confirm">
+      <label class="fl" for="confirmInput">Confirm password</label>
+      <div class="pw-wrap">
+        <input class="fi" type="password" id="confirmInput" placeholder="••••••••" autocomplete="new-password"/>
+        <button class="pw-eye" id="pwEye2" type="button" tabindex="-1">👁</button>
+      </div>
+    </div>
 
-    <button class="btn-main" id="mainBtn" onclick="if(window.doAuth)doAuth()">Sign In →</button>
+    <button class="forgot" id="forgotBtn">Forgot password?</button>
+
+    <button class="btn-main" id="mainBtn">Sign In →</button>
 
     <div class="info-banner" id="spamHint">
       📬 Check your <strong>inbox and spam/junk folder</strong> for the verification email.
     </div>
     <div class="info-banner" id="verifyBanner">
       📧 Email not verified yet.
-      <button onclick="if(window.doResend)window.doResend()" style="background:none;border:none;color:#d97706;font-weight:800;cursor:pointer;text-decoration:underline;font-size:.76rem;padding:0;">Resend email</button>
+      <button id="resendBtn" style="background:none;border:none;color:#d97706;font-weight:800;cursor:pointer;text-decoration:underline;font-size:.76rem;padding:0;">Resend email</button>
     </div>
 
     <div class="tnote">
@@ -163,41 +178,6 @@ body { margin:0; background:var(--bg,#f1f5f9); }
   </div>
 </div>
 
-<script>
-// Welcome flow handled by welcome.html itself
-// Fallback: if module hasn't loaded yet, show feedback on button click
-document.addEventListener('DOMContentLoaded', function() {
-  // Guard ALL buttons against race condition where module hasn't loaded yet
-  function makeRetryHandler(btnId, fnName, originalLabel) {
-    var btn = document.getElementById(btnId);
-    if (!btn) return;
-    btn.addEventListener('click', function() {
-      if (typeof window[fnName] === 'function') return; // module loaded - onclick handles it
-      btn.disabled = true;
-      if (originalLabel) btn.textContent = 'Loading…';
-      var attempts = 0;
-      var retry = setInterval(function() {
-        attempts++;
-        if (typeof window[fnName] === 'function') {
-          clearInterval(retry);
-          btn.disabled = false;
-          if (originalLabel) btn.textContent = originalLabel;
-          window[fnName]();
-        } else if (attempts > 40) {
-          clearInterval(retry);
-          btn.disabled = false;
-          if (originalLabel) btn.textContent = originalLabel;
-          alert('Connection problem. Please refresh the page and try again.');
-        }
-      }, 200);
-    });
-  }
-  makeRetryHandler('mainBtn',   'doAuth',   'Sign In →');
-  makeRetryHandler('googleBtn', 'doGoogle', null);
-  makeRetryHandler('guestBtn',  'doGuest',  null);
-  makeRetryHandler('forgotBtn', 'doForgot', null);
-});
-</script>
 <script type="module">
 import { initializeApp, getApps, getApp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -205,15 +185,23 @@ import {
   getAuth, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendPasswordResetEmail, sendEmailVerification,
+  updateProfile,
   GoogleAuthProvider, signInWithPopup, signInWithRedirect,
   getRedirectResult, signInAnonymously
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// Safe init
-const FB = { apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw', authDomain:'cbt-app-5907f.firebaseapp.com', projectId:'cbt-app-5907f', storageBucket:'cbt-app-5907f.firebasestorage.app', messagingSenderId:'705323924101', appId:'1:705323924101:web:ad9f153f25a0685a1287ec' };
-const app = getApps().length ? getApp() : initializeApp(FB);
+// ── Init ─────────────────────────────────────────────────────
+const FB = {
+  apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',
+  authDomain:'cbt-app-5907f.firebaseapp.com',
+  projectId:'cbt-app-5907f',
+  storageBucket:'cbt-app-5907f.firebasestorage.app',
+  messagingSenderId:'705323924101',
+  appId:'1:705323924101:web:ad9f153f25a0685a1287ec'
+};
+const app  = getApps().length ? getApp() : initializeApp(FB);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 const gp   = new GoogleAuthProvider();
@@ -222,215 +210,325 @@ gp.setCustomParameters({ prompt:'select_account' });
 // Theme
 document.documentElement.setAttribute('data-theme', localStorage.getItem('examora_theme')||'light');
 
-// State
+// ── State ─────────────────────────────────────────────────────
 let _mode = 'login';
 let _busy = false;
 
-// Helpers
+// ── DOM refs ──────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const showErr = m => { $('errBox').textContent=m; $('errBox').className='err on'; $('okBox').className='ok'; };
-const showOk  = m => { $('okBox').textContent=m;  $('okBox').className='ok on';   $('errBox').className='err'; };
-const clearMsg = () => { $('errBox').className='err'; $('okBox').className='ok'; };
+const emailInput   = $('emailInput');
+const passInput    = $('passInput');
+const confirmInput = $('confirmInput');
+const nameInput    = $('nameInput');
+const phoneInput   = $('phoneInput');
+const examInput    = $('examInput');
+const stateInput   = $('stateInput');
+const mainBtn      = $('mainBtn');
+const googleBtn    = $('googleBtn');
+const guestBtn     = $('guestBtn');
+const forgotBtn    = $('forgotBtn');
+const errBox       = $('errBox');
+const okBox        = $('okBox');
+
+// ── Helpers ───────────────────────────────────────────────────
+function showErr(m) {
+  errBox.textContent = m;
+  errBox.className = 'err on';
+  okBox.className = 'ok';
+  errBox.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+function showOk(m) {
+  okBox.textContent = m;
+  okBox.className = 'ok on';
+  errBox.className = 'err';
+}
+function clearMsg() {
+  errBox.className = 'err';
+  okBox.className  = 'ok';
+}
 
 function setBusy(on) {
   _busy = on;
-  $('mainBtn').disabled  = on;
-  $('googleBtn').disabled = on;
-  $('guestBtn').disabled  = on;
-  $('mainBtn').textContent = on ? 'Please wait…' : (_mode==='login' ? 'Sign In →' : 'Create Account →');
+  mainBtn.disabled  = on;
+  googleBtn.disabled = on;
+  guestBtn.disabled  = on;
+  if (on) {
+    mainBtn.textContent = 'Please wait…';
+  } else {
+    mainBtn.textContent = _mode === 'login' ? 'Sign In →' : 'Create Account →';
+  }
 }
 
 const ERRS = {
-  'auth/user-not-found':       'No account found with that email.',
-  'auth/wrong-password':       'Incorrect password.',
-  'auth/invalid-credential':   'Invalid email or password.',
-  'auth/invalid-email':        'Please enter a valid email address.',
-  'auth/too-many-requests':    'Too many attempts — wait a few minutes.',
-  'auth/email-already-in-use': 'An account already exists with this email. Sign in instead.',
-  'auth/weak-password':        'Password must be at least 6 characters.',
-  'auth/network-request-failed': 'No internet connection. Check your network.',
-  'auth/popup-closed-by-user': '',
-  'auth/cancelled-popup-request': '',
-  'auth/popup-blocked':        'Popup blocked — trying redirect…'
+  'auth/user-not-found':         'No account found with that email. Create one instead.',
+  'auth/wrong-password':         'Incorrect password. Try again or reset it below.',
+  'auth/invalid-credential':     'Incorrect email or password. Please check and try again.',
+  'auth/invalid-email':          'Please enter a valid email address.',
+  'auth/too-many-requests':      'Too many failed attempts — wait a few minutes and try again.',
+  'auth/email-already-in-use':   'An account already exists with this email. Sign in instead.',
+  'auth/weak-password':          'Password is too weak. Use at least 6 characters.',
+  'auth/network-request-failed': 'No internet connection. Check your network and try again.',
+  'auth/user-disabled':          'This account has been disabled. Contact support.',
+  'auth/operation-not-allowed':  'Email/password sign-in is not enabled.',
+  'auth/popup-closed-by-user':   '',
+  'auth/cancelled-popup-request':'',
+  'auth/popup-blocked':          'Popup blocked — trying redirect instead…'
 };
 
-async function makeDoc(user) {
+// ── Mode switching ────────────────────────────────────────────
+function setMode(m) {
+  _mode = m;
+  $('tab-in').classList.toggle('on', m === 'login');
+  $('tab-up').classList.toggle('on', m === 'register');
+  mainBtn.textContent = m === 'login' ? 'Sign In →' : 'Create Account →';
+  forgotBtn.style.display = m === 'login' ? '' : 'none';
+  $('spamHint').className = 'info-banner' + (m === 'register' ? ' on' : '');
+  $('verifyBanner').className = 'info-banner';
+
+  // Toggle signup-only fields
+  document.querySelectorAll('.signup-only').forEach(el => {
+    el.style.display = m === 'register' ? '' : 'none';
+  });
+
+  // Switch password autocomplete attribute
+  passInput.setAttribute('autocomplete', m === 'login' ? 'current-password' : 'new-password');
+
+  clearMsg();
+
+  // Focus email on tab switch
+  setTimeout(() => emailInput.focus(), 50);
+}
+
+// ── Firestore user doc ────────────────────────────────────────
+async function makeDoc(user, extras) {
   try {
-    const ref  = doc(db,'users',user.uid);
+    const ref  = doc(db, 'users', user.uid);
     const snap = await getDoc(ref);
-    const extras = window._signupExtras || {};
-    const data = {
-      displayName: extras.displayName || user.displayName || user.email?.split('@')[0] || 'Learner',
-      email: user.email||'', photoURL: user.photoURL||'', updatedAt: serverTimestamp()
-    };
-    if(extras.phone)      data.phone      = extras.phone;
-    if(extras.targetExam) data.targetExam = extras.targetExam;
-    if(extras.state)      data.state      = extras.state;
-    window._signupExtras = null; // clear after use
     const isNew = !snap.exists();
-    if(isNew) Object.assign(data,{ plan:'free',streak:0,totalExams:0,totalCorrect:0,totalQuestions:0,badges:[],xp:0,totalScore:0,createdAt:serverTimestamp(),onboarded:false });
-    await setDoc(ref,data,{merge:true});
-    // Store uid so index.html onboarding gate works
-    localStorage.setItem('examora_uid', user.uid);
-    // If user already completed onboarding in Firestore, mark it locally too
-    if(!isNew && snap.data()?.onboarded) {
-      localStorage.setItem('examora_onboarded','true');
+
+    const data = {
+      displayName: (extras && extras.displayName) || user.displayName || user.email?.split('@')[0] || 'Learner',
+      email:    user.email    || '',
+      photoURL: user.photoURL || '',
+      updatedAt: serverTimestamp()
+    };
+
+    if (extras) {
+      if (extras.phone)      data.phone      = extras.phone;
+      if (extras.targetExam) data.targetExam = extras.targetExam;
+      if (extras.state)      data.state      = extras.state;
     }
-  } catch(e){
-    console.warn('makeDoc:',e.message);
+
+    if (isNew) {
+      Object.assign(data, {
+        plan:'free', streak:0, totalExams:0, totalCorrect:0,
+        totalQuestions:0, badges:[], xp:0, totalScore:0,
+        createdAt:serverTimestamp(), onboarded:false
+      });
+    }
+
+    await setDoc(ref, data, { merge:true });
+    localStorage.setItem('examora_uid', user.uid);
+
+    if (!isNew && snap.data()?.onboarded) {
+      localStorage.setItem('examora_onboarded', 'true');
+    }
+  } catch(e) {
+    console.warn('makeDoc:', e.message);
     localStorage.setItem('examora_uid', user.uid);
   }
 }
 
-function goHome() { window.location.href='index.html'; }
+function goHome() { window.location.href = 'index.html'; }
 
-// Only redirect on explicit login actions (not on page load).
-// Each sign-in function calls goHome() itself after success.
-// Removing the auto-redirect prevents the page from immediately bouncing
-// away when a user intentionally navigates to login.html (e.g. after logout).
-onAuthStateChanged(auth, user => {
-  // Do nothing on page load — let the user see the form
-  // goHome() is called explicitly in each sign-in handler
-});
+// ── Auth state — only redirect if already signed in and page loads fresh ──
+// We do NOT auto-redirect; each handler calls goHome() explicitly.
+// This prevents the form from vanishing when a user intentionally navigates here.
 
-// Handle Google redirect result
+// Handle Google redirect result (back from signInWithRedirect)
 getRedirectResult(auth).then(async r => {
-  if(!r?.user) return;
-  localStorage.setItem('examora_user_display', r.user.displayName||r.user.email?.split('@')[0]||'User');
+  if (!r?.user) return;
+  setBusy(true);
   await makeDoc(r.user);
   goHome();
-}).catch(e => { if(e.code&&e.code!=='auth/no-auth-event') showErr(ERRS[e.code]||e.message); });
+}).catch(e => {
+  if (e.code && e.code !== 'auth/no-auth-event') showErr(ERRS[e.code] || e.message);
+});
 
-// ── Expose to onclick handlers ───────────────────────────
-function setMode(m) {
-  _mode = m;
-  $('tab-in').classList.toggle('on', m==='login');
-  $('tab-up').classList.toggle('on', m==='register');
-  $('mainBtn').textContent = m==='login' ? 'Sign In →' : 'Create Account →';
-  $('forgotBtn').style.display = m==='login' ? '' : 'none';
-  $('spamHint').className = 'info-banner'+(m==='register'?' on':'');
-  // Show/hide signup-only fields
-  const isReg = m === 'register';
-  ['fg-name','fg-phone','fg-row2','fg-row2-spacer'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.style.display = isReg ? (id==='fg-row2'?'grid':'block') : 'none';
-  });
-  clearMsg();
-};
-
-function togglePwFn() { const i=$('passInput'); i.type=i.type==='password'?'text':'password'; };
-
+// ── Email / Password ──────────────────────────────────────────
 async function doAuth() {
-  if(_busy) return;
+  if (_busy) return;
   clearMsg();
-  const email = $('emailInput').value.trim();
-  const pass  = $('passInput').value;
-  if(!email||!pass){ showErr('Please enter your email and password.'); return; }
+
+  const email = emailInput.value.trim();
+  const pass  = passInput.value;
+
+  if (!email) { showErr('Please enter your email address.'); emailInput.focus(); return; }
+  if (!pass)  { showErr('Please enter your password.'); passInput.focus(); return; }
 
   setBusy(true);
   try {
-    if(_mode==='login') {
+    if (_mode === 'login') {
+      // ── Sign In ──────────────────────────────────────────────
       const cred = await signInWithEmailAndPassword(auth, email, pass);
-      localStorage.setItem('examora_user_display', cred.user.displayName||email.split('@')[0]);
       await makeDoc(cred.user);
       goHome();
+
     } else {
-      if(pass.length<6){ setBusy(false); showErr('Password must be at least 6 characters.'); return; }
-      const fullName = ($('nameInput')?.value||'').trim();
-      if(!fullName){ setBusy(false); showErr('Please enter your full name.'); return; }
-      const phone    = ($('phoneInput')?.value||'').trim();
-      const examType = ($('examInput')?.value||'');
-      const state    = ($('stateInput')?.value||'');
+      // ── Create Account ───────────────────────────────────────
+      if (pass.length < 6) {
+        setBusy(false);
+        showErr('Password must be at least 6 characters.');
+        passInput.focus();
+        return;
+      }
+
+      const confirm = confirmInput.value;
+      if (pass !== confirm) {
+        setBusy(false);
+        showErr('Passwords do not match. Please re-enter both passwords.');
+        confirmInput.focus();
+        return;
+      }
+
+      const fullName = nameInput.value.trim();
+      if (!fullName) {
+        setBusy(false);
+        showErr('Please enter your full name.');
+        nameInput.focus();
+        return;
+      }
+
+      const phone    = phoneInput.value.trim();
+      const targetExam = examInput.value;
+      const state    = stateInput.value;
+
+      // Create account
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      // Set Firebase Auth display name immediately
-      await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(m=>m.updateProfile(cred.user,{displayName:fullName})).catch(()=>{});
-      // Save extra details to Firestore
-      window._signupExtras = { displayName:fullName, phone, targetExam:examType, state };
-      await sendEmailVerification(cred.user);
-      await makeDoc(cred.user);
+
+      // Set display name in Firebase Auth
+      try { await updateProfile(cred.user, { displayName: fullName }); } catch(_){}
+
+      // Send verification email
+      try { await sendEmailVerification(cred.user); } catch(_){}
+
+      // Save to Firestore
+      await makeDoc(cred.user, { displayName:fullName, phone, targetExam, state });
+
       setBusy(false);
-      showOk('✅ Account created! Check your inbox (and spam) for the verification email.');
-      window.setMode('login');
+      showOk('✅ Account created! Please check your inbox (and spam folder) for a verification email.');
+
+      // Reset form and switch to sign-in tab
+      passInput.value    = '';
+      confirmInput.value = '';
+      setMode('login');
     }
   } catch(e) {
     setBusy(false);
-    const msg = ERRS[e.code]||e.message||'Sign in failed.';
-    showErr(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential' ? msg+' Use "Forgot password?" to reset.' : msg);
+    const msg = ERRS[e.code] || e.message || 'Something went wrong. Please try again.';
+    showErr(msg);
   }
-};
+}
 
+// ── Google ────────────────────────────────────────────────────
 async function doGoogle() {
-  if(_busy) return;
-  _busy=true; $('googleBtn').disabled=true; clearMsg();
+  if (_busy) return;
+  _busy = true;
+  googleBtn.disabled = true;
+  clearMsg();
   try {
     const cred = await signInWithPopup(auth, gp);
-    localStorage.setItem('examora_user_display', cred.user.displayName||cred.user.email?.split('@')[0]||'User');
     await makeDoc(cred.user);
     goHome();
   } catch(e) {
-    _busy=false; $('googleBtn').disabled=false;
-    if(e.code==='auth/popup-blocked'){ showErr(ERRS[e.code]); setTimeout(()=>signInWithRedirect(auth,gp),600); }
-    else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request') showErr(ERRS[e.code]||e.message||'Google sign-in failed.');
+    _busy = false;
+    googleBtn.disabled = false;
+    if (e.code === 'auth/popup-blocked') {
+      showErr(ERRS[e.code]);
+      setTimeout(() => signInWithRedirect(auth, gp), 800);
+    } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+      showErr(ERRS[e.code] || e.message || 'Google sign-in failed.');
+    }
   }
-};
+}
 
+// ── Guest ─────────────────────────────────────────────────────
 async function doGuest() {
-  if(_busy) return;
-  if(!confirm("Guest accounts are temporary.\n\nYour progress won't be saved if you clear your browser. You can create a free account anytime to save your data.\n\nContinue as guest?")) return;
-  _busy=true; $('guestBtn').disabled=true; clearMsg();
+  if (_busy) return;
+  if (!confirm("Guest accounts are temporary.\n\nYour progress won't be saved if you clear your browser. You can create a free account anytime.\n\nContinue as guest?")) return;
+  _busy = true;
+  guestBtn.disabled = true;
+  clearMsg();
   try {
     const cred = await signInAnonymously(auth);
-    localStorage.setItem('examora_user_display','Guest');
-    localStorage.setItem('examora_user_level','secondary');
-    localStorage.setItem('examora_uid','guest_'+Date.now());
-    localStorage.setItem('examora_onboarded','true'); // guests skip onboarding
+    localStorage.setItem('examora_user_display', 'Guest');
+    localStorage.setItem('examora_onboarded', 'true');
     await makeDoc(cred.user);
     goHome();
   } catch(e) {
-    _busy=false; $('guestBtn').disabled=false;
-    showErr(e.message||'Could not sign in as guest.');
+    _busy = false;
+    guestBtn.disabled = false;
+    showErr(e.message || 'Could not sign in as guest.');
   }
-};
+}
 
+// ── Forgot password ───────────────────────────────────────────
 async function doForgot() {
-  const email = $('emailInput').value.trim();
-  if(!email){ showErr('Enter your email address first, then click Forgot password.'); return; }
-  try { await sendPasswordResetEmail(auth,email); showOk('Password reset email sent — check your inbox.'); }
-  catch(e){ showErr(ERRS[e.code]||e.message||'Could not send reset email.'); }
-};
+  clearMsg();
+  const email = emailInput.value.trim();
+  if (!email) {
+    showErr('Enter your email address above, then click Forgot password.');
+    emailInput.focus();
+    return;
+  }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showOk('✅ Password reset email sent! Check your inbox and spam folder.');
+  } catch(e) {
+    showErr(ERRS[e.code] || e.message || 'Could not send reset email.');
+  }
+}
 
+// ── Resend verification ───────────────────────────────────────
 async function doResend() {
-  try { if(auth.currentUser) await sendEmailVerification(auth.currentUser); showOk('Verification email sent!'); }
-  catch(e){ showErr('Could not resend: '+e.message); }
-};
+  try {
+    if (auth.currentUser) await sendEmailVerification(auth.currentUser);
+    showOk('Verification email sent!');
+  } catch(e) {
+    showErr('Could not resend: ' + e.message);
+  }
+}
 
-// ── Wire ALL buttons via addEventListener (no onclick race conditions) ──
-document.getElementById('mainBtn')  .addEventListener('click', doAuth);
-document.getElementById('googleBtn').addEventListener('click', doGoogle);
-document.getElementById('guestBtn') .addEventListener('click', doGuest);
-document.getElementById('forgotBtn').addEventListener('click', doForgot);
-document.getElementById('tab-in')   .addEventListener('click', () => setMode('login'));
-document.getElementById('tab-up')   .addEventListener('click', () => setMode('register'));
-document.getElementById('passInput').addEventListener('keydown', e => { if(e.key==='Enter') doAuth(); });
-document.getElementById('emailInput').addEventListener('keydown', e => { if(e.key==='Enter') $('passInput').focus(); });
+// ── Event listeners — single source of truth, no onclick= attrs ──
+$('tab-in')   .addEventListener('click', () => setMode('login'));
+$('tab-up')   .addEventListener('click', () => setMode('register'));
+mainBtn       .addEventListener('click', doAuth);
+googleBtn     .addEventListener('click', doGoogle);
+guestBtn      .addEventListener('click', doGuest);
+forgotBtn     .addEventListener('click', doForgot);
+$('resendBtn').addEventListener('click', doResend);
 
-// pw toggle
-document.querySelector('.pw-eye').addEventListener('click', () => {
-  const i=$('passInput'); i.type=i.type==='password'?'text':'password';
+// Keyboard shortcuts
+emailInput  .addEventListener('keydown', e => { if (e.key === 'Enter') passInput.focus(); });
+passInput   .addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (_mode === 'register') confirmInput.focus();
+    else doAuth();
+  }
+});
+confirmInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
+
+// Password visibility toggles
+$('pwEye').addEventListener('click', () => {
+  passInput.type = passInput.type === 'password' ? 'text' : 'password';
+});
+$('pwEye2').addEventListener('click', () => {
+  confirmInput.type = confirmInput.type === 'password' ? 'text' : 'password';
 });
 
-// Resend verify
-const resendBtn = document.querySelector('[onclick="doResend()"]');
-if(resendBtn){ resendBtn.removeAttribute('onclick'); resendBtn.addEventListener('click', doResend); }
-
-// Expose ALL button functions to window so onclick= attributes work
-window.setMode    = setMode;
-window.doAuth     = doAuth;
-window.doGoogle   = doGoogle;
-window.doGuest    = doGuest;
-window.doForgot   = doForgot;
-window.doResend   = doResend;
-window.togglePwFn = togglePwFn;
+// Expose for any legacy references
+window.setMode = setMode;
+window.doAuth  = doAuth;
 </script>
 </body>
 </html>
