@@ -5,7 +5,7 @@
    All text-overflow bugs fixed globally
 ═══════════════════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block');
 
 /* ── Tokens ─────────────────────────────────────────────────── */
 :root {
@@ -834,6 +834,9 @@ code { font-family: 'Fira Code', monospace; background: var(--surface-2); paddin
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
+
+/* Nav brand — hidden on mobile, shown on desktop via media query */
+.nav-brand { display: none; }
 /* Desktop sidebar */
 @media (min-width: 768px) {
   .bottom-nav {
@@ -879,6 +882,55 @@ code { font-family: 'Fira Code', monospace; background: var(--surface-2); paddin
   #splash { padding-left: 0 !important; }
   .hide-desktop { display: none !important; }
   .news-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── Sidebar brand/logo ── */
+  .bottom-nav::before { display: none; } /* hide text-only fallback when brand div exists */
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 13px; height: 64px; flex-shrink: 0;
+    border-bottom: 1px solid var(--border); margin-bottom: 8px;
+  }
+  .nav-brand img {
+    width: 34px; height: 34px; border-radius: 10px;
+    object-fit: contain; flex-shrink: 0;
+  }
+  .nav-brand-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand), var(--violet));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--fd); font-weight: 900; font-size: .73rem;
+    color: white; flex-shrink: 0; display: none;
+  }
+  .nav-brand span {
+    font-family: var(--fd); font-weight: 900; font-size: 1.05rem;
+    color: var(--brand); letter-spacing: -.7px; white-space: nowrap;
+  }
+
+  /* ── Desktop-only page-wrapper centering ── */
+  .page-wrapper { margin-left: auto; margin-right: auto; }
+
+  /* ── Login/auth pages: no sidebar padding ── */
+  body.no-sidebar { padding-left: 0 !important; }
+  body.no-sidebar .app-header { left: 0 !important; width: 100% !important; }
+  body.no-sidebar .bottom-nav { display: none !important; }
+
+  /* ── Better card grid on desktop ── */
+  .admin-tabs { gap: 4px; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* ── Exam page desktop ── */
+  #setupScreen .page-wrapper { max-width: 700px; }
+  .setup-hero { border-radius: var(--r-lg); margin-bottom: 20px; }
+
+  /* ── Modal centering on desktop ── */
+  .overlay { padding: 20px; }
+  .overlay-sheet { border-radius: 22px !important; margin: auto; }
+
+  /* ── Better hover effects desktop ── */
+  .result-row:hover { background: var(--surface-2); transform: translateX(3px); }
+  .quick-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(91,94,244,.2); }
+  .card:hover { box-shadow: 0 4px 20px rgba(10,15,60,.1); }
 }
 @media (min-width: 1280px) { .page-wrapper { max-width: 1160px; } .stats-row { grid-template-columns: repeat(5, 1fr); } }
 @media (min-width: 768px) and (max-width: 1024px) { .quick-grid { grid-template-columns: repeat(4, 1fr); } .exam-categories-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -1054,4 +1106,156 @@ body.page-exit {
 }
 .admin-panel.active {
   animation: fadeInUp 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DESKTOP POLISH — comprehensive fixes for 768px+ screens
+   ═══════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) {
+
+  /* ── Nav brand: always show on desktop ── */
+  .nav-brand {
+    display: flex !important;
+    cursor: pointer;
+  }
+
+  /* ── Sidebar nav items: better hover & spacing ── */
+  .bottom-nav {
+    padding-top: 0 !important; /* nav-brand handles the top space */
+  }
+  .nav-item {
+    border-radius: 10px;
+    margin: 1px 0;
+  }
+  .nav-item:hover {
+    background: var(--surface-2, rgba(91,94,244,0.07));
+    transform: none;
+  }
+
+  /* ── Page wrapper: better desktop centering ── */
+  .page-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Cards: better shadow on desktop ── */
+  .card {
+    box-shadow: 0 2px 12px rgba(10,15,60,.07);
+    transition: box-shadow 0.2s ease;
+  }
+  .card:hover {
+    box-shadow: 0 6px 28px rgba(10,15,60,.12);
+  }
+
+  /* ── Stat boxes: full row ── */
+  .stats-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* ── Quick grid: 6-column on wide screens ── */
+  .quick-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* ── App header: proper desktop style ── */
+  .app-header {
+    padding: 0 28px;
+    height: 60px;
+  }
+
+  /* ── Overlay / bottom sheets: centered modals on desktop ── */
+  .overlay {
+    align-items: center;
+    padding: 20px;
+  }
+  .overlay-sheet {
+    border-radius: 20px !important;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* ── Exam setup screen: constrained width ── */
+  #setupScreen .page-wrapper {
+    max-width: 680px;
+  }
+
+  /* ── Result review grid ── */
+  #reviewList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── Better form inputs ── */
+  .form-input, .fi {
+    font-size: 0.9rem;
+  }
+
+  /* ── Leaderboard rows ── */
+  .leader-row {
+    padding: 12px 18px;
+  }
+
+  /* ── Hero card ── */
+  .hero-card {
+    padding: 28px 32px;
+    border-radius: 20px;
+  }
+
+  /* ── Toast: right-aligned on desktop ── */
+  .toast {
+    bottom: 28px;
+    left: auto;
+    right: 32px;
+    transform: none;
+    max-width: 360px;
+  }
+  .toast.show {
+    transform: translateY(0);
+  }
+
+  /* ── Admin panel ── */
+  .admin-tabs {
+    overflow-x: visible;
+    flex-wrap: wrap;
+  }
+
+  /* ── Two-col layout helpers ── */
+  .desktop-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .desktop-three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-wrapper {
+    max-width: 980px;
+  }
+  .quick-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .page-wrapper {
+    max-width: 1100px;
+  }
+  body {
+    padding-left: 248px;
+  }
+  .bottom-nav {
+    width: 248px;
+  }
+  .app-header {
+    left: 248px;
+    width: calc(100% - 248px);
+  }
 }

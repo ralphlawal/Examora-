@@ -466,11 +466,16 @@
 
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon"></span><span id="toastMsg"></span></div>
   <nav class="bottom-nav">
-    <a href="index.html"      class="nav-item "><span class="nav-icon ">home</span><span class="nav-label">Home</span></a>
+  <div class="nav-brand" onclick="window.location.href='index.html'" style="cursor:pointer;">
+    <img src="logo.png" alt="EXAMORA" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="nav-brand-icon">EX</div>
+    <span class="nav-brand-name">EXAMORA</span>
+  </div>
+      <a href="index.html"      class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
     <a href="exam.html"       class="nav-item active"><span class="nav-icon ms-fill">edit_note</span><span class="nav-label">Exam</span></a>
-    <a href="news.html"       class="nav-item "><span class="nav-icon ">newspaper</span><span class="nav-label">News</span></a>
-    <a href="leaderboard.html" class="nav-item "><span class="nav-icon ">emoji_events</span><span class="nav-label">Ranks</span></a>
-    <a href="profile.html"    class="nav-item "><span class="nav-icon ">person</span><span class="nav-label">Profile</span></a>
+    <a href="news.html"       class="nav-item"><span class="nav-icon">newspaper</span><span class="nav-label">News</span></a>
+    <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
+    <a href="profile.html"    class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
   </nav>
 
 <script>
@@ -558,7 +563,7 @@
   for(let y=2024;y>=1990;y--){const o=document.createElement("option");o.value=y;o.textContent=y;ySel.appendChild(o);}
 
   function setMode(m){
-    S.examMode=m; if(window._examState) window._examState.S.examMode=m;
+    if(window._examState) window._examState.examMode=m; else S.examMode=m;
     document.getElementById("modeExam").classList.toggle("active",m==="exam");
     document.getElementById("modePractice").classList.toggle("active",m==="practice");
     const qfBtn=document.getElementById("modeQuickfire");
@@ -579,7 +584,7 @@
   }
 
   function setCount(n){
-    S.qCount=n; if(window._examState) window._examState.S.qCount=n;
+    if(window._examState) window._examState.qCount=n; else S.qCount=n;
     document.querySelectorAll(".count-chip").forEach(c=>{
       c.classList.toggle("selected", parseInt(c.textContent)===n || (n===0 && c.textContent==="All"));
     });
@@ -644,7 +649,7 @@
     },50);
   }
 
-  function jumpTo(i){S.currentIdx=i;if(window._examState)window._examState.S.currentIdx=i;renderQuestion();}
+  function jumpTo(i){if(window._examState) window._examState.currentIdx=i; else S.currentIdx=i; renderQuestion();}
 
   function renderQuestion(){
 
@@ -720,7 +725,7 @@
     if(S.examMode==="practice"&&S.answers[S.currentIdx]!=null) return;
 
     S.answers[S.currentIdx]=letter;
-    if(window._examState);
+    // state check removed
     renderQuestion();
 
     // Practice mode: auto-advance after 1.2s

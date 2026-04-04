@@ -1,6 +1,6 @@
-// EXAMORA Service Worker — v6 · examora.com.ng
+// EXAMORA Service Worker — v8 · examora.com.ng
 // Bump this version string every deployment to force cache refresh
-const CACHE_VERSION = "examora-v7";
+const CACHE_VERSION = "examora-v8";
 const CACHE = CACHE_VERSION;
 
 const SHELL = [

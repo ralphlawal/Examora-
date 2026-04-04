@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="click-guard.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Exam Countdown — EXAMORA</title>
@@ -121,7 +122,7 @@ p,span,div,h1,h2,h3,h4,h5,h6,a,li,label,button { overflow-wrap:break-word; word-
 .tip-text strong { color:var(--ink); }
 </style>
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getApp, getApps, initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 const _app = initializeApp({apiKey:'AIzaSyA5RUfGUA68-RNyMZPlxaVYj85h5OiJdJw',authDomain:'cbt-app-5907f.firebaseapp.com',projectId:'cbt-app-5907f',storageBucket:'cbt-app-5907f.firebasestorage.app',messagingSenderId:'705323924101',appId:'1:705323924101:web:ad9f153f25a0685a1287ec'});
 const _auth = getAuth(_app);
@@ -213,11 +214,16 @@ onAuthStateChanged(_auth, user => { if (!user) window.location.href = 'login.htm
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html"       class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
+  <div class="nav-brand" onclick="window.location.href='index.html'" style="cursor:pointer;">
+    <img src="logo.png" alt="EXAMORA" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="nav-brand-icon">EX</div>
+    <span class="nav-brand-name">EXAMORA</span>
+  </div>
+    <a href="index.html"       class="nav-item"><span class="nav-icon">home</span><span class="nav-label">Home</span></a>
   <a href="exam.html"        class="nav-item"><span class="nav-icon">edit_note</span><span class="nav-label">Exam</span></a>
   <a href="news.html"        class="nav-item"><span class="nav-icon">newspaper</span><span class="nav-label">News</span></a>
   <a href="leaderboard.html" class="nav-item"><span class="nav-icon">emoji_events</span><span class="nav-label">Ranks</span></a>
-  <a href="profile.html"     class="nav-item"><span class="nav-icon">person</span><span class="nav-label">Profile</span></a>
+  <a href="profile.html"     class="nav-item active"><span class="nav-icon ms-fill">person</span><span class="nav-label">Profile</span></a>
 </nav>
 
 <div id="toastEl" class="toast"><span class="toast-icon" id="toastIcon">✓</span><span id="toastMsg">Done</span></div>
@@ -487,6 +493,16 @@ renderIntensity();
 startCountdown();
 </script>
 
-<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+<script>
+// Auto-reload when service worker updates (ensures users get latest fixes)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      window.location.reload();
+    }
+  });
+}
+</script>
 </body>
 </html>
